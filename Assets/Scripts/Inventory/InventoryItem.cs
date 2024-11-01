@@ -1,68 +1,60 @@
 using NUnit.Framework.Interfaces;
 using UnityEngine.EventSystems;
 using UnityEngine;
+using UnityEngine.UI;
+using System;
 
-public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class InventoryItem : MonoBehaviour
 {
-    // WeaponData를 public 프로퍼티로 노출
-    [SerializeField] private WeaponData weaponData;
-    public WeaponData WeaponData => weaponData;
+    public WeaponData weaponData;
 
-    // CurrentShape를 public 프로퍼티로 노출
-    private bool[,] currentShape;
-    public bool[,] CurrentShape => currentShape;
-
-    // CurrentPosition을 get, set 가능하게 수정
-    private Vector2Int? currentPosition;
-    public Vector2Int? CurrentPosition { get; set; }
-
-    private RectTransform rectTransform;
-    private InventoryGrid grid;
-    private Vector2 dragOffset;
-
-    private void Start()
+    public int HEIGHT
     {
-        rectTransform = GetComponent<RectTransform>();
-        grid = GetComponentInParent<InventoryGrid>();
-    }
-
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        // 드래그 시작 위치 저장
-        Vector2 localPoint;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            rectTransform, eventData.position, eventData.pressEventCamera, out localPoint);
-        dragOffset = localPoint;
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        // 드래그 중 위치 업데이트
-        Vector2 localPoint;
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            grid.GetComponent<RectTransform>(), eventData.position, eventData.pressEventCamera, out localPoint))
+        get
         {
-            rectTransform.localPosition = localPoint - dragOffset;
+            if(rotated == false)
+            {
+                return weaponData.height;
+            }
+            return weaponData.width;
         }
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    public int WIDTH
     {
-        // 드롭된 위치의 그리드 셀 확인
-        Vector2Int gridPosition = grid.GetGridPosition(eventData.position);
-        GridCell targetCell = grid.GetCell(gridPosition);
+        get
+        {
+            if(rotated == false)
+            {
+                return weaponData.width;
+            }
+            return weaponData.height;
+        }
+    }
 
-        if (targetCell != null && !targetCell.IsOccupied)
-        {
-            // 아이템을 셀에 맞춰 배치
-            RectTransform cellRect = targetCell.GetComponent<RectTransform>();
-            rectTransform.position = cellRect.position;
-            targetCell.SetOccupied(true);
-        }
-        else
-        {
-            // 원래 위치로 돌아가기
-            // ... 원위치 로직 구현
-        }
+    public int onGridPositionX;
+    public int onGridPositionY;
+
+    public bool rotated = false;
+
+  
+
+    internal void Set(WeaponData weaponData)
+    {
+        this.weaponData = weaponData;
+
+        GetComponent<Image>().sprite = weaponData.weaponIcon;
+
+        Vector2 size = new Vector2();
+        size.x = weaponData.width * ItemGrid.tileSizeWidth;
+        size.y = weaponData.height * ItemGrid.tileSizeHeight;
+        GetComponent<RectTransform>().sizeDelta = size;
+    }
+
+    internal void Rotate()
+    {
+        rotated = !rotated;
+        RectTransform rectTransform = GetComponent<RectTransform>();
+        rectTransform.rotation = Quaternion.Euler(0, 0, rotated == true ? 90f : 0f);
     }
 }

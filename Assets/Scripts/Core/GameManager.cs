@@ -43,6 +43,12 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         currentGameState = GameState.Playing;
-        SceneManager.LoadScene("CombatScene");
+        SceneManager.LoadScene("CombatScene", LoadSceneMode.Single);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

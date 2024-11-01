@@ -12,13 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2bd5af085e83a94cb4259f9af2a69e8, type: 3}
   m_Name: Long Sword
   m_EditorClassIdentifier: 
-  id: 
-  weapongName: 
-  icon: {fileID: 0}
-  rarity: 0
-  size: {x: 1, y: 2}
-  shapeLayout: 
-  damage: 7
-  attackSpeed: 1
-  range: 3
-  dropRate: 0
+  width: 1
+  height: 2
+  weaponIcon: {fileID: 21300000, guid: d94d7694bfeabd4468df2d66f724c1e7, type: 3}
