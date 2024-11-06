@@ -13,20 +13,6 @@ MonoBehaviour:
   m_Name: WeaponDatabase
   m_EditorClassIdentifier: 
   weapons:
+  - {fileID: 11400000, guid: 9182e48fdddf5d441bad048953763ec8, type: 2}
   - {fileID: 11400000, guid: 81d7c6e8bcc322345bfd9adb62160a98, type: 2}
-  - {fileID: 11400000, guid: 81d7c6e8bcc322345bfd9adb62160a98, type: 2}
-  - {fileID: 11400000, guid: 81d7c6e8bcc322345bfd9adb62160a98, type: 2}
-  rarityColors:
-    keys: 00000000010000000200000003000000
-    values:
-    - {r: 1, g: 1, b: 1, a: 1}
-    - {r: 0, g: 1, b: 0.2824192, a: 1}
-    - {r: 0, g: 0.54191923, b: 1, a: 1}
-    - {r: 1, g: 0, b: 0.96229744, a: 1}
-  rarityDropMultipliers:
-    keys: 00000000010000000200000003000000
-    values:
-    - 75
-    - 15
-    - 8
-    - 2
+  - {fileID: 11400000, guid: ed47a2576077f5247a9fe30d4156d751, type: 2}

@@ -15,7 +15,7 @@ public class InventoryController : MonoBehaviour
             inventoryHighlight.SetParent(value);
         } 
     }
-
+    WeaponManager weaponManager;
     InventoryItem selectedItem;
     InventoryItem overlapItem;
 
@@ -24,12 +24,15 @@ public class InventoryController : MonoBehaviour
     [SerializeField] List<WeaponData> weapons;
     [SerializeField] GameObject weaponPrefab;
     [SerializeField] Transform canvasTransform;
+    [SerializeField] private WeaponInfoUI weaponInfoUI;
 
     InventoryHighlight inventoryHighlight;
 
     private void Awake()
     {
         inventoryHighlight = GetComponent<InventoryHighlight>();
+        weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
+
     }
 
     private void Update()
@@ -99,22 +102,25 @@ public class InventoryController : MonoBehaviour
     Vector2Int oldPosition;
     InventoryItem itemToHighlight;
 
-    
+
 
     private void HandleHighlight()
     {
         Vector2Int positionOnGrid = GetTileGridPosition();
-        if(oldPosition == positionOnGrid) { return; }
-
-            oldPosition = positionOnGrid;     
         if (selectedItem == null)
         {
             itemToHighlight = selectedItemGrid.GetItem(positionOnGrid.x, positionOnGrid.y);
-            if(itemToHighlight != null)
+            if (itemToHighlight != null)
             {
                 inventoryHighlight.Show(true);
                 inventoryHighlight.SetSize(itemToHighlight);
                 inventoryHighlight.SetPosition(selectedItemGrid, itemToHighlight);
+
+                // WeaponInfo UI 업데이트
+                if (weaponInfoUI != null)
+                {
+                    weaponInfoUI.UpdateWeaponInfo(itemToHighlight.weaponData);
+                }
             }
             else
             {
@@ -123,12 +129,19 @@ public class InventoryController : MonoBehaviour
         }
         else
         {
-            inventoryHighlight.Show(selectedItemGrid.BoundryCheck(positionOnGrid.x,positionOnGrid.y, 
-                selectedItem.WIDTH,selectedItem.HEIGHT));
+            // 아이템을 들고 있을 때도 WeaponInfo UI 업데이트
+            if (weaponInfoUI != null)
+            {
+                weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
+            }
+
+            inventoryHighlight.Show(selectedItemGrid.BoundryCheck(positionOnGrid.x, positionOnGrid.y,
+                selectedItem.WIDTH, selectedItem.HEIGHT));
             inventoryHighlight.SetSize(selectedItem);
-            inventoryHighlight.SetPosition(selectedItemGrid, selectedItem,positionOnGrid.x, positionOnGrid.y);
+            inventoryHighlight.SetPosition(selectedItemGrid, selectedItem, positionOnGrid.x, positionOnGrid.y);
         }
     }
+
 
     private void CreateRandomItem()
     {
@@ -171,20 +184,36 @@ public class InventoryController : MonoBehaviour
 
     private void PutDownItem(Vector2Int tileGridPosition)
     {
-        bool complete = selectedItemGrid.PlaceItem(selectedItem, tileGridPosition.x, tileGridPosition.y,ref overlapItem);
+        bool complete = selectedItemGrid.PlaceItem(selectedItem, tileGridPosition.x, tileGridPosition.y, ref overlapItem);
+
         if (complete)
         {
-        selectedItem = null;
-            if(overlapItem != null)
+            // 성공적으로 아이템을 배치했을 때
+            if (overlapItem != null)
             {
+                // 겹친 아이템이 있는 경우
                 selectedItem = overlapItem;
                 overlapItem = null;
                 rectTransform = selectedItem.GetComponent<RectTransform>();
                 rectTransform.SetAsLastSibling();
             }
+            else
+            {
+                // 겹친 아이템이 없고 성공적으로 배치된 경우
+                // 이 시점에서 무기가 장착되었다고 판단
+                OnWeaponEquipped(selectedItem);
+                selectedItem = null;
+            }
 
+            // WeaponInfo UI 업데이트
+            if (weaponInfoUI != null && selectedItem != null)
+            {
+                weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
+            }
         }
     }
+
+
 
     private void PickUpItem(Vector2Int tileGridPosition)
     {
@@ -193,9 +222,13 @@ public class InventoryController : MonoBehaviour
         {
             rectTransform = selectedItem.GetComponent<RectTransform>();
 
+            // WeaponInfo UI 업데이트
+            if (weaponInfoUI != null)
+            {
+                weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
+            }
         }
     }
-
     private void ItemIconDrag()
     {
         if (selectedItem != null)
@@ -203,4 +236,25 @@ public class InventoryController : MonoBehaviour
             rectTransform.position = Input.mousePosition;
         }
     }
+
+    public void CreatePurchasedItem(WeaponData weaponData)
+    {
+        InventoryItem inventoryItem = Instantiate(weaponPrefab).GetComponent<InventoryItem>();
+        selectedItem = inventoryItem;
+        rectTransform = inventoryItem.GetComponent<RectTransform>();
+        rectTransform.SetParent(canvasTransform);
+        rectTransform.SetAsLastSibling();
+
+        inventoryItem.Set(weaponData);
+    }
+
+    private void OnWeaponEquipped(InventoryItem item)
+    {
+        if (item != null && item.weaponData != null && weaponManager != null)
+        {
+            Debug.Log($"Equipping weapon: {item.weaponData.weaponName}");
+            weaponManager.EquipWeapon(item.weaponData);
+        }
+    }
+
 }

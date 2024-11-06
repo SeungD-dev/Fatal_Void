@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d94d7694bfeabd4468df2d66f724c1e7
+guid: cf94fc18989185345b956f9fcd98be37
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9103149530967007581
-    second: longsword1_0
+      213: 502266471318397355
+    second: gauntlets1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -139,23 +139,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: longsword1_0
+      name: gauntlets1_0
       rect:
         serializedVersion: 2
-        x: 242
-        y: 31
-        width: 285
-        height: 1452
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 46
+        y: 47
+        width: 950
+        height: 910
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d516d829442e45e70800000000000000
-      internalID: 9103149530967007581
+      spriteID: ba1a58dc1b868f600800000000000000
+      internalID: 502266471318397355
       vertices: []
       indices: 
       edges: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 8d5ec2daa43fdf541bf9bc055729e2d9
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -173,8 +173,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      longsword1_0: 9103149530967007581
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

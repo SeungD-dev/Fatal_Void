@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2bd5af085e83a94cb4259f9af2a69e8, type: 3}
   m_Name: Wooden Bow
   m_EditorClassIdentifier: 
-  width: 1
-  height: 2
+  width: 2
+  height: 3
   weaponIcon: {fileID: 21300000, guid: 946c14f029739e54d99a6a343cd99ac1, type: 3}
+  rarity: 0
+  price: 0
+  weaponName: Wooden Bow
+  weaponDescription: gvbnvnvbn
+  weaponLevel: 123123
+  weaponDamage: 123123
+  attackDelay: 123123

@@ -15,3 +15,10 @@ MonoBehaviour:
   width: 1
   height: 1
   weaponIcon: {fileID: 3244622203517571467, guid: e4f9a65b43cdfb740a9c323b09a72b0a, type: 3}
+  rarity: 0
+  price: 0
+  weaponName: Diamond
+  weaponDescription: asdafasd
+  weaponLevel: 123
+  weaponDamage: 12345
+  attackDelay: 1.3

@@ -37,19 +37,18 @@ public class InventoryItem : MonoBehaviour
 
     public bool rotated = false;
 
-  
+
 
     internal void Set(WeaponData weaponData)
     {
         this.weaponData = weaponData;
-
         GetComponent<Image>().sprite = weaponData.weaponIcon;
-
         Vector2 size = new Vector2();
-        size.x = weaponData.width * ItemGrid.tileSizeWidth;
-        size.y = weaponData.height * ItemGrid.tileSizeHeight;
+        size.x = weaponData.width * ItemGrid.tileSizeWidth;   // tileSizeWidth 사용
+        size.y = weaponData.height * ItemGrid.tileSizeHeight; // tileSizeHeight 사용
         GetComponent<RectTransform>().sizeDelta = size;
     }
+
 
     internal void Rotate()
     {

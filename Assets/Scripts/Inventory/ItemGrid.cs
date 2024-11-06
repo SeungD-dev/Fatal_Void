@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class ItemGrid : MonoBehaviour
 {
-    public const float tileSizeWidth = 32;
-    public const float tileSizeHeight = 32;
+    public static float tileSizeWidth = 32f;
+    public static float tileSizeHeight = 32f;
 
     InventoryItem[,] inventoryItemSlot;
 
@@ -35,8 +35,9 @@ public class ItemGrid : MonoBehaviour
         positionOnTheGrid.x = mousePosition.x - rectTransform.position.x;
         positionOnTheGrid.y = rectTransform.position.y - mousePosition.y;
 
-        tileGridPosition.x = (int)(positionOnTheGrid.x / tileSizeWidth);
-        tileGridPosition.y = (int)(positionOnTheGrid.y / tileSizeHeight);
+        float scale = rectTransform.localScale.x;
+        tileGridPosition.x = (int)(positionOnTheGrid.x / (tileSizeWidth * scale));
+        tileGridPosition.y = (int)(positionOnTheGrid.y / (tileSizeHeight * scale));
 
         return tileGridPosition;
     }
