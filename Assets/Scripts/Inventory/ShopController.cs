@@ -9,15 +9,11 @@ public class ShopController : MonoBehaviour
     [SerializeField] private WeaponOptionUI[] weaponOptions; // 3개의 WeaponOption 참조
     [SerializeField] private GameObject inventoryUI;
     [SerializeField] private InventoryController inventoryController;
-
-    private void Start()
-    {
-        InitializeShop();
-    }
+    [SerializeField] private GameObject shopUI;
 
     public void InitializeShop()
     {
-        gameObject.SetActive(true);
+        shopUI.SetActive(true);
         if (weaponOptions == null || weaponOptions.Length == 0)
         {
             Debug.LogError("No weapon options assigned to ShopUI!");
@@ -55,7 +51,7 @@ public class ShopController : MonoBehaviour
         if (weaponData != null)
         {
             // 상점 UI 닫기
-            gameObject.SetActive(false);
+            shopUI.SetActive(false);
 
             // 인벤토리 UI 열기
             inventoryUI.SetActive(true);

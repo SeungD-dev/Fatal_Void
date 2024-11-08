@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 3992634530123154835}
   - component: {fileID: 8085125370046749587}
   - component: {fileID: 2073809303734970117}
+  - component: {fileID: 4671499549168020366}
+  - component: {fileID: 9450005411114373}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -129,4 +131,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystick: {fileID: 0}
-  moveSpeed: 2.5
+  playerStats: {fileID: 9450005411114373}
+--- !u!114 &4671499549168020366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3785198839288681880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c82947591f9f724f91805a760b2d0ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &9450005411114373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3785198839288681880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a28f02bd8bdab94d94905ee5eb3cec9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  level: 0
+  currentExp: 0
+  requiredExp: 100
+  maxHealth: 100
+  healthRegen: 0
+  power: 0
+  movementSpeed: 0
+  cooldownReduce: 0
+  luck: 0
+  intelligence: 0
+  baseHealth: 100
+  baseHealthRegen: 1
+  basePower: 10
+  baseMovementSpeed: 5
+  baseCooldownReduce: 0
+  baseLuck: 1
+  baseIntelligence: 1
+  healthPerLevel: 10
+  healthRegenPerLevel: 0.2
+  powerPerLevel: 2
+  movementSpeedPerLevel: 0.2
+  cooldownReducePerLevel: 0.05
+  luckPerLevel: 0.1
+  intelligencePerLevel: 0.2

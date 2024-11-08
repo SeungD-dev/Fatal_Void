@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -7,13 +8,14 @@ public class InventoryController : MonoBehaviour
 {
     [HideInInspector]
     private ItemGrid selectedItemGrid;
-    public ItemGrid SelectedItemGrid 
-    { 
-        get => selectedItemGrid; 
-        set {
+    public ItemGrid SelectedItemGrid
+    {
+        get => selectedItemGrid;
+        set
+        {
             selectedItemGrid = value;
             inventoryHighlight.SetParent(value);
-        } 
+        }
     }
     WeaponManager weaponManager;
     InventoryItem selectedItem;
@@ -25,6 +27,7 @@ public class InventoryController : MonoBehaviour
     [SerializeField] GameObject weaponPrefab;
     [SerializeField] Transform canvasTransform;
     [SerializeField] private WeaponInfoUI weaponInfoUI;
+    [SerializeField] private GameObject inventoryUI;
 
     InventoryHighlight inventoryHighlight;
 
@@ -37,19 +40,23 @@ public class InventoryController : MonoBehaviour
 
     private void Update()
     {
+        // 인벤토리 UI가 비활성화되었거나 selectedItemGrid가 null이면 처리하지 않음
+        if (!inventoryUI.activeSelf || selectedItemGrid == null)
+        {
+            return;
+        }
+
         ItemIconDrag();
 
-       
-
-        if (Input.GetKeyDown(KeyCode.Q)) 
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             if (selectedItem == null)
             {
                 CreateRandomItem();
-            }         
+            }
         }
 
-        if(Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W))
         {
             InsertRandomItem();
         }
@@ -59,22 +66,16 @@ public class InventoryController : MonoBehaviour
             RotateItem();
         }
 
-        if (selectedItemGrid == null) 
-        {
-            inventoryHighlight.Show(false);
-            return; 
-        }
         HandleHighlight();
         if (Input.GetMouseButtonDown(0))
         {
             LeftMouseButtonPress();
         }
-
     }
 
     private void RotateItem()
     {
-        if(selectedItemGrid == null) { return; }
+        if (selectedItemGrid == null) { return; }
 
         selectedItem.Rotate();
     }
@@ -90,10 +91,10 @@ public class InventoryController : MonoBehaviour
 
     private void InsertItem(InventoryItem itemToInsert)
     {
-        
 
-       Vector2Int? posOnGrid = selectedItemGrid.FindSpaceForObject(itemToInsert);
-        if(posOnGrid == null) { return; }
+
+        Vector2Int? posOnGrid = selectedItemGrid.FindSpaceForObject(itemToInsert);
+        if (posOnGrid == null) { return; }
 
 
         selectedItemGrid.PlaceItem(itemToInsert, posOnGrid.Value.x, posOnGrid.Value.y);
@@ -106,7 +107,24 @@ public class InventoryController : MonoBehaviour
 
     private void HandleHighlight()
     {
+        // 예외 처리 추가
+        if (selectedItemGrid == null || !inventoryUI.activeSelf)
+        {
+            inventoryHighlight.Show(false);
+            return;
+        }
+
         Vector2Int positionOnGrid = GetTileGridPosition();
+
+        // 그리드 범위 체크 추가
+        if (positionOnGrid.x < 0 || positionOnGrid.y < 0 ||
+            positionOnGrid.x >= selectedItemGrid.Width ||
+            positionOnGrid.y >= selectedItemGrid.Height)
+        {
+            inventoryHighlight.Show(false);
+            return;
+        }
+
         if (selectedItem == null)
         {
             itemToHighlight = selectedItemGrid.GetItem(positionOnGrid.x, positionOnGrid.y);
@@ -116,7 +134,6 @@ public class InventoryController : MonoBehaviour
                 inventoryHighlight.SetSize(itemToHighlight);
                 inventoryHighlight.SetPosition(selectedItemGrid, itemToHighlight);
 
-                // WeaponInfo UI 업데이트
                 if (weaponInfoUI != null)
                 {
                     weaponInfoUI.UpdateWeaponInfo(itemToHighlight.weaponData);
@@ -129,7 +146,6 @@ public class InventoryController : MonoBehaviour
         }
         else
         {
-            // 아이템을 들고 있을 때도 WeaponInfo UI 업데이트
             if (weaponInfoUI != null)
             {
                 weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
@@ -178,8 +194,8 @@ public class InventoryController : MonoBehaviour
             position.y += (selectedItem.HEIGHT - 1) * ItemGrid.tileSizeHeight / 2;
         }
 
-      return selectedItemGrid.GetTileGridPosition(position);
-      
+        return selectedItemGrid.GetTileGridPosition(position);
+
     }
 
     private void PutDownItem(Vector2Int tileGridPosition)
@@ -254,7 +270,17 @@ public class InventoryController : MonoBehaviour
         {
             Debug.Log($"Equipping weapon: {item.weaponData.weaponName}");
             weaponManager.EquipWeapon(item.weaponData);
+
+            // 하이라이트 비활성화 추가
+            inventoryHighlight.Show(false);
+
+            // 인벤토리 UI 비활성화
+            if (inventoryUI != null)
+            {
+                inventoryUI.SetActive(false);
+            }
+
+            GameManager.Instance.SetGameState(GameState.Playing);
         }
     }
-
 }

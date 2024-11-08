@@ -1,16 +1,14 @@
 using UnityEngine;
+using System;
 
-public class FuncPredicate : MonoBehaviour
+public class FuncPredicate : IPredicate
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    readonly Func<bool> func;
+
+    public FuncPredicate(Func<bool> func)
     {
-        
+        this.func = func;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public bool Evaluate() => func.Invoke();
 }

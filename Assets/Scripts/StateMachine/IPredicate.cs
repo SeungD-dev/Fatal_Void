@@ -1,6 +1,4 @@
-using UnityEngine;
-
-public class IPredicate
+public interface IPredicate
 {
-    
+    bool Evaluate();
 }

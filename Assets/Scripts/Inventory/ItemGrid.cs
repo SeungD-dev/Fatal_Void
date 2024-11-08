@@ -12,8 +12,10 @@ public class ItemGrid : MonoBehaviour
 
     [SerializeField] int gridSizeWidth;
     [SerializeField] int gridSizeHeight;
+    public int Width => gridSizeWidth;
+    public int Height => gridSizeHeight;
 
-    
+
     private void Start()
     {
         rectTransform = GetComponent<RectTransform>();
