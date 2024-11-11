@@ -6,10 +6,13 @@ public abstract class EnemyAI : MonoBehaviour
     public StateMachine stateMachine;
     protected Enemy enemyStats;
     protected Transform playerTransform;
+    [HideInInspector] public SpriteRenderer spriteRenderer;
+
 
     protected virtual void Awake()
     {
         enemyStats = GetComponent<Enemy>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         stateMachine = new StateMachine();
         InitializeStates();
     }

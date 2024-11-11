@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
             switch (newState)
             {
                 case GameState.Paused:
-                    Time.timeScale = 1f;
+                    Time.timeScale = 0f;
                     break;
                 case GameState.Playing:
                     Time.timeScale = 1f;

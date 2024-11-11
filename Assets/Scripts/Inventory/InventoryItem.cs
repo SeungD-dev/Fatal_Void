@@ -1,8 +1,6 @@
-using NUnit.Framework.Interfaces;
-using UnityEngine.EventSystems;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
+
 
 public class InventoryItem : MonoBehaviour
 {

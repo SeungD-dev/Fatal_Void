@@ -70,7 +70,7 @@ public class PlayerController : MonoBehaviour
         // PlayerStats의 movementSpeed 사용
         rb.linearVelocity = movement * playerStats.movementSpeed;
 
-        // 선택사항: 이동 방향에 따른 스프라이트 플립
+        
         if (movement.x != 0 && spriteRenderer != null)
         {
             spriteRenderer.flipX = movement.x < 0;

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 477287cbef19bdb439ae50ae8d728517
+guid: 25333acf4d1157242b3d4e7fe79c5e25
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4801227835787818748
-    second: enemy1_0
+      213: 5476633477669718818
+    second: elite1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: enemy1_0
+      name: elite1_0
       rect:
         serializedVersion: 2
-        x: 69
+        x: 49
         y: 39
-        width: 192
-        height: 252
+        width: 552
+        height: 572
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cf6b9d5574361a240800000000000000
-      internalID: 4801227835787818748
+      spriteID: 22b0489a129e00c40800000000000000
+      internalID: 5476633477669718818
       vertices: []
       indices: 
       edges: []

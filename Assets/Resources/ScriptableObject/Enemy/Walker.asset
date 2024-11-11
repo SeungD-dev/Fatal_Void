@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 6160214665495999924, guid: e11933bc328f79749a75d9ac67188405, type: 3}
   enemyName: Walker
-  enemySprite: {fileID: 4801227835787818748, guid: ad7c6958a1f8df9488e5c044471d0e96, type: 3}
-  baseHealth: 10
+  enemySprite: {fileID: 4801227835787818748, guid: 477287cbef19bdb439ae50ae8d728517, type: 3}
+  baseHealth: 20
   maxPossibleHealth: 200
   baseDamage: 2
   moveSpeed: 1.5
   initialPoolSize: 10
+  dropTable: {fileID: 11400000, guid: 573c9f276ff1bf247a219fbe008d3363, type: 2}

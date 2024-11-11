@@ -1,20 +1,40 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
+using UnityEngine;
 
 public class Enemy : MonoBehaviour, IPooledObject
 {
+    [Header("Hit Effect")]
+    [SerializeField] private float hitFlashDuration = 0.1f;
+    [SerializeField] private Color hitColor = Color.red;
+
     [SerializeField] private EnemyData enemyData;
     private float currentHealth;
     private float calculatedMaxHealth;
     private float lastDamageTime;
     private const float damageDelay = 1f;
+    private Transform targetTransform;
+    private bool isFlashing = false;
 
     // 컴포넌트 캐싱
     private SpriteRenderer spriteRenderer;
+    private Color originalColor;
+    private Rigidbody2D rb;
 
     private void Awake()
     {
+        rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        if(spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
     }
+    public void Initialize(Transform target)
+    {
+        targetTransform = target;
+    }
+
 
     public void SetEnemyData(EnemyData data)
     {
@@ -46,6 +66,12 @@ public class Enemy : MonoBehaviour, IPooledObject
         {
             Debug.LogWarning("Enemy spawned without EnemyData!");
         }
+
+        if(spriteRenderer != null)
+        {
+            spriteRenderer.color = originalColor;
+        }
+        isFlashing = false;
     }
 
     private void InitializeStats()
@@ -70,12 +96,33 @@ public class Enemy : MonoBehaviour, IPooledObject
 
         currentHealth -= damage;
 
-        // TODO: 피격 효과 추가
+        PlayHitEffect();
 
         if (currentHealth <= 0)
         {
             Die();
         }
+    }
+
+    private void PlayHitEffect()
+    {
+        if(spriteRenderer != null & !isFlashing)
+        {
+            StartCoroutine(HitFlashCoroutine());
+        }
+    }
+
+    private IEnumerator HitFlashCoroutine()
+    {
+        isFlashing = true;
+
+        spriteRenderer.color = hitColor;
+        
+        yield return new WaitForSeconds(hitFlashDuration);
+
+        spriteRenderer.color = originalColor;
+
+        isFlashing= false;
     }
 
     private void OnCollisionStay2D(Collision2D collision)
@@ -100,19 +147,57 @@ public class Enemy : MonoBehaviour, IPooledObject
     {
         if (GameManager.Instance?.PlayerStats != null)
         {
-            GameManager.Instance.PlayerStats.AddExperience(20f);
+            //GameManager.Instance.PlayerStats.AddExperience(20f);
         }
         ReturnToPool();
     }
 
     public void ReturnToPool()
     {
+        if (enemyData == null)
+        {
+            Debug.LogError("Trying to return enemy to pool but enemyData is null!");
+            return;
+        }
+
         // 컴포넌트 상태 초기화
         currentHealth = 0;
         lastDamageTime = 0;
 
-        ObjectPool.Instance.ReturnToPool("Enemy", gameObject);
+        // 물리 관련 초기화
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+
+        // 타겟 초기화
+        targetTransform = null;
+
+        if (enemyData.dropTable != null)
+        {
+            var combatController = FindFirstObjectByType<CombatController>();
+            if (combatController != null)
+            {
+                combatController.SpawnDrops(transform.position, enemyData.dropTable);
+            }
+        }
+
+        // 적의 이름으로 풀에 반환
+        ObjectPool.Instance.ReturnToPool(enemyData.enemyName, gameObject);
     }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+        if(spriteRenderer != null)
+        {
+            spriteRenderer.color = originalColor;
+        }
+
+        isFlashing = false;
+    }
+
 
     // 프로퍼티
     public float CurrentHealth => currentHealth;

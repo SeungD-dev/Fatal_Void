@@ -27,10 +27,14 @@ public class ChasingState : IState
 
     public void Update()
     {
-        // GameManager 상태 확인 추가
         if (playerTransform != null && GameManager.Instance.currentGameState == GameState.Playing)
         {
             Vector2 direction = (playerTransform.position - enemyTransform.position).normalized;
+            if(direction.x != 0)
+            {
+                enemyAI.spriteRenderer.flipX = direction.x < 0;
+            }
+
             enemyTransform.Translate(direction * enemyStats.MoveSpeed * Time.deltaTime);
         }
     }

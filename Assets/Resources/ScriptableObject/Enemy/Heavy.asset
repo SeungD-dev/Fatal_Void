@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2240b99e1776e514181aed90eb4ac985, type: 3}
   m_Name: Heavy
   m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 0}
   enemyName: Heavy
-  enemySprite: {fileID: 1344780287051860636, guid: 91e2dd1604e0aba40a961e61549c5d1d, type: 3}
+  enemySprite: {fileID: 1344780287051860636, guid: 2c381c2c274464244a2f5cdf1701f611, type: 3}
   baseHealth: 100
   maxPossibleHealth: 2000
   baseDamage: 5
   moveSpeed: 1
+  initialPoolSize: 10
+  dropTable: {fileID: 11400000, guid: 573c9f276ff1bf247a219fbe008d3363, type: 2}

@@ -7,7 +7,10 @@ public class SpawnController : MonoBehaviour
     [Header("Spawn Settings")]
     [SerializeField] private float spawnRadius = 15f;
     [SerializeField] private float minSpawnDistance = 12f;
-    [SerializeField] private EnemySpawnDatabase spawnDatabase;
+    [SerializeField] private SpawnSettingsData spawnSettings;
+
+    [SerializeField] private EnemySpawnDatabase enemyDatabase;
+
 
     [Header("Time Settings")]
     private float gameTime = 0f;
@@ -34,22 +37,19 @@ public class SpawnController : MonoBehaviour
     {
         StartCoroutine(InitializeAfterGameStart());
         GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
-        InitializeEnemyPools();
     }
+
 
     private void InitializeEnemyPools()
     {
-        if (spawnDatabase == null) return;
-
-        foreach (var spawnWeight in spawnDatabase.enemySpawnWeights)
+        foreach (var settings in enemyDatabase.enemySettings)
         {
-            if (spawnWeight.enemyData != null && spawnWeight.enemyData.enemyPrefab != null)
+            if (settings.enemyData != null && settings.enemyData.enemyPrefab != null)
             {
-                // 각 적 타입별로 풀 생성
                 ObjectPool.Instance.CreatePool(
-                    spawnWeight.enemyData.enemyName,  // 풀의 태그로 적 이름 사용
-                    spawnWeight.enemyData.enemyPrefab,
-                    spawnWeight.enemyData.initialPoolSize
+                    settings.enemyData.enemyName,
+                    settings.enemyData.enemyPrefab,
+                    settings.enemyData.initialPoolSize
                 );
             }
         }
@@ -65,23 +65,29 @@ public class SpawnController : MonoBehaviour
 
     private IEnumerator InitializeAfterGameStart()
     {
-        // Player와 GameManager가 초기화될 때까지 대기
         while (GameManager.Instance.PlayerStats == null)
         {
             yield return new WaitForSeconds(0.1f);
         }
 
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
-        mainCamera = Camera.main;
 
-        // 초기값 설정
-        currentSpawnInterval = SPAWN_INTERVAL_START;
-        currentSpawnAmount = INITIAL_SPAWN_AMOUNT;
+        // 초기 스폰 설정
+        var initialSettings = spawnSettings.GetSettingsAtTime(0);
+        currentSpawnInterval = initialSettings.spawnInterval;
+        currentSpawnAmount = initialSettings.spawnAmount;
         nextSpawnTime = Time.time;
 
+        // 적 풀 초기화
+        InitializeEnemyPools();
+
+        // 스폰 카운트 초기화
+        enemyDatabase.ResetSpawnCounts();
+
         isInitialized = true;
-        Debug.Log("SpawnDirector initialized");
+        Debug.Log("SpawnController initialized");
     }
+
 
     private void HandleGameStateChanged(GameState newState)
     {
@@ -99,16 +105,22 @@ public class SpawnController : MonoBehaviour
 
     private void Update()
     {
-        if (!isInitialized || !enabled || GameManager.Instance.currentGameState != GameState.Playing)
+        if (!isInitialized || !enabled ||
+            GameManager.Instance.currentGameState != GameState.Playing)
         {
             return;
         }
 
         gameTime += Time.deltaTime;
-        UpdateSpawnInterval();
-        UpdateSpawnAmount();
+
+        // 스폰 설정 업데이트
+        var currentSettings = spawnSettings.GetSettingsAtTime(gameTime);
+        currentSpawnAmount = currentSettings.spawnAmount;
+        currentSpawnInterval = currentSettings.spawnInterval;
+
         TrySpawnEnemies();
     }
+
 
     private void UpdateSpawnInterval()
     {
@@ -149,7 +161,6 @@ public class SpawnController : MonoBehaviour
             nextSpawnTime = Time.time + currentSpawnInterval;
         }
     }
-
     private void SpawnEnemy()
     {
         if (!enabled || GameManager.Instance.currentGameState != GameState.Playing)
@@ -157,33 +168,33 @@ public class SpawnController : MonoBehaviour
             return;
         }
 
-        EnemyData enemyData = SelectEnemyType();
-        if (enemyData == null || enemyData.enemyPrefab == null)
+        EnemyData enemyData = enemyDatabase.GetRandomEnemy(gameTime);
+        if (enemyData == null)
         {
-            Debug.LogError("Invalid enemy data or missing prefab!");
+            Debug.LogWarning("Failed to get enemy data for spawning");
             return;
         }
 
         Vector2 spawnPosition = GetSpawnPosition();
-
-        // 풀에서 적 스폰 (풀 태그로 적 이름 사용)
         GameObject enemyObject = ObjectPool.Instance.SpawnFromPool(
             enemyData.enemyName,
             spawnPosition,
             Quaternion.identity
         );
 
-        if (enemyObject == null) return;
-
-        Enemy enemy = enemyObject.GetComponent<Enemy>();
-        if (enemy != null)
+        if (enemyObject != null)
         {
-            enemy.SetEnemyData(enemyData);
-        }
-        else
-        {
-            Debug.LogError($"Enemy component not found on prefab: {enemyData.enemyName}");
-            ObjectPool.Instance.ReturnToPool(enemyData.enemyName, enemyObject);
+            Enemy enemy = enemyObject.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.SetEnemyData(enemyData);
+                enemy.Initialize(playerTransform); // 플레이어 추적을 위한 초기화
+            }
+            else
+            {
+                Debug.LogError($"Enemy component not found on prefab: {enemyData.enemyName}");
+                ObjectPool.Instance.ReturnToPool(enemyData.enemyName, enemyObject);
+            }
         }
     }
 
@@ -198,13 +209,13 @@ public class SpawnController : MonoBehaviour
 
     private EnemyData SelectEnemyType()
     {
-        if (spawnDatabase == null)
+        if (enemyDatabase == null)
         {
             Debug.LogError("EnemySpawnDatabase is not assigned!");
             return null;
         }
 
-        return spawnDatabase.GetRandomEnemy(gameTime);
+        return enemyDatabase.GetRandomEnemy(gameTime);
     }
 
     // 디버그 UI는 게임이 Playing 상태일 때만 표시
@@ -214,22 +225,31 @@ public class SpawnController : MonoBehaviour
             GameManager.Instance.currentGameState != GameState.Playing)
             return;
 
-        GUILayout.BeginArea(new Rect(10, 10, 300, 100));
-        GUILayout.Label($"Game Time: {gameTime:F1}s");
+        GUILayout.BeginArea(new Rect(10, 10, 300, 150));
+        GUILayout.Label($"Game Time: {(int)(gameTime / 60):D2}:{(gameTime % 60):00.0}");
         GUILayout.Label($"Spawn Interval: {currentSpawnInterval:F1}s");
         GUILayout.Label($"Spawn Amount: {currentSpawnAmount}");
+        GUILayout.Label($"Next Spawn: {(nextSpawnTime - Time.time):F1}s");
+
+        // 현재 스폰된 적들의 비율 표시
+        foreach (var settings in enemyDatabase.enemySettings)
+        {
+            float ratio = gameTime == 0 ? 0 :
+                         (settings.spawnCount * 100f / enemyDatabase.ratioCheckInterval);
+            GUILayout.Label($"{settings.enemyData.enemyName}: {ratio:F1}%");
+        }
         GUILayout.EndArea();
     }
+
+    // 디버그용 기즈모
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying || playerTransform == null)
             return;
 
-        // 스폰 범위 표시
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(playerTransform.position, spawnRadius);
 
-        // 최소 스폰 거리 표시
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(playerTransform.position, minSpawnDistance);
     }

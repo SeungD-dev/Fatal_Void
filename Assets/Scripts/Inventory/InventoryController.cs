@@ -1,8 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
+
 
 public class InventoryController : MonoBehaviour
 {
@@ -47,19 +45,6 @@ public class InventoryController : MonoBehaviour
         }
 
         ItemIconDrag();
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            if (selectedItem == null)
-            {
-                CreateRandomItem();
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            InsertRandomItem();
-        }
 
         if (Input.GetKeyDown(KeyCode.R))
         {

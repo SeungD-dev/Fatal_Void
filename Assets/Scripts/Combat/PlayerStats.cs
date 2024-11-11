@@ -16,7 +16,7 @@ public class PlayerStats : MonoBehaviour
     [Header("Level Settings")]
     [SerializeField] private int level = 1;
     [SerializeField] private float currentExp = 0;
-    [SerializeField] private float requiredExp = 100;
+    [SerializeField] private float requiredExp = 30;
 
     [Header("Stat Settings")]
     [SerializeField] public float maxHealth = 100f;
@@ -156,7 +156,10 @@ public class PlayerStats : MonoBehaviour
     public void LevelUp()
     {
         level++;
-        currentExp -= requiredExp;
+        if(level >1)
+        {
+            currentExp -= requiredExp;
+        }  
         requiredExp *= 1.2f;
 
         UpdateStats();

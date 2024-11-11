@@ -530,7 +530,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnRadius: 15
   minSpawnDistance: 12
-  spawnDatabase: {fileID: 11400000, guid: 86abcebe19497e74baade4150861909c, type: 2}
+  spawnSettings: {fileID: 11400000, guid: dbd7cd94294d3944083b9f5ac6156d47, type: 2}
+  enemyDatabase: {fileID: 11400000, guid: 86abcebe19497e74baade4150861909c, type: 2}
 --- !u!114 &1007978168 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1064823514168371553, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
@@ -662,6 +663,9 @@ MonoBehaviour:
   pools:
   - tag: Walker
     prefab: {fileID: 6160214665495999924, guid: e11933bc328f79749a75d9ac67188405, type: 3}
+    size: 50
+  - tag: Heavy
+    prefab: {fileID: 6160214665495999924, guid: 1dd8c7f87a322a545a10de7371eec818, type: 3}
     size: 50
 --- !u!4 &1471452497
 Transform:

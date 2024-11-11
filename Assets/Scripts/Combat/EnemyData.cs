@@ -18,5 +18,8 @@ public class EnemyData : ScriptableObject
 
     [Header("Pool Settings")]
     public int initialPoolSize = 10;  // 초기 풀 사이즈
+
+    [Header("Drop Settings")]
+    public DropTable dropTable;  // 이 적의 드롭 테이블
 }
 
