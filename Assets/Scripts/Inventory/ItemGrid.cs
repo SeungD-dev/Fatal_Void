@@ -21,26 +21,60 @@ public class ItemGrid : MonoBehaviour
         Init(gridSizeWidth, gridSizeHeight);     
     }
 
+    private void OnEnable()
+    {
+        // UI가 활성화될 때마다 RectTransform 확인
+        if (rectTransform == null)
+        {
+            rectTransform = GetComponent<RectTransform>();
+            Init(gridSizeWidth, gridSizeHeight);
+        }
+    }
+
     private void Init(int width, int height)
     {
+        if (width <= 0 || height <= 0)
+        {
+            Debug.LogError($"Invalid grid size: {width}x{height}");
+            return;
+        }
+
         inventoryItemSlot = new InventoryItem[width, height];
         Vector2 size = new Vector2(width * tileSizeWidth, height * tileSizeHeight);
-        rectTransform.sizeDelta = size;
+        if (rectTransform != null)
+        {
+            rectTransform.sizeDelta = size;
+        }
+        else
+        {
+            Debug.LogError("RectTransform is null!");
+        }
     }
 
     Vector2 positionOnTheGrid = new Vector2();
     Vector2Int tileGridPosition = new Vector2Int();
 
-    public Vector2Int GetTileGridPosition(Vector2 mousePosition)
+    public Vector2Int GetTileGridPosition(Vector2 touchPosition)
     {
-        positionOnTheGrid.x = mousePosition.x - rectTransform.position.x;
-        positionOnTheGrid.y = rectTransform.position.y - mousePosition.y;
+        if (rectTransform == null)
+        {
+            rectTransform = GetComponent<RectTransform>();
+            if (rectTransform == null)
+            {
+                Debug.LogError($"RectTransform still null on {gameObject.name}");
+                return Vector2Int.zero;
+            }
+        }
+
+        Vector2 positionOnTheGrid = new Vector2();
+        positionOnTheGrid.x = touchPosition.x - rectTransform.position.x;
+        positionOnTheGrid.y = rectTransform.position.y - touchPosition.y;
 
         float scale = rectTransform.localScale.x;
-        tileGridPosition.x = (int)(positionOnTheGrid.x / (tileSizeWidth * scale));
-        tileGridPosition.y = (int)(positionOnTheGrid.y / (tileSizeHeight * scale));
-
-        return tileGridPosition;
+        return new Vector2Int(
+            (int)(positionOnTheGrid.x / (tileSizeWidth * scale)),
+            (int)(positionOnTheGrid.y / (tileSizeHeight * scale))
+        );
     }
 
     public InventoryItem PickUpItem(int x, int y)
@@ -182,8 +216,21 @@ public class ItemGrid : MonoBehaviour
         return true;
     }
 
-    internal InventoryItem GetItem(int x, int y)
+    public InventoryItem GetItem(int x, int y)
     {
+        if (inventoryItemSlot == null)
+        {
+            Debug.LogError("inventoryItemSlot is null! Reinitializing grid...");
+            Init(gridSizeWidth, gridSizeHeight);
+            return null;
+        }
+
+        if (x < 0 || x >= gridSizeWidth || y < 0 || y >= gridSizeHeight)
+        {
+            Debug.LogWarning($"Attempted to access invalid grid position: ({x}, {y})");
+            return null;
+        }
+
         return inventoryItemSlot[x, y];
     }
 
@@ -205,4 +252,4 @@ public class ItemGrid : MonoBehaviour
 
         return null;
     }
-}
+} 

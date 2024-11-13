@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.UI;
 
 public class ShopController : MonoBehaviour
 {
@@ -57,7 +56,7 @@ public class ShopController : MonoBehaviour
             inventoryUI.SetActive(true);
 
             // 선택한 무기를 인벤토리에 추가
-            inventoryController.CreatePurchasedItem(weaponData);
+            inventoryController.OnPurchaseItem(weaponData);
         }
     }
 

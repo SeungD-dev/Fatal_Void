@@ -4,6 +4,14 @@ public class InventoryHighlight : MonoBehaviour
 {
     [SerializeField] RectTransform highlighter;
 
+    private void Awake()
+    {
+        if (highlighter == null)
+        {
+            Debug.LogError("Highlighter RectTransform not assigned!");
+        }
+    }
+
     public void Show(bool b)
     {
         highlighter.gameObject.SetActive(b);
