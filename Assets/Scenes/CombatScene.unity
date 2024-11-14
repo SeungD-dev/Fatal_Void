@@ -532,6 +532,11 @@ MonoBehaviour:
   minSpawnDistance: 12
   spawnSettings: {fileID: 11400000, guid: dbd7cd94294d3944083b9f5ac6156d47, type: 2}
   enemyDatabase: {fileID: 11400000, guid: 86abcebe19497e74baade4150861909c, type: 2}
+--- !u!224 &744820932 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 5923609565038133762, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+  m_PrefabInstance: {fileID: 3302047816804777907}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1007978168 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1064823514168371553, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
@@ -910,7 +915,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eab19420f0fef3b458d2538c07d4c3f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlighter: {fileID: 512093874333173474}
+  highlighter: {fileID: 744820932}
 --- !u!114 &1848644388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -964,6 +969,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: ee038c9e-6276-4fbc-88c6-da5c58669d12
     m_ActionName: Touch/Press
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 233a8f5f-e2e2-4521-b74d-34172603707a
+    m_ActionName: Touch/Delta
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Touch
@@ -1033,11 +1042,6 @@ PrefabInstance:
 --- !u!224 &512093874333173473 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8767243621917558548, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
-  m_PrefabInstance: {fileID: 3302047816804777907}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &512093874333173474 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 5923609565038133762, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
   m_PrefabInstance: {fileID: 3302047816804777907}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3302047816804777907

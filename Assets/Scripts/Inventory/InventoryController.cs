@@ -9,7 +9,6 @@ public class InventoryController : MonoBehaviour
     private TouchActions touchActions;
     private InputAction touchPosition;
     private InputAction touchPress;
-    private InputAction touchDelta;
 
     [HideInInspector]
     private ItemGrid selectedItemGrid;
@@ -42,9 +41,10 @@ public class InventoryController : MonoBehaviour
     private bool isDragging = false;
     private Vector2 originalSpawnPosition;
 
-    private const float SLIDE_THRESHOLD = 50f; // 회전을 위한 최소 슬라이드 거리
-    private bool isSliding = false;
-    private Vector2 slideStartPosition;
+    private const float DOUBLE_TAP_THRESHOLD = 0.3f;
+    private const float DOUBLE_TAP_RANGE = 300f;
+    private float lastTapTime;
+    private Vector2 lastTapPosition;
 
     private void Awake()
     {
@@ -59,7 +59,6 @@ public class InventoryController : MonoBehaviour
         touchActions = new TouchActions();
         touchPosition = touchActions.Touch.Position;
         touchPress = touchActions.Touch.Press;
-        touchDelta = touchActions.Touch.Delta;
         
         
 
@@ -251,38 +250,83 @@ public class InventoryController : MonoBehaviour
         }
     }
 
-    private void ProcessSlide()
+    private void ProcessDoubleTap(Vector2 currentTapPosition)
     {
-        if (selectedItem != null && touchPress.IsPressed())
-        {
-            Vector2 delta = touchDelta.ReadValue<Vector2>();
+        float timeSinceLastTap = Time.time - lastTapTime;
+        float tapDistance = Vector2.Distance(currentTapPosition, lastTapPosition);
 
-            // 슬라이드 중이 아니고, 슬라이드 거리가 임계값을 넘으면 회전 처리
-            if (!isSliding && delta.magnitude > SLIDE_THRESHOLD)
+        if (timeSinceLastTap <= DOUBLE_TAP_THRESHOLD && tapDistance <= DOUBLE_TAP_RANGE)
+        {
+            Debug.Log($"Double tap detected! Distance: {tapDistance}");
+
+            if (selectedItem != null)
             {
-                // 좌우 슬라이드일 때만 회전 (수평 이동이 수직 이동보다 클 때)
-                if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
+                RotateItem();
+
+                if (inventoryHighlight != null)
                 {
-                    isSliding = true;
-                    RotateItem();
-                    isDragging = false; // 회전 중에는 드래그 중지
+                    inventoryHighlight.SetSize(selectedItem);
+                }
+
+                // Grid 내부에 있는 경우만 재배치 시도
+                if (!isDragging)
+                {
+                    Vector2Int currentPos = new Vector2Int(selectedItem.onGridPositionX, selectedItem.onGridPositionY);
+                    if (IsPositionWithinGrid(currentPos))
+                    {
+                        bool canPlace = selectedItemGrid.BoundryCheck(
+                            currentPos.x,
+                            currentPos.y,
+                            selectedItem.WIDTH,
+                            selectedItem.HEIGHT
+                        );
+
+                        if (canPlace)
+                        {
+                            PutDownItem(currentPos);
+                        }
+                        else
+                        {
+                            isDragging = true;
+                        }
+                    }
                 }
             }
+
+            lastTapTime = 0;
+        }
+        else
+        {
+            lastTapTime = Time.time;
+            lastTapPosition = currentTapPosition;
         }
     }
-
     private void OnTouchStarted(InputAction.CallbackContext context)
     {
         if (!inventoryUI.activeSelf || selectedItemGrid == null) return;
 
         Vector2 touchPos = touchPosition.ReadValue<Vector2>();
-        isSliding = false; // 터치 시작 시 슬라이드 상태 초기화
 
-        if (!isDragging)
+        // 선택된 아이템이 있을 때는 항상 더블 탭 체크
+        if (selectedItem != null)
         {
-            Vector2Int tileGridPosition = GetTileGridPosition(touchPos);
-            if (IsPositionWithinGrid(tileGridPosition))
+            ProcessDoubleTap(touchPos);
+        }
+
+        Vector2Int tileGridPosition = GetTileGridPosition(touchPos);
+
+        // Grid 내부 터치 처리
+        if (IsPositionWithinGrid(tileGridPosition))
+        {
+            if (!isDragging)
             {
+                InventoryItem touchedItem = selectedItemGrid.GetItem(tileGridPosition.x, tileGridPosition.y);
+
+                if (touchedItem != null)
+                {
+                    tileGridPosition = new Vector2Int(touchedItem.onGridPositionX, touchedItem.onGridPositionY);
+                }
+
                 PickUpItem(tileGridPosition);
                 if (selectedItem != null)
                 {
@@ -294,20 +338,23 @@ public class InventoryController : MonoBehaviour
                 }
             }
         }
+        // Grid 바깥 터치 처리
+        else if (!isDragging && selectedItem == null)
+        {
+            // 스폰 포인트 근처의 아이템 선택을 위한 처리
+            if (itemSpawnPoint != null && selectedItem == null)
+            {
+                float distance = Vector2.Distance(touchPos, itemSpawnPoint.position);
+                if (distance < 100f) // 스폰 포인트 주변 영역
+                {
+                    isDragging = true;
+                }
+            }
+        }
     }
-
-
     private void OnTouchEnded(InputAction.CallbackContext context)
     {
         if (!inventoryUI.activeSelf || selectedItemGrid == null) return;
-
-        // 슬라이드 상태 초기화
-        if (isSliding)
-        {
-            isSliding = false;
-            isDragging = true; // 드래그 상태 복원
-            return;
-        }
 
         if (selectedItem != null && isDragging)
         {
@@ -325,11 +372,9 @@ public class InventoryController : MonoBehaviour
             else
             {
                 ResetItemToSpawnPoint(selectedItem.gameObject);
-                // isDragging은 ResetItemToSpawnPoint 내에서 true로 설정됨
             }
         }
     }
-
     private void Update()
     {
         if (!inventoryUI.activeSelf || selectedItemGrid == null)
@@ -337,10 +382,8 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        ProcessSlide(); // 슬라이드 처리 추가
-
-        // 슬라이드 중이 아닐 때만 드래그 처리
-        if (isDragging && selectedItem != null && !isSliding)
+        // 드래그 처리
+        if (isDragging && selectedItem != null)
         {
             Vector2 touchPos = touchPosition.ReadValue<Vector2>();
             rectTransform.position = touchPos;
@@ -350,21 +393,45 @@ public class InventoryController : MonoBehaviour
                               selectedItemGrid.BoundryCheck(positionOnGrid.x, positionOnGrid.y,
                                   selectedItem.WIDTH, selectedItem.HEIGHT);
 
-            if (isWithinGrid)
+            if (inventoryHighlight != null)
             {
-                inventoryHighlight?.Show(true);
-                inventoryHighlight?.SetSize(selectedItem);
-                inventoryHighlight?.SetPosition(selectedItemGrid, selectedItem, positionOnGrid.x, positionOnGrid.y);
-            }
-            else
-            {
-                inventoryHighlight?.Show(false);
+                if (isWithinGrid)
+                {
+                    // Grid 내부에 있을 때만 하이라이트 표시
+                    inventoryHighlight.Show(true);
+                    inventoryHighlight.SetSize(selectedItem);
+                    inventoryHighlight.SetPosition(selectedItemGrid, selectedItem, positionOnGrid.x, positionOnGrid.y);
+                }
+                else
+                {
+                    // Grid 바깥에 있을 때는 하이라이트 숨김
+                    inventoryHighlight.Show(false);
+                }
             }
         }
+        else if (selectedItem != null && !isDragging)
+        {
+            // 드래그 중이 아닐 때는 선택된 아이템이 Grid 내부에 있을 때만 하이라이트 표시
+            Vector2Int itemPosition = new Vector2Int(selectedItem.onGridPositionX, selectedItem.onGridPositionY);
+            bool isWithinGrid = IsPositionWithinGrid(itemPosition) &&
+                              selectedItemGrid.BoundryCheck(itemPosition.x, itemPosition.y,
+                                  selectedItem.WIDTH, selectedItem.HEIGHT);
 
-        HandleHighlight();
+            if (inventoryHighlight != null)
+            {
+                if (isWithinGrid)
+                {
+                    inventoryHighlight.Show(true);
+                    inventoryHighlight.SetSize(selectedItem);
+                    inventoryHighlight.SetPosition(selectedItemGrid, selectedItem);
+                }
+                else
+                {
+                    inventoryHighlight.Show(false);
+                }
+            }
+        }
     }
-
 
 
     private void HandleHighlight()
@@ -515,18 +582,32 @@ public class InventoryController : MonoBehaviour
 
     private void PickUpItem(Vector2Int tileGridPosition)
     {
-        selectedItem = selectedItemGrid.PickUpItem(tileGridPosition.x, tileGridPosition.y);
-        if (selectedItem != null)
-        {
-            rectTransform = selectedItem.GetComponent<RectTransform>();
+        // 해당 위치에서 시작하는 아이템 찾기
+        InventoryItem itemToPickup = selectedItemGrid.GetItem(tileGridPosition.x, tileGridPosition.y);
 
-            if (weaponInfoUI != null)
+        if (itemToPickup != null)
+        {
+            // 기존 선택된 아이템이 있다면 해제
+            if (selectedItem != null && selectedItem != itemToPickup)
             {
-                weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
+                selectedItem = null;
+                isDragging = false;
+            }
+
+            // 아이템의 실제 시작 위치에서 집어올리기
+            selectedItem = selectedItemGrid.PickUpItem(itemToPickup.onGridPositionX, itemToPickup.onGridPositionY);
+            if (selectedItem != null)
+            {
+                rectTransform = selectedItem.GetComponent<RectTransform>();
+                isDragging = true;
+
+                if (weaponInfoUI != null)
+                {
+                    weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
+                }
             }
         }
     }
-
 
 
     private void PutDownItem(Vector2Int tileGridPosition)
@@ -544,39 +625,27 @@ public class InventoryController : MonoBehaviour
                 rectTransform = selectedItem.GetComponent<RectTransform>();
                 rectTransform.SetAsLastSibling();
                 isDragging = true;
+            }
 
-                // 하이라이트 업데이트
-                if (inventoryHighlight != null)
-                {
-                    inventoryHighlight.Show(true);
-                    inventoryHighlight.SetSize(selectedItem);
-                }
-            }
-            else
+            // 하이라이트 유지 (아이템이 선택된 상태 유지)
+            if (inventoryHighlight != null)
             {
-                // 성공적으로 배치됨
-                selectedItem = null;
-                isDragging = false;
-                if (inventoryHighlight != null)
-                {
-                    inventoryHighlight.Show(false);
-                }
+                inventoryHighlight.Show(true);
+                inventoryHighlight.SetSize(selectedItem);
+                inventoryHighlight.SetPosition(selectedItemGrid, selectedItem);
             }
+            isDragging = false;
         }
         else
         {
-            // 배치 실패 시 스폰 포인트로 리턴하고 드래그 가능 상태 유지
             ResetItemToSpawnPoint(selectedItem.gameObject);
-            // isDragging은 ResetItemToSpawnPoint 내에서 true로 설정됨
         }
 
-        // 무기 정보 UI 업데이트
         if (weaponInfoUI != null && selectedItem != null)
         {
             weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
         }
     }
-
 
     // Grid 상태 체크 및 정리 메서드 추가
     private void CleanupInvalidItems()

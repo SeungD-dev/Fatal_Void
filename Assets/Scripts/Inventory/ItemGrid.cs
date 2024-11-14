@@ -122,16 +122,19 @@ public class ItemGrid : MonoBehaviour
         return true;
     }
 
-    public void PlaceItem(InventoryItem inventoryItem, int posX, int posY)
+
+
+    private void PlaceItem(InventoryItem inventoryItem, int posX, int posY)
     {
         RectTransform rectTransform = inventoryItem.GetComponent<RectTransform>();
         rectTransform.SetParent(this.rectTransform);
 
+        // 회전 상태를 고려하여 그리드 참조 설정
         for (int x = 0; x < inventoryItem.WIDTH; x++)
         {
             for (int y = 0; y < inventoryItem.HEIGHT; y++)
             {
-                inventoryItemSlot[posX, posY + y] = inventoryItem;
+                inventoryItemSlot[posX + x, posY + y] = inventoryItem;
             }
         }
 
@@ -139,9 +142,9 @@ public class ItemGrid : MonoBehaviour
         inventoryItem.onGridPositionY = posY;
 
         Vector2 position = CalculatePositionOnGrid(inventoryItem, posX, posY);
-
         rectTransform.localPosition = position;
     }
+
 
     public Vector2 CalculatePositionOnGrid(InventoryItem inventoryItem, int posX, int posY)
     {
@@ -150,7 +153,6 @@ public class ItemGrid : MonoBehaviour
         position.y = -(posY * tileSizeHeight + tileSizeHeight * inventoryItem.HEIGHT / 2);
         return position;
     }
-
     private bool OverlapCheck(int posX, int posY, int width, int height, ref InventoryItem overlapItem)
     {
         for(int x =0; x < width; x++)
@@ -218,22 +220,19 @@ public class ItemGrid : MonoBehaviour
 
     public InventoryItem GetItem(int x, int y)
     {
-        if (inventoryItemSlot == null)
-        {
-            Debug.LogError("inventoryItemSlot is null! Reinitializing grid...");
-            Init(gridSizeWidth, gridSizeHeight);
+        if (inventoryItemSlot == null || x < 0 || y < 0 || x >= gridSizeWidth || y >= gridSizeHeight)
             return null;
+
+        InventoryItem item = inventoryItemSlot[x, y];
+
+        // 아이템이 있는 경우, 해당 아이템의 시작 위치에 있는 아이템을 반환
+        if (item != null)
+        {
+            return inventoryItemSlot[item.onGridPositionX, item.onGridPositionY];
         }
 
-        if (x < 0 || x >= gridSizeWidth || y < 0 || y >= gridSizeHeight)
-        {
-            Debug.LogWarning($"Attempted to access invalid grid position: ({x}, {y})");
-            return null;
-        }
-
-        return inventoryItemSlot[x, y];
+        return null;
     }
-
     public Vector2Int? FindSpaceForObject(InventoryItem itemToInsert)
     {
         int height = gridSizeHeight - itemToInsert.HEIGHT +1;
