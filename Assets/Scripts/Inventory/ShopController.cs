@@ -9,9 +9,13 @@ public class ShopController : MonoBehaviour
     [SerializeField] private GameObject inventoryUI;
     [SerializeField] private InventoryController inventoryController;
     [SerializeField] private GameObject shopUI;
+    [SerializeField] private GameObject playerControlUI;
+    [SerializeField] private GameObject playerStatsUI;
 
     public void InitializeShop()
     {
+        playerControlUI.SetActive(false);
+        playerStatsUI.SetActive(false);
         shopUI.SetActive(true);
         if (weaponOptions == null || weaponOptions.Length == 0)
         {

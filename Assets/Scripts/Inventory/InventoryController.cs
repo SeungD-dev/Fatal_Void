@@ -33,7 +33,8 @@ public class InventoryController : MonoBehaviour
     [SerializeField] private WeaponInfoUI weaponInfoUI;
     [SerializeField] private GameObject inventoryUI;
     [SerializeField] private Transform itemSpawnPoint;
-    [SerializeField] private GameObject playerUI;
+    [SerializeField] private GameObject playerControlUI;
+    [SerializeField] private GameObject playerStatsUI;
     [SerializeField] private ItemGrid mainInventoryGrid;
     [SerializeField] private Button progressButton;
 
@@ -142,9 +143,10 @@ public class InventoryController : MonoBehaviour
             }
         }
 
-        if (playerUI != null)
+        if (playerControlUI != null && playerStatsUI !=null)
         {
-            playerUI.SetActive(!isActive);
+            playerControlUI.SetActive(!isActive);
+            playerStatsUI.SetActive(!isActive);
         }
 
         if (!isActive)
@@ -225,7 +227,8 @@ public class InventoryController : MonoBehaviour
             // UI 전환
             inventoryHighlight?.Show(false);
             inventoryUI?.SetActive(false);
-            playerUI?.SetActive(true);
+            playerControlUI?.SetActive(true);
+            playerStatsUI?.SetActive(true);
 
             // 게임 상태 변경
             if (GameManager.Instance != null)
@@ -697,9 +700,10 @@ public class InventoryController : MonoBehaviour
 
         // 인벤토리 UI를 먼저 활성화
         inventoryUI.SetActive(true);
-        if (playerUI != null)
+        if (playerControlUI != null && playerStatsUI != null)
         {
-            playerUI.SetActive(false);
+            playerControlUI.SetActive(false);
+            playerStatsUI.SetActive(false);
         }
 
         // 약간의 지연 후 아이템 생성

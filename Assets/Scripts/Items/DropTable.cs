@@ -24,7 +24,9 @@ public enum ItemType
 {
     ExperienceSmall,
     ExperienceLarge,
-    HealthPotion
+    HealthPotion,
+    Coin,
+    Magnet
 }
 
 [System.Serializable]
@@ -33,10 +35,11 @@ public class DropInfo
     public ItemType itemType;
     public GameObject itemPrefab;
     [Range(0f, 100f)]
-    public float dropRate;  // 드롭 확률 (%)
+    public float dropRate;
     [Min(1)]
-    public int minAmount = 1;  // 최소 드롭 수량
+    public int minAmount = 1;
     [Min(1)]
-    public int maxAmount = 1;  // 최대 드롭 수량
+    public int maxAmount = 1;
+    [Tooltip("자석 효과의 영향을 받는지 여부")]
+    public bool isMagnetable = true;
 }
-

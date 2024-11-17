@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour, IPooledObject
@@ -125,7 +124,7 @@ public class Enemy : MonoBehaviour, IPooledObject
         isFlashing= false;
     }
 
-    private void OnCollisionStay2D(Collision2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
         if (!gameObject.activeSelf) return;
 
@@ -142,12 +141,17 @@ public class Enemy : MonoBehaviour, IPooledObject
             }
         }
     }
-
     private void Die()
     {
+        if (enemyData.dropTable != null && GameManager.Instance?.CombatController != null)
+        {
+            GameManager.Instance.CombatController.SpawnDrops(transform.position, enemyData.dropTable);
+        }
+
+        // 적 처치 카운트 증가
         if (GameManager.Instance?.PlayerStats != null)
         {
-            //GameManager.Instance.PlayerStats.AddExperience(20f);
+            GameManager.Instance.PlayerStats.AddKill();
         }
         ReturnToPool();
     }
@@ -174,19 +178,9 @@ public class Enemy : MonoBehaviour, IPooledObject
         // 타겟 초기화
         targetTransform = null;
 
-        if (enemyData.dropTable != null)
-        {
-            var combatController = FindFirstObjectByType<CombatController>();
-            if (combatController != null)
-            {
-                combatController.SpawnDrops(transform.position, enemyData.dropTable);
-            }
-        }
-
         // 적의 이름으로 풀에 반환
         ObjectPool.Instance.ReturnToPool(enemyData.enemyName, gameObject);
     }
-
     private void OnDisable()
     {
         StopAllCoroutines();

@@ -84,16 +84,6 @@ public class SpawnSettingsData : ScriptableObject
     private void OnValidate()
     {
         if (timeSettings == null || timeSettings.Length == 0) return;
-
-        // 시간이 오름차순인지 확인
-        for (int i = 1; i < timeSettings.Length; i++)
-        {
-            if (timeSettings[i].gameTimeMinutes <= timeSettings[i - 1].gameTimeMinutes)
-            {
-                Debug.LogError($"Invalid time sequence at index {i}. Times must be in ascending order.");
-            }
-        }
-
         // 한계값 검사
         foreach (var setting in timeSettings)
         {

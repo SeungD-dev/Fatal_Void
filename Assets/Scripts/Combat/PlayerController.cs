@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -6,18 +5,23 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] private FloatingJoystick joystick;
+    [SerializeField] private float minMovementSpeed = 2f;
 
     [Header("Components")]
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
-    public PlayerStats playerStats;
+    private PlayerStats playerStats;
+    private float currentMovementSpeed;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        SetupRigidbody();
+    }
 
-        // Rigidbody2D 설정
+    private void SetupRigidbody()
+    {
         rb.gravityScale = 0f;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
@@ -26,37 +30,24 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        // GameManager로부터 PlayerStats 참조 가져오기
         playerStats = GetComponent<PlayerStats>();
         if (playerStats == null)
         {
             Debug.LogError("PlayerStats not found!");
+            return;
         }
 
-        // 게임 상태 변경 감지
+        // 초기 이동 속도 설정
+        currentMovementSpeed = playerStats.MovementSpeed;
+
+        // 이벤트 구독
+        playerStats.OnMovementSpeedChanged += HandleMovementSpeedChanged;
         GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
     }
 
-    private void OnDestroy()
+    private void HandleMovementSpeedChanged(float newSpeed)
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
-        }
-    }
-
-    private void HandleGameStateChanged(GameState newState)
-    {
-        // Paused 상태에서는 이동 불가
-        enabled = (newState == GameState.Playing);
-    }
-
-    private void FixedUpdate()
-    {
-        if (enabled && playerStats != null)
-        {
-            HandleMovement();
-        }
+        currentMovementSpeed = Mathf.Max(minMovementSpeed, newSpeed);
     }
 
     private void HandleMovement()
@@ -67,13 +58,37 @@ public class PlayerController : MonoBehaviour
             movement.Normalize();
         }
 
-        // PlayerStats의 movementSpeed 사용
-        rb.linearVelocity = movement * playerStats.movementSpeed;
+        rb.linearVelocity = movement * currentMovementSpeed;
 
-        
         if (movement.x != 0 && spriteRenderer != null)
         {
             spriteRenderer.flipX = movement.x < 0;
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (enabled && playerStats != null)
+        {
+            HandleMovement();
+        }
+    }
+
+    private void HandleGameStateChanged(GameState newState)
+    {
+        enabled = (newState == GameState.Playing);
+    }
+
+    private void OnDestroy()
+    {
+        if (playerStats != null)
+        {
+            playerStats.OnMovementSpeedChanged -= HandleMovementSpeedChanged;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
         }
     }
 }

@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class Walker : EnemyAI
 {
     protected override void InitializeStates()

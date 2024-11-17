@@ -3,47 +3,56 @@ using UnityEngine;
 public class CollectibleItem : MonoBehaviour, IPooledObject
 {
     [Header("Movement Settings")]
-    [SerializeField] private float magnetDistance = 5f;
+    [SerializeField] private float basemagnetDistance = 5f;
     [SerializeField] private float magnetSpeed = 10f;
     [SerializeField] private ItemType itemType;
 
     private Rigidbody2D rb;
     private Transform playerTransform;
-    private CombatController combatController;
     private bool isBeingMagneted = false;
+    private bool isPulledByMagnet = false;
+    private float currentMagnetSpeed;
+    private DropInfo dropInfo;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-
         if (rb != null)
         {
             rb.gravityScale = 0f;
             rb.linearDamping = 3f;
         }
+        currentMagnetSpeed = magnetSpeed;
+    }
+
+    public void Initialize(DropInfo info)
+    {
+        dropInfo = info;
+        itemType = info.itemType;
     }
 
     private void Start()
     {
-        combatController = FindFirstObjectByType<CombatController>();
-        if (combatController == null)
-        {
-            Debug.LogError("CombatController not found!");
-        }
+        GameManager.Instance?.CombatController?.RegisterCollectible(this);
+        FindPlayer();
     }
 
     public void OnObjectSpawn()
     {
         isBeingMagneted = false;
+        isPulledByMagnet = false;
+        currentMagnetSpeed = magnetSpeed;
 
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
+
+        GameManager.Instance?.CombatController?.RegisterCollectible(this);
     }
 
-    private void FixedUpdate()
+    private void FindPlayer()
     {
         if (playerTransform == null)
         {
@@ -52,31 +61,58 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             {
                 playerTransform = player.transform;
             }
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (playerTransform == null)
+        {
+            FindPlayer();
             return;
         }
 
-        float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
+        // dropInfo가 없거나 자석 효과 대상이 아니면 무시
+        if (dropInfo == null || !dropInfo.isMagnetable)
+        {
+            return;
+        }
 
-        if (distanceToPlayer <= magnetDistance)
+        if (isPulledByMagnet ||
+            Vector2.Distance(transform.position, playerTransform.position) <= basemagnetDistance)
         {
             isBeingMagneted = true;
             Vector2 direction = (playerTransform.position - transform.position).normalized;
-            rb.linearVelocity = direction * magnetSpeed;
+            rb.linearVelocity = direction * currentMagnetSpeed;
         }
-        else if (isBeingMagneted)
+        else if (isBeingMagneted && !isPulledByMagnet)
         {
             isBeingMagneted = false;
             rb.linearVelocity = Vector2.zero;
         }
     }
 
+    public void PullToPlayer(float magnetForce)
+    {
+        if (dropInfo == null || !dropInfo.isMagnetable) return;
+
+        isPulledByMagnet = true;
+        currentMagnetSpeed = magnetForce;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player") && combatController != null)
+        if (other.CompareTag("Player") && GameManager.Instance?.CombatController != null)
         {
-            combatController.ApplyItemEffect(itemType);
+            GameManager.Instance.CombatController.ApplyItemEffect(itemType);
+            GameManager.Instance.CombatController.UnregisterCollectible(this);
             rb.linearVelocity = Vector2.zero;
             ObjectPool.Instance.ReturnToPool(itemType.ToString(), gameObject);
         }
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.Instance?.CombatController?.UnregisterCollectible(this);
     }
 }

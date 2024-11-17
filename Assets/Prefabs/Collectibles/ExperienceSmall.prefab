@@ -175,6 +175,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e200dbd166a0e3b4eaf7ea66b2e2d59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  basemagnetDistance: 0.7
+  normalMagnetSpeed: 10
   itemType: 0
-  magnetDistance: 0.5
-  magnetSpeed: 3
