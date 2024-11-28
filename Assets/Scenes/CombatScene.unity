@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 121375983}
   - component: {fileID: 121375982}
   - component: {fileID: 121375981}
+  - component: {fileID: 121375984}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -198,6 +199,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &121375984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 121375980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 04929c9cd28cc8143b703f8dc42856cb, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Touch
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!4 &164049823 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2331383598071154581, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
@@ -779,7 +810,6 @@ GameObject:
   - component: {fileID: 1848644386}
   - component: {fileID: 1848644387}
   - component: {fileID: 1848644388}
-  - component: {fileID: 1848644389}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -963,6 +993,7 @@ MonoBehaviour:
   playerStatsUI: {fileID: 7947131200979300799}
   mainInventoryGrid: {fileID: 198668233}
   progressButton: {fileID: 1709943742}
+  isHolding: 0
 --- !u!114 &1848644387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -998,48 +1029,6 @@ MonoBehaviour:
   shopUI: {fileID: 3302047816804777911}
   playerControlUI: {fileID: 7947131200979300800}
   playerStatsUI: {fileID: 7947131200979300799}
---- !u!114 &1848644389
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1848644380}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: 04929c9cd28cc8143b703f8dc42856cb, type: 3}
-  m_NotificationBehavior: 2
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: dd310ce4-0b31-4748-a90e-dfa72f855ca4
-    m_ActionName: Touch/Position
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: ee038c9e-6276-4fbc-88c6-da5c58669d12
-    m_ActionName: Touch/Press
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 233a8f5f-e2e2-4521-b74d-34172603707a
-    m_ActionName: Touch/Delta
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Touch
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!1001 &389333318044411463
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1777,6 +1766,38 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1848644386}
+    - target: {fileID: 5923609565038133762, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5923609565038133762, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5923609565038133762, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5923609565038133762, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5923609565038133762, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5923609565038133762, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5923609565038133762, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -40.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5923609565038133762, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6063351873057227592, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

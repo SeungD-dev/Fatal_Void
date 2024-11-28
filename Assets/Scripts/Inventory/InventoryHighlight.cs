@@ -29,6 +29,7 @@ public class InventoryHighlight : MonoBehaviour
     {
         Vector2 pos = targetGrid.CalculatePositionOnGrid(targetItem, targetItem.onGridPositionX, targetItem.onGridPositionY);
 
+
         highlighter.localPosition = pos;
     }
 

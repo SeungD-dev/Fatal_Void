@@ -54,7 +54,7 @@ public class ItemGrid : MonoBehaviour
     Vector2 positionOnTheGrid = new Vector2();
     Vector2Int tileGridPosition = new Vector2Int();
 
-    public Vector2Int GetTileGridPosition(Vector2 touchPosition)
+    public Vector2Int GetTileGridPosition(Vector2 touchPosition, Vector2 itemSize = default)
     {
         if (rectTransform == null)
         {
@@ -67,16 +67,26 @@ public class ItemGrid : MonoBehaviour
         }
 
         Vector2 positionOnTheGrid = new Vector2();
+
+        // 아이템 크기가 있는 경우 (아이템의 center pivot 고려)
+        if (itemSize != Vector2.zero)
+        {
+            // 터치 위치에서 아이템 크기의 절반을 빼서 left-top 기준으로 변환
+            touchPosition -= new Vector2(itemSize.x / 2, -itemSize.y / 2);
+        }
+
+        // 그리드의 로컬 좌표로 변환
         positionOnTheGrid.x = touchPosition.x - rectTransform.position.x;
         positionOnTheGrid.y = rectTransform.position.y - touchPosition.y;
 
         float scale = rectTransform.localScale.x;
+
+        // 그리드 좌표 계산
         return new Vector2Int(
             (int)(positionOnTheGrid.x / (tileSizeWidth * scale)),
             (int)(positionOnTheGrid.y / (tileSizeHeight * scale))
         );
     }
-
     public InventoryItem PickUpItem(int x, int y)
     {
         InventoryItem toReturn = inventoryItemSlot[x, y];
@@ -90,23 +100,36 @@ public class ItemGrid : MonoBehaviour
 
     private void CleanGridReference(InventoryItem item)
     {
+        // 범위 체크 추가
+        if (!BoundryCheck(item.onGridPositionX, item.onGridPositionY, item.WIDTH, item.HEIGHT))
+        {
+            Debug.LogWarning($"Attempted to clean grid reference outside bounds: pos({item.onGridPositionX}, {item.onGridPositionY}), size({item.WIDTH}, {item.HEIGHT})");
+            return;
+        }
+
         for (int ix = 0; ix < item.WIDTH; ix++)
         {
             for (int iy = 0; iy < item.HEIGHT; iy++)
             {
-                inventoryItemSlot[item.onGridPositionX + ix, item.onGridPositionY + iy] = null;
+                if (item.onGridPositionX + ix < gridSizeWidth &&
+                    item.onGridPositionY + iy < gridSizeHeight)
+                {
+                    inventoryItemSlot[item.onGridPositionX + ix, item.onGridPositionY + iy] = null;
+                }
             }
         }
     }
 
     public bool PlaceItem(InventoryItem inventoryItem, int posX, int posY, ref InventoryItem overlapItem)
     {
-        if (BoundryCheck(posX, posY, inventoryItem.WIDTH, inventoryItem.HEIGHT) == false)
+        // 경계 체크
+        if (!BoundryCheck(posX, posY, inventoryItem.WIDTH, inventoryItem.HEIGHT))
         {
+            Debug.LogWarning($"Cannot place item: position ({posX}, {posY}) is out of bounds");
             return false;
         }
 
-        if (OverlapCheck(posX, posY, inventoryItem.WIDTH, inventoryItem.HEIGHT, ref overlapItem) == false)
+        if (!OverlapCheck(posX, posY, inventoryItem.WIDTH, inventoryItem.HEIGHT, ref overlapItem))
         {
             overlapItem = null;
             return false;
@@ -114,11 +137,15 @@ public class ItemGrid : MonoBehaviour
 
         if (overlapItem != null)
         {
-            CleanGridReference(overlapItem);
+            // 겹친 아이템 제거 전에 범위 체크
+            if (BoundryCheck(overlapItem.onGridPositionX, overlapItem.onGridPositionY,
+                overlapItem.WIDTH, overlapItem.HEIGHT))
+            {
+                CleanGridReference(overlapItem);
+            }
         }
 
         PlaceItem(inventoryItem, posX, posY);
-
         return true;
     }
 
@@ -129,28 +156,33 @@ public class ItemGrid : MonoBehaviour
         RectTransform rectTransform = inventoryItem.GetComponent<RectTransform>();
         rectTransform.SetParent(this.rectTransform);
 
-        // 회전 상태를 고려하여 그리드 참조 설정
-        for (int x = 0; x < inventoryItem.WIDTH; x++)
+        // 범위 체크 후 그리드에 아이템 설정
+        if (BoundryCheck(posX, posY, inventoryItem.WIDTH, inventoryItem.HEIGHT))
         {
-            for (int y = 0; y < inventoryItem.HEIGHT; y++)
+            for (int x = 0; x < inventoryItem.WIDTH; x++)
             {
-                inventoryItemSlot[posX + x, posY + y] = inventoryItem;
+                for (int y = 0; y < inventoryItem.HEIGHT; y++)
+                {
+                    inventoryItemSlot[posX + x, posY + y] = inventoryItem;
+                }
             }
+
+            inventoryItem.onGridPositionX = posX;
+            inventoryItem.onGridPositionY = posY;
+
+            Vector2 position = CalculatePositionOnGrid(inventoryItem, posX, posY);
+            rectTransform.localPosition = position;
         }
-
-        inventoryItem.onGridPositionX = posX;
-        inventoryItem.onGridPositionY = posY;
-
-        Vector2 position = CalculatePositionOnGrid(inventoryItem, posX, posY);
-        rectTransform.localPosition = position;
     }
-
-
     public Vector2 CalculatePositionOnGrid(InventoryItem inventoryItem, int posX, int posY)
     {
         Vector2 position = new Vector2();
-        position.x = posX * tileSizeWidth + tileSizeWidth * inventoryItem.WIDTH / 2;
-        position.y = -(posY * tileSizeHeight + tileSizeHeight * inventoryItem.HEIGHT / 2);
+
+        // 그리드는 Left Top, 아이템은 Center 피벗이므로
+        // 타일 크기의 절반을 더해서 중앙 정렬
+        position.x = posX * tileSizeWidth + (tileSizeWidth * inventoryItem.WIDTH / 2);
+        position.y = -(posY * tileSizeHeight + (tileSizeHeight * inventoryItem.HEIGHT / 2));
+
         return position;
     }
     private bool OverlapCheck(int posX, int posY, int width, int height, ref InventoryItem overlapItem)
@@ -220,14 +252,20 @@ public class ItemGrid : MonoBehaviour
 
     public InventoryItem GetItem(int x, int y)
     {
+        Debug.Log($"GetItem called for position ({x}, {y})");
+
         if (inventoryItemSlot == null || x < 0 || y < 0 || x >= gridSizeWidth || y >= gridSizeHeight)
+        {
+            Debug.Log($"Invalid grid access: slot array null or position out of bounds");
             return null;
+        }
 
         InventoryItem item = inventoryItemSlot[x, y];
+        Debug.Log($"Found item at position: {item != null}");
 
-        // 아이템이 있는 경우, 해당 아이템의 시작 위치에 있는 아이템을 반환
         if (item != null)
         {
+            Debug.Log($"Item origin position: ({item.onGridPositionX}, {item.onGridPositionY})");
             return inventoryItemSlot[item.onGridPositionX, item.onGridPositionY];
         }
 

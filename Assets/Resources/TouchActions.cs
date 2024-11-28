@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 
-public partial class @TouchActions: IInputActionCollection2, IDisposable
+public partial class @TouchActions : IInputActionCollection2, IDisposable
 {
     public InputActionAsset asset { get; }
     public @TouchActions()
@@ -170,20 +170,20 @@ public partial class @TouchActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Touch_Delta;
     public struct TouchMap
     {
-        private @TouchActions m_Parent;
-        public TouchMap(@TouchActions wrapper) { m_Parent = wrapper; }
-        public InputAction @Position => m_Parent.m_Touch_Position;
-        public InputAction @Press => m_Parent.m_Touch_Press;
-        public InputAction @Delta => m_Parent.m_Touch_Delta;
-        public InputActionMap Get() { return m_Parent.m_Touch; }
+        private @TouchActions m_Wrapper;
+        public TouchMap(@TouchActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Position => m_Wrapper.m_Touch_Position;
+        public InputAction @Press => m_Wrapper.m_Touch_Press;
+        public InputAction @Delta => m_Wrapper.m_Touch_Delta;
+        public InputActionMap Get() { return m_Wrapper.m_Touch; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
         public bool enabled => Get().enabled;
         public static implicit operator InputActionMap(TouchMap set) { return set.Get(); }
         public void AddCallbacks(ITouchActions instance)
         {
-            if (instance == null || m_Parent.m_TouchActionsCallbackInterfaces.Contains(instance)) return;
-            m_Parent.m_TouchActionsCallbackInterfaces.Add(instance);
+            if (instance == null || m_Wrapper.m_TouchActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_TouchActionsCallbackInterfaces.Add(instance);
             @Position.started += instance.OnPosition;
             @Position.performed += instance.OnPosition;
             @Position.canceled += instance.OnPosition;
@@ -210,19 +210,22 @@ public partial class @TouchActions: IInputActionCollection2, IDisposable
 
         public void RemoveCallbacks(ITouchActions instance)
         {
-            if (m_Parent.m_TouchActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_TouchActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
         public void SetCallbacks(ITouchActions instance)
         {
-            foreach (var item in m_Parent.m_TouchActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_TouchActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Parent.m_TouchActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_TouchActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
+
+    // Touch 속성도 TouchMap으로 변경
     public TouchMap @Touch => new TouchMap(this);
+
     public interface ITouchActions
     {
         void OnPosition(InputAction.CallbackContext context);
