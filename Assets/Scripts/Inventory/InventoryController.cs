@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
+using System.Linq;
 
 public class InventoryController : MonoBehaviour
 {
@@ -49,9 +50,10 @@ public class InventoryController : MonoBehaviour
     private const float HOLD_THRESHOLD = 0.3f; // 홀드 인식 시간
     private const float HOLD_MOVE_THRESHOLD = 20f; // 홀드 중 이동 허용 범위
     public static float ITEM_LIFT_OFFSET = 0f; // 아이템을 들어올릴 높이
-    private float lastRotationTime = 0f;
-    private const float ROTATION_COOLDOWN = 0.5f; // 회전 간 최소 시간
-    private bool canRotate = true;
+    private float lastRotationTime = -999f;
+    private const float ROTATION_COOLDOWN = 0.3f; // 회전 간 최소 시간
+    private bool isRotating = false;
+    private int lastRotatingTouchId = -1;
 
 
     private void Awake()
@@ -222,7 +224,7 @@ public class InventoryController : MonoBehaviour
         holdStartTime = Time.time;
         holdStartPosition = touchPos;
 
-        Debug.Log($"Touch Started at: {holdStartTime}, Position: {touchPos}");
+        //Debug.Log($"Touch Started at: {holdStartTime}, Position: {touchPos}");
         StartCoroutine(CheckForHold());
     }
     private IEnumerator CheckForHold()
@@ -264,7 +266,7 @@ public class InventoryController : MonoBehaviour
             Vector2 currentPos = touchPosition.ReadValue<Vector2>();
             float moveDistance = Vector2.Distance(holdStartPosition, currentPos);
 
-            Debug.Log($"Elapsed: {elapsedTime}, HOLD_THRESHOLD: {HOLD_THRESHOLD}, touchedItem: {touchedItem != null}");
+            //Debug.Log($"Elapsed: {elapsedTime}, HOLD_THRESHOLD: {HOLD_THRESHOLD}, touchedItem: {touchedItem != null}");
 
             if (moveDistance > HOLD_MOVE_THRESHOLD)
             {
@@ -346,30 +348,49 @@ public class InventoryController : MonoBehaviour
     {
         if (!inventoryUI.activeSelf || selectedItemGrid == null) return;
 
-        // 현재 상태 및 터치 위치 디버깅
         if (isDragging && selectedItem != null && isHolding)
         {
             Vector2 currentPos = touchPosition.ReadValue<Vector2>();
-            Debug.Log($"Touch Position: {currentPos}, isDragging: {isDragging}, isHolding: {isHolding}");
-
-            // 아이템 위치를 터치 위치로 바로 업데이트
             currentPos += Vector2.up * ITEM_LIFT_OFFSET;
             rectTransform.position = currentPos;
 
-            // 회전 처리
-            var touches = Touchscreen.current.touches;
-            if (touches.Count >= 2)
+            var activeTouches = Touchscreen.current.touches.Where(t =>
+                t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began ||
+                t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved ||
+                t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Stationary
+            ).ToList();
+
+            Debug.Log($"Active touches count: {activeTouches.Count}");
+
+            // 터치가 1개일 때 쿨다운 초기화
+            if (activeTouches.Count == 1)
             {
-                foreach (var touch in touches)
+                lastRotationTime = Time.time - ROTATION_COOLDOWN; // 쿨다운 초기화
+            }
+
+            if (activeTouches.Count >= 2)
+            {
+                var primaryTouch = activeTouches[0];
+                var secondaryTouches = activeTouches.Skip(1);
+
+                foreach (var touch in secondaryTouches)
                 {
-                    if (touch.touchId.ReadValue() != touches[0].touchId.ReadValue())
+                    Debug.Log($"Secondary touch phase: {touch.phase.ReadValue()}");
+
+                    if (touch.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began)
                     {
-                        if (touch.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began)
+                        float currentTime = Time.time;
+                        if (currentTime - lastRotationTime >= ROTATION_COOLDOWN)
                         {
-                            Debug.Log("Second touch detected - Rotating");
+                            Debug.Log("Rotating item");
                             RotateItem();
+                            lastRotationTime = currentTime;
+                            break;
                         }
-                        break;
+                        else
+                        {
+                            Debug.Log($"Cooldown not passed. Remaining time: {ROTATION_COOLDOWN - (currentTime - lastRotationTime)}");
+                        }
                     }
                 }
             }
@@ -377,10 +398,7 @@ public class InventoryController : MonoBehaviour
 
         HandleHighlight();
     }
-    private IEnumerator PreventDoubleRotation()
-    {
-        yield return new WaitForSeconds(0.2f);
-    }
+
 
     private void HandleHighlight()
     {
