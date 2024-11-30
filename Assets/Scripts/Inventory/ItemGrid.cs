@@ -66,25 +66,21 @@ public class ItemGrid : MonoBehaviour
             }
         }
 
-        Vector2 positionOnTheGrid = new Vector2();
+        Vector3[] corners = new Vector3[4];
+        rectTransform.GetWorldCorners(corners);
+        Vector2 gridTopLeft = corners[1];
+        float scale = rectTransform.localScale.x;  // 6
 
-        // 아이템 크기가 있는 경우 (아이템의 center pivot 고려)
-        if (itemSize != Vector2.zero)
-        {
-            // 터치 위치에서 아이템 크기의 절반을 빼서 left-top 기준으로 변환
-            touchPosition -= new Vector2(itemSize.x / 2, -itemSize.y / 2);
-        }
+        Vector2 positionFromTopLeft = touchPosition - gridTopLeft;
 
-        // 그리드의 로컬 좌표로 변환
-        positionOnTheGrid.x = touchPosition.x - rectTransform.position.x;
-        positionOnTheGrid.y = rectTransform.position.y - touchPosition.y;
+        // scale을 곱해서 보정
+        positionFromTopLeft += new Vector2(tileSizeWidth * scale * 0.5f, tileSizeHeight * scale * 0.5f);
 
-        float scale = rectTransform.localScale.x;
+        Vector2 positionOnTheGrid = positionFromTopLeft / scale;
 
-        // 그리드 좌표 계산
         return new Vector2Int(
-            (int)(positionOnTheGrid.x / (tileSizeWidth * scale)),
-            (int)(positionOnTheGrid.y / (tileSizeHeight * scale))
+            Mathf.FloorToInt(positionOnTheGrid.x / tileSizeWidth),
+            Mathf.FloorToInt(-positionOnTheGrid.y / tileSizeHeight)
         );
     }
     public InventoryItem PickUpItem(int x, int y)
@@ -178,8 +174,7 @@ public class ItemGrid : MonoBehaviour
     {
         Vector2 position = new Vector2();
 
-        // 그리드는 Left Top, 아이템은 Center 피벗이므로
-        // 타일 크기의 절반을 더해서 중앙 정렬
+
         position.x = posX * tileSizeWidth + (tileSizeWidth * inventoryItem.WIDTH / 2);
         position.y = -(posY * tileSizeHeight + (tileSizeHeight * inventoryItem.HEIGHT / 2));
 

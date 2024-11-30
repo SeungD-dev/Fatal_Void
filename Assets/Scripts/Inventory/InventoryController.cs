@@ -49,7 +49,7 @@ public class InventoryController : MonoBehaviour
     private Vector2 holdStartPosition;
     private const float HOLD_THRESHOLD = 0.3f; // 홀드 인식 시간
     private const float HOLD_MOVE_THRESHOLD = 20f; // 홀드 중 이동 허용 범위
-    public static float ITEM_LIFT_OFFSET = 0f; // 아이템을 들어올릴 높이
+    public static float ITEM_LIFT_OFFSET = 350f; // 아이템을 들어올릴 높이
     private float lastRotationTime = -999f;
     private const float ROTATION_COOLDOWN = 0.3f; // 회전 간 최소 시간
     private bool isRotating = false;
@@ -304,14 +304,14 @@ public class InventoryController : MonoBehaviour
                     selectedItemGrid.PickUpItem(touchedItem.onGridPositionX, touchedItem.onGridPositionY);
                 }
 
-                Vector2 liftedPosition = currentPos + Vector2.up * ITEM_LIFT_OFFSET;
+                // 실제 위치를 350f 위로 올림
+                Vector2 liftedPosition = touchPosition.ReadValue<Vector2>() + Vector2.up * ITEM_LIFT_OFFSET;
                 rectTransform.position = liftedPosition;
 
                 Debug.Log("Hold successful!");
                 holdChecking = false;
                 break;
             }
-
             yield return new WaitForEndOfFrame();
         }
     }
@@ -409,18 +409,8 @@ public class InventoryController : MonoBehaviour
         }
 
         Vector2 touchPos = touchPosition.ReadValue<Vector2>();
-        Vector2Int positionOnGrid;
+        Vector2Int positionOnGrid = GetTileGridPosition(touchPos);
 
-        // 아이템을 들고 있을 때
-        if (isHolding)
-        {
-            // 상승 높이를 고려한 위치 계산
-            touchPos -= Vector2.up * ITEM_LIFT_OFFSET;
-        }
-
-        positionOnGrid = GetTileGridPosition(touchPos);
-
-        // Grid 바깥 영역 체크
         if (!IsPositionWithinGrid(positionOnGrid))
         {
             inventoryHighlight?.Show(false);
@@ -434,18 +424,6 @@ public class InventoryController : MonoBehaviour
             {
                 inventoryHighlight?.Show(true);
                 inventoryHighlight?.SetSize(itemToHighlight);
-
-                // 하이라이트도 상승 높이를 고려하여 위치 설정
-                Vector2 highlightPos = selectedItemGrid.CalculatePositionOnGrid(
-                    itemToHighlight,
-                    itemToHighlight.onGridPositionX,
-                    itemToHighlight.onGridPositionY);
-
-                if (isHolding)
-                {
-                    highlightPos += Vector2.up * ITEM_LIFT_OFFSET;
-                }
-
                 inventoryHighlight?.SetPosition(selectedItemGrid, itemToHighlight,
                     itemToHighlight.onGridPositionX, itemToHighlight.onGridPositionY);
             }
@@ -456,7 +434,6 @@ public class InventoryController : MonoBehaviour
         }
         else
         {
-            // 현재 위치가 유효한지 확인
             bool isValidPosition = selectedItemGrid.BoundryCheck(positionOnGrid.x, positionOnGrid.y,
                 selectedItem.WIDTH, selectedItem.HEIGHT);
 
@@ -464,16 +441,6 @@ public class InventoryController : MonoBehaviour
             {
                 inventoryHighlight?.Show(true);
                 inventoryHighlight?.SetSize(selectedItem);
-
-                // 하이라이트 위치에도 상승 높이 적용
-                Vector2 highlightPos = selectedItemGrid.CalculatePositionOnGrid(
-                    selectedItem, positionOnGrid.x, positionOnGrid.y);
-
-                if (isHolding)
-                {
-                    highlightPos += Vector2.up * ITEM_LIFT_OFFSET;
-                }
-
                 inventoryHighlight?.SetPosition(selectedItemGrid, selectedItem, positionOnGrid.x, positionOnGrid.y);
             }
             else
@@ -481,14 +448,7 @@ public class InventoryController : MonoBehaviour
                 inventoryHighlight?.Show(false);
             }
         }
-
-        // WeaponInfo UI 업데이트
-        if (selectedItem != null && weaponInfoUI != null)
-        {
-            weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
-        }
     }
-
     private void RotateItem()
     {
         if (selectedItem == null) return;
@@ -519,14 +479,16 @@ public class InventoryController : MonoBehaviour
 
     private Vector2Int GetTileGridPosition(Vector2 position)
     {
+        // 아이템과 동일하게 인식 범위도 ITEM_LIFT_OFFSET만큼 올림
         if (selectedItem != null && isHolding)
         {
-            // 상승 높이만큼 위치 조정
-            position -= Vector2.up * ITEM_LIFT_OFFSET;
+            position += Vector2.up * ITEM_LIFT_OFFSET;
         }
-
         return selectedItemGrid.GetTileGridPosition(position);
     }
+
+
+
     private InventoryItem itemToHighlight;
     Vector2Int oldPosition;
 
