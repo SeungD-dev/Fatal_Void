@@ -16,7 +16,7 @@ public class PlayerStats : MonoBehaviour
     public IntChangeHandler OnKillCountChanged;
     public IntChangeHandler OnCoinChanged;
     public VoidHandler OnPlayerDeath;
-    
+
     public event MovementSpeedChangeHandler OnMovementSpeedChanged;
 
     [Header("Level Settings")]
@@ -134,6 +134,17 @@ public class PlayerStats : MonoBehaviour
         {
             Die();
         }
+    }
+
+    public bool SpendCoins(int amount)
+    {
+        if (coinCount >= amount)
+        {
+            coinCount -= amount;
+            OnCoinChanged?.Invoke(coinCount);
+            return true;
+        }
+        return false;
     }
 
     public void Heal(float amount)

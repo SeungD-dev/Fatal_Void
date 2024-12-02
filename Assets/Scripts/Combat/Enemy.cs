@@ -7,6 +7,12 @@ public class Enemy : MonoBehaviour, IPooledObject
     [SerializeField] private float hitFlashDuration = 0.1f;
     [SerializeField] private Color hitColor = Color.red;
 
+    [Header("Bounce Effect")]
+    [SerializeField] private float bounceSpeed = 8f;
+    [SerializeField] private float bounceAmount = 0.2f;
+    private Vector3 originalScale;
+    private float bounceTime;
+
     [SerializeField] private EnemyData enemyData;
     private float currentHealth;
     private float calculatedMaxHealth;
@@ -24,14 +30,36 @@ public class Enemy : MonoBehaviour, IPooledObject
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        if(spriteRenderer != null)
+        if (spriteRenderer != null)
         {
             originalColor = spriteRenderer.color;
         }
+
+        originalScale = transform.localScale;
     }
     public void Initialize(Transform target)
     {
         targetTransform = target;
+    }
+
+    public void UpdateBounceEffect()
+    {
+        if (!gameObject.activeSelf) return;
+
+        bounceTime += Time.deltaTime * bounceSpeed;
+
+        float bounce = Mathf.Abs(Mathf.Sin(bounceTime)) * bounceAmount;
+
+        transform.localScale = new Vector3(
+            originalScale.x,
+            originalScale.y + bounce,
+            originalScale.z);
+    }
+
+    public void ResetBounceEffect()
+    {
+        transform.localScale = originalScale;
+        bounceTime = 0f;
     }
 
 
@@ -66,11 +94,13 @@ public class Enemy : MonoBehaviour, IPooledObject
             Debug.LogWarning("Enemy spawned without EnemyData!");
         }
 
-        if(spriteRenderer != null)
+        if (spriteRenderer != null)
         {
             spriteRenderer.color = originalColor;
         }
         isFlashing = false;
+
+        ResetBounceEffect();
     }
 
     private void InitializeStats()
@@ -95,6 +125,14 @@ public class Enemy : MonoBehaviour, IPooledObject
 
         currentHealth -= damage;
 
+        Color textColor = Color.white;
+        string damageText = damage.ToString("F0");
+
+        if (FloatingTextManager.Instance != null && FloatingTextManager.Instance.isFloatingTextEnabled == true)
+        {
+            FloatingTextManager.Instance.ShowFloatingText(damageText, transform.position, textColor);
+        }
+
         PlayHitEffect();
 
         if (currentHealth <= 0)
@@ -105,7 +143,7 @@ public class Enemy : MonoBehaviour, IPooledObject
 
     private void PlayHitEffect()
     {
-        if(spriteRenderer != null & !isFlashing)
+        if (spriteRenderer != null & !isFlashing)
         {
             StartCoroutine(HitFlashCoroutine());
         }
@@ -116,12 +154,12 @@ public class Enemy : MonoBehaviour, IPooledObject
         isFlashing = true;
 
         spriteRenderer.color = hitColor;
-        
+
         yield return new WaitForSeconds(hitFlashDuration);
 
         spriteRenderer.color = originalColor;
 
-        isFlashing= false;
+        isFlashing = false;
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -184,12 +222,14 @@ public class Enemy : MonoBehaviour, IPooledObject
     private void OnDisable()
     {
         StopAllCoroutines();
-        if(spriteRenderer != null)
+        if (spriteRenderer != null)
         {
             spriteRenderer.color = originalColor;
         }
 
         isFlashing = false;
+
+        ResetBounceEffect();
     }
 
 
@@ -200,5 +240,3 @@ public class Enemy : MonoBehaviour, IPooledObject
     public float MoveSpeed => enemyData?.moveSpeed ?? 0f;
     public string EnemyName => enemyData?.enemyName ?? "Unknown Enemy";
 }
-
-

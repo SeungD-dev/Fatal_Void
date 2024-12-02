@@ -22,6 +22,7 @@ public class ChasingState : IState
 
     public void OnExit()
     {
+        enemyStats.ResetBounceEffect();
         Debug.Log($"{enemyAI.gameObject.name} stopped chasing");
     }
 
@@ -29,18 +30,22 @@ public class ChasingState : IState
     {
         if (playerTransform != null && GameManager.Instance.currentGameState == GameState.Playing)
         {
+            // 이동 로직
             Vector2 direction = (playerTransform.position - enemyTransform.position).normalized;
-            if(direction.x != 0)
+            if (direction.x != 0)
             {
                 enemyAI.spriteRenderer.flipX = direction.x < 0;
             }
-
             enemyTransform.Translate(direction * enemyStats.MoveSpeed * Time.deltaTime);
+
+            // 바운스 효과 업데이트
+            enemyStats.UpdateBounceEffect();
         }
     }
-
 
     public void FixedUpdate()
     {
     }
+
+
 }

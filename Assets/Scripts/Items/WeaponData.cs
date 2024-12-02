@@ -9,10 +9,13 @@ public class WeaponData : ScriptableObject
     public Sprite weaponIcon;
     public WeaponRarity rarity;
     public WeaponType weaponType;
+
     public int price;
     public string weaponName;
     public string weaponDescription;
-   
+    [SerializeField] private float sellPriceRatio = 0.5f;
+
+    public int SellPrice => Mathf.RoundToInt(price * sellPriceRatio);
 
     [Header("Combat Stats")]
     public float projectileSpeed = 10f;
@@ -23,7 +26,5 @@ public class WeaponData : ScriptableObject
     [Header("Prefabs")]
     public GameObject projectilePrefab;
 
-   
+
 }
-
-
