@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
+using TMPro;
 
 public class InventoryController : MonoBehaviour
 {
@@ -39,6 +40,12 @@ public class InventoryController : MonoBehaviour
     [SerializeField] private GameObject playerStatsUI;
     [SerializeField] private ItemGrid mainInventoryGrid;
     [SerializeField] private Button progressButton;
+
+    [Header("Sell Zone")]
+    [SerializeField] private RectTransform sellZoneRect;
+    [SerializeField] private GameObject sellPopupPrefab;
+    private GameObject currentSellPopup;
+    private bool isOverSellZone = false;
 
     InventoryHighlight inventoryHighlight;
     private bool isDragging = false;
@@ -319,6 +326,8 @@ public class InventoryController : MonoBehaviour
     {
         if (!inventoryUI.activeSelf || selectedItemGrid == null) return;
 
+        HandleTouchEnd();
+
         if (isDragging && selectedItem != null)
         {
             Vector2 touchPos = touchPosition.ReadValue<Vector2>();
@@ -394,6 +403,9 @@ public class InventoryController : MonoBehaviour
                     }
                 }
             }
+
+            isOverSellZone = IsTouchOverSellZone(currentPos);
+            UpdateSellPopup(currentPos);
         }
 
         HandleHighlight();
@@ -711,5 +723,110 @@ public class InventoryController : MonoBehaviour
         CreatePurchasedItem(weaponData);
     }
 
+
+    private void HandleTouchEnd()
+    {
+        if (isDragging && selectedItem != null)
+        {
+            if (isOverSellZone)
+            {
+                SellItem(selectedItem);
+            }
+            else
+            {
+                Vector2Int tileGridPosition = GetTileGridPosition(touchPosition.ReadValue<Vector2>());
+                if (IsPositionWithinGrid(tileGridPosition) &&
+                    selectedItemGrid.BoundryCheck(tileGridPosition.x, tileGridPosition.y,
+                        selectedItem.WIDTH, selectedItem.HEIGHT))
+                {
+                    PutDownItem(tileGridPosition);
+                }
+            }
+        }
+
+        isHolding = false;
+        isDragging = false;
+    }
+
+    private bool IsTouchOverSellZone(Vector2 touchPos)
+    {
+        if (sellZoneRect == null) return false;
+        return RectTransformUtility.RectangleContainsScreenPoint(sellZoneRect, touchPos);
+    }
+
+    private void UpdateSellPopup(Vector2 position)
+    {
+        if (isOverSellZone && selectedItem != null)
+        {
+            if (currentSellPopup == null)
+            {
+                currentSellPopup = Instantiate(sellPopupPrefab, canvasTransform);
+                SetupSellPopup(currentSellPopup, selectedItem.weaponData);
+            }
+            currentSellPopup.transform.position = position + Vector2.up * 150f;
+        }
+        else
+        {
+            if (currentSellPopup != null)
+            {
+                Destroy(currentSellPopup);
+                currentSellPopup = null;
+            }
+        }
+    }
+
+    private void SetupSellPopup(GameObject popup, WeaponData weaponData)
+    {
+        var priceText = popup.GetComponentInChildren<TextMeshProUGUI>();
+        if (priceText != null)
+        {
+            priceText.text = $"Sell: {weaponData.SellPrice}";
+        }
+    }
+
+    private void SellItem(InventoryItem item)
+    {
+        if (item == null || item.weaponData == null) return;
+
+        // 인벤토리의 아이템 개수 체크
+        int itemCount = 0;
+        for (int x = 0; x < selectedItemGrid.Width; x++)
+        {
+            for (int y = 0; y < selectedItemGrid.Height; y++)
+            {
+                if (selectedItemGrid.GetItem(x, y) != null)
+                {
+                    itemCount++;
+                }
+            }
+        }
+
+        // 아이템이 1개 이하면 판매 불가
+        if (itemCount <= 1)
+        {
+            Debug.Log("Cannot sell the last item in inventory!");
+            // 판매 취소 시 원래 위치로 돌아가기
+            Vector2Int tileGridPosition = GetTileGridPosition(touchPosition.ReadValue<Vector2>());
+            if (IsPositionWithinGrid(tileGridPosition) &&
+                selectedItemGrid.BoundryCheck(tileGridPosition.x, tileGridPosition.y,
+                    selectedItem.WIDTH, selectedItem.HEIGHT))
+            {
+                PutDownItem(tileGridPosition);
+            }
+            return;
+        }
+
+        // 판매 처리
+        GameManager.Instance.PlayerStats.AddCoins(item.weaponData.SellPrice);
+        Destroy(item.gameObject);
+
+        if (currentSellPopup != null)
+        {
+            Destroy(currentSellPopup);
+            currentSellPopup = null;
+        }
+        selectedItem = null;
+        isDragging = false;
+    }
 
 }

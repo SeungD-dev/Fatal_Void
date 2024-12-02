@@ -5,18 +5,21 @@ public class ShopController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private WeaponDatabase weaponDatabase;
-    [SerializeField] private WeaponOptionUI[] weaponOptions; // 3개의 WeaponOption 참조
+    [SerializeField] private WeaponOptionUI[] weaponOptions;
     [SerializeField] private GameObject inventoryUI;
     [SerializeField] private InventoryController inventoryController;
     [SerializeField] private GameObject shopUI;
     [SerializeField] private GameObject playerControlUI;
     [SerializeField] private GameObject playerStatsUI;
 
+    private bool isFirstShop = true;
+
     public void InitializeShop()
     {
         playerControlUI.SetActive(false);
         playerStatsUI.SetActive(false);
         shopUI.SetActive(true);
+
         if (weaponOptions == null || weaponOptions.Length == 0)
         {
             Debug.LogError("No weapon options assigned to ShopUI!");
@@ -29,11 +32,22 @@ public class ShopController : MonoBehaviour
         {
             if (i < randomWeapons.Count && weaponOptions[i] != null)
             {
-                weaponOptions[i].Initialize(randomWeapons[i], this);
+                // 첫 상점이면 무기 가격을 0으로 설정
+                if (isFirstShop)
+                {
+                    WeaponData freeWeapon = ScriptableObject.Instantiate(randomWeapons[i]); // 복제본 생성
+                    freeWeapon.price = 0;
+                    weaponOptions[i].Initialize(freeWeapon, this);
+                }
+                else
+                {
+                    weaponOptions[i].Initialize(randomWeapons[i], this);
+                }
             }
         }
-    }
 
+        isFirstShop = false; // 첫 상점 초기화 완료
+    }
     private List<WeaponData> GetRandomWeapons(int count)
     {
         List<WeaponData> allWeapons = new List<WeaponData>(weaponDatabase.weapons);
@@ -61,15 +75,6 @@ public class ShopController : MonoBehaviour
 
             // 선택한 무기를 인벤토리에 추가
             inventoryController.OnPurchaseItem(weaponData);
-        }
-    }
-
-    public void SellWeapon(WeaponData weaponData)
-    {
-        if (weaponData != null)
-        {
-            Debug.Log($"Selling weapon: {weaponData.weaponName}");
-            // 판매 로직 구현
         }
     }
 
