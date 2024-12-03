@@ -553,7 +553,11 @@ public class InventoryController : MonoBehaviour
         inventoryItem.onGridPositionX = gridPosition.x;
         inventoryItem.onGridPositionY = gridPosition.y;
 
-        // 그리드 상의 실제 위치 계산
+        // 실제 그리드에 아이템 배치
+        InventoryItem overlapItem = null;
+        selectedItemGrid.PlaceItem(inventoryItem, gridPosition.x, gridPosition.y, ref overlapItem);
+
+        // 그리드 상의 실제 위치 계산 및 설정
         Vector2 position = selectedItemGrid.CalculatePositionOnGrid(inventoryItem,
             gridPosition.x, gridPosition.y);
         rectTransform.localPosition = position;
