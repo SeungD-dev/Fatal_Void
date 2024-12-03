@@ -21,7 +21,7 @@ public class WeaponManager : MonoBehaviour
         // 무기 타입에 따라 직접 인스턴스 생성
         switch (weaponData.weaponType)
         {
-            case WeaponType.LongSword:
+            case WeaponType.Sword:
                 mechanism = new LongSwordMechanism();
                 break;
                 // 다른 무기 타입들 추가

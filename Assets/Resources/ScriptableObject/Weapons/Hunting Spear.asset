@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2bd5af085e83a94cb4259f9af2a69e8, type: 3}
-  m_Name: Long Sword
+  m_Name: Hunting Spear
   m_EditorClassIdentifier: 
   width: 1
-  height: 2
-  weaponIcon: {fileID: 21300000, guid: d94d7694bfeabd4468df2d66f724c1e7, type: 3}
+  height: 3
+  weaponIcon: {fileID: 1452579821020886253, guid: 1de87ede6801f42498cb4b6b16f4c70e, type: 3}
   rarity: 0
   weaponType: 0
-  price: 10
-  weaponName: Long Sword
-  weaponDescription: Throws a sword with a piercing effect
+  price: 15
+  weaponName: Hunting Spear
+  weaponDescription: Throws a spear
   sellPriceRatio: 0.5
   projectileSpeed: 10
   weaponLevel: 0
-  weaponDamage: 10
-  attackDelay: 1
-  projectilePrefab: {fileID: 2318590828619193186, guid: 0d9b92353f032d74e9b496fb940f68bd, type: 3}
+  weaponDamage: 15
+  attackDelay: 2
+  projectilePrefab: {fileID: 2318590828619193186, guid: 2b66ba0df99687b4584e98cd4f7a5e66, type: 3}

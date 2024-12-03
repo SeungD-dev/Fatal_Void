@@ -8,6 +8,14 @@ public enum WeaponRarity
 
 public enum WeaponType
 {
-    LongSword,
-    // 다른 무기 타입들 추가
+    Sword,
+    Dagger,
+    Axe,
+    Equipment,
+    Special,
+    Mace,
+    Katana,
+    Scythe,
+    Bow,
+    Summon
 }

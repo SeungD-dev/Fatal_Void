@@ -8,10 +8,11 @@ public class Enemy : MonoBehaviour, IPooledObject
     [SerializeField] private Color hitColor = Color.red;
 
     [Header("Bounce Effect")]
-    [SerializeField] private float bounceSpeed = 8f;
-    [SerializeField] private float bounceAmount = 0.2f;
+    [SerializeField] private float bounceSpeed;
+    [SerializeField] private float bounceAmount;
     private Vector3 originalScale;
     private float bounceTime;
+    private bool isXBounce = false;
 
     [SerializeField] private EnemyData enemyData;
     private float currentHealth;
@@ -50,18 +51,36 @@ public class Enemy : MonoBehaviour, IPooledObject
 
         float bounce = Mathf.Abs(Mathf.Sin(bounceTime)) * bounceAmount;
 
-        transform.localScale = new Vector3(
-            originalScale.x,
-            originalScale.y + bounce,
-            originalScale.z);
+        // bounceTime이 PI에 도달할 때마다 바운스 축을 변경
+        if (bounceTime >= Mathf.PI)
+        {
+            bounceTime = 0f;
+            isXBounce = !isXBounce; // 축 전환
+        }
+
+        // 현재 바운스 축에 따라 스케일 조정
+        if (isXBounce)
+        {
+            transform.localScale = new Vector3(
+                originalScale.x + bounce,
+                originalScale.y,
+                originalScale.z);
+        }
+        else
+        {
+            transform.localScale = new Vector3(
+                originalScale.x,
+                originalScale.y + bounce,
+                originalScale.z);
+        }
     }
 
     public void ResetBounceEffect()
     {
         transform.localScale = originalScale;
         bounceTime = 0f;
+        isXBounce = false;
     }
-
 
     public void SetEnemyData(EnemyData data)
     {
