@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 1
   height: 3
-  weaponIcon: {fileID: 1452579821020886253, guid: 1de87ede6801f42498cb4b6b16f4c70e, type: 3}
+  weaponIcon: {fileID: 21300000, guid: 1de87ede6801f42498cb4b6b16f4c70e, type: 3}
   rarity: 0
   weaponType: 0
   price: 15

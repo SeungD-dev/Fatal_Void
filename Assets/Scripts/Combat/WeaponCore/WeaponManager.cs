@@ -24,14 +24,15 @@ public class WeaponManager : MonoBehaviour
             case WeaponType.Sword:
                 mechanism = new LongSwordMechanism();
                 break;
-                // 다른 무기 타입들 추가
+            case WeaponType.Bow:
+                mechanism = new BowMechanism();
+                break;
         }
 
         if (mechanism != null)
         {
             mechanism.Initialize(weaponData, transform);
             activeWeapons.Add(mechanism);
-            Debug.Log($"Weapon equipped: {weaponData.weaponName}");
         }
     }
 

@@ -85,7 +85,6 @@ public class SpawnController : MonoBehaviour
         enemyDatabase.ResetSpawnCounts();
 
         isInitialized = true;
-        Debug.Log("SpawnController initialized");
     }
 
 
@@ -94,12 +93,10 @@ public class SpawnController : MonoBehaviour
         if (newState == GameState.Playing)
         {
             enabled = true;
-            Debug.Log("SpawnDirector enabled");
         }
         else
         {
             enabled = false;
-            Debug.Log("SpawnDirector disabled");
         }
     }
 
@@ -219,27 +216,27 @@ public class SpawnController : MonoBehaviour
     }
 
     // 디버그 UI는 게임이 Playing 상태일 때만 표시
-    private void OnGUI()
-    {
-        if (!Application.isEditor || !enabled ||
-            GameManager.Instance.currentGameState != GameState.Playing)
-            return;
+    //private void OnGUI()
+    //{
+    //    if (!Application.isEditor || !enabled ||
+    //        GameManager.Instance.currentGameState != GameState.Playing)
+    //        return;
 
-        GUILayout.BeginArea(new Rect(10, 10, 300, 150));
-        GUILayout.Label($"Game Time: {(int)(gameTime / 60):D2}:{(gameTime % 60):00.0}");
-        GUILayout.Label($"Spawn Interval: {currentSpawnInterval:F1}s");
-        GUILayout.Label($"Spawn Amount: {currentSpawnAmount}");
-        GUILayout.Label($"Next Spawn: {(nextSpawnTime - Time.time):F1}s");
+    //    GUILayout.BeginArea(new Rect(10, 10, 300, 150));
+    //    GUILayout.Label($"Game Time: {(int)(gameTime / 60):D2}:{(gameTime % 60):00.0}");
+    //    GUILayout.Label($"Spawn Interval: {currentSpawnInterval:F1}s");
+    //    GUILayout.Label($"Spawn Amount: {currentSpawnAmount}");
+    //    GUILayout.Label($"Next Spawn: {(nextSpawnTime - Time.time):F1}s");
 
-        // 현재 스폰된 적들의 비율 표시
-        foreach (var settings in enemyDatabase.enemySettings)
-        {
-            float ratio = gameTime == 0 ? 0 :
-                         (settings.spawnCount * 100f / enemyDatabase.ratioCheckInterval);
-            GUILayout.Label($"{settings.enemyData.enemyName}: {ratio:F1}%");
-        }
-        GUILayout.EndArea();
-    }
+    //    // 현재 스폰된 적들의 비율 표시
+    //    foreach (var settings in enemyDatabase.enemySettings)
+    //    {
+    //        float ratio = gameTime == 0 ? 0 :
+    //                     (settings.spawnCount * 100f / enemyDatabase.ratioCheckInterval);
+    //        GUILayout.Label($"{settings.enemyData.enemyName}: {ratio:F1}%");
+    //    }
+    //    GUILayout.EndArea();
+    //}
 
     // 디버그용 기즈모
     private void OnDrawGizmos()

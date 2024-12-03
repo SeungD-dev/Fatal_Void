@@ -22,6 +22,7 @@ public class WeaponData : ScriptableObject
     public float weaponLevel;
     public int weaponDamage;
     public float attackDelay;
+    public float levelMultiplier;
 
     [Header("Prefabs")]
     public GameObject projectilePrefab;

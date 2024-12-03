@@ -17,13 +17,11 @@ public class ChasingState : IState
 
     public void OnEnter()
     {
-        Debug.Log($"{enemyAI.gameObject.name} started chasing player");
     }
 
     public void OnExit()
     {
         enemyStats.ResetBounceEffect();
-        Debug.Log($"{enemyAI.gameObject.name} stopped chasing");
     }
 
     public void Update()

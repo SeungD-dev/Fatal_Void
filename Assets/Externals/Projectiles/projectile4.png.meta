@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: 1de87ede6801f42498cb4b6b16f4c70e
+guid: 92733d67c8a3f63428c389736f0df95a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1452579821020886253
-    second: spear1_0
+      213: -3032290122271863081
+    second: projectile4_0
+  - first:
+      213: -8849933308964374576
+    second: projectile4_1
+  - first:
+      213: 7540369512487978330
+    second: projectile4_2
+  - first:
+      213: 9170379098770101563
+    second: projectile4_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,10 +55,10 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
-  alignment: 7
+  alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
@@ -139,13 +148,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: spear1_0
+      name: projectile4_0
       rect:
         serializedVersion: 2
-        x: 184
-        y: 17
-        width: 267
-        height: 1877
+        x: 86
+        y: 137
+        width: 38
+        height: 11
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +163,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: de4b9dfa6a9982410800000000000000
-      internalID: 1452579821020886253
+      spriteID: 7de4f0613342be5d0800000000000000
+      internalID: -3032290122271863081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectile4_1
+      rect:
+        serializedVersion: 2
+        x: 125
+        y: 140
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d7f7416b88be2580800000000000000
+      internalID: -8849933308964374576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectile4_2
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 116
+        width: 95
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a55080bfe16c4a860800000000000000
+      internalID: 7540369512487978330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectile4_3
+      rect:
+        serializedVersion: 2
+        x: 155
+        y: 110
+        width: 14
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b35dbdd143bb34f70800000000000000
+      internalID: 9170379098770101563
       vertices: []
       indices: 
       edges: []
@@ -164,7 +239,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -173,8 +248,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      spear1_0: 1452579821020886253
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

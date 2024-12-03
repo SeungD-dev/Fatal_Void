@@ -134,8 +134,6 @@ public class Enemy : MonoBehaviour, IPooledObject
         );
         currentHealth = calculatedMaxHealth;
         lastDamageTime = 0f;
-
-        Debug.Log($"Enemy {enemyData.enemyName} initialized with health: {currentHealth}");
     }
 
     public void TakeDamage(int damage)
