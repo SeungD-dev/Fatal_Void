@@ -136,7 +136,7 @@ public class Enemy : MonoBehaviour, IPooledObject
         lastDamageTime = 0f;
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         if (!gameObject.activeSelf) return;
 

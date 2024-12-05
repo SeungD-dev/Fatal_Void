@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class BowProjectile : MonoBehaviour
 {
-    private int damage;
+    private float damage;
     private Vector2 direction;
     private float speed;
     [SerializeField] private float maxDistance = 20f;
     private Vector2 startPosition;
     [SerializeField] private float rotationOffset;
 
-    public void Initialize(int damage, Vector2 direction, float speed)
+    public void Initialize(float damage, Vector2 direction, float speed)
     {
         this.damage = damage;
         this.direction = direction;

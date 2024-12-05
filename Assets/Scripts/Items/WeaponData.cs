@@ -20,7 +20,7 @@ public class WeaponData : ScriptableObject
     [Header("Combat Stats")]
     public float projectileSpeed = 10f;
     public float weaponLevel;
-    public int weaponDamage;
+    public float weaponDamage;
     public float attackDelay;
     public float levelMultiplier;
 

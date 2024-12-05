@@ -223,7 +223,7 @@ public partial class @TouchActions : IInputActionCollection2, IDisposable
         }
     }
 
-    // Touch 속성도 TouchMap으로 변경
+    
     public TouchMap @Touch => new TouchMap(this);
 
     public interface ITouchActions

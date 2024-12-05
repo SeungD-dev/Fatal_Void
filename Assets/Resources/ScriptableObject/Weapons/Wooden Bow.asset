@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: 21300000, guid: 946c14f029739e54d99a6a343cd99ac1, type: 3}
   rarity: 0
   weaponType: 8
-  price: 10
+  price: 0
   weaponName: Wooden Bow
   weaponDescription: Shoot an arrow
   sellPriceRatio: 0.5
@@ -25,4 +25,5 @@ MonoBehaviour:
   weaponLevel: 0
   weaponDamage: 4
   attackDelay: 0.5
+  levelMultiplier: 2.5
   projectilePrefab: {fileID: 2318590828619193186, guid: a399b5242c9d8084d8051c35ca785cf7, type: 3}

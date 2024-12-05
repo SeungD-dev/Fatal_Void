@@ -22,7 +22,7 @@ public class PlayerStats : MonoBehaviour
     [Header("Level Settings")]
     [SerializeField] private int level = 1;
     [SerializeField] private float currentExp = 0;
-    [SerializeField] private float requiredExp = 30;
+    [SerializeField] private float requiredExp = 1;
 
     [Header("Resource Stats")]
     private float currentHealth;

@@ -13,9 +13,21 @@ public class ShopController : MonoBehaviour
     [SerializeField] private GameObject playerStatsUI;
 
     private bool isFirstShop = true;
+    private PlayerStats playerStats;
 
     public void InitializeShop()
     {
+        // PlayerStats 참조 가져오기
+        if (playerStats == null)
+        {
+            playerStats = GameManager.Instance.PlayerStats;
+            if (playerStats == null)
+            {
+                Debug.LogError("PlayerStats reference is null in ShopController!");
+                return;
+            }
+        }
+
         playerControlUI.SetActive(false);
         playerStatsUI.SetActive(false);
         shopUI.SetActive(true);
@@ -32,22 +44,54 @@ public class ShopController : MonoBehaviour
         {
             if (i < randomWeapons.Count && weaponOptions[i] != null)
             {
+                // 원본 무기 데이터를 복제하여 레벨에 맞게 조정
+                WeaponData scaledWeapon = ScaleWeaponToPlayerLevel(randomWeapons[i]);
+
                 // 첫 상점이면 무기 가격을 0으로 설정
                 if (isFirstShop)
                 {
-                    WeaponData freeWeapon = ScriptableObject.Instantiate(randomWeapons[i]); // 복제본 생성
-                    freeWeapon.price = 0;
-                    weaponOptions[i].Initialize(freeWeapon, this);
+                    scaledWeapon.price = 0;
                 }
-                else
-                {
-                    weaponOptions[i].Initialize(randomWeapons[i], this);
-                }
+
+                weaponOptions[i].Initialize(scaledWeapon, this);
             }
         }
 
-        isFirstShop = false; // 첫 상점 초기화 완료
+        isFirstShop = false;
     }
+
+    private WeaponData ScaleWeaponToPlayerLevel(WeaponData originalWeapon)
+    {
+        if (playerStats == null)
+        {
+            Debug.LogError("PlayerStats is null when trying to scale weapon!");
+            return originalWeapon;
+        }
+
+        // 원본 데이터를 수정하지 않기 위해 복제
+        WeaponData scaledWeapon = ScriptableObject.Instantiate(originalWeapon);
+
+        // 무기 레벨을 플레이어 레벨로 설정
+        scaledWeapon.weaponLevel = playerStats.Level;
+
+        // 기본 공격력에 레벨 배수 추가
+        float baseDamage = originalWeapon.weaponDamage;
+        float levelBonus = scaledWeapon.levelMultiplier * (playerStats.Level - 1);
+        float powerBonus = 1 + (playerStats.Power / 100f); // Power 스탯에 따른 데미지 증가
+
+        scaledWeapon.weaponDamage = Mathf.RoundToInt((baseDamage + levelBonus) * powerBonus);
+
+        // 공격 속도(쿨다운) 조정
+        float cooldownReduction = 1f - (playerStats.CooldownReduce / 100f);
+        scaledWeapon.attackDelay *= cooldownReduction;
+
+        // 가격 조정
+        int basePrice = originalWeapon.price;
+        scaledWeapon.price = basePrice + Mathf.RoundToInt(basePrice * (scaledWeapon.weaponLevel - 1));
+
+        return scaledWeapon;
+    }
+
     private List<WeaponData> GetRandomWeapons(int count)
     {
         List<WeaponData> allWeapons = new List<WeaponData>(weaponDatabase.weapons);
@@ -67,13 +111,8 @@ public class ShopController : MonoBehaviour
     {
         if (weaponData != null)
         {
-            // 상점 UI 닫기
             shopUI.SetActive(false);
-
-            // 인벤토리 UI 열기
             inventoryUI.SetActive(true);
-
-            // 선택한 무기를 인벤토리에 추가
             inventoryController.OnPurchaseItem(weaponData);
         }
     }

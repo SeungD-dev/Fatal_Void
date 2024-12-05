@@ -10,11 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 4423316877288451001}
   - component: {fileID: 6193328588790351390}
-  - component: {fileID: 1976332023606722102}
   - component: {fileID: 7785847175084570472}
-  - component: {fileID: 6576518771462100650}
+  - component: {fileID: 3568492355876263613}
+  - component: {fileID: 3940120283008530894}
   m_Layer: 0
-  m_Name: LongSword_Projectile 1
+  m_Name: RustyDagger_Projectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -79,19 +79,46 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: d94d7694bfeabd4468df2d66f724c1e7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 554c53ec84ef74041bbca0a8b364117f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 7.68, y: 15.36}
+  m_Size: {x: 6.4, y: 19.04}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!70 &1976332023606722102
-CapsuleCollider2D:
+--- !u!50 &7785847175084570472
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2318590828619193186}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!68 &3568492355876263613
+EdgeCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -120,41 +147,23 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.21525383, y: 7.680001}
-  m_Size: {x: 3.805437, y: 15.360002}
-  m_Direction: 0
---- !u!50 &7785847175084570472
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2318590828619193186}
-  m_BodyType: 1
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
---- !u!114 &6576518771462100650
+  m_Offset: {x: 0, y: 0}
+  m_EdgeRadius: 0
+  m_Points:
+  - {x: 4.710559, y: 5.1289897}
+  - {x: 1.1237807, y: 3.7943592}
+  - {x: -4.973579, y: -4.9458103}
+  - {x: 3.8415987, y: 1.8576287}
+  - {x: 4.8757606, y: 4.7015724}
+  m_AdjacentStartPoint: {x: 0, y: 0}
+  m_AdjacentEndPoint: {x: 0, y: 0}
+  m_UseAdjacentStartPoint: 0
+  m_UseAdjacentEndPoint: 0
+--- !u!114 &3940120283008530894
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -163,8 +172,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 2318590828619193186}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04c8622a5ea021b4ab03bcbb6e1fbeea, type: 3}
+  m_Script: {fileID: 11500000, guid: abf44615a1a256d4fafb07c69c5aa6df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxDistance: 4
-  rotationOffset: -90
+  rotationOffset: -225

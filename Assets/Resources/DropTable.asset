@@ -19,32 +19,27 @@ MonoBehaviour:
     minAmount: 1
     maxAmount: 1
     isMagnetable: 1
-    magnetSpeed: 10
   - itemType: 1
     itemPrefab: {fileID: 3297419363890284131, guid: 4e8b4cd09b3e4064e9863b00cc4934ad, type: 3}
     dropRate: 10
     minAmount: 1
     maxAmount: 1
     isMagnetable: 1
-    magnetSpeed: 10
   - itemType: 2
     itemPrefab: {fileID: 3297419363890284131, guid: 90153773ace59c14fa2b83e2c681b4d1, type: 3}
     dropRate: 10
     minAmount: 1
     maxAmount: 1
     isMagnetable: 0
-    magnetSpeed: 10
   - itemType: 3
     itemPrefab: {fileID: 3297419363890284131, guid: 95f261d8cfc52e745a09522baa401f87, type: 3}
     dropRate: 20
     minAmount: 1
     maxAmount: 1
     isMagnetable: 1
-    magnetSpeed: 10
   - itemType: 4
     itemPrefab: {fileID: 3297419363890284131, guid: 85ded1fd98133444d9bbdca581b7834b, type: 3}
     dropRate: 10
     minAmount: 1
     maxAmount: 1
     isMagnetable: 0
-    magnetSpeed: 10

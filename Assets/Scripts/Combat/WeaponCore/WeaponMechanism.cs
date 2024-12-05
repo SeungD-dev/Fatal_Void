@@ -23,4 +23,9 @@ public abstract class WeaponMechanism
     }
 
     protected abstract void Attack();
+
+    public WeaponData GetWeaponData()
+    {
+        return weaponData;
+    }
 }
