@@ -35,6 +35,9 @@ public class WeaponManager : MonoBehaviour
             case WeaponType.Dagger:
                 mechanism = new DaggerMechanism();
                 break;
+            case WeaponType.Axe:
+                mechanism = new AxeMechanism();
+                break;
                 // 다른 무기 타입들도 각각 추가
         }
 
