@@ -71,26 +71,33 @@ public class ShopController : MonoBehaviour
         // 원본 데이터를 수정하지 않기 위해 복제
         WeaponData scaledWeapon = ScriptableObject.Instantiate(originalWeapon);
 
-        // 무기 레벨을 플레이어 레벨로 설정
-        scaledWeapon.weaponLevel = playerStats.Level;
+        // 티어 1로 초기화 (상점에서는 항상 1티어로 시작)
+        scaledWeapon.currentTier = 1;
 
-        // 기본 공격력에 레벨 배수 추가
-        float baseDamage = originalWeapon.weaponDamage;
-        float levelBonus = scaledWeapon.levelMultiplier * (playerStats.Level - 1);
-        float powerBonus = 1 + (playerStats.Power / 100f); // Power 스탯에 따른 데미지 증가
+        // 플레이어 레벨에 따른 스탯 스케일링
+        float levelScaling = 1f + ((playerStats.Level - 1) * 0.05f); // 레벨당 5% 증가
 
-        scaledWeapon.weaponDamage = Mathf.RoundToInt((baseDamage + levelBonus) * powerBonus);
-
-        // 공격 속도(쿨다운) 조정
-        float cooldownReduction = 1f - (playerStats.CooldownReduce / 100f);
-        scaledWeapon.attackDelay *= cooldownReduction;
+        // 현재 티어의 스탯 스케일링
+        TierStats currentTierStats = scaledWeapon.CurrentTierStats;
+        currentTierStats.damage *= levelScaling;
+        currentTierStats.projectileSpeed *= levelScaling;
+        currentTierStats.attackDelay /= (1f + ((playerStats.Level - 1) * 0.02f)); // 레벨당 2% 빨라짐
 
         // 가격 조정
-        int basePrice = originalWeapon.price;
-        scaledWeapon.price = basePrice + Mathf.RoundToInt(basePrice * (scaledWeapon.weaponLevel - 1));
+        if (!isFirstShop)
+        {
+            int basePrice = originalWeapon.price;
+            float priceScaling = 1f + ((playerStats.Level - 1) * 0.1f); // 레벨당 10% 증가
+            scaledWeapon.price = Mathf.RoundToInt(basePrice * priceScaling);
+        }
+        else
+        {
+            scaledWeapon.price = 0;
+        }
 
         return scaledWeapon;
     }
+
 
     private List<WeaponData> GetRandomWeapons(int count)
     {

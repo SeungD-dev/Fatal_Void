@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2bd5af085e83a94cb4259f9af2a69e8, type: 3}
+  m_Name: Buster
+  m_EditorClassIdentifier: 
+  width: 2
+  height: 1
+  weaponIcon: {fileID: 274745305859932014, guid: c08199575c9931645a7c7037a65ac85f, type: 3}
+  rarity: 0
+  weaponType: 0
+  price: 25
+  weaponName: Buster
+  weaponDescription: 
+  sellPriceRatio: 0.5
+  currentTier: 1
+  tierStats:
+  - damage: 10
+    attackDelay: 1.2
+    projectileSpeed: 6
+    knockback: 2
+    projectileSize: 2.5
+    range: 5
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0
+  - damage: 15
+    attackDelay: 1
+    projectileSpeed: 3
+    knockback: 1
+    projectileSize: 1
+    range: 5
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0
+  - damage: 20
+    attackDelay: 0.8
+    projectileSpeed: 3
+    knockback: 2
+    projectileSize: 1
+    range: 5
+    canPenetrate: 1
+    maxPenetrationCount: 1
+    penetrationDamageDecay: 0
+  - damage: 30
+    attackDelay: 0.6
+    projectileSpeed: 3
+    knockback: 2
+    projectileSize: 1
+    range: 5
+    canPenetrate: 1
+    maxPenetrationCount: 2
+    penetrationDamageDecay: 0
+  projectilePrefab: {fileID: 4589099209072863335, guid: c181a405dd35fb348a61458feb1eeb0e, type: 3}

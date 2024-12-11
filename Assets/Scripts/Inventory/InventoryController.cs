@@ -30,7 +30,7 @@ public class InventoryController : MonoBehaviour
 
     RectTransform rectTransform;
 
-    [SerializeField] List<WeaponData> weapons;
+    //[SerializeField] List<WeaponData> weapons;
     [SerializeField] GameObject weaponPrefab;
     [SerializeField] Transform canvasTransform;
     [SerializeField] private WeaponInfoUI weaponInfoUI;
@@ -54,11 +54,11 @@ public class InventoryController : MonoBehaviour
     public bool isHolding = false;
     private float holdStartTime;
     private Vector2 holdStartPosition;
-    private const float HOLD_THRESHOLD = 0.3f; // 홀드 인식 시간
-    private const float HOLD_MOVE_THRESHOLD = 20f; // 홀드 중 이동 허용 범위
-    public static float ITEM_LIFT_OFFSET = 350f; // 아이템을 들어올릴 높이
+    private const float HOLD_THRESHOLD = 0.3f;
+    private const float HOLD_MOVE_THRESHOLD = 20f; 
+    public static float ITEM_LIFT_OFFSET = 350f; 
     private float lastRotationTime = -999f;
-    private const float ROTATION_COOLDOWN = 0.3f; // 회전 간 최소 시간
+    private const float ROTATION_COOLDOWN = 0.3f; 
     private bool isRotating = false;
     private int lastRotatingTouchId = -1;
 
@@ -127,7 +127,7 @@ public class InventoryController : MonoBehaviour
                 InitializeGrid();
             }
 
-            // CleanupInvalidItems는 UI가 완전히 활성화된 후에 호출
+            
             if (isActive)
             {
                 StartCoroutine(CleanupInvalidItemsDelayed());
@@ -162,7 +162,7 @@ public class InventoryController : MonoBehaviour
 
     public void StartGame()
     {
-        // Grid 상태 체크
+        // Grid 占쏙옙占쏙옙 체크
         if (selectedItemGrid == null)
         {
             Debug.LogError("No ItemGrid selected! Cannot start game.");
@@ -172,7 +172,6 @@ public class InventoryController : MonoBehaviour
         bool hasEquippedItem = false;
         InventoryItem equippedItem = null;
 
-        // 현재 그리드에서 장착된 아이템 찾기
         for (int x = 0; x < selectedItemGrid.Width && !hasEquippedItem; x++)
         {
             for (int y = 0; y < selectedItemGrid.Height && !hasEquippedItem; y++)
@@ -189,16 +188,16 @@ public class InventoryController : MonoBehaviour
 
         if (hasEquippedItem && equippedItem != null)
         {
-            // 무기 장착 및 게임 시작
+            // 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙
             OnWeaponEquipped(equippedItem);
 
-            // UI 전환
+            // UI 占쏙옙환
             inventoryHighlight?.Show(false);
             inventoryUI?.SetActive(false);
             playerControlUI?.SetActive(true);
             playerStatsUI?.SetActive(true);
 
-            // 게임 상태 변경
+            // 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.SetGameState(GameState.Playing);
@@ -206,9 +205,9 @@ public class InventoryController : MonoBehaviour
         }
         else
         {
-            // 경고 메시지 표시
+            // 占쏙옙占� 占쌨쏙옙占쏙옙 표占쏙옙
             Debug.LogWarning("No item equipped! Please place a weapon in the grid.");
-            // 여기에 사용자에게 알림을 표시하는 UI 로직을 추가할 수 있습니다.
+            // 占쏙옙占썩에 占쏙옙占쏙옙悶占쏙옙占� 占싯몌옙占쏙옙 표占쏙옙占싹댐옙 UI 占쏙옙占쏙옙占쏙옙 占쌩곤옙占쏙옙 占쏙옙 占쌍쏙옙占싹댐옙.
         }
     }
 
@@ -223,31 +222,48 @@ public class InventoryController : MonoBehaviour
 
 
 
-    private void OnTouchStarted(InputAction.CallbackContext context)
+   private void OnTouchStarted(InputAction.CallbackContext context)
+{
+    if (!inventoryUI.activeSelf || selectedItemGrid == null) return;
+
+    Vector2 touchPos = touchPosition.ReadValue<Vector2>();
+    Vector2Int gridPosition = GetTileGridPosition(touchPos);
+    
+    if (IsPositionWithinGrid(gridPosition))
     {
-        if (!inventoryUI.activeSelf || selectedItemGrid == null) return;
-
-        Vector2 touchPos = touchPosition.ReadValue<Vector2>();
-        holdStartTime = Time.time;
-        holdStartPosition = touchPos;
-
-        //Debug.Log($"Touch Started at: {holdStartTime}, Position: {touchPos}");
-        StartCoroutine(CheckForHold());
+        InventoryItem touchedItem = selectedItemGrid.GetItem(gridPosition.x, gridPosition.y);
+        if (touchedItem != null)
+        {
+            HandleItemSelection(touchedItem);
+        }
     }
+
+    holdStartTime = Time.time;
+    holdStartPosition = touchPos;
+    StartCoroutine(CheckForHold());
+}
+
+private void HandleItemSelection(InventoryItem item)
+{
+    if (item != null && weaponInfoUI != null)
+    {
+        weaponInfoUI.UpdateWeaponInfo(item.weaponData);
+    }
+}
     private IEnumerator CheckForHold()
     {
         float startTime = Time.realtimeSinceStartup;
         bool holdChecking = true;
 
-        // 터치한 위치 확인
+        
         Vector2 rawTouchPos = holdStartPosition;
         InventoryItem touchedItem = null;
 
-        // 1. 먼저 선택된 아이템(스폰된 아이템)이 있는지 확인
+        
         if (selectedItem != null)
         {
             RectTransform itemRect = selectedItem.GetComponent<RectTransform>();
-            // 터치 위치가 아이템 영역 내에 있는지 확인
+            
             if (RectTransformUtility.RectangleContainsScreenPoint(itemRect, rawTouchPos))
             {
                 touchedItem = selectedItem;
@@ -255,7 +271,7 @@ public class InventoryController : MonoBehaviour
             }
         }
 
-        // 2. 선택된 아이템이 없다면 그리드 내 아이템 확인
+        
         if (touchedItem == null)
         {
             Vector2Int initialGridPosition = GetTileGridPosition(holdStartPosition);
@@ -281,14 +297,14 @@ public class InventoryController : MonoBehaviour
                 {
                     if (touchedItem == selectedItem)
                     {
-                        // 스폰된 아이템을 집는 경우
+                        
                         isDragging = true;
                         isHolding = true;
                         rectTransform = touchedItem.GetComponent<RectTransform>();
                     }
                     else
                     {
-                        // 그리드의 아이템을 집는 경우
+                        
                         PickUpItem(new Vector2Int(touchedItem.onGridPositionX, touchedItem.onGridPositionY));
                     }
                 }
@@ -305,13 +321,13 @@ public class InventoryController : MonoBehaviour
                 isDragging = true;
                 isHolding = true;
 
-                // 그리드에 있는 아이템인 경우에만 PickUpItem 호출
+                
                 if (touchedItem.onGridPositionX >= 0 && touchedItem.onGridPositionY >= 0)
                 {
                     selectedItemGrid.PickUpItem(touchedItem.onGridPositionX, touchedItem.onGridPositionY);
                 }
 
-                // 실제 위치를 350f 위로 올림
+                
                 Vector2 liftedPosition = touchPosition.ReadValue<Vector2>() + Vector2.up * ITEM_LIFT_OFFSET;
                 rectTransform.position = liftedPosition;
 
@@ -341,14 +357,12 @@ public class InventoryController : MonoBehaviour
             }
             else
             {
-                // Grid 밖에 있을 때는 드래깅 상태는 유지하되 홀드 상태만 해제
-                isHolding = false;
-                // isDragging은 true로 유지
+                isHolding = false;  
             }
         }
         else
         {
-            // 드래깅 중이 아닐 때만 모든 상태 초기화
+            
             isHolding = false;
             isDragging = false;
         }
@@ -371,10 +385,10 @@ public class InventoryController : MonoBehaviour
 
             Debug.Log($"Active touches count: {activeTouches.Count}");
 
-            // 터치가 1개일 때 쿨다운 초기화
+            
             if (activeTouches.Count == 1)
             {
-                lastRotationTime = Time.time - ROTATION_COOLDOWN; // 쿨다운 초기화
+                lastRotationTime = Time.time - ROTATION_COOLDOWN;
             }
 
             if (activeTouches.Count >= 2)
@@ -465,7 +479,6 @@ public class InventoryController : MonoBehaviour
     {
         if (selectedItem == null) return;
 
-        // 회전 전 현재 위치 저장
         Vector2Int currentGridPos = GetTileGridPosition(rectTransform.position);
 
         selectedItem.Rotate();
@@ -474,7 +487,7 @@ public class InventoryController : MonoBehaviour
         {
             inventoryHighlight.SetSize(selectedItem);
 
-            // Grid 내부에 있을 경우 하이라이트 업데이트
+            
             if (IsPositionWithinGrid(currentGridPos) &&
                 selectedItemGrid.BoundryCheck(currentGridPos.x, currentGridPos.y,
                     selectedItem.WIDTH, selectedItem.HEIGHT))
@@ -491,7 +504,7 @@ public class InventoryController : MonoBehaviour
 
     private Vector2Int GetTileGridPosition(Vector2 position)
     {
-        // 아이템과 동일하게 인식 범위도 ITEM_LIFT_OFFSET만큼 올림
+        
         if (selectedItem != null && isHolding)
         {
             position += Vector2.up * ITEM_LIFT_OFFSET;
@@ -533,51 +546,51 @@ public class InventoryController : MonoBehaviour
         InventoryItem inventoryItem = itemObj.GetComponent<InventoryItem>();
         rectTransform = itemObj.GetComponent<RectTransform>();
 
-        // 먼저 아이템을 그리드의 자식으로 설정
+        
         rectTransform.SetParent(selectedItemGrid.GetComponent<RectTransform>(), false);
 
         inventoryItem.Set(weaponData);
 
-        // 스폰 위치를 그리드 좌표로 변환
+        
         Vector2Int gridPosition = selectedItemGrid.GetTileGridPosition(itemSpawnPoint.position);
 
-        // 유효한 그리드 위치 확인 및 조정
+        
         if (!selectedItemGrid.BoundryCheck(gridPosition.x, gridPosition.y,
             inventoryItem.WIDTH, inventoryItem.HEIGHT))
         {
-            // 범위를 벗어나면 기본 위치(0,0)로 설정
+            
             gridPosition = new Vector2Int(0, 0);
         }
 
-        // 그리드에 아이템 등록
+        
         inventoryItem.onGridPositionX = gridPosition.x;
         inventoryItem.onGridPositionY = gridPosition.y;
 
-        // 실제 그리드에 아이템 배치
+        
         InventoryItem overlapItem = null;
         selectedItemGrid.PlaceItem(inventoryItem, gridPosition.x, gridPosition.y, ref overlapItem);
 
-        // 그리드 상의 실제 위치 계산 및 설정
+        
         Vector2 position = selectedItemGrid.CalculatePositionOnGrid(inventoryItem,
             gridPosition.x, gridPosition.y);
         rectTransform.localPosition = position;
 
         selectedItem = inventoryItem;
 
-        // 하이라이트 설정
+        
         if (inventoryHighlight != null)
         {
             inventoryHighlight.Show(true);
             inventoryHighlight.SetSize(selectedItem);
         }
 
-        // 무기 정보 UI 업데이트
+        
         if (weaponInfoUI != null)
         {
             weaponInfoUI.UpdateWeaponInfo(weaponData);
         }
 
-        // 상태 초기화
+        
         isDragging = false;
         isHolding = false;
     }
@@ -599,7 +612,7 @@ public class InventoryController : MonoBehaviour
                 rectTransform = selectedItem.GetComponent<RectTransform>();
                 isDragging = true;
 
-                // 터치 위치보다 위로 들어올림
+                
                 Vector2 currentPos = touchPosition.ReadValue<Vector2>();
                 Vector2 liftedPosition = currentPos + Vector2.up * ITEM_LIFT_OFFSET;
                 rectTransform.position = liftedPosition;
@@ -622,20 +635,16 @@ public class InventoryController : MonoBehaviour
         {
             if (overlapItem != null)
             {
-                // 겹친 아이템과 위치 교환
                 selectedItem = overlapItem;
                 rectTransform = selectedItem.GetComponent<RectTransform>();
                 rectTransform.SetAsLastSibling();
-                // 상태는 초기화하여 다시 조작 가능하게 함
                 isDragging = false;
                 isHolding = false;
             }
             else
             {
-                // 성공적으로 배치되었을 때도 상태만 초기화
                 isDragging = false;
                 isHolding = false;
-                // selectedItem은 null로 설정하지 않음
             }
 
             if (inventoryHighlight != null)
@@ -647,7 +656,6 @@ public class InventoryController : MonoBehaviour
         }
         else
         {
-            // 배치 실패시에도 상태만 초기화
             isDragging = false;
             isHolding = false;
         }
@@ -659,7 +667,7 @@ public class InventoryController : MonoBehaviour
     }
 
 
-    // Grid 상태 체크 및 정리 메서드 추가
+    
     private void CleanupInvalidItems()
     {
         if (selectedItemGrid == null || !selectedItemGrid.gameObject.activeInHierarchy)
@@ -707,7 +715,7 @@ public class InventoryController : MonoBehaviour
             }
         }
 
-        // 인벤토리 UI를 먼저 활성화
+        
         inventoryUI.SetActive(true);
         if (playerControlUI != null && playerStatsUI != null)
         {
@@ -715,13 +723,13 @@ public class InventoryController : MonoBehaviour
             playerStatsUI.SetActive(false);
         }
 
-        // 약간의 지연 후 아이템 생성
+        
         StartCoroutine(CreatePurchasedItemDelayed(weaponData));
     }
 
     private IEnumerator CreatePurchasedItemDelayed(WeaponData weaponData)
     {
-        // UI가 완전히 활성화될 때까지 대기
+        
         yield return new WaitForEndOfFrame();
 
         CreatePurchasedItem(weaponData);
@@ -792,7 +800,7 @@ public class InventoryController : MonoBehaviour
     {
         if (item == null || item.weaponData == null) return;
 
-        // 인벤토리의 아이템 개수 체크
+        
         int itemCount = 0;
         for (int x = 0; x < selectedItemGrid.Width; x++)
         {
@@ -805,11 +813,11 @@ public class InventoryController : MonoBehaviour
             }
         }
 
-        // 아이템이 1개 이하면 판매 불가
+        
         if (itemCount <= 1)
         {
             Debug.Log("Cannot sell the last item in inventory!");
-            // 판매 취소 시 원래 위치로 돌아가기
+            
             Vector2Int tileGridPosition = GetTileGridPosition(touchPosition.ReadValue<Vector2>());
             if (IsPositionWithinGrid(tileGridPosition) &&
                 selectedItemGrid.BoundryCheck(tileGridPosition.x, tileGridPosition.y,
@@ -820,7 +828,7 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        // 판매 처리
+        
         GameManager.Instance.PlayerStats.AddCoins(item.weaponData.SellPrice);
         Destroy(item.gameObject);
 

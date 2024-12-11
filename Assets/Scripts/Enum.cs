@@ -8,14 +8,15 @@ public enum WeaponRarity
 
 public enum WeaponType
 {
-    Sword,
-    Dagger,
-    Axe,
-    Equipment,
-    Special,
-    Mace,
-    Katana,
-    Scythe,
-    Bow,
-    Summon
+    Buster,
+    Machinegun,
+    Blade,
+    Cutter,
+    Sawblade,
+    BeamSaber,
+    Shotgun,
+    Flamethrower,
+    Grinder,
+    ForceFieldGenerator,
+    Equipment
 }

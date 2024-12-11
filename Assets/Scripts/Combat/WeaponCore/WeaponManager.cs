@@ -26,17 +26,17 @@ public class WeaponManager : MonoBehaviour
         // 무기 데이터에 따라 적절한 메커니즘 생성
         switch (weaponData.weaponType)
         {
-            case WeaponType.Sword:
-                mechanism = new LongSwordMechanism();
+            case WeaponType.Buster:
+                mechanism = new BusterMechanism();
                 break;
-            case WeaponType.Bow:
-                mechanism = new BowMechanism();
+            case WeaponType.Machinegun:
+                //
                 break;
-            case WeaponType.Dagger:
-                mechanism = new DaggerMechanism();
+            case WeaponType.Blade:
+                
                 break;
-            case WeaponType.Axe:
-                mechanism = new AxeMechanism();
+            case WeaponType.Cutter:
+                
                 break;
                 // 다른 무기 타입들도 각각 추가
         }

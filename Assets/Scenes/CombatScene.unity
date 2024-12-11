@@ -727,6 +727,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a47f546fc70ec8428172694e78e4288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1065223973 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8769591018558214994, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+  m_PrefabInstance: {fileID: 3302047816804777907}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1240987385
 GameObject:
   m_ObjectHideFlags: 0
@@ -853,6 +864,18 @@ MonoBehaviour:
   - tag: Heavy
     prefab: {fileID: 6160214665495999924, guid: 1dd8c7f87a322a545a10de7371eec818, type: 3}
     size: 50
+  - tag: LongSword_Projectile
+    prefab: {fileID: 2318590828619193186, guid: 0d9b92353f032d74e9b496fb940f68bd, type: 3}
+    size: 10
+  - tag: WoodenBow_Projectile
+    prefab: {fileID: 2318590828619193186, guid: a399b5242c9d8084d8051c35ca785cf7, type: 3}
+    size: 10
+  - tag: RustyDagger_Projectile
+    prefab: {fileID: 2318590828619193186, guid: a19e9138cea036f4c8162d32b278e1e8, type: 3}
+    size: 20
+  - tag: IronAxe_Projectile
+    prefab: {fileID: 2318590828619193186, guid: f9d7c24fea8bce4469cadf545d08c996, type: 3}
+    size: 10
 --- !u!4 &1471452497
 Transform:
   m_ObjectHideFlags: 0
@@ -868,6 +891,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1540149370 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7364115273662532741, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+  m_PrefabInstance: {fileID: 3302047816804777907}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1608345455 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6790126550785534384, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
@@ -1070,10 +1104,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2fbc33aca14a0e4abfc8168021157b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weapons:
-  - {fileID: 11400000, guid: 9182e48fdddf5d441bad048953763ec8, type: 2}
-  - {fileID: 11400000, guid: 81d7c6e8bcc322345bfd9adb62160a98, type: 2}
-  - {fileID: 11400000, guid: ed47a2576077f5247a9fe30d4156d751, type: 2}
   weaponPrefab: {fileID: 3724523762829760750, guid: b9dc01a30dc68004ba7b1af7d9269a94, type: 3}
   canvasTransform: {fileID: 512093874333173473}
   weaponInfoUI: {fileID: 3302047816804777913}
@@ -1200,6 +1230,22 @@ PrefabInstance:
     - target: {fileID: 3785198839288681880, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264891459099294765, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264891459099294765, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264891459099294765, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264891459099294765, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4690850154552179751, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
       propertyPath: m_Pivot.x
@@ -1714,6 +1760,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -520
       objectReference: {fileID: 0}
+    - target: {fileID: 8919682745811871614, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: upgradeButton
+      value: 
+      objectReference: {fileID: 1065223973}
+    - target: {fileID: 8919682745811871614, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: weaponDatabase
+      value: 
+      objectReference: {fileID: 11400000, guid: b969c0f619ea18b459b666788ed4949f, type: 2}
+    - target: {fileID: 8919682745811871614, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: upgradeButtonText
+      value: 
+      objectReference: {fileID: 1540149370}
+    - target: {fileID: 8919682745811871614, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: inventoryController
+      value: 
+      objectReference: {fileID: 1848644386}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

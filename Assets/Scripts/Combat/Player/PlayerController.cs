@@ -37,10 +37,9 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // 초기 이동 속도 설정
+        
         currentMovementSpeed = playerStats.MovementSpeed;
 
-        // 이벤트 구독
         playerStats.OnMovementSpeedChanged += HandleMovementSpeedChanged;
         GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
     }

@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    // Delegate 정의
     public delegate void StatChangeHandler(float value);
     public delegate void IntChangeHandler(int value);
     public delegate void MovementSpeedChangeHandler(float newSpeed);
@@ -35,8 +34,8 @@ public class PlayerStats : MonoBehaviour
     private float power;
     private float movementSpeed;
     private float cooldownReduce;
-    private float luck;
-    private float intelligence;
+    private float knockback;
+    private float aoe;
 
     [Header("Base Stats")]
     [SerializeField] private float baseHealth = 100f;
@@ -44,8 +43,8 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private float basePower = 10f;
     [SerializeField] private float baseMovementSpeed = 5f;
     [SerializeField] private float baseCooldownReduce = 0f;
-    [SerializeField] private float baseLuck = 1f;
-    [SerializeField] private float baseIntelligence = 1f;
+    [SerializeField] private float baseKnockback = 1f;
+    [SerializeField] private float baseAreaOfEffect = 1f;
 
     [Header("Stats Per Level")]
     [SerializeField] private float healthPerLevel = 10f;
@@ -53,8 +52,8 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private float powerPerLevel = 2f;
     [SerializeField] private float movementSpeedPerLevel = 0.2f;
     [SerializeField] private float cooldownReducePerLevel = 0.05f;
-    [SerializeField] private float luckPerLevel = 0.1f;
-    [SerializeField] private float intelligencePerLevel = 0.2f;
+    [SerializeField] private float knockbackIncreasePerLevel = 0.1f;
+    [SerializeField] private float aoeIncreasePerLevel = 0.2f;
 
     private bool isInitialized = false;
 
@@ -71,8 +70,8 @@ public class PlayerStats : MonoBehaviour
     public float MovementSpeed => movementSpeed;
     public float HealthRegen => healthRegen;
     public float CooldownReduce => cooldownReduce;
-    public float Luck => luck;
-    public float Intelligence => intelligence;
+    public float Knockback => knockback;
+    public float AreaOfEffect => aoe;
     #endregion
 
     public void InitializeStats()
@@ -100,10 +99,9 @@ public class PlayerStats : MonoBehaviour
         power = basePower + (powerPerLevel * (level - 1));
         movementSpeed = baseMovementSpeed + (movementSpeedPerLevel * (level - 1));
         cooldownReduce = baseCooldownReduce + (cooldownReducePerLevel * (level - 1));
-        luck = baseLuck + (luckPerLevel * (level - 1));
-        intelligence = baseIntelligence + (intelligencePerLevel * (level - 1));
+        knockback = baseKnockback + (knockbackIncreasePerLevel * (level - 1));
+        aoe = baseAreaOfEffect + (aoeIncreasePerLevel * (level - 1));
 
-        // 이동 속도가 변경되었을 때만 이벤트 발생
         if (previousMovementSpeed != movementSpeed)
         {
             OnMovementSpeedChanged?.Invoke(movementSpeed);
@@ -218,8 +216,6 @@ public class PlayerStats : MonoBehaviour
         {
             movementSpeed += modifier;
         }
-
-        // 최소 이동 속도 보장
         movementSpeed = Mathf.Max(baseMovementSpeed * 0.5f, movementSpeed);
     }
 
