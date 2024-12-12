@@ -104,7 +104,7 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 2
   m_AngularDamping: 0.05
   m_GravityScale: 0
   m_Material: {fileID: 0}
@@ -114,9 +114,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &3934438935927196752
 MonoBehaviour:
@@ -134,6 +134,7 @@ MonoBehaviour:
   hitColor: {r: 1, g: 0, b: 0, a: 1}
   bounceSpeed: 6
   bounceAmount: 0.1
+  knockbackRecoveryTime: 0.1
   enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
 --- !u!114 &2827390768131384232
 MonoBehaviour:

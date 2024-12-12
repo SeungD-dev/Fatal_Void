@@ -6,17 +6,19 @@ public class ChasingState : IState
     private readonly Transform enemyTransform;
     private readonly Enemy enemyStats;
     private readonly Transform playerTransform;
-
+    private readonly Rigidbody2D rb;
     public ChasingState(EnemyAI enemyAI)
     {
         this.enemyAI = enemyAI;
         this.enemyTransform = enemyAI.transform;
         this.enemyStats = enemyAI.GetComponent<Enemy>();
+        this.rb = enemyAI.GetComponent<Rigidbody2D>();
         this.playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
     }
 
     public void OnEnter()
     {
+
     }
 
     public void OnExit()
@@ -26,20 +28,33 @@ public class ChasingState : IState
 
     public void Update()
     {
+        
+        if (enemyStats.IsKnockBack) return;
+
         if (playerTransform != null && GameManager.Instance.currentGameState == GameState.Playing)
         {
-            // ÀÌµ¿ ·ÎÁ÷
+            
             Vector2 direction = (playerTransform.position - enemyTransform.position).normalized;
             if (direction.x != 0)
             {
                 enemyAI.spriteRenderer.flipX = direction.x < 0;
             }
-            enemyTransform.Translate(direction * enemyStats.MoveSpeed * Time.deltaTime);
 
-            // ¹Ù¿î½º È¿°ú ¾÷µ¥ÀÌÆ®
+           
+            if (rb != null)
+            {
+                rb.linearVelocity = direction * enemyStats.MoveSpeed;
+            }
+            else
+            {
+                enemyTransform.Translate(direction * enemyStats.MoveSpeed * Time.deltaTime);
+            }
+
+            // ï¿½Ù¿î½º È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
             enemyStats.UpdateBounceEffect();
         }
     }
+
 
     public void FixedUpdate()
     {

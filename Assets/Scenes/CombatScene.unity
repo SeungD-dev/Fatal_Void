@@ -860,22 +860,19 @@ MonoBehaviour:
   pools:
   - tag: Walker
     prefab: {fileID: 6160214665495999924, guid: e11933bc328f79749a75d9ac67188405, type: 3}
-    size: 50
+    initialSize: 0
+    maxSize: 0
+    growSize: 5
   - tag: Heavy
     prefab: {fileID: 6160214665495999924, guid: 1dd8c7f87a322a545a10de7371eec818, type: 3}
-    size: 50
-  - tag: LongSword_Projectile
-    prefab: {fileID: 2318590828619193186, guid: 0d9b92353f032d74e9b496fb940f68bd, type: 3}
-    size: 10
-  - tag: WoodenBow_Projectile
-    prefab: {fileID: 2318590828619193186, guid: a399b5242c9d8084d8051c35ca785cf7, type: 3}
-    size: 10
-  - tag: RustyDagger_Projectile
-    prefab: {fileID: 2318590828619193186, guid: a19e9138cea036f4c8162d32b278e1e8, type: 3}
-    size: 20
-  - tag: IronAxe_Projectile
-    prefab: {fileID: 2318590828619193186, guid: f9d7c24fea8bce4469cadf545d08c996, type: 3}
-    size: 10
+    initialSize: 0
+    maxSize: 0
+    growSize: 5
+  - tag: Buster_Projectile
+    prefab: {fileID: 4589099209072863335, guid: c181a405dd35fb348a61458feb1eeb0e, type: 3}
+    initialSize: 20
+    maxSize: 25
+    growSize: 5
 --- !u!4 &1471452497
 Transform:
   m_ObjectHideFlags: 0

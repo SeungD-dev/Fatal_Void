@@ -14,6 +14,11 @@ public class Enemy : MonoBehaviour, IPooledObject
     private float bounceTime;
     private bool isXBounce = false;
 
+    [Header("Knockback Properties")]
+    [SerializeField] private float knockbackRecoveryTime = 0.1f;
+    private bool isKnockedBack = false;
+    private Coroutine knockbackCoroutine;
+
     [SerializeField] private EnemyData enemyData;
     private float currentHealth;
     private float calculatedMaxHealth;
@@ -26,6 +31,8 @@ public class Enemy : MonoBehaviour, IPooledObject
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
     private Rigidbody2D rb;
+
+    public bool IsKnockBack => isKnockedBack;
 
     private void Awake()
     {
@@ -166,6 +173,8 @@ public class Enemy : MonoBehaviour, IPooledObject
         }
     }
 
+
+
     private IEnumerator HitFlashCoroutine()
     {
         isFlashing = true;
@@ -177,6 +186,43 @@ public class Enemy : MonoBehaviour, IPooledObject
         spriteRenderer.color = originalColor;
 
         isFlashing = false;
+    }
+
+    public void ApplyKnockback(Vector2 force)
+    {
+        // 오브젝트가 비활성화되어 있거나 체력이 0 이하라면 넉백 처리하지 않음
+        if (!gameObject.activeInHierarchy || currentHealth <= 0)
+            return;
+
+        if (rb != null)
+        {
+            if (knockbackCoroutine != null)
+            {
+                StopCoroutine(knockbackCoroutine);
+                knockbackCoroutine = null;
+            }
+
+            isKnockedBack = true;
+            rb.linearVelocity = Vector2.zero;
+            rb.AddForce(force * 2f, ForceMode2D.Impulse);
+
+            // 코루틴 시작 전에 게임오브젝트 상태 한번 더 확인
+            if (gameObject.activeInHierarchy)
+            {
+                knockbackCoroutine = StartCoroutine(KnockbackRecovery());
+            }
+        }
+    }
+    private IEnumerator KnockbackRecovery()
+    {
+        yield return new WaitForSeconds(knockbackRecoveryTime);
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+        isKnockedBack = false;
+        knockbackCoroutine = null;
     }
 
     private void OnTriggerStay2D(Collider2D collision)

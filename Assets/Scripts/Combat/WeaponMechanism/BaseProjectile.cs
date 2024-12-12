@@ -115,19 +115,15 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
 
     protected virtual void ApplyDamageAndEffects(Enemy enemy)
     {
-        // 데미지 적용
         enemy.TakeDamage(damage);
 
-        // 넉백 적용
-        if (knockbackPower > 0 && enemy.TryGetComponent<Rigidbody2D>(out Rigidbody2D enemyRb))
+        if (knockbackPower > 0)
         {
-            // 넉백 힘 적용
             Vector2 knockbackForce = direction * knockbackPower;
-            enemyRb.linearVelocity = Vector2.zero; // 기존 속도 초기화
-            enemyRb.AddForce(knockbackForce, ForceMode2D.Impulse);
+            Debug.Log($"Projectile knockback power: {knockbackPower}, Direction: {direction}, Final force: {knockbackForce}"); // 디버그용
+            enemy.ApplyKnockback(knockbackForce);
         }
 
-        // 관통 처리
         HandlePenetration();
     }
 
