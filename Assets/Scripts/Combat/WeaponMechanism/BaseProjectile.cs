@@ -28,15 +28,15 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
     }
 
     public virtual void Initialize(
-        float damage,
-        Vector2 direction,
-        float speed,
-        float knockbackPower = 0f,
-        float range = 10f,
-        float projectileSize = 1f,
-        bool canPenetrate = false,
-        int maxPenetrations = 0,
-        float damageDecay = 0.1f)
+     float damage,
+     Vector2 direction,
+     float speed,
+     float knockbackPower = 0f,
+     float range = 10f,
+     float projectileSize = 1f,
+     bool canPenetrate = false,
+     int maxPenetrations = 0,
+     float damageDecay = 0.1f)
     {
         this.damage = damage;
         this.direction = direction;
@@ -47,10 +47,12 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
         this.remainingPenetrations = maxPenetrations;
         this.damageDecayRate = damageDecay;
 
+        
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0,0,angle + rotationOffset);
+        
 
-        // AOE 크기 설정
+        transform.rotation = Quaternion.Euler(0, 0, angle + rotationOffset);
+        
         this.baseProjectileSize = projectileSize;
         UpdateProjectileSize();
     }
@@ -77,10 +79,6 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
     public virtual void OnObjectSpawn()
     {
         startPosition = transform.position;
-
-        // 투사체가 날아가는 방향으로 회전
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
 
         if (rb != null)
         {

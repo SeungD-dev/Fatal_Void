@@ -30,7 +30,7 @@ public class WeaponManager : MonoBehaviour
                 mechanism = new BusterMechanism();
                 break;
             case WeaponType.Machinegun:
-                //
+                mechanism = new MachinegunMechanism();
                 break;
             case WeaponType.Blade:
                 

@@ -10,53 +10,53 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2bd5af085e83a94cb4259f9af2a69e8, type: 3}
-  m_Name: Buster
+  m_Name: Machinegun
   m_EditorClassIdentifier: 
   width: 2
   height: 1
-  weaponIcon: {fileID: 274745305859932014, guid: c08199575c9931645a7c7037a65ac85f, type: 3}
-  rarity: 0
-  weaponType: 0
+  weaponIcon: {fileID: 564439294832975815, guid: 4333bb2ed971c5b4aa11ea7b993b3fdd, type: 3}
+  rarity: 1
+  weaponType: 1
   price: 25
-  weaponName: Buster
+  weaponName: Machinegun
   weaponDescription: 
   sellPriceRatio: 0.5
   currentTier: 1
   tierStats:
-  - damage: 10
-    attackDelay: 1.2
-    projectileSpeed: 6
-    knockback: 4
-    projectileSize: 2.5
-    range: 5
-    canPenetrate: 0
-    maxPenetrationCount: 0
-    penetrationDamageDecay: 0
-  - damage: 15
-    attackDelay: 1
-    projectileSpeed: 3
-    knockback: 4
+  - damage: 2
+    attackDelay: 0.25
+    projectileSpeed: 3.5
+    knockback: 0.8
     projectileSize: 1
     range: 5
     canPenetrate: 0
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
-  - damage: 20
-    attackDelay: 0.8
-    projectileSpeed: 3
-    knockback: 4
+  - damage: 3
+    attackDelay: 0.22
+    projectileSpeed: 3.5
+    knockback: 0.8
     projectileSize: 1
     range: 5
-    canPenetrate: 1
-    maxPenetrationCount: 1
+    canPenetrate: 0
+    maxPenetrationCount: 0
     penetrationDamageDecay: 0
-  - damage: 30
-    attackDelay: 0.6
-    projectileSpeed: 3
-    knockback: 4
+  - damage: 4
+    attackDelay: 0.2
+    projectileSpeed: 3.5
+    knockback: 0.8
     projectileSize: 1
     range: 5
-    canPenetrate: 1
-    maxPenetrationCount: 2
+    canPenetrate: 0
+    maxPenetrationCount: 0
     penetrationDamageDecay: 0
-  projectilePrefab: {fileID: 4589099209072863335, guid: c181a405dd35fb348a61458feb1eeb0e, type: 3}
+  - damage: 5
+    attackDelay: 0.1
+    projectileSpeed: 3.5
+    knockback: 0.8
+    projectileSize: 1
+    range: 5
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0
+  projectilePrefab: {fileID: 4589099209072863335, guid: 9b06e1994508f364aa2cba6dcfb807c7, type: 3}

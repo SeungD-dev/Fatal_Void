@@ -204,7 +204,7 @@ public class Enemy : MonoBehaviour, IPooledObject
 
             isKnockedBack = true;
             rb.linearVelocity = Vector2.zero;
-            rb.AddForce(force * 2f, ForceMode2D.Impulse);
+            rb.AddForce(force, ForceMode2D.Impulse);
 
             // 코루틴 시작 전에 게임오브젝트 상태 한번 더 확인
             if (gameObject.activeInHierarchy)

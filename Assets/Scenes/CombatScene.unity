@@ -873,6 +873,11 @@ MonoBehaviour:
     initialSize: 20
     maxSize: 25
     growSize: 5
+  - tag: Machinegun_Projectile
+    prefab: {fileID: 4589099209072863335, guid: 9b06e1994508f364aa2cba6dcfb807c7, type: 3}
+    initialSize: 50
+    maxSize: 80
+    growSize: 5
 --- !u!4 &1471452497
 Transform:
   m_ObjectHideFlags: 0
