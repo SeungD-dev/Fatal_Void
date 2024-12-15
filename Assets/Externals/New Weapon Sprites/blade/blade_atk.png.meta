@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: c08199575c9931645a7c7037a65ac85f
+guid: 8fe06d76ef114e14bbf00ca37379532e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 274745305859932014
-    second: buster_0
+      213: 2148719210557214389
+    second: blade_atk_0
+  - first:
+      213: -3085137892104608358
+    second: blade_atk_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +49,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -139,12 +142,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: buster_0
+      name: blade_atk_0
       rect:
         serializedVersion: 2
-        x: 1
+        x: 0
         y: 1
-        width: 30
+        width: 32
         height: 14
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -154,8 +157,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e6fbc77666710d300800000000000000
-      internalID: 274745305859932014
+      spriteID: 5be0253dcb8c1dd10800000000000000
+      internalID: 2148719210557214389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: blade_atk_1
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 0
+        width: 28
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a95e102de636f25d0800000000000000
+      internalID: -3085137892104608358
       vertices: []
       indices: 
       edges: []
@@ -164,7 +189,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +199,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      buster_0: 274745305859932014
+      blade_atk_0: 2148719210557214389
+      blade_atk_1: -3085137892104608358
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

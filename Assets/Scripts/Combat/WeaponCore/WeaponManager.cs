@@ -33,10 +33,10 @@ public class WeaponManager : MonoBehaviour
                 mechanism = new MachinegunMechanism();
                 break;
             case WeaponType.Blade:
-                
+                mechanism = new BladeMechanism();
                 break;
             case WeaponType.Cutter:
-                
+                mechanism = new CutterMechanism();
                 break;
                 // 다른 무기 타입들도 각각 추가
         }

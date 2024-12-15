@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 2165676355276888029}
   - component: {fileID: 6866409800106793324}
   - component: {fileID: 3233650581609990921}
-  - component: {fileID: 3823050046691130948}
+  - component: {fileID: 1102049168306327166}
   m_Layer: 0
-  m_Name: Machinegun_Projectile
+  m_Name: Cutter_Projectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.502, y: 0, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -79,12 +79,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 1829117625107050741, guid: e44289db0f15cb146b25ef8041005b1d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e996c245e2c1d6e4d9fa924f7e28bd01, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.1, y: 0.15}
+  m_Size: {x: 0.32, y: 0.32}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -154,7 +154,7 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.1, y: 0.15}
   m_Direction: 0
---- !u!114 &3823050046691130948
+--- !u!114 &1102049168306327166
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -163,7 +163,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 4589099209072863335}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eae2b59cd8c345e4d89a3f7904b0b0ef, type: 3}
+  m_Script: {fileID: 11500000, guid: fc3247bd0c1129149869d6f851d029f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationOffset: -90
+  rotationOffset: -45
+  rotationSpeed: 720

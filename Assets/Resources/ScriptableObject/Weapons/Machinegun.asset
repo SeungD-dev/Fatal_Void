@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 2
   height: 1
-  weaponIcon: {fileID: 564439294832975815, guid: 4333bb2ed971c5b4aa11ea7b993b3fdd, type: 3}
-  rarity: 1
+  weaponIcon: {fileID: 21300000, guid: 4333bb2ed971c5b4aa11ea7b993b3fdd, type: 3}
+  rarity: 0
   weaponType: 1
   price: 25
   weaponName: Machinegun
@@ -27,7 +27,7 @@ MonoBehaviour:
     attackDelay: 0.25
     projectileSpeed: 3.5
     knockback: 0.8
-    projectileSize: 1
+    projectileSize: 2
     range: 5
     canPenetrate: 0
     maxPenetrationCount: 0
@@ -36,7 +36,7 @@ MonoBehaviour:
     attackDelay: 0.22
     projectileSpeed: 3.5
     knockback: 0.8
-    projectileSize: 1
+    projectileSize: 2
     range: 5
     canPenetrate: 0
     maxPenetrationCount: 0
@@ -45,7 +45,7 @@ MonoBehaviour:
     attackDelay: 0.2
     projectileSpeed: 3.5
     knockback: 0.8
-    projectileSize: 1
+    projectileSize: 2
     range: 5
     canPenetrate: 0
     maxPenetrationCount: 0
@@ -54,7 +54,7 @@ MonoBehaviour:
     attackDelay: 0.1
     projectileSpeed: 3.5
     knockback: 0.8
-    projectileSize: 1
+    projectileSize: 2
     range: 5
     canPenetrate: 0
     maxPenetrationCount: 0

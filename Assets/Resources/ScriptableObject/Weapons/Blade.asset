@@ -10,53 +10,53 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2bd5af085e83a94cb4259f9af2a69e8, type: 3}
-  m_Name: Buster
+  m_Name: Blade
   m_EditorClassIdentifier: 
-  width: 2
-  height: 1
-  weaponIcon: {fileID: 21300000, guid: c08199575c9931645a7c7037a65ac85f, type: 3}
+  width: 1
+  height: 2
+  weaponIcon: {fileID: 21300000, guid: 0647556ce542fb448b7591f592642fc4, type: 3}
   rarity: 0
-  weaponType: 0
+  weaponType: 2
   price: 25
-  weaponName: Buster
+  weaponName: Blade
   weaponDescription: 
   sellPriceRatio: 0.5
   currentTier: 1
   tierStats:
   - damage: 10
-    attackDelay: 1.2
-    projectileSpeed: 6
-    knockback: 4
+    attackDelay: 1.5
+    projectileSpeed: 4
+    knockback: 3
     projectileSize: 2.5
-    range: 5
-    canPenetrate: 0
+    range: 3
+    canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
   - damage: 15
-    attackDelay: 1
-    projectileSpeed: 3
-    knockback: 4
-    projectileSize: 1
-    range: 5
-    canPenetrate: 0
+    attackDelay: 1.25
+    projectileSpeed: 4
+    knockback: 3
+    projectileSize: 2.5
+    range: 3
+    canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
-  - damage: 20
-    attackDelay: 0.8
-    projectileSpeed: 3
-    knockback: 4
-    projectileSize: 1
+  - damage: 21
+    attackDelay: 1
+    projectileSpeed: 4
+    knockback: 3
+    projectileSize: 2.5
     range: 5
     canPenetrate: 1
-    maxPenetrationCount: 1
+    maxPenetrationCount: 0
     penetrationDamageDecay: 0
-  - damage: 30
-    attackDelay: 0.6
-    projectileSpeed: 3
-    knockback: 4
-    projectileSize: 1
+  - damage: 28
+    attackDelay: 0.75
+    projectileSpeed: 4
+    knockback: 3
+    projectileSize: 2.5
     range: 5
     canPenetrate: 1
-    maxPenetrationCount: 2
+    maxPenetrationCount: 0
     penetrationDamageDecay: 0
-  projectilePrefab: {fileID: 4589099209072863335, guid: c181a405dd35fb348a61458feb1eeb0e, type: 3}
+  projectilePrefab: {fileID: 4589099209072863335, guid: 495678b785e0b444f92342df2119c894, type: 3}

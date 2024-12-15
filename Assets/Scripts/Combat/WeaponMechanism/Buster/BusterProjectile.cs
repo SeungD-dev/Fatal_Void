@@ -2,21 +2,24 @@ using UnityEngine;
 
 public class BusterProjectile : BaseProjectile
 {
-    public override void Initialize(
-        float damage,
-        Vector2 direction,
-        float speed,
-        float knockbackPower = 0f,
-        float range = 10f,
-        float projectileSize = 1f,
-        bool canPenetrate = false,
-        int maxPenetrations = 0,
-        float damageDecay = 0.1f)
+    protected override void ApplyDamageAndEffects(Enemy enemy)
     {
-        base.Initialize(damage, direction, speed, knockbackPower, range, projectileSize,
-            canPenetrate, maxPenetrations, damageDecay);
+        enemy.TakeDamage(damage);
 
-        // poolTag 설정 - Buster용 태그
-        SetPoolTag("Buster_Projectile");
+        if (knockbackPower > 0)
+        {
+            Vector2 knockbackForce = direction * knockbackPower;
+            enemy.ApplyKnockback(knockbackForce);
+        }
+
+        // 3티어 이상일 경우 관통, 아닐 경우 즉시 제거
+        if (!canPenetrate)
+        {
+            ReturnToPool();
+        }
+        else
+        {
+            HandlePenetration();
+        }
     }
 }

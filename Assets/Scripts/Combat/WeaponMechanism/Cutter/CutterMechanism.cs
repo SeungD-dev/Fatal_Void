@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BusterMechanism : WeaponMechanism
+public class CutterMechanism : WeaponMechanism
 {
     protected override void Attack(Transform target)
     {
@@ -14,17 +14,14 @@ public class BusterMechanism : WeaponMechanism
             Quaternion.identity
         );
 
-        BusterProjectile projectile = projectileObj.GetComponent<BusterProjectile>();
+        CutterProjectile projectile = projectileObj.GetComponent<CutterProjectile>();
         if (projectile != null)
         {
             float damage = weaponData.CalculateFinalDamage(playerStats);
             float knockbackPower = weaponData.CalculateFinalKnockback(playerStats);
             float projectileSpeed = weaponData.CurrentTierStats.projectileSpeed;
             float projectileSize = weaponData.CalculateFinalProjectileSize(playerStats);
-
-            // 3티어 이상일 때 관통 속성 부여
-            bool canPenetrate = weaponData.currentTier >= 3;
-            var penetrationInfo = canPenetrate ? weaponData.GetPenetrationInfo() : new TierStats.PenetrationInfo();
+            var penetrationInfo = weaponData.GetPenetrationInfo();
 
             projectile.SetPoolTag(poolTag);
             projectile.Initialize(
@@ -34,7 +31,7 @@ public class BusterMechanism : WeaponMechanism
                 knockbackPower,
                 currentRange,
                 projectileSize,
-                canPenetrate,
+                penetrationInfo.canPenetrate,
                 penetrationInfo.maxCount,
                 penetrationInfo.damageDecay
             );

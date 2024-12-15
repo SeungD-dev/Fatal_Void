@@ -878,6 +878,16 @@ MonoBehaviour:
     initialSize: 50
     maxSize: 80
     growSize: 5
+  - tag: Cutter_Projectile
+    prefab: {fileID: 4589099209072863335, guid: d605f2cb8beba3c43a616c2ef753f101, type: 3}
+    initialSize: 50
+    maxSize: 80
+    growSize: 5
+  - tag: Blade_Projectile
+    prefab: {fileID: 4589099209072863335, guid: 495678b785e0b444f92342df2119c894, type: 3}
+    initialSize: 50
+    maxSize: 80
+    growSize: 5
 --- !u!4 &1471452497
 Transform:
   m_ObjectHideFlags: 0

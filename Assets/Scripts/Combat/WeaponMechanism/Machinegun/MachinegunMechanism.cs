@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MachinegunMechanism : WeaponMechanism
 {
-    private float spreadAngle = 30f; // 탄퍼짐 각도 (양쪽으로 ±15도)
+    private float spreadAngle = 10f; // 탄퍼짐 각도 (양쪽으로 ±30도)
 
     protected override void Attack(Transform target)
     {
