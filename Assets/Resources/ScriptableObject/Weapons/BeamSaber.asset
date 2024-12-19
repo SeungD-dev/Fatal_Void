@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2bd5af085e83a94cb4259f9af2a69e8, type: 3}
+  m_Name: BeamSaber
+  m_EditorClassIdentifier: 
+  width: 1
+  height: 3
+  weaponIcon: {fileID: 21300000, guid: 7d3b4ed3bf3087749beec5e7333747da, type: 3}
+  rarity: 0
+  weaponType: 5
+  price: 45
+  weaponName: Beam Saber
+  weaponDescription: 
+  sellPriceRatio: 0.5
+  currentTier: 1
+  tierStats:
+  - damage: 25
+    attackDelay: 2
+    projectileSpeed: 10
+    knockback: 2
+    projectileSize: 3
+    range: 0.75
+    canPenetrate: 1
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0
+  - damage: 45
+    attackDelay: 2
+    projectileSpeed: 10
+    knockback: 2
+    projectileSize: 3
+    range: 3
+    canPenetrate: 1
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0
+  - damage: 35
+    attackDelay: 1
+    projectileSpeed: 10
+    knockback: 2
+    projectileSize: 3.5
+    range: 3.5
+    canPenetrate: 1
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0
+  - damage: 55
+    attackDelay: 2
+    projectileSpeed: 10
+    knockback: 2
+    projectileSize: 4
+    range: 4
+    canPenetrate: 1
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0
+  projectilePrefab: {fileID: 4589099209072863335, guid: f7daaed26157fa6498d0c41b4bc6d57a, type: 3}

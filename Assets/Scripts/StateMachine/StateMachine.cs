@@ -27,7 +27,7 @@ public class StateMachine
         var node = GetOrAddNode(state);
         if (current != node)
         {
-            Debug.Log($"State changed from {current?.State?.GetType().Name ?? "null"} to {state.GetType().Name}");
+            //Debug.Log($"State changed from {current?.State?.GetType().Name ?? "null"} to {state.GetType().Name}");
             current?.State?.OnExit();
             current = node;
             current.State?.OnEnter();
@@ -37,7 +37,7 @@ public class StateMachine
     void ChangeState(IState state)
     {
         if (state == current.State) return;
-        Debug.Log($"State changing from {current.State.GetType().Name} to {state.GetType().Name}");
+        //Debug.Log($"State changing from {current.State.GetType().Name} to {state.GetType().Name}");
         var previousState = current.State;
         var nextState = GetOrAddNode(state).State;
         previousState?.OnExit();

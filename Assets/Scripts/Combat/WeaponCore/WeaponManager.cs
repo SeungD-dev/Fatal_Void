@@ -38,6 +38,12 @@ public class WeaponManager : MonoBehaviour
             case WeaponType.Cutter:
                 mechanism = new CutterMechanism();
                 break;
+            case WeaponType.Sawblade:
+                mechanism = new SawbladeMechanism();
+                break;
+            case WeaponType.BeamSaber:
+                mechanism = new BeamSaberMechanism();
+                break;
                 // 다른 무기 타입들도 각각 추가
         }
 

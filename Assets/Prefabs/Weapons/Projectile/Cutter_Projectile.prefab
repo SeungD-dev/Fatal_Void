@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 2271665153582508333}
   - component: {fileID: 2165676355276888029}
   - component: {fileID: 6866409800106793324}
-  - component: {fileID: 3233650581609990921}
   - component: {fileID: 1102049168306327166}
-  m_Layer: 0
+  - component: {fileID: 3724970000270557524}
+  m_Layer: 8
   m_Name: Cutter_Projectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -117,8 +117,22 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!70 &3233650581609990921
-CapsuleCollider2D:
+--- !u!114 &1102049168306327166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4589099209072863335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc3247bd0c1129149869d6f851d029f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationOffset: -45
+  rotationSpeed: 720
+--- !u!68 &3724970000270557524
+EdgeCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -147,24 +161,27 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.1, y: 0.15}
-  m_Direction: 0
---- !u!114 &1102049168306327166
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4589099209072863335}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc3247bd0c1129149869d6f851d029f2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rotationOffset: -45
-  rotationSpeed: 720
+  m_EdgeRadius: 0
+  m_Points:
+  - {x: -0.10488331, y: 0.105993606}
+  - {x: -0.03201689, y: 0.13034266}
+  - {x: 0.13798845, y: 0.14174427}
+  - {x: 0.11328691, y: 0.08807942}
+  - {x: 0.0506019, y: 0.04675605}
+  - {x: 0.01501593, y: 0.04771788}
+  - {x: 0.017651707, y: 0.019336428}
+  - {x: -0.004093975, y: 0.0057897046}
+  - {x: -0.018837884, y: -0.0078021297}
+  - {x: -0.045534045, y: -0.014537558}
+  - {x: -0.04224804, y: -0.059097484}
+  - {x: -0.1398947, y: -0.14715049}
+  - {x: -0.104964495, y: 0.10738517}
+  m_AdjacentStartPoint: {x: 0, y: 0}
+  m_AdjacentEndPoint: {x: 0, y: 0}
+  m_UseAdjacentStartPoint: 0
+  m_UseAdjacentEndPoint: 0

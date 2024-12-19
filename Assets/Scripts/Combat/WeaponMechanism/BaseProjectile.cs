@@ -162,6 +162,11 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
         }
     }
 
+    protected virtual void OnEnable()
+    {
+
+    }
+
     protected virtual void OnDisable()
     {
         if (rb != null)
