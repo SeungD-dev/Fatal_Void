@@ -44,6 +44,9 @@ public class WeaponManager : MonoBehaviour
             case WeaponType.BeamSaber:
                 mechanism = new BeamSaberMechanism();
                 break;
+            case WeaponType.Shotgun:
+                mechanism = new ShotgunMechanism();
+                break;
                 // 다른 무기 타입들도 각각 추가
         }
 
