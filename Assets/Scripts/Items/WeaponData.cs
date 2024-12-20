@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 [System.Serializable]
@@ -25,12 +26,8 @@ public class TierStats
     [Tooltip("관통시 데미지 감소율 (0.1 = 10% 감소)")]
     public float penetrationDamageDecay = 0.1f;
 
-    [Header("Shotgun Properties")]
-    [Tooltip("샷건의 발사 투사체 수")]
     public int projectileCount = 3;
-    [Tooltip("샷건의 발사 각도 범위 (도)")]
     public float spreadAngle = 45f;
-
     public struct PenetrationInfo
     {
         public bool canPenetrate;
@@ -46,6 +43,119 @@ public class TierStats
     };
 }
 
+#if UNITY_EDITOR
+[CustomEditor(typeof(WeaponData))]
+public class WeaponDataEditor : Editor
+{
+    private SerializedProperty width;
+    private SerializedProperty height;
+    private SerializedProperty weaponIcon;
+    private SerializedProperty rarity;
+    private SerializedProperty weaponType;
+    private SerializedProperty price;
+    private SerializedProperty weaponName;
+    private SerializedProperty weaponDescription;
+    private SerializedProperty sellPriceRatio;
+    private SerializedProperty currentTier;
+    private SerializedProperty projectilePrefab;
+    private SerializedProperty tierStats;
+
+    private void OnEnable()
+    {
+        width = serializedObject.FindProperty("width");
+        height = serializedObject.FindProperty("height");
+        weaponIcon = serializedObject.FindProperty("weaponIcon");
+        rarity = serializedObject.FindProperty("rarity");
+        weaponType = serializedObject.FindProperty("weaponType");
+        price = serializedObject.FindProperty("price");
+        weaponName = serializedObject.FindProperty("weaponName");
+        weaponDescription = serializedObject.FindProperty("weaponDescription");
+        sellPriceRatio = serializedObject.FindProperty("sellPriceRatio");
+        currentTier = serializedObject.FindProperty("currentTier");
+        projectilePrefab = serializedObject.FindProperty("projectilePrefab");
+        tierStats = serializedObject.FindProperty("tierStats");
+    }
+
+    public override void OnInspectorGUI()
+    {
+        serializedObject.Update();
+
+        WeaponData weaponData = (WeaponData)target;
+
+        DrawBasicSettings();
+        EditorGUILayout.Space();
+        DrawTierConfiguration();
+        EditorGUILayout.Space();
+        DrawTierStats(weaponData);
+
+        serializedObject.ApplyModifiedProperties();
+    }
+
+    private void DrawBasicSettings()
+    {
+        EditorGUILayout.LabelField("Basic Settings", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(width);
+        EditorGUILayout.PropertyField(height);
+        EditorGUILayout.PropertyField(weaponIcon);
+        EditorGUILayout.PropertyField(rarity);
+        EditorGUILayout.PropertyField(weaponType);
+        EditorGUILayout.PropertyField(price);
+        EditorGUILayout.PropertyField(weaponName);
+        EditorGUILayout.PropertyField(weaponDescription);
+        EditorGUILayout.PropertyField(sellPriceRatio);
+    }
+
+    private void DrawTierConfiguration()
+    {
+        EditorGUILayout.LabelField("Tier Configuration", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(currentTier);
+        EditorGUILayout.PropertyField(projectilePrefab);
+    }
+
+    private void DrawTierStats(WeaponData weaponData)
+    {
+        EditorGUILayout.LabelField("Tier Stats", EditorStyles.boldLabel);
+
+        EditorGUI.indentLevel++;
+        for (int i = 0; i < tierStats.arraySize; i++)
+        {
+            SerializedProperty tierStat = tierStats.GetArrayElementAtIndex(i);
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField($"Tier {i + 1}", EditorStyles.boldLabel);
+
+            EditorGUILayout.LabelField("Basic Stats", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damage"));
+            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("attackDelay"));
+            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("projectileSpeed"));
+            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("knockback"));
+            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("projectileSize"));
+            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("range"));
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Projectile Properties", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("canPenetrate"));
+            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("maxPenetrationCount"));
+            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("penetrationDamageDecay"));
+
+            // Shotgun 타입일 때만 추가 속성 표시
+            if (weaponData.weaponType == WeaponType.Shotgun)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Shotgun Properties", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("projectileCount"),
+                    new GUIContent("Projectile Count", "샷건의 발사 투사체 수"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("spreadAngle"),
+                    new GUIContent("Spread Angle", "샷건의 발사 각도 범위 (도)"));
+            }
+
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space();
+        }
+        EditorGUI.indentLevel--;
+    }
+}
+#endif
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Inventory/Weapon")]
 public class WeaponData : ScriptableObject
 {
@@ -177,6 +287,23 @@ public class WeaponData : ScriptableObject
             if (tierStats[i] == null)
             {
                 tierStats[i] = new TierStats();
+            }
+        }
+        if (weaponType == WeaponType.Shotgun)
+        {
+            for (int i = 0; i < tierStats.Length; i++)
+            {
+                if (tierStats[i] == null) continue;
+
+                // 기본값이 아직 설정되지 않은 경우에만 설정
+                if (tierStats[i].projectileCount <= 0)
+                {
+                    tierStats[i].projectileCount = 3 + i;  // 1티어: 3발, 2티어: 4발, ...
+                }
+                if (tierStats[i].spreadAngle <= 0)
+                {
+                    tierStats[i].spreadAngle = 45f + (i * 5f);  // 1티어: 45도, 2티어: 50도, ...
+                }
             }
         }
     }
