@@ -893,11 +893,6 @@ MonoBehaviour:
     initialSize: 50
     maxSize: 80
     growSize: 5
-  - tag: Sawblade_Projectile
-    prefab: {fileID: 4589099209072863335, guid: 23504967686276f4dab72f893324fc74, type: 3}
-    initialSize: 50
-    maxSize: 80
-    growSize: 5
 --- !u!4 &1471452497
 Transform:
   m_ObjectHideFlags: 0

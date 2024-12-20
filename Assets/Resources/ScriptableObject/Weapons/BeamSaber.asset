@@ -27,8 +27,8 @@ MonoBehaviour:
     attackDelay: 2
     projectileSpeed: 10
     knockback: 2
-    projectileSize: 3
-    range: 0.75
+    projectileSize: 1.25
+    range: 1.25
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0

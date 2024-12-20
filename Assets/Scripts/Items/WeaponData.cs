@@ -25,6 +25,12 @@ public class TierStats
     [Tooltip("관통시 데미지 감소율 (0.1 = 10% 감소)")]
     public float penetrationDamageDecay = 0.1f;
 
+    [Header("Shotgun Properties")]
+    [Tooltip("샷건의 발사 투사체 수")]
+    public int projectileCount = 3;
+    [Tooltip("샷건의 발사 각도 범위 (도)")]
+    public float spreadAngle = 45f;
+
     public struct PenetrationInfo
     {
         public bool canPenetrate;
