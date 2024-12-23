@@ -28,6 +28,15 @@ public class TierStats
 
     public int projectileCount = 3;
     public float spreadAngle = 45f;
+
+    [Header("Grinder Properties")]
+    [Tooltip("장판 공격 범위")]
+    public float attackRadius = 2f;
+    [Tooltip("장판 지속 시간")]
+    public float groundEffectDuration = 3f;
+    [Tooltip("장판 대미지 틱 간격")]
+    public float damageTickInterval = 0.5f;
+
     public struct PenetrationInfo
     {
         public bool canPenetrate;
@@ -59,7 +68,6 @@ public class WeaponDataEditor : Editor
     private SerializedProperty currentTier;
     private SerializedProperty projectilePrefab;
     private SerializedProperty tierStats;
-
     private void OnEnable()
     {
         width = serializedObject.FindProperty("width");
@@ -124,6 +132,7 @@ public class WeaponDataEditor : Editor
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             EditorGUILayout.LabelField($"Tier {i + 1}", EditorStyles.boldLabel);
 
+            // 기본 스탯들
             EditorGUILayout.LabelField("Basic Stats", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damage"));
             EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("attackDelay"));
@@ -138,7 +147,7 @@ public class WeaponDataEditor : Editor
             EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("maxPenetrationCount"));
             EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("penetrationDamageDecay"));
 
-            // Shotgun 타입일 때만 추가 속성 표시
+            // 무기 타입별 추가 속성
             if (weaponData.weaponType == WeaponType.Shotgun)
             {
                 EditorGUILayout.Space();
@@ -147,6 +156,17 @@ public class WeaponDataEditor : Editor
                     new GUIContent("Projectile Count", "샷건의 발사 투사체 수"));
                 EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("spreadAngle"),
                     new GUIContent("Spread Angle", "샷건의 발사 각도 범위 (도)"));
+            }
+            else if (weaponData.weaponType == WeaponType.Grinder)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Grinder Properties", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("attackRadius"),
+                    new GUIContent("Attack Radius", "장판 공격 범위"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("groundEffectDuration"),
+                    new GUIContent("Ground Effect Duration", "장판 지속 시간"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damageTickInterval"),
+                    new GUIContent("Damage Tick Interval", "장판 대미지 틱 간격"));
             }
 
             EditorGUILayout.EndVertical();
@@ -181,8 +201,33 @@ public class WeaponData : ScriptableObject
     [Header("Prefabs")]
     public GameObject projectilePrefab;
 
+    [Header("Grinder Settings")]
+    [Tooltip("Grinder 타입일 때만 사용되는 설정들")]
+    public float attackRadius = 2f;
+    public float groundEffectDuration = 3f;
+    public float damageTickInterval = 0.5f;
+
+
     // 현재 티어의 스탯 getter
     public TierStats CurrentTierStats => tierStats[Mathf.Clamp(currentTier - 1, 0, 3)];
+
+    public float GetAttackRadius()
+    {
+        if (weaponType != WeaponType.Grinder) return 0f;
+        return attackRadius * (currentTier * 0.25f + 0.75f); // 티어에 따라 범위 증가
+    }
+
+    public float GetGroundEffectDuration()
+    {
+        if (weaponType != WeaponType.Grinder) return 0f;
+        return groundEffectDuration;
+    }
+
+    public float GetDamageTickInterval()
+    {
+        if (weaponType != WeaponType.Grinder) return 0f;
+        return damageTickInterval;
+    }
 
     // PlayerStats를 고려한 최종 스탯 계산 메서드들
     public float CalculateFinalDamage(PlayerStats playerStats)
@@ -303,6 +348,25 @@ public class WeaponData : ScriptableObject
                 if (tierStats[i].spreadAngle <= 0)
                 {
                     tierStats[i].spreadAngle = 45f + (i * 5f);  // 1티어: 45도, 2티어: 50도, ...
+                }
+            }
+        }
+
+        else if (weaponType == WeaponType.Grinder)
+        {
+            for (int i = 0; i < tierStats.Length; i++)
+            {
+                if (tierStats[i].attackRadius <= 0)
+                {
+                    tierStats[i].attackRadius = 2f + (i * 0.5f);
+                }
+                if (tierStats[i].groundEffectDuration <= 0)
+                {
+                    tierStats[i].groundEffectDuration = 3f + (i * 0.5f);
+                }
+                if (tierStats[i].damageTickInterval <= 0 || tierStats[i].damageTickInterval > 0.5f)
+                {
+                    tierStats[i].damageTickInterval = 0.5f - (i * 0.05f);
                 }
             }
         }

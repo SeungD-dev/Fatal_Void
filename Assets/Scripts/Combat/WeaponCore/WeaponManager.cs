@@ -47,6 +47,12 @@ public class WeaponManager : MonoBehaviour
             case WeaponType.Shotgun:
                 mechanism = new ShotgunMechanism();
                 break;
+            case WeaponType.Flamethrower:
+                mechanism = new FlamethrowerMechanism();
+                break;
+            case WeaponType.Grinder:
+                mechanism = new GrinderMechanism();
+                break;
                 // 다른 무기 타입들도 각각 추가
         }
 

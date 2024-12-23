@@ -44,7 +44,7 @@ public class BladeProjectile : BaseProjectile
 
         // 최대 사거리 도달 시 풀로 반환
         if (distanceFromStart >= maxTravelDistance)
-        {
+        {  
             ReturnToPool();
         }
     }
