@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2bd5af085e83a94cb4259f9af2a69e8, type: 3}
+  m_Name: ForceFieldGenerator
+  m_EditorClassIdentifier: 
+  width: 2
+  height: 2
+  weaponIcon: {fileID: -5476380460940941738, guid: 31dfa654119cd0743ab1b89df4317938, type: 3}
+  rarity: 0
+  weaponType: 9
+  price: 25
+  weaponName: Force Field Generator
+  weaponDescription: 
+  sellPriceRatio: 0.5
+  currentTier: 1
+  tierStats:
+  - damage: 6
+    attackDelay: 0.5
+    projectileSpeed: 10
+    knockback: 1
+    projectileSize: 0
+    range: 0
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0.1
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 1.5
+    forceFieldTickInterval: 0.5
+  - damage: 12
+    attackDelay: 0.5
+    projectileSpeed: 10
+    knockback: 1
+    projectileSize: 0
+    range: 0
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0.1
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 2
+    forceFieldTickInterval: 0.5
+  - damage: 18
+    attackDelay: 0.5
+    projectileSpeed: 10
+    knockback: 1
+    projectileSize: 0
+    range: 0
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0.1
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 2.5
+    forceFieldTickInterval: 0.5
+  - damage: 24
+    attackDelay: 0.5
+    projectileSpeed: 10
+    knockback: 1
+    projectileSize: 0
+    range: 0
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0.1
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 4
+    forceFieldTickInterval: 0.5
+  projectilePrefab: {fileID: 4589099209072863335, guid: 303cac38330921348b3eb8bec063a20a, type: 3}
+  attackRadius: 2
+  groundEffectDuration: 3
+  damageTickInterval: 0.5

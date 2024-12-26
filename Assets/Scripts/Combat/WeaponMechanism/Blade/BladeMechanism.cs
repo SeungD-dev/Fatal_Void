@@ -21,7 +21,6 @@ public class BladeMechanism : WeaponMechanism
         // 풀 태그가 설정되어 있는지 확인
         if (string.IsNullOrEmpty(poolTag))
         {
-            
             InitializeProjectilePool();
         }
 

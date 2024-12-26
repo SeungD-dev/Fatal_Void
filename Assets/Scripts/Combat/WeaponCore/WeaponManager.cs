@@ -53,6 +53,9 @@ public class WeaponManager : MonoBehaviour
             case WeaponType.Grinder:
                 mechanism = new GrinderMechanism();
                 break;
+            case WeaponType.ForceFieldGenerator:
+                mechanism = new ForceFieldMechanism();
+                break;
                 // 다른 무기 타입들도 각각 추가
         }
 

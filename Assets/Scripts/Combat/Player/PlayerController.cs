@@ -12,11 +12,13 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private PlayerStats playerStats;
     private float currentMovementSpeed;
+    private Animator animator;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
         SetupRigidbody();
     }
 
@@ -56,8 +58,14 @@ public class PlayerController : MonoBehaviour
         {
             movement.Normalize();
         }
-
         rb.linearVelocity = movement * currentMovementSpeed;
+
+        // 애니메이션 상태 전환
+        if (animator != null)
+        {
+            // movement.magnitude가 0보다 크면 걷는 상태
+            animator.SetBool("IsWalking", movement.magnitude > 0);
+        }
 
         if (movement.x != 0 && spriteRenderer != null)
         {

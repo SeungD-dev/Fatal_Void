@@ -37,6 +37,12 @@ public class TierStats
     [Tooltip("장판 대미지 틱 간격")]
     public float damageTickInterval = 0.5f;
 
+    [Header("Force Field Properties")]
+    [Tooltip("포스 필드 공격 범위")]
+    public float forceFieldRadius = 3f;
+    [Tooltip("포스 필드 대미지 틱 간격")]
+    public float forceFieldTickInterval = 0.5f;
+
     public struct PenetrationInfo
     {
         public bool canPenetrate;
@@ -168,6 +174,15 @@ public class WeaponDataEditor : Editor
                 EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damageTickInterval"),
                     new GUIContent("Damage Tick Interval", "장판 대미지 틱 간격"));
             }
+            else if (weaponData.weaponType == WeaponType.ForceFieldGenerator)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Force Field Properties", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("forceFieldRadius"),
+                    new GUIContent("Force Field Radius", "포스 필드의 공격 범위"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("forceFieldTickInterval"),
+                    new GUIContent("Damage Tick Interval", "대미지가 적용되는 시간 간격"));
+            }
 
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space();
@@ -200,7 +215,7 @@ public class WeaponData : ScriptableObject
 
     [Header("Prefabs")]
     public GameObject projectilePrefab;
-
+   
     [Header("Grinder Settings")]
     [Tooltip("Grinder 타입일 때만 사용되는 설정들")]
     public float attackRadius = 2f;
