@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 8027850623048503287}
   - component: {fileID: 254058484639422741}
   - component: {fileID: 3716619982391929404}
-  - component: {fileID: 4034305292883174437}
   - component: {fileID: 6249319009135574268}
+  - component: {fileID: 3516574144269770640}
   m_Layer: 0
   m_Name: ExperienceLarge
   m_TagString: Untagged
@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.04, y: 0.04, z: 1}
+  m_LocalScale: {x: 5, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -79,8 +79,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 4292555644840565022, guid: d660c76d6fc55b44e8aba025f71ee762, type: 3}
-  m_Color: {r: 0.41585082, g: 0.990566, b: 0.512016, a: 1}
+  m_Sprite: {fileID: 4042250114822578979, guid: 40a7ae4dcec493440bf1125ac6c9e54a, type: 3}
+  m_Color: {r: 0.9876776, g: 1, b: 0.495283, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -117,7 +117,22 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!61 &4034305292883174437
+--- !u!114 &6249319009135574268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3297419363890284131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e200dbd166a0e3b4eaf7ea66b2e2d59c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  basemagnetDistance: 0.7
+  magnetSpeed: 10
+  itemType: 1
+--- !u!61 &3516574144269770640
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -155,26 +170,11 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 7.41, y: 7.41}
+    oldSize: {x: 0.13, y: 0.13}
     newSize: {x: 7.41, y: 7.41}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 7.41, y: 7.41}
+  m_Size: {x: 0.13, y: 0.13}
   m_EdgeRadius: 0
---- !u!114 &6249319009135574268
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3297419363890284131}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e200dbd166a0e3b4eaf7ea66b2e2d59c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  basemagnetDistance: 0.7
-  normalMagnetSpeed: 10
-  itemType: 1

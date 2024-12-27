@@ -101,7 +101,6 @@ public class BeamSaberMechanism : WeaponMechanism
 
         try
         {
-            // 프로젝타일 스폰 전 상태 체크
             if (!ownerComponent.gameObject.activeInHierarchy) return;
 
             Vector3 spawnPosition = playerTransform.position;
@@ -120,21 +119,20 @@ public class BeamSaberMechanism : WeaponMechanism
                 return;
             }
 
-            // 풀 태그 설정
             projectile.SetPoolTag(poolTag);
 
             // 스탯 계산
             float finalDamage = weaponData.CalculateFinalDamage(playerStats);
             float finalKnockback = weaponData.CalculateFinalKnockback(playerStats);
             float finalRange = weaponData.CalculateFinalRange(playerStats);
-            float finalSize = weaponData.CalculateFinalProjectileSize(playerStats);
+            float finalSize = weaponData.CalculateFinalProjectileSize(playerStats);  // 무기 데이터의 크기 설정 사용
 
             if (isComboAttack && comboCount > 1)
             {
                 finalDamage *= 1.2f;
             }
 
-            // 프로젝타일 초기화
+            // 프로젝타일 초기화 시 크기 정보도 함께 전달
             projectile.Initialize(finalDamage, Vector2.zero, 0f, finalKnockback, finalRange, finalSize);
             projectile.SetupCircularAttack(finalRange, enemyLayer, playerTransform);
         }

@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: 21300000, guid: 7d3b4ed3bf3087749beec5e7333747da, type: 3}
   rarity: 0
   weaponType: 5
-  price: 45
+  price: 0
   weaponName: Beam Saber
   weaponDescription: 
   sellPriceRatio: 0.5
@@ -32,6 +32,13 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   - damage: 45
     attackDelay: 2
     projectileSpeed: 10
@@ -41,6 +48,13 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   - damage: 35
     attackDelay: 1
     projectileSpeed: 10
@@ -50,6 +64,13 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   - damage: 55
     attackDelay: 2
     projectileSpeed: 10
@@ -59,4 +80,14 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   projectilePrefab: {fileID: 4589099209072863335, guid: f7daaed26157fa6498d0c41b4bc6d57a, type: 3}
+  attackRadius: 2
+  groundEffectDuration: 3
+  damageTickInterval: 0.5

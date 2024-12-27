@@ -55,7 +55,6 @@ public class PlayerUIController : MonoBehaviour
             // 초기 UI 설정
             ResetUI(playerStats);
             isInitialized = true;
-            Debug.Log("UI Initialized Successfully");  // 디버그 로그 추가
         }
     }
 
@@ -116,7 +115,7 @@ public class PlayerUIController : MonoBehaviour
     {
         if (coinTxt != null)
         {
-            coinTxt.text = $"Coins: {count}";
+            coinTxt.text = $"{count}";
         }
     }
 
@@ -124,7 +123,7 @@ public class PlayerUIController : MonoBehaviour
     {
         if (lvlTxt != null)
         {
-            lvlTxt.text = $"Level {level}";
+            lvlTxt.text = $"Lv.{level}";
         }
     }
 

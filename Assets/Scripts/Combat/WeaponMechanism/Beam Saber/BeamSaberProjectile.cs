@@ -21,6 +21,7 @@ public class BeamSaberProjectile : BaseProjectile
     private static int instanceCounter = 0;
     private int instanceId;
     private Vector3 originalScale;
+    private float baseScaleFactor = 1f;  // 기본 크기 비율 저장
 
     protected override void Awake()
     {
@@ -31,37 +32,54 @@ public class BeamSaberProjectile : BaseProjectile
         originalScale = transform.localScale;
     }
 
+    public override void Initialize(
+        float damage,
+        Vector2 direction,
+        float speed,
+        float knockbackPower = 0f,
+        float range = 10f,
+        float projectileSize = 1f,
+        bool canPenetrate = false,
+        int maxPenetrations = 0,
+        float damageDecay = 0.1f)
+    {
+        base.Initialize(damage, direction, speed, knockbackPower, range, projectileSize,
+            canPenetrate, maxPenetrations, damageDecay);
+
+        baseScaleFactor = projectileSize;  // WeaponData에서 설정한 크기 저장
+        ResetState();
+    }
     public void SetupCircularAttack(float radius, LayerMask enemyMask, Transform player)
     {
         attackRadius = radius;
         enemyLayer = enemyMask;
         playerTransform = player;
 
-        // 시각적 크기도 attackRadius에 맞게 조정
         if (spriteRenderer != null && spriteRenderer.sprite != null)
         {
             float spriteRadius = spriteRenderer.sprite.bounds.extents.x;
             if (spriteRadius > 0)
             {
-                float scaleFactor = attackRadius / spriteRadius;
-                transform.localScale = originalScale * scaleFactor;
+                // Vector3.one을 기준으로 새로 계산
+                float radiusScale = attackRadius / spriteRadius;
+                transform.localScale = Vector3.one * baseScaleFactor * radiusScale;
+
+                // 디버그 로그 추가
+                Debug.Log($"BeamSaber #{instanceId} Scale - Base: {baseScaleFactor}, Radius: {radiusScale}, Final: {transform.localScale.x}");
             }
         }
 
         hasInitialized = true;
     }
 
+
     public override void OnObjectSpawn()
     {
         base.OnObjectSpawn();
+        transform.localScale = Vector3.one;  // 스폰 시 크기 초기화
         ResetState();
-
-        if (!gameObject.activeSelf)
-        {
-            Debug.LogWarning($"BeamSaber #{instanceId} was inactive during OnObjectSpawn!");
-            gameObject.SetActive(true);
-        }
     }
+
 
     private void ResetState()
     {
@@ -174,16 +192,10 @@ public class BeamSaberProjectile : BaseProjectile
             animator.enabled = true;
         }
     }
-
     protected override void OnDisable()
     {
         base.OnDisable();
-
-        if (animator != null)
-        {
-            animator.enabled = false;
-        }
-
+        transform.localScale = Vector3.one;  // 비활성화 시 크기 초기화
         hasInitialized = false;
         isAttackActive = false;
         currentState = AttackState.Ready;
@@ -194,7 +206,7 @@ public class BeamSaberProjectile : BaseProjectile
         if (!string.IsNullOrEmpty(poolTag))
         {
             transform.rotation = Quaternion.identity;
-            transform.localScale = originalScale;
+            transform.localScale = Vector3.one;  // 풀 반환 시 크기 초기화
             ObjectPool.Instance.ReturnToPool(poolTag, gameObject);
         }
         else
