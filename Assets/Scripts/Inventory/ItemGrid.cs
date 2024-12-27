@@ -14,7 +14,14 @@ public class ItemGrid : MonoBehaviour
     public int Width => gridSizeWidth;
     public int Height => gridSizeHeight;
 
+    public System.Action<InventoryItem> OnItemAdded;
+    public System.Action<InventoryItem> OnItemRemoved;
+    public System.Action OnGridChanged;
 
+    private void NotifyGridChanged()
+    {
+        OnGridChanged?.Invoke();
+    }
     private void Start()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -96,7 +103,6 @@ public class ItemGrid : MonoBehaviour
 
     private void CleanGridReference(InventoryItem item)
     {
-        // 범위 체크 추가
         if (!BoundryCheck(item.onGridPositionX, item.onGridPositionY, item.WIDTH, item.HEIGHT))
         {
             Debug.LogWarning($"Attempted to clean grid reference outside bounds: pos({item.onGridPositionX}, {item.onGridPositionY}), size({item.WIDTH}, {item.HEIGHT})");
@@ -114,6 +120,9 @@ public class ItemGrid : MonoBehaviour
                 }
             }
         }
+
+        OnItemRemoved?.Invoke(item);
+        NotifyGridChanged();
     }
 
     public bool PlaceItem(InventoryItem inventoryItem, int posX, int posY, ref InventoryItem overlapItem)
@@ -152,13 +161,17 @@ public class ItemGrid : MonoBehaviour
         RectTransform rectTransform = inventoryItem.GetComponent<RectTransform>();
         rectTransform.SetParent(this.rectTransform);
 
-        // 범위 체크 후 그리드에 아이템 설정
         if (BoundryCheck(posX, posY, inventoryItem.WIDTH, inventoryItem.HEIGHT))
         {
+            // 기존 아이템 정리
             for (int x = 0; x < inventoryItem.WIDTH; x++)
             {
                 for (int y = 0; y < inventoryItem.HEIGHT; y++)
                 {
+                    if (inventoryItemSlot[posX + x, posY + y] != null)
+                    {
+                        CleanGridReference(inventoryItemSlot[posX + x, posY + y]);
+                    }
                     inventoryItemSlot[posX + x, posY + y] = inventoryItem;
                 }
             }
@@ -168,6 +181,10 @@ public class ItemGrid : MonoBehaviour
 
             Vector2 position = CalculatePositionOnGrid(inventoryItem, posX, posY);
             rectTransform.localPosition = position;
+
+            // Grid 상태 변경 알림
+            OnItemAdded?.Invoke(inventoryItem);
+            NotifyGridChanged();
         }
     }
     public Vector2 CalculatePositionOnGrid(InventoryItem inventoryItem, int posX, int posY)

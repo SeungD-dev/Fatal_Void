@@ -10,7 +10,14 @@ public class ForceFieldMechanism : WeaponMechanism
         CreateForceField();
     }
 
-
+    public void Cleanup()
+    {
+        if (currentForceField != null)
+        {
+            Object.Destroy(currentForceField.gameObject);
+            currentForceField = null;
+        }
+    }
     private void CreateForceField()
     {
         if (weaponData.projectilePrefab != null)

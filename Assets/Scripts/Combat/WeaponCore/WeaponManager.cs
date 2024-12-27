@@ -3,96 +3,148 @@ using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
-    private List<WeaponMechanism> activeWeapons = new List<WeaponMechanism>();
+    [SerializeField] private ItemGrid mainItemGrid;  // Inspector에서 할당
+
+    private Dictionary<WeaponData, WeaponMechanism> activeWeapons = new Dictionary<WeaponData, WeaponMechanism>();
+    private Dictionary<WeaponType, GameObject> weaponPrefabs = new Dictionary<WeaponType, GameObject>();
+
+    private void Awake()
+    {
+        if (mainItemGrid == null)
+        {
+            Debug.LogError("MainItemGrid is not assigned to WeaponManager!");
+        }
+    }
 
     private void Update()
     {
-        // 각 무기 독립적으로 업데이트
-        for (int i = activeWeapons.Count - 1; i >= 0; i--)
+        // Grid에서 제거된 무기들 확인 및 정리
+        var weaponsToRemove = new List<WeaponData>();
+
+        foreach (var weaponPair in activeWeapons)
         {
-            if (activeWeapons[i] != null)
+            WeaponData weaponData = weaponPair.Key;
+            WeaponMechanism mechanism = weaponPair.Value;
+
+            if (!IsWeaponInGrid(weaponData))
             {
-                activeWeapons[i].UpdateMechanism();
+                weaponsToRemove.Add(weaponData);
+                CleanupWeaponMechanism(mechanism);
+            }
+            else if (mechanism != null)
+            {
+                mechanism.UpdateMechanism();
             }
         }
+
+        // 제거할 무기들 처리
+        foreach (var weaponData in weaponsToRemove)
+        {
+            activeWeapons.Remove(weaponData);
+            Debug.Log($"Removed unequipped weapon: {weaponData.weaponName}");
+        }
+    }
+
+    private void CleanupWeaponMechanism(WeaponMechanism mechanism)
+    {
+        switch (mechanism)
+        {
+            case ForceFieldMechanism forceField:
+                forceField.Cleanup();
+                break;
+            case BeamSaberMechanism beamSaber:
+                // BeamSaber의 특별한 정리가 필요한 경우
+                break;
+            case GrinderMechanism grinder:
+                // Grinder의 특별한 정리가 필요한 경우
+                break;
+                // 다른 특별한 정리가 필요한 무기들 추가
+        }
+    }
+
+    private bool IsWeaponInGrid(WeaponData weaponData)
+    {
+        if (mainItemGrid == null || weaponData == null) return false;
+
+        for (int x = 0; x < mainItemGrid.Width; x++)
+        {
+            for (int y = 0; y < mainItemGrid.Height; y++)
+            {
+                InventoryItem item = mainItemGrid.GetItem(x, y);
+                if (item != null && item.weaponData == weaponData)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void EquipWeapon(WeaponData weaponData)
     {
         if (weaponData == null) return;
 
-        WeaponMechanism mechanism = null;
-
-        // 무기 데이터에 따라 적절한 메커니즘 생성
-        switch (weaponData.weaponType)
+        // 이미 해당 무기가 활성화되어 있다면 무시
+        if (activeWeapons.ContainsKey(weaponData))
         {
-            case WeaponType.Buster:
-                mechanism = new BusterMechanism();
-                break;
-            case WeaponType.Machinegun:
-                mechanism = new MachinegunMechanism();
-                break;
-            case WeaponType.Blade:
-                mechanism = new BladeMechanism();
-                break;
-            case WeaponType.Cutter:
-                mechanism = new CutterMechanism();
-                break;
-            case WeaponType.Sawblade:
-                mechanism = new SawbladeMechanism();
-                break;
-            case WeaponType.BeamSaber:
-                mechanism = new BeamSaberMechanism();
-                break;
-            case WeaponType.Shotgun:
-                mechanism = new ShotgunMechanism();
-                break;
-            case WeaponType.Flamethrower:
-                mechanism = new FlamethrowerMechanism();
-                break;
-            case WeaponType.Grinder:
-                mechanism = new GrinderMechanism();
-                break;
-            case WeaponType.ForceFieldGenerator:
-                mechanism = new ForceFieldMechanism();
-                break;
-                // 다른 무기 타입들도 각각 추가
+            Debug.Log($"Weapon already equipped: {weaponData.weaponName}");
+            return;
         }
 
+        WeaponMechanism mechanism = CreateWeaponMechanism(weaponData.weaponType);
         if (mechanism != null)
         {
             mechanism.Initialize(weaponData, transform);
-            activeWeapons.Add(mechanism);
+            activeWeapons[weaponData] = mechanism;
             Debug.Log($"Weapon equipped: {weaponData.weaponName} (Total weapons: {activeWeapons.Count})");
         }
+    }
+
+    private WeaponMechanism CreateWeaponMechanism(WeaponType weaponType)
+    {
+        return weaponType switch
+        {
+            WeaponType.Buster => new BusterMechanism(),
+            WeaponType.Machinegun => new MachinegunMechanism(),
+            WeaponType.Blade => new BladeMechanism(),
+            WeaponType.Cutter => new CutterMechanism(),
+            WeaponType.Sawblade => new SawbladeMechanism(),
+            WeaponType.BeamSaber => new BeamSaberMechanism(),
+            WeaponType.Shotgun => new ShotgunMechanism(),
+            WeaponType.Grinder => new GrinderMechanism(),
+            WeaponType.ForceFieldGenerator => new ForceFieldMechanism(),
+            WeaponType.Equipment => null, // Equipment는 별도 처리
+            _ => null
+        };
     }
 
     public void UnequipWeapon(WeaponData weaponData)
     {
         if (weaponData == null) return;
 
-        // 특정 무기 데이터와 일치하는 메커니즘을 찾아서 제거
-        for (int i = activeWeapons.Count - 1; i >= 0; i--)
+        if (activeWeapons.TryGetValue(weaponData, out WeaponMechanism mechanism))
         {
-            if (activeWeapons[i].GetWeaponData() == weaponData)
-            {
-                activeWeapons.RemoveAt(i);
-                Debug.Log($"Weapon unequipped: {weaponData.weaponName}");
-                break;
-            }
+            CleanupWeaponMechanism(mechanism);
+            activeWeapons.Remove(weaponData);
+            Debug.Log($"Weapon unequipped: {weaponData.weaponName}");
         }
     }
 
-    // 현재 장착된 무기 개수 확인 (디버깅용)
-    public int GetActiveWeaponCount()
-    {
-        return activeWeapons.Count;
-    }
-
-    // 모든 무기 제거 (필요한 경우 사용)
     public void ClearAllWeapons()
     {
+        foreach (var mechanism in activeWeapons.Values)
+        {
+            if (mechanism != null)
+            {
+                CleanupWeaponMechanism(mechanism);
+            }
+        }
         activeWeapons.Clear();
         Debug.Log("All weapons cleared");
+    }
+
+    private void OnDestroy()
+    {
+        ClearAllWeapons();
     }
 }

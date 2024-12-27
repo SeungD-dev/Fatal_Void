@@ -22,9 +22,11 @@ public class WeaponInfoUI : MonoBehaviour
     [Header("Scene References")]
     [SerializeField] private InventoryController inventoryController;
 
+    [Header("Grid References")]
+    [SerializeField] private ItemGrid mainItemGrid;
+
     private PlayerStats playerStats;
     private WeaponData selectedWeapon;
-    private ItemGrid currentGrid;
     private List<InventoryItem> upgradeableWeapons;
     private bool isInitialized = false;
 
@@ -36,6 +38,12 @@ public class WeaponInfoUI : MonoBehaviour
         {
             upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
             upgradeButton.gameObject.SetActive(false);
+        }
+
+        // Grid 이벤트 리스너 등록
+        if (mainItemGrid != null)
+        {
+            mainItemGrid.OnGridChanged += RefreshUpgradeUI;
         }
 
         if (GameManager.Instance.IsInitialized)
@@ -57,8 +65,10 @@ public class WeaponInfoUI : MonoBehaviour
         if (upgradeButton == null) Debug.LogError($"Missing reference: {nameof(upgradeButton)} in {gameObject.name}");
         if (upgradeButtonText == null) Debug.LogError($"Missing reference: {nameof(upgradeButtonText)} in {gameObject.name}");
         if (weaponDatabase == null) Debug.LogError($"Missing reference: {nameof(weaponDatabase)} in {gameObject.name}");
+        if (mainItemGrid == null) Debug.LogError($"Missing reference: {nameof(mainItemGrid)} in {gameObject.name}");
         if (inventoryController == null) Debug.LogError($"Missing reference: {nameof(inventoryController)} in {gameObject.name}");
     }
+
 
     private void InitializeReferences()
     {
@@ -75,7 +85,13 @@ public class WeaponInfoUI : MonoBehaviour
             }
         }
     }
-
+    public void RefreshUpgradeUI()
+    {
+        if (selectedWeapon != null)
+        {
+            CheckUpgradePossibility();
+        }
+    }
     private void OnGameStateChanged(GameState newState)
     {
         if (!isInitialized && GameManager.Instance.IsInitialized)
@@ -93,10 +109,8 @@ public class WeaponInfoUI : MonoBehaviour
         }
 
         selectedWeapon = weaponData;
-
         gameObject.SetActive(true);
 
-        // 기본 정보 업데이트
         weaponLevelText.text = $"Tier {weaponData.currentTier}";
         weaponNameText.text = weaponData.weaponName;
         weaponImage.sprite = weaponData.weaponIcon;
@@ -111,7 +125,6 @@ public class WeaponInfoUI : MonoBehaviour
             CheckUpgradePossibility();
         }
     }
-
     private void UpdateDetailedStats(WeaponData weaponData)
     {
         float dps = weaponData.CalculateTheoreticalDPS(playerStats);
@@ -139,56 +152,88 @@ public class WeaponInfoUI : MonoBehaviour
 
     private void CheckUpgradePossibility()
     {
-        if (!isInitialized || selectedWeapon == null || currentGrid == null || upgradeButton == null) return;
+        if (!isInitialized || selectedWeapon == null || mainItemGrid == null || upgradeButton == null)
+        {
+            Debug.LogWarning($"CheckUpgradePossibility failed: initialized={isInitialized}, selectedWeapon={selectedWeapon != null}, mainItemGrid={mainItemGrid != null}, upgradeButton={upgradeButton != null}");
+            return;
+        }
 
         upgradeableWeapons = new List<InventoryItem>();
 
-        for (int x = 0; x < currentGrid.Width; x++)
+        // 현재 선택된 무기의 정보 저장
+        WeaponType targetType = selectedWeapon.weaponType;
+        int targetTier = selectedWeapon.currentTier;
+
+        // Grid의 모든 아이템을 검사하면서 같은 종류, 같은 티어의 무기만 수집
+        for (int x = 0; x < mainItemGrid.Width; x++)
         {
-            for (int y = 0; y < currentGrid.Height; y++)
+            for (int y = 0; y < mainItemGrid.Height; y++)
             {
-                InventoryItem item = currentGrid.GetItem(x, y);
-                if (item != null &&
-                    item.weaponData.weaponType == selectedWeapon.weaponType &&
-                    item.weaponData.currentTier == selectedWeapon.currentTier)
+                InventoryItem item = mainItemGrid.GetItem(x, y);
+                if (item != null && item.weaponData != null &&
+                    item.weaponData.weaponType == targetType &&
+                    item.weaponData.currentTier == targetTier &&
+                    !upgradeableWeapons.Contains(item))  // 중복 체크
                 {
                     upgradeableWeapons.Add(item);
                 }
             }
         }
 
-        bool canUpgrade = upgradeableWeapons.Count >= 2 && selectedWeapon.currentTier < 4;
+        bool canUpgrade = upgradeableWeapons.Count >= 2 && targetTier < 4;
         upgradeButton.gameObject.SetActive(canUpgrade);
 
         if (canUpgrade)
         {
-            upgradeButtonText.text = $"Upgrade to Tier {selectedWeapon.currentTier + 1}";
+            upgradeButtonText.text = $"Upgrade to Tier {targetTier + 1}";
         }
     }
-
     private void OnUpgradeButtonClick()
     {
-        if (!isInitialized || upgradeableWeapons.Count < 2 || selectedWeapon == null) return;
+        if (!isInitialized || upgradeableWeapons == null || upgradeableWeapons.Count < 2 || selectedWeapon == null || mainItemGrid == null)
+        {
+            Debug.LogWarning("Cannot upgrade: missing requirements");
+            return;
+        }
 
         WeaponData nextTierWeapon = GetNextTierWeapon();
-        if (nextTierWeapon == null) return;
-
-        for (int i = 0; i < 2; i++)
+        if (nextTierWeapon == null)
         {
-            if (upgradeableWeapons[i] != null)
+            Debug.LogWarning("Failed to create next tier weapon");
+            return;
+        }
+
+        // 기존 무기들의 위치를 저장 (첫 번째 무기의 위치를 사용)
+        Vector2Int upgradePosition = new Vector2Int(
+            upgradeableWeapons[0].onGridPositionX,
+            upgradeableWeapons[0].onGridPositionY
+        );
+
+        // 기존 무기들을 Grid에서 완전히 제거
+        foreach (var weapon in upgradeableWeapons.Take(2))
+        {
+            if (weapon != null)
             {
-                Destroy(upgradeableWeapons[i].gameObject);
+                // Grid에서 참조 제거
+                mainItemGrid.PickUpItem(weapon.onGridPositionX, weapon.onGridPositionY);
+                // GameObject 파괴
+                Destroy(weapon.gameObject);
             }
         }
 
+        // 새 무기 생성 및 배치 전에 리스트 초기화
+        upgradeableWeapons.Clear();
+        selectedWeapon = null;  // 선택된 무기 정보도 초기화
+
+        // 새 무기 생성 및 배치
         if (inventoryController != null)
         {
-            inventoryController.CreatePurchasedItem(nextTierWeapon);
+            inventoryController.CreateUpgradedItem(nextTierWeapon, upgradePosition);
         }
 
+        // UI 상태 초기화
         upgradeButton.gameObject.SetActive(false);
     }
-
     private WeaponData GetNextTierWeapon()
     {
         if (selectedWeapon == null || selectedWeapon.currentTier >= 4) return null;
@@ -214,6 +259,10 @@ public class WeaponInfoUI : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameStateChanged -= OnGameStateChanged;
+        }
+        if (mainItemGrid != null)
+        {
+            mainItemGrid.OnGridChanged -= RefreshUpgradeUI;
         }
     }
 }

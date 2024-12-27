@@ -6,33 +6,43 @@ public class GridInteract : MonoBehaviour, IPointerEnterHandler
 {
     InventoryController inventoryController;
     ItemGrid itemGrid;
+    WeaponInfoUI weaponInfoUI;
 
     private void Awake()
     {
         inventoryController = FindFirstObjectByType(typeof(InventoryController)) as InventoryController;
         itemGrid = GetComponent<ItemGrid>();
+        weaponInfoUI = FindFirstObjectByType<WeaponInfoUI>();
 
-        // 시작할 때 바로 Grid 설정
+        if (itemGrid != null)
+        {
+            itemGrid.OnGridChanged += OnGridStateChanged;
+        }
+
         if (inventoryController != null && itemGrid != null)
         {
             inventoryController.SelectedItemGrid = itemGrid;
         }
     }
 
-    private void OnEnable()
+    private void OnDestroy()
     {
-        // UI가 활성화될 때마다 Grid 설정
-        if (inventoryController != null && itemGrid != null)
+        if (itemGrid != null)
         {
-            inventoryController.SelectedItemGrid = itemGrid;
+            itemGrid.OnGridChanged -= OnGridStateChanged;
+        }
+    }
+
+    private void OnGridStateChanged()
+    {
+        if (weaponInfoUI != null)
+        {
+            weaponInfoUI.RefreshUpgradeUI();
         }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // 추가 Grid가 있을 경우를 위해 남겨둠
         inventoryController.SelectedItemGrid = itemGrid;
     }
-
-    // OnPointerExit 제거
 }

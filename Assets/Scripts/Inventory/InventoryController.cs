@@ -533,67 +533,87 @@ private void HandleItemSelection(InventoryItem item)
         touchActions?.Dispose();
     }
 
+    public InventoryItem GetInventoryItemPrefab()
+    {
+        return weaponPrefab.GetComponent<InventoryItem>();
+    }
 
     public void CreatePurchasedItem(WeaponData weaponData)
     {
-        if (itemSpawnPoint == null || selectedItemGrid == null)
+        if (selectedItemGrid == null)
         {
-            Debug.LogWarning("Required references not set!");
+            Debug.LogError("No ItemGrid selected!");
             return;
         }
 
         GameObject itemObj = Instantiate(weaponPrefab);
         InventoryItem inventoryItem = itemObj.GetComponent<InventoryItem>();
-        rectTransform = itemObj.GetComponent<RectTransform>();
+        RectTransform rectTransform = itemObj.GetComponent<RectTransform>();
 
-        
         rectTransform.SetParent(selectedItemGrid.GetComponent<RectTransform>(), false);
-
         inventoryItem.Set(weaponData);
 
-        
-        Vector2Int gridPosition = selectedItemGrid.GetTileGridPosition(itemSpawnPoint.position);
+        // 빈 공간 찾기
+        Vector2Int? freePosition = selectedItemGrid.FindSpaceForObject(inventoryItem);
+        Vector2Int gridPosition = freePosition ?? Vector2Int.zero;
 
-        
-        if (!selectedItemGrid.BoundryCheck(gridPosition.x, gridPosition.y,
-            inventoryItem.WIDTH, inventoryItem.HEIGHT))
-        {
-            
-            gridPosition = new Vector2Int(0, 0);
-        }
-
-        
-        inventoryItem.onGridPositionX = gridPosition.x;
-        inventoryItem.onGridPositionY = gridPosition.y;
-
-        
+        // 아이템 배치
         InventoryItem overlapItem = null;
         selectedItemGrid.PlaceItem(inventoryItem, gridPosition.x, gridPosition.y, ref overlapItem);
 
-        
-        Vector2 position = selectedItemGrid.CalculatePositionOnGrid(inventoryItem,
-            gridPosition.x, gridPosition.y);
+        // UI 위치 설정
+        Vector2 position = selectedItemGrid.CalculatePositionOnGrid(inventoryItem, gridPosition.x, gridPosition.y);
         rectTransform.localPosition = position;
+    }
 
-        selectedItem = inventoryItem;
-
-        
-        if (inventoryHighlight != null)
+    // InventoryController.cs
+    public void CreateUpgradedItem(WeaponData weaponData, Vector2Int position)
+    {
+        if (selectedItemGrid == null)
         {
-            inventoryHighlight.Show(true);
-            inventoryHighlight.SetSize(selectedItem);
+            Debug.LogError("No ItemGrid selected!");
+            return;
         }
 
-        
+        GameObject itemObj = Instantiate(weaponPrefab);
+        InventoryItem inventoryItem = itemObj.GetComponent<InventoryItem>();
+        RectTransform rectTransform = itemObj.GetComponent<RectTransform>();
+
+        rectTransform.SetParent(selectedItemGrid.GetComponent<RectTransform>(), false);
+        inventoryItem.Set(weaponData);
+
+        // 지정된 위치에 아이템 배치 시도
+        InventoryItem overlapItem = null;
+        bool placed = selectedItemGrid.PlaceItem(inventoryItem, position.x, position.y, ref overlapItem);
+
+        if (!placed)
+        {
+            // 지정된 위치에 배치 실패시 새로운 위치 찾기
+            Vector2Int? freePosition = selectedItemGrid.FindSpaceForObject(inventoryItem);
+            if (freePosition.HasValue)
+            {
+                selectedItemGrid.PlaceItem(inventoryItem, freePosition.Value.x, freePosition.Value.y, ref overlapItem);
+                position = freePosition.Value;
+            }
+            else
+            {
+                Debug.LogError("No space available for upgraded item!");
+                Destroy(itemObj);
+                return;
+            }
+        }
+
+        // UI 위치 설정
+        Vector2 uiPosition = selectedItemGrid.CalculatePositionOnGrid(inventoryItem, position.x, position.y);
+        rectTransform.localPosition = uiPosition;
+
         if (weaponInfoUI != null)
         {
             weaponInfoUI.UpdateWeaponInfo(weaponData);
         }
-
-        
-        isDragging = false;
-        isHolding = false;
     }
+
+    // 기존 CreatePurchasedItem 메서드는 그대로 유지
     private void PickUpItem(Vector2Int tileGridPosition)
     {
         InventoryItem itemToPickup = selectedItemGrid.GetItem(tileGridPosition.x, tileGridPosition.y);
