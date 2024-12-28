@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class ShopController : MonoBehaviour
 {
@@ -71,23 +72,25 @@ public class ShopController : MonoBehaviour
         // 원본 데이터를 수정하지 않기 위해 복제
         WeaponData scaledWeapon = ScriptableObject.Instantiate(originalWeapon);
 
-        // 티어 1로 초기화 (상점에서는 항상 1티어로 시작)
-        scaledWeapon.currentTier = 1;
-
-        // 플레이어 레벨에 따른 스탯 스케일링
-        float levelScaling = 1f + ((playerStats.Level - 1) * 0.05f); // 레벨당 5% 증가
-
-        // 현재 티어의 스탯 스케일링
+        // 스탯 스케일링
+        float levelScaling = 1f + ((playerStats.Level - 1) * 0.05f);
         TierStats currentTierStats = scaledWeapon.CurrentTierStats;
         currentTierStats.damage *= levelScaling;
         currentTierStats.projectileSpeed *= levelScaling;
-        currentTierStats.attackDelay /= (1f + ((playerStats.Level - 1) * 0.02f)); // 레벨당 2% 빨라짐
+        currentTierStats.attackDelay /= (1f + ((playerStats.Level - 1) * 0.02f));
 
         // 가격 조정
         if (!isFirstShop)
         {
-            int basePrice = originalWeapon.price;
-            float priceScaling = 1f + ((playerStats.Level - 1) * 0.1f); // 레벨당 10% 증가
+            float priceScaling = 1f + ((playerStats.Level - 1) * 0.1f);
+            int basePrice = scaledWeapon.currentTier switch  // price 프로퍼티 대신 직접 티어별 가격 참조
+            {
+                1 => scaledWeapon.tier1Price,
+                2 => scaledWeapon.tier2Price,
+                3 => scaledWeapon.tier3Price,
+                4 => scaledWeapon.tier4Price,
+                _ => scaledWeapon.tier1Price
+            };
             scaledWeapon.price = Mathf.RoundToInt(basePrice * priceScaling);
         }
         else
@@ -97,23 +100,83 @@ public class ShopController : MonoBehaviour
 
         return scaledWeapon;
     }
-
-
     private List<WeaponData> GetRandomWeapons(int count)
     {
-        List<WeaponData> allWeapons = new List<WeaponData>(weaponDatabase.weapons);
+        if (weaponDatabase == null || playerStats == null)
+        {
+            Debug.LogError("WeaponDatabase or PlayerStats is missing!");
+            return new List<WeaponData>();
+        }
+
         List<WeaponData> randomWeapons = new List<WeaponData>();
 
-        while (randomWeapons.Count < count && allWeapons.Count > 0)
+        for (int i = 0; i < count; i++)
         {
-            int randomIndex = Random.Range(0, allWeapons.Count);
-            randomWeapons.Add(allWeapons[randomIndex]);
-            allWeapons.RemoveAt(randomIndex);
+            WeaponData weapon = GetRandomWeaponByTierProbability();
+            if (weapon != null)
+            {
+                randomWeapons.Add(weapon);
+            }
         }
 
         return randomWeapons;
     }
 
+    private WeaponData GetRandomWeaponByTierProbability()
+    {
+        // 현재 레벨에서의 각 티어 확률을 한번에 가져오기
+        float[] tierProbs = weaponDatabase.tierProbability.GetTierProbabilities(playerStats.Level);
+
+        // 랜덤 값으로 티어 선택 (0-100 사이의 값)
+        float random = Random.value * 100f;
+        float cumulative = 0f;
+        int selectedTier = 1;
+
+        for (int i = 0; i < 4; i++)
+        {
+            cumulative += tierProbs[i];
+            if (random <= cumulative)
+            {
+                selectedTier = i + 1;
+                break;
+            }
+        }
+
+        // 선택된 티어의 무기들 중에서 랜덤 선택
+        List<WeaponData> tierWeapons = weaponDatabase.weapons
+            .Where(w => w.currentTier == selectedTier)
+            .ToList();
+
+        if (tierWeapons.Count == 0)
+        {
+            Debug.LogWarning($"No weapons found for tier {selectedTier}");
+            return null;
+        }
+
+        WeaponData selectedWeapon = tierWeapons[Random.Range(0, tierWeapons.Count)];
+        selectedWeapon = ScriptableObject.Instantiate(selectedWeapon);  // 복제본 생성
+
+        // 가격 스케일링
+        if (!isFirstShop)
+        {
+            float priceScaling = 1f + ((playerStats.Level - 1) * 0.1f);
+            int basePrice = selectedWeapon.currentTier switch
+            {
+                1 => selectedWeapon.tier1Price,
+                2 => selectedWeapon.tier2Price,
+                3 => selectedWeapon.tier3Price,
+                4 => selectedWeapon.tier4Price,
+                _ => selectedWeapon.tier1Price
+            };
+            selectedWeapon.price = Mathf.RoundToInt(basePrice * priceScaling);
+        }
+        else
+        {
+            selectedWeapon.price = 0;
+        }
+
+        return selectedWeapon;
+    }
     public void PurchaseWeapon(WeaponData weaponData)
     {
         if (weaponData != null)

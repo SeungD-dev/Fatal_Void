@@ -74,6 +74,10 @@ public class WeaponDataEditor : Editor
     private SerializedProperty currentTier;
     private SerializedProperty projectilePrefab;
     private SerializedProperty tierStats;
+    private SerializedProperty tier1Price;  // 티어별 가격 프로퍼티 추가
+    private SerializedProperty tier2Price;
+    private SerializedProperty tier3Price;
+    private SerializedProperty tier4Price;
     private void OnEnable()
     {
         width = serializedObject.FindProperty("width");
@@ -88,6 +92,10 @@ public class WeaponDataEditor : Editor
         currentTier = serializedObject.FindProperty("currentTier");
         projectilePrefab = serializedObject.FindProperty("projectilePrefab");
         tierStats = serializedObject.FindProperty("tierStats");
+        tier1Price = serializedObject.FindProperty("tier1Price");
+        tier2Price = serializedObject.FindProperty("tier2Price");
+        tier3Price = serializedObject.FindProperty("tier3Price");
+        tier4Price = serializedObject.FindProperty("tier4Price");
     }
 
     public override void OnInspectorGUI()
@@ -98,13 +106,13 @@ public class WeaponDataEditor : Editor
 
         DrawBasicSettings();
         EditorGUILayout.Space();
+        DrawTierPrices();
         DrawTierConfiguration();
         EditorGUILayout.Space();
         DrawTierStats(weaponData);
 
         serializedObject.ApplyModifiedProperties();
     }
-
     private void DrawBasicSettings()
     {
         EditorGUILayout.LabelField("Basic Settings", EditorStyles.boldLabel);
@@ -113,7 +121,6 @@ public class WeaponDataEditor : Editor
         EditorGUILayout.PropertyField(weaponIcon);
         EditorGUILayout.PropertyField(rarity);
         EditorGUILayout.PropertyField(weaponType);
-        EditorGUILayout.PropertyField(price);
         EditorGUILayout.PropertyField(weaponName);
         EditorGUILayout.PropertyField(weaponDescription);
         EditorGUILayout.PropertyField(sellPriceRatio);
@@ -189,6 +196,20 @@ public class WeaponDataEditor : Editor
         }
         EditorGUI.indentLevel--;
     }
+
+    private void DrawTierPrices()
+    {
+        EditorGUILayout.LabelField("Tier Prices", EditorStyles.boldLabel);
+        EditorGUI.indentLevel++;
+
+        EditorGUILayout.PropertyField(tier1Price, new GUIContent("Tier 1 Price"));
+        EditorGUILayout.PropertyField(tier2Price, new GUIContent("Tier 2 Price"));
+        EditorGUILayout.PropertyField(tier3Price, new GUIContent("Tier 3 Price"));
+        EditorGUILayout.PropertyField(tier4Price, new GUIContent("Tier 4 Price"));
+
+        EditorGUI.indentLevel--;
+        EditorGUILayout.Space();
+    }
 }
 #endif
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Inventory/Weapon")]
@@ -200,15 +221,46 @@ public class WeaponData : ScriptableObject
     public Sprite weaponIcon;
     public WeaponRarity rarity;
     public WeaponType weaponType;
-    public int price;
     public string weaponName;
     public string weaponDescription;
-    [SerializeField] private float sellPriceRatio = 0.5f;
-    public int SellPrice => Mathf.RoundToInt(price * sellPriceRatio);
-
+   
     [Header("Tier Configuration")]
     [Tooltip("현재 무기의 티어")]
     public int currentTier = 1;
+
+    [Header("Tier Prices")]
+    public int tier1Price;
+    public int tier2Price;
+    public int tier3Price;
+    public int tier4Price;
+    [SerializeField] private float sellPriceRatio = 0.5f;
+
+    private int currentPrice;
+
+    public int price
+    {
+        get
+        {
+            // currentPrice가 설정되어 있다면 그 값을 사용
+            if (currentPrice > 0)
+                return currentPrice;
+
+            // 아니라면 티어에 따른 기본 가격 반환
+            return currentTier switch
+            {
+                1 => tier1Price,
+                2 => tier2Price,
+                3 => tier3Price,
+                4 => tier4Price,
+                _ => tier1Price
+            };
+        }
+        set
+        {
+            currentPrice = value;
+        }
+    }
+    public int SellPrice => Mathf.RoundToInt(price * sellPriceRatio);
 
     [Tooltip("각 티어별 스탯 설정")]
     public TierStats[] tierStats = new TierStats[4]; // 1-4 티어
@@ -225,6 +277,11 @@ public class WeaponData : ScriptableObject
 
     // 현재 티어의 스탯 getter
     public TierStats CurrentTierStats => tierStats[Mathf.Clamp(currentTier - 1, 0, 3)];
+
+    private void OnEnable()
+    {
+        currentPrice = 0;  // 복제될 때마다 현재 가격 초기화
+    }
 
     public float GetAttackRadius()
     {
