@@ -40,8 +40,8 @@ public class WeaponOptionUI : MonoBehaviour
         weaponNameText.text = weaponData.weaponName;
         weaponImage.sprite = weaponData.weaponIcon;
         descriptionText.text = weaponData.weaponDescription;
-        //dpsText.text = $"DPS: {weaponData.weaponDamage}";
-        //weaponLevelText.text = $"Lv.{weaponData.weaponLevel}";
+        weaponImage.sprite = weaponData.weaponIcon;
+        weaponImage.preserveAspect = true;  // 이미지 비율 유지 설정
         priceText.text = weaponData.price == 0 ? "FREE" : $"{weaponData.price} Coins";
 
         Color rarityColor = GetRarityColor(weaponData.rarity);

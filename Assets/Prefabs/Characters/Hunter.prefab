@@ -81,7 +81,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 2
   m_Sprite: {fileID: -4981905265807446599, guid: a8643f6c64f89bc41bf3f7c21049ab53, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -137,7 +137,7 @@ MonoBehaviour:
   bounceSpeed: 6
   bounceAmount: 0.1
   knockbackRecoveryTime: 0.1
-  enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
+  enemyData: {fileID: 11400000, guid: 7d97d9cb3a3d98646bbe1a7b19565dda, type: 2}
 --- !u!61 &1951955184431397305
 BoxCollider2D:
   m_ObjectHideFlags: 0
