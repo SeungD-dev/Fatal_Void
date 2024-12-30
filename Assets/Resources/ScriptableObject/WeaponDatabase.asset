@@ -14,6 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weapons:
   - {fileID: 11400000, guid: f3560877c2094d14d9e1843f473285cb, type: 2}
+  - {fileID: 11400000, guid: 27eb0d0a3f6e2a544bfff8d2e9d51fb9, type: 2}
+  - {fileID: 11400000, guid: e716a8e0f2773d04f8aa263e871b0cad, type: 2}
+  - {fileID: 11400000, guid: f02689596a065bb45a18c618e425d105, type: 2}
+  - {fileID: 11400000, guid: 7d71ed210d5e2ea4dbf1326f0af52ae6, type: 2}
+  - {fileID: 11400000, guid: 0a722490f58abe54f80d277f8c94615d, type: 2}
+  - {fileID: 11400000, guid: 99c56b35d15c3b640afe0245c848db8b, type: 2}
+  - {fileID: 11400000, guid: e5775d71c0fa65f4cbafd69739192906, type: 2}
+  - {fileID: 11400000, guid: 1e2331d1758617c41b853f91e226a13d, type: 2}
   tierProbability:
     tier1Probability: 75
     tier2Probability: 15
@@ -21,7 +29,7 @@ MonoBehaviour:
     tier4Probability: 1
     tier1Decrease: -2
     tier2Scaling: 1
-    tier3Scaling: 0.8
+    tier3Scaling: 1
     tier4Scaling: 0.2
     tier1MinProb: 20
     tier2MinProb: 10

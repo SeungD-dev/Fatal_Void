@@ -8,7 +8,6 @@ public class WeaponOptionUI : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private TextMeshProUGUI weaponNameText;
     [SerializeField] private Image rarityBackgroundImage;
-    [SerializeField] private TextMeshProUGUI dpsText;
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private Image weaponImage;
     [SerializeField] private TextMeshProUGUI weaponLevelText;

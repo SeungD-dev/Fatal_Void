@@ -969,6 +969,11 @@ MonoBehaviour:
     initialSize: 50
     maxSize: 80
     growSize: 5
+  - tag: Bullet_DestroyVFX
+    prefab: {fileID: 4589099209072863335, guid: 3bb2ef6c3d329ba4797ad843732056c9, type: 3}
+    initialSize: 25
+    maxSize: 50
+    growSize: 5
 --- !u!4 &1471452497
 Transform:
   m_ObjectHideFlags: 0

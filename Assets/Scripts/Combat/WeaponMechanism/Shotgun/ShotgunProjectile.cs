@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ShotgunProjectile : BaseProjectile
+public class ShotgunProjectile : BulletProjectile
 {
     protected override void OnTriggerEnter2D(Collider2D other)
     {
@@ -10,9 +10,21 @@ public class ShotgunProjectile : BaseProjectile
             if (enemy != null)
             {
                 ApplyDamageAndEffects(enemy);
-                // 샷건 투사체는 관통하지 않으므로 즉시 풀로 반환
+                SpawnDestroyVFX();  // 소멸 효과 추가
                 ReturnToPool();
             }
+        }
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        // 최대 사거리 도달 시 소멸 효과 추가
+        if (Vector2.Distance(startPosition, transform.position) >= maxTravelDistance)
+        {
+            SpawnDestroyVFX();
+            ReturnToPool();
         }
     }
 }
