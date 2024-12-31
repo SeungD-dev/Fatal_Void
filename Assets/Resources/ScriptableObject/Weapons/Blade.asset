@@ -14,14 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 1
   height: 2
-  weaponIcon: {fileID: 21300000, guid: 0647556ce542fb448b7591f592642fc4, type: 3}
+  weaponIcon: {fileID: -886643027033996082, guid: a6dab15bba89f974791a738b39ffd4af, type: 3}
   rarity: 0
   weaponType: 2
-  price: 25
   weaponName: Blade
   weaponDescription: 
-  sellPriceRatio: 0.5
   currentTier: 1
+  tier1Price: 0
+  tier2Price: 0
+  tier3Price: 0
+  tier4Price: 0
+  sellPriceRatio: 0.5
   tierStats:
   - damage: 10
     attackDelay: 1.5
@@ -32,6 +35,13 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   - damage: 15
     attackDelay: 1.25
     projectileSpeed: 4
@@ -41,6 +51,13 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   - damage: 21
     attackDelay: 1
     projectileSpeed: 4
@@ -50,6 +67,13 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   - damage: 28
     attackDelay: 0.75
     projectileSpeed: 4
@@ -59,4 +83,14 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   projectilePrefab: {fileID: 4589099209072863335, guid: 495678b785e0b444f92342df2119c894, type: 3}
+  attackRadius: 2
+  groundEffectDuration: 3
+  damageTickInterval: 0.5

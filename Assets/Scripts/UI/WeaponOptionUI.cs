@@ -7,7 +7,6 @@ public class WeaponOptionUI : MonoBehaviour
 {
     [Header("UI Elements")]
     [SerializeField] private TextMeshProUGUI weaponNameText;
-    [SerializeField] private Image rarityBackgroundImage;
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private Image weaponImage;
     [SerializeField] private TextMeshProUGUI weaponLevelText;
@@ -41,10 +40,7 @@ public class WeaponOptionUI : MonoBehaviour
         descriptionText.text = weaponData.weaponDescription;
         weaponImage.sprite = weaponData.weaponIcon;
         weaponImage.preserveAspect = true;  // 이미지 비율 유지 설정
-        priceText.text = weaponData.price == 0 ? "FREE" : $"{weaponData.price} Coins";
-
-        Color rarityColor = GetRarityColor(weaponData.rarity);
-        rarityBackgroundImage.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, 0.3f);
+        priceText.text = weaponData.price == 0 ? "FREE" : $"{weaponData.price} Coins";     
     }
 
     private void SetupButtons()
@@ -103,15 +99,5 @@ public class WeaponOptionUI : MonoBehaviour
     private void OnCoinCountChanged(int newCoinCount)
     {
         UpdatePurchaseButtonState();
-    }
-
-    private Color GetRarityColor(WeaponRarity rarity)
-    {
-        return rarity switch
-        {
-            WeaponRarity.common => new Color(0.8f, 0.8f, 0.8f),
-            WeaponRarity.uncommon => new Color(0.3f, 0.8f, 0.3f),
-            _ => Color.white
-        };
-    }
+    } 
 }
