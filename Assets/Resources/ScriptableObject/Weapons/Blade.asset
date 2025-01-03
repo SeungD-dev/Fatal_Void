@@ -15,15 +15,15 @@ MonoBehaviour:
   width: 1
   height: 2
   weaponIcon: {fileID: -886643027033996082, guid: a6dab15bba89f974791a738b39ffd4af, type: 3}
-  rarity: 0
   weaponType: 2
   weaponName: Blade
   weaponDescription: 
+  inventoryWeaponIcon: {fileID: 21300000, guid: 0647556ce542fb448b7591f592642fc4, type: 3}
   currentTier: 1
-  tier1Price: 0
-  tier2Price: 0
-  tier3Price: 0
-  tier4Price: 0
+  tier1Price: 25
+  tier2Price: 50
+  tier3Price: 100
+  tier4Price: 200
   sellPriceRatio: 0.5
   tierStats:
   - damage: 10

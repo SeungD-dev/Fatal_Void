@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 
 [System.Serializable]
 public class TierStats
@@ -65,7 +66,8 @@ public class WeaponDataEditor : Editor
     private SerializedProperty width;
     private SerializedProperty height;
     private SerializedProperty weaponIcon;
-    private SerializedProperty rarity;
+    private SerializedProperty inventoryWeaponIcon;
+ 
     private SerializedProperty weaponType;
     private SerializedProperty price;
     private SerializedProperty weaponName;
@@ -83,7 +85,7 @@ public class WeaponDataEditor : Editor
         width = serializedObject.FindProperty("width");
         height = serializedObject.FindProperty("height");
         weaponIcon = serializedObject.FindProperty("weaponIcon");
-        rarity = serializedObject.FindProperty("rarity");
+        inventoryWeaponIcon = serializedObject.FindProperty("inventoryWeaponIcon");
         weaponType = serializedObject.FindProperty("weaponType");
         price = serializedObject.FindProperty("price");
         weaponName = serializedObject.FindProperty("weaponName");
@@ -119,7 +121,7 @@ public class WeaponDataEditor : Editor
         EditorGUILayout.PropertyField(width);
         EditorGUILayout.PropertyField(height);
         EditorGUILayout.PropertyField(weaponIcon);
-        EditorGUILayout.PropertyField(rarity);
+        EditorGUILayout.PropertyField(inventoryWeaponIcon);
         EditorGUILayout.PropertyField(weaponType);
         EditorGUILayout.PropertyField(weaponName);
         EditorGUILayout.PropertyField(weaponDescription);
@@ -219,10 +221,11 @@ public class WeaponData : ScriptableObject
     public int width = 1;
     public int height = 1;
     public Sprite weaponIcon;
-    public WeaponRarity rarity;
     public WeaponType weaponType;
     public string weaponName;
     public string weaponDescription;
+
+    public Sprite inventoryWeaponIcon;
    
     [Header("Tier Configuration")]
     [Tooltip("현재 무기의 티어")]
@@ -235,14 +238,14 @@ public class WeaponData : ScriptableObject
     public int tier4Price;
     [SerializeField] private float sellPriceRatio = 0.5f;
 
-    private int currentPrice;
+    private int currentPrice = -1;
 
     public int price
     {
         get
         {
             // currentPrice가 설정되어 있다면 그 값을 사용
-            if (currentPrice > 0)
+            if (currentPrice >= 0)
                 return currentPrice;
 
             // 아니라면 티어에 따른 기본 가격 반환
@@ -280,7 +283,7 @@ public class WeaponData : ScriptableObject
 
     private void OnEnable()
     {
-        currentPrice = 0;  // 복제될 때마다 현재 가격 초기화
+        currentPrice = -1;  // 복제될 때마다 현재 가격 초기화
     }
 
     public float GetAttackRadius()

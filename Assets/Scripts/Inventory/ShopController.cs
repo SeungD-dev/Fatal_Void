@@ -79,11 +79,16 @@ public class ShopController : MonoBehaviour
         currentTierStats.projectileSpeed *= levelScaling;
         currentTierStats.attackDelay /= (1f + ((playerStats.Level - 1) * 0.02f));
 
-        // 가격 조정
-        if (!isFirstShop)
+        // 첫 상점이면 무조건 가격을 0으로 설정
+        if (isFirstShop)
         {
+            scaledWeapon.price = 0;
+        }
+        else
+        {
+            // 일반 상점일 경우 레벨에 따른 가격 스케일링 적용
             float priceScaling = 1f + ((playerStats.Level - 1) * 0.1f);
-            int basePrice = scaledWeapon.currentTier switch  // price 프로퍼티 대신 직접 티어별 가격 참조
+            int basePrice = scaledWeapon.currentTier switch
             {
                 1 => scaledWeapon.tier1Price,
                 2 => scaledWeapon.tier2Price,
@@ -92,10 +97,6 @@ public class ShopController : MonoBehaviour
                 _ => scaledWeapon.tier1Price
             };
             scaledWeapon.price = Mathf.RoundToInt(basePrice * priceScaling);
-        }
-        else
-        {
-            scaledWeapon.price = 0;
         }
 
         return scaledWeapon;
@@ -153,29 +154,8 @@ public class ShopController : MonoBehaviour
             return null;
         }
 
-        WeaponData selectedWeapon = tierWeapons[Random.Range(0, tierWeapons.Count)];
-        selectedWeapon = ScriptableObject.Instantiate(selectedWeapon);  // 복제본 생성
-
-        // 가격 스케일링
-        if (!isFirstShop)
-        {
-            float priceScaling = 1f + ((playerStats.Level - 1) * 0.1f);
-            int basePrice = selectedWeapon.currentTier switch
-            {
-                1 => selectedWeapon.tier1Price,
-                2 => selectedWeapon.tier2Price,
-                3 => selectedWeapon.tier3Price,
-                4 => selectedWeapon.tier4Price,
-                _ => selectedWeapon.tier1Price
-            };
-            selectedWeapon.price = Mathf.RoundToInt(basePrice * priceScaling);
-        }
-        else
-        {
-            selectedWeapon.price = 0;
-        }
-
-        return selectedWeapon;
+        // 무기를 복제하여 반환 (가격 설정은 ScaleWeaponToPlayerLevel에서 처리)
+        return ScriptableObject.Instantiate(tierWeapons[Random.Range(0, tierWeapons.Count)]);
     }
     public void PurchaseWeapon(WeaponData weaponData)
     {

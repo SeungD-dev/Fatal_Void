@@ -15,13 +15,16 @@ MonoBehaviour:
   width: 2
   height: 2
   weaponIcon: {fileID: -5476380460940941738, guid: 31dfa654119cd0743ab1b89df4317938, type: 3}
-  rarity: 0
   weaponType: 9
-  price: 0
   weaponName: Force Field
   weaponDescription: 
-  sellPriceRatio: 0.5
+  inventoryWeaponIcon: {fileID: -5476380460940941738, guid: 31dfa654119cd0743ab1b89df4317938, type: 3}
   currentTier: 1
+  tier1Price: 25
+  tier2Price: 50
+  tier3Price: 100
+  tier4Price: 200
+  sellPriceRatio: 0.5
   tierStats:
   - damage: 6
     attackDelay: 0.5

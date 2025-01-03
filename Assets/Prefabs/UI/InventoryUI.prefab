@@ -528,12 +528,37 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3493884841437627429, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -7106705765877761268, guid: 0a4afb6ae1801ba4e897e947d6f30828, type: 3}
     - target: {fileID: 6481573906762372406, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
       propertyPath: m_Name
       value: InventoryPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 6976768706757289613, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: weaponImage
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473134199037988905, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_fontColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473134199037988905, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_fontColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473134199037988905, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_fontColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473134199037988905, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4294967295
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 5431950371619703518, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c97874d7a910b6645809d2e37b595c90, type: 3}

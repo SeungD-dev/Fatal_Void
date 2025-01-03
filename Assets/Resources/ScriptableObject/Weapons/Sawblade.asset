@@ -15,13 +15,16 @@ MonoBehaviour:
   width: 2
   height: 2
   weaponIcon: {fileID: -1530235953570945171, guid: 2c59496dc7b860e4ab2f90067ab8d8b1, type: 3}
-  rarity: 0
   weaponType: 4
-  price: 45
   weaponName: Sawblade
   weaponDescription: 
-  sellPriceRatio: 0.5
+  inventoryWeaponIcon: {fileID: -1530235953570945171, guid: 2c59496dc7b860e4ab2f90067ab8d8b1, type: 3}
   currentTier: 1
+  tier1Price: 45
+  tier2Price: 90
+  tier3Price: 180
+  tier4Price: 360
+  sellPriceRatio: 0.5
   tierStats:
   - damage: 30
     attackDelay: 3
@@ -32,6 +35,13 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   - damage: 45
     attackDelay: 2.8
     projectileSpeed: 3.5
@@ -41,6 +51,13 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   - damage: 60
     attackDelay: 2.6
     projectileSpeed: 3.5
@@ -50,6 +67,13 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   - damage: 75
     attackDelay: 2.4
     projectileSpeed: 3.5
@@ -59,4 +83,14 @@ MonoBehaviour:
     canPenetrate: 1
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
   projectilePrefab: {fileID: 4589099209072863335, guid: 23504967686276f4dab72f893324fc74, type: 3}
+  attackRadius: 2
+  groundEffectDuration: 3
+  damageTickInterval: 0.5

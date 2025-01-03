@@ -15,13 +15,16 @@ MonoBehaviour:
   width: 1
   height: 1
   weaponIcon: {fileID: -441460259038740994, guid: 5d8b241621138f245ac222150178813e, type: 3}
-  rarity: 0
   weaponType: 8
-  price: 0
   weaponName: Grinder
   weaponDescription: 
-  sellPriceRatio: 0.5
+  inventoryWeaponIcon: {fileID: -441460259038740994, guid: 5d8b241621138f245ac222150178813e, type: 3}
   currentTier: 1
+  tier1Price: 45
+  tier2Price: 90
+  tier3Price: 180
+  tier4Price: 360
+  sellPriceRatio: 0.5
   tierStats:
   - damage: 5
     attackDelay: 0.5

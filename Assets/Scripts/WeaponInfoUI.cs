@@ -9,9 +9,6 @@ public class WeaponInfoUI : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI weaponLevelText;
     [SerializeField] private TextMeshProUGUI weaponNameText;
-    [SerializeField] private Image weaponRarityImage;
-    [SerializeField] private Image weaponImage;
-    [SerializeField] private TextMeshProUGUI weaponDPSText;
     [SerializeField] private TextMeshProUGUI weaponDescriptionText;
 
     [Header("Upgrade System")]
@@ -58,9 +55,6 @@ public class WeaponInfoUI : MonoBehaviour
     {
         if (weaponLevelText == null) Debug.LogError($"Missing reference: {nameof(weaponLevelText)} in {gameObject.name}");
         if (weaponNameText == null) Debug.LogError($"Missing reference: {nameof(weaponNameText)} in {gameObject.name}");
-        if (weaponRarityImage == null) Debug.LogError($"Missing reference: {nameof(weaponRarityImage)} in {gameObject.name}");
-        if (weaponImage == null) Debug.LogError($"Missing reference: {nameof(weaponImage)} in {gameObject.name}");
-        if (weaponDPSText == null) Debug.LogError($"Missing reference: {nameof(weaponDPSText)} in {gameObject.name}");
         if (weaponDescriptionText == null) Debug.LogError($"Missing reference: {nameof(weaponDescriptionText)} in {gameObject.name}");
         if (upgradeButton == null) Debug.LogError($"Missing reference: {nameof(upgradeButton)} in {gameObject.name}");
         if (upgradeButtonText == null) Debug.LogError($"Missing reference: {nameof(upgradeButtonText)} in {gameObject.name}");
@@ -113,11 +107,8 @@ public class WeaponInfoUI : MonoBehaviour
 
         weaponLevelText.text = $"Tier {weaponData.currentTier}";
         weaponNameText.text = weaponData.weaponName;
-        weaponImage.sprite = weaponData.weaponIcon;
+        
         weaponDescriptionText.text = weaponData.weaponDescription;
-
-        Color rarityColor = GetRarityColor(weaponData.rarity);
-        weaponRarityImage.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, 0.3f);
 
         if (isInitialized && playerStats != null)
         {
@@ -146,8 +137,6 @@ public class WeaponInfoUI : MonoBehaviour
                          $"Size: {projectileSize:F1}x\n" +
                          $"KnockBack: {knockbackPower:F1}x\n" +
                          penetrationText;
-
-        weaponDPSText.text = statText;
     }
 
     private void CheckUpgradePossibility()
@@ -238,18 +227,7 @@ public class WeaponInfoUI : MonoBehaviour
     {
         if (selectedWeapon == null || selectedWeapon.currentTier >= 4) return null;
         return selectedWeapon.CreateNextTierWeapon();
-    }
-
-    private Color GetRarityColor(WeaponRarity rarity)
-    {
-        return rarity switch
-        {
-            WeaponRarity.common => new Color(0.8f, 0.8f, 0.8f),
-            WeaponRarity.uncommon => new Color(0.3f, 0.3f, 0.3f),
-            _ => Color.white
-        };
-    }
-
+    }  
     private void OnDestroy()
     {
         if (upgradeButton != null)

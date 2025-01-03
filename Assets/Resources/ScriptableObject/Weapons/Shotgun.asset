@@ -15,15 +15,15 @@ MonoBehaviour:
   width: 3
   height: 1
   weaponIcon: {fileID: -6788136037139527259, guid: cd758d421b9fd174ea0a049ac3092b4f, type: 3}
-  rarity: 0
   weaponType: 6
   weaponName: Shotgun
   weaponDescription: 
+  inventoryWeaponIcon: {fileID: 1275589539659018210, guid: e81980c5135b15745b2e3b02a6f8fed0, type: 3}
   currentTier: 1
-  tier1Price: 0
-  tier2Price: 0
-  tier3Price: 0
-  tier4Price: 0
+  tier1Price: 45
+  tier2Price: 90
+  tier3Price: 180
+  tier4Price: 360
   sellPriceRatio: 0.5
   tierStats:
   - damage: 6

@@ -25,7 +25,7 @@ public class InventoryItem : MonoBehaviour
     internal void Set(WeaponData weaponData)
     {
         this.weaponData = weaponData;
-        itemImage.sprite = weaponData.weaponIcon;
+        itemImage.sprite = weaponData.inventoryWeaponIcon;
         rotated = false;
         UpdateSize();
         originalSize = rectTransform.sizeDelta;

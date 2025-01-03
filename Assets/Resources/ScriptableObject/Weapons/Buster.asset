@@ -15,15 +15,15 @@ MonoBehaviour:
   width: 2
   height: 1
   weaponIcon: {fileID: -7346182982967190672, guid: 3b9a7d5c25b263b498bc7f795535d74e, type: 3}
-  rarity: 0
   weaponType: 0
   weaponName: Buster
   weaponDescription: 
+  inventoryWeaponIcon: {fileID: 21300000, guid: c08199575c9931645a7c7037a65ac85f, type: 3}
   currentTier: 1
-  tier1Price: 0
-  tier2Price: 0
-  tier3Price: 0
-  tier4Price: 0
+  tier1Price: 25
+  tier2Price: 50
+  tier3Price: 100
+  tier4Price: 200
   sellPriceRatio: 0.5
   tierStats:
   - damage: 10

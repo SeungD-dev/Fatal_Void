@@ -15,15 +15,15 @@ MonoBehaviour:
   width: 1
   height: 3
   weaponIcon: {fileID: -1906250022685794055, guid: ff72059a8df43e843a2490de38f61bfb, type: 3}
-  rarity: 0
   weaponType: 5
   weaponName: Beam Saber
   weaponDescription: Slash enemies and projectiles in a circular motion
+  inventoryWeaponIcon: {fileID: 21300000, guid: 7d3b4ed3bf3087749beec5e7333747da, type: 3}
   currentTier: 1
-  tier1Price: 0
-  tier2Price: 0
-  tier3Price: 0
-  tier4Price: 0
+  tier1Price: 45
+  tier2Price: 90
+  tier3Price: 180
+  tier4Price: 360
   sellPriceRatio: 0.5
   tierStats:
   - damage: 25

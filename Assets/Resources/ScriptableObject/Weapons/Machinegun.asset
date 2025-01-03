@@ -15,15 +15,15 @@ MonoBehaviour:
   width: 2
   height: 1
   weaponIcon: {fileID: 8748014352817928020, guid: 891e64b129e3c5240b8d03093668611a, type: 3}
-  rarity: 0
   weaponType: 1
   weaponName: Machinegun
   weaponDescription: 
+  inventoryWeaponIcon: {fileID: 21300000, guid: 4333bb2ed971c5b4aa11ea7b993b3fdd, type: 3}
   currentTier: 1
-  tier1Price: 0
-  tier2Price: 0
-  tier3Price: 0
-  tier4Price: 0
+  tier1Price: 25
+  tier2Price: 50
+  tier3Price: 100
+  tier4Price: 200
   sellPriceRatio: 0.5
   tierStats:
   - damage: 2

@@ -45,10 +45,7 @@ public class ShopItem : MonoBehaviour
         descriptionText.text = weaponData.weaponDescription;
         //dpsText.text = $"DPS: {weaponData.weaponDamage}";
         //weaponLevelText.text = $"Lv.{weaponData.weaponLevel}";
-        priceText.text = $"{weaponData.price} Coins"; // 가격 표시
-
-        Color rarityColor = GetRarityColor(weaponData.rarity);
-        rarityBackgroundImage.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, 0.3f);
+        priceText.text = $"{weaponData.price} Coins"; // 가격 표시   
     }
 
     private void UpdatePurchaseButtonState()

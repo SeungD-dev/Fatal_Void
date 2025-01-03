@@ -162,7 +162,6 @@ public class InventoryController : MonoBehaviour
 
     public void StartGame()
     {
-        // Grid ���� üũ
         if (selectedItemGrid == null)
         {
             Debug.LogError("No ItemGrid selected! Cannot start game.");
