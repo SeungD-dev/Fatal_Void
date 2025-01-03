@@ -153,18 +153,41 @@ public class WeaponInfoUI : MonoBehaviour
         WeaponType targetType = selectedWeapon.weaponType;
         int targetTier = selectedWeapon.currentTier;
 
-        // Grid의 모든 아이템을 검사하면서 같은 종류, 같은 티어의 무기만 수집
+        // Equipment 타입일 경우 추가로 체크할 equipmentType
+        EquipmentType targetEquipmentType = EquipmentType.None;
+        if (targetType == WeaponType.Equipment)
+        {
+            targetEquipmentType = selectedWeapon.equipmentType;
+        }
+
+        // Grid의 모든 아이템을 검사
         for (int x = 0; x < mainItemGrid.Width; x++)
         {
             for (int y = 0; y < mainItemGrid.Height; y++)
             {
                 InventoryItem item = mainItemGrid.GetItem(x, y);
-                if (item != null && item.weaponData != null &&
-                    item.weaponData.weaponType == targetType &&
-                    item.weaponData.currentTier == targetTier &&
-                    !upgradeableWeapons.Contains(item))  // 중복 체크
+                if (item != null && item.weaponData != null)
                 {
-                    upgradeableWeapons.Add(item);
+                    bool isMatchingType = false;
+
+                    if (targetType == WeaponType.Equipment)
+                    {
+                        // Equipment인 경우 WeaponType과 EquipmentType 모두 체크
+                        isMatchingType = item.weaponData.weaponType == targetType &&
+                                       item.weaponData.equipmentType == targetEquipmentType;
+                    }
+                    else
+                    {
+                        // 일반 무기인 경우 WeaponType만 체크
+                        isMatchingType = item.weaponData.weaponType == targetType;
+                    }
+
+                    if (isMatchingType &&
+                        item.weaponData.currentTier == targetTier &&
+                        !upgradeableWeapons.Contains(item))
+                    {
+                        upgradeableWeapons.Add(item);
+                    }
                 }
             }
         }
@@ -192,35 +215,44 @@ public class WeaponInfoUI : MonoBehaviour
             return;
         }
 
-        // 기존 무기들의 위치를 저장 (첫 번째 무기의 위치를 사용)
+        // 기존 무기들의 위치를 저장
         Vector2Int upgradePosition = new Vector2Int(
             upgradeableWeapons[0].onGridPositionX,
             upgradeableWeapons[0].onGridPositionY
         );
 
-        // 기존 무기들을 Grid에서 완전히 제거
+        // Equipment 효과 제거
+        if (selectedWeapon.weaponType == WeaponType.Equipment)
+        {
+            var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
+            if (weaponManager != null)
+            {
+                // 업그레이드에 사용되는 두 장비의 효과를 제거
+                foreach (var weapon in upgradeableWeapons.Take(2))
+                {
+                    weaponManager.UnequipWeapon(weapon.weaponData);
+                }
+            }
+        }
+
+        // 기존 무기들 제거
         foreach (var weapon in upgradeableWeapons.Take(2))
         {
             if (weapon != null)
             {
-                // Grid에서 참조 제거
                 mainItemGrid.PickUpItem(weapon.onGridPositionX, weapon.onGridPositionY);
-                // GameObject 파괴
                 Destroy(weapon.gameObject);
             }
         }
 
-        // 새 무기 생성 및 배치 전에 리스트 초기화
-        upgradeableWeapons.Clear();
-        selectedWeapon = null;  // 선택된 무기 정보도 초기화
-
         // 새 무기 생성 및 배치
+        upgradeableWeapons.Clear();
+        selectedWeapon = null;
         if (inventoryController != null)
         {
             inventoryController.CreateUpgradedItem(nextTierWeapon, upgradePosition);
         }
 
-        // UI 상태 초기화
         upgradeButton.gameObject.SetActive(false);
     }
     private WeaponData GetNextTierWeapon()

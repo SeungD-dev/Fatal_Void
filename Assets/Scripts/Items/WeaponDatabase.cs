@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 [System.Serializable]
 public class TierProbability
@@ -101,6 +102,77 @@ public class TierProbability
 [CreateAssetMenu(fileName = "WeaponDatabase", menuName = "Inventory/WeaponDatabase")]
 public class WeaponDatabase : ScriptableObject
 {
-    public List<WeaponData> weapons;
+    [Header("Base Weapons")]
+    [Tooltip("티어 1 기본 무기들을 이곳에 등록하세요")]
+    [SerializeField] private List<WeaponData> baseWeapons = new List<WeaponData>();
+
+    [Header("Tier Properties")]
     public TierProbability tierProbability;
+
+    // 모든 티어의 무기를 포함하는 리스트
+    private List<WeaponData> allWeapons = new List<WeaponData>();
+
+    // public getter
+    public List<WeaponData> weapons => allWeapons;
+
+    private void OnEnable()
+    {
+        InitializeWeapons();
+    }
+
+    private void OnValidate()
+    {
+        // baseWeapons에 있는 무기들이 모두 티어 1인지 확인
+        foreach (var weapon in baseWeapons)
+        {
+            if (weapon != null && weapon.currentTier != 1)
+            {
+                Debug.LogWarning($"Warning: {weapon.name}의 티어가 1이 아닙니다. baseWeapons에는 티어 1 무기만 등록해야 합니다.");
+            }
+        }
+
+        // 게임 실행 중이 아닐 때만 무기 초기화 실행
+        if (!Application.isPlaying)
+        {
+            InitializeWeapons();
+        }
+    }
+
+    private void InitializeWeapons()
+    {
+        allWeapons.Clear();
+
+        // 유효성 검사
+        if (baseWeapons == null || baseWeapons.Count == 0)
+        {
+            Debug.LogWarning("WeaponDatabase: baseWeapons가 비어있습니다!");
+            return;
+        }
+
+        // 먼저 기본 무기들 추가
+        foreach (var baseWeapon in baseWeapons)
+        {
+            if (baseWeapon == null) continue;
+
+            allWeapons.Add(baseWeapon);
+
+            // 티어 2-4 무기 생성
+            WeaponData currentWeapon = baseWeapon;
+            for (int tier = 2; tier <= 4; tier++)
+            {
+                WeaponData nextTierWeapon = Instantiate(baseWeapon);
+                nextTierWeapon.currentTier = tier;
+                nextTierWeapon.name = $"{baseWeapon.name} Tier {tier}";
+                allWeapons.Add(nextTierWeapon);
+            }
+        }
+
+        // 디버그 로깅
+        Debug.Log($"WeaponDatabase initialized with {allWeapons.Count} total weapons");
+        for (int tier = 1; tier <= 4; tier++)
+        {
+            int count = allWeapons.Count(w => w.currentTier == tier);
+            Debug.Log($"Tier {tier} weapons: {count}");
+        }
+    }
 }

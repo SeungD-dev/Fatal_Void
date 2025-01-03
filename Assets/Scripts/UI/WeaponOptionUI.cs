@@ -38,6 +38,8 @@ public class WeaponOptionUI : MonoBehaviour
         weaponNameText.text = weaponData.weaponName;
         weaponImage.sprite = weaponData.weaponIcon;
         descriptionText.text = weaponData.weaponDescription;
+        Color tierColor = weaponData.GetTierColor();
+        weaponImage.color = tierColor;  // 무기 아이콘에 색상 적용
         weaponImage.sprite = weaponData.weaponIcon;
         weaponImage.preserveAspect = true;  // 이미지 비율 유지 설정
         priceText.text = weaponData.price == 0 ? "FREE" : $"{weaponData.price} Coins";     

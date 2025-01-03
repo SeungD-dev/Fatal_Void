@@ -204,9 +204,9 @@ public class InventoryController : MonoBehaviour
         }
         else
         {
-            // ��� �޽��� ǥ��
+            
             Debug.LogWarning("No item equipped! Please place a weapon in the grid.");
-            // ���⿡ ����ڿ��� �˸��� ǥ���ϴ� UI ������ �߰��� �� �ֽ��ϴ�.
+            
         }
     }
 

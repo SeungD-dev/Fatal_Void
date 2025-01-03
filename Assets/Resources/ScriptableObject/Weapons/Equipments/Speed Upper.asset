@@ -1,0 +1,146 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2bd5af085e83a94cb4259f9af2a69e8, type: 3}
+  m_Name: Speed Upper
+  m_EditorClassIdentifier: 
+  width: 1
+  height: 1
+  weaponIcon: {fileID: 1738988352296312530, guid: 9414b5a47128c3c46b5c0767ecefef79, type: 3}
+  weaponType: 10
+  weaponName: Speed Upper
+  weaponDescription: 
+  inventoryWeaponIcon: {fileID: 1738988352296312530, guid: 9414b5a47128c3c46b5c0767ecefef79, type: 3}
+  equipmentType: 2
+  equipmentTierStats:
+  - powerIncrease: 0
+    speedIncrease: 0.5
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
+  - powerIncrease: 0
+    speedIncrease: 1
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
+  - powerIncrease: 0
+    speedIncrease: 1.5
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
+  - powerIncrease: 0
+    speedIncrease: 2
+    hasteIncrease: 5
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
+  currentTier: 1
+  tier1Price: 15
+  tier2Price: 30
+  tier3Price: 60
+  tier4Price: 120
+  sellPriceRatio: 0.5
+  tierStats:
+  - damage: 10
+    attackDelay: 1
+    projectileSpeed: 10
+    knockback: 1
+    projectileSize: 1
+    range: 5
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0.1
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
+  - damage: 10
+    attackDelay: 1
+    projectileSpeed: 10
+    knockback: 1
+    projectileSize: 1
+    range: 5
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0.1
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
+  - damage: 10
+    attackDelay: 1
+    projectileSpeed: 10
+    knockback: 1
+    projectileSize: 1
+    range: 5
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0.1
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
+  - damage: 10
+    attackDelay: 1
+    projectileSpeed: 10
+    knockback: 1
+    projectileSize: 1
+    range: 5
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0.1
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
+  projectilePrefab: {fileID: 0}
+  attackRadius: 2
+  groundEffectDuration: 3
+  damageTickInterval: 0.5

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
@@ -7,6 +8,8 @@ public class WeaponManager : MonoBehaviour
 
     private Dictionary<WeaponData, WeaponMechanism> activeWeapons = new Dictionary<WeaponData, WeaponMechanism>();
     private Dictionary<WeaponType, GameObject> weaponPrefabs = new Dictionary<WeaponType, GameObject>();
+    private Dictionary<WeaponData, bool> activeEquipments = new Dictionary<WeaponData, bool>();
+    private PlayerStats playerStats;
 
     private void Awake()
     {
@@ -14,13 +17,42 @@ public class WeaponManager : MonoBehaviour
         {
             Debug.LogError("MainItemGrid is not assigned to WeaponManager!");
         }
+
+        playerStats = GetComponent<PlayerStats>();
+        if (playerStats == null)
+        {
+            Debug.LogError("PlayerStats not found on the same GameObject as WeaponManager!");
+            return;
+        }
+
+        // PlayerStats의 모든 스탯 변경 이벤트에 리스너 등록
+        playerStats.OnPowerChanged += UpdateAllWeaponsStats;
+        playerStats.OnCooldownReduceChanged += UpdateAllWeaponsStats;
+        playerStats.OnKnockbackChanged += UpdateAllWeaponsStats;
+        playerStats.OnAreaOfEffectChanged += UpdateAllWeaponsStats;
+    }
+    private void ApplyEquipmentEffect(WeaponData equipmentData)
+    {
+        if (playerStats != null)
+        {
+            equipmentData.ApplyEquipmentEffect(playerStats);
+        }
+    }
+
+    private void RemoveEquipmentEffect(WeaponData equipmentData)
+    {
+        if (playerStats != null)
+        {
+            equipmentData.RemoveEquipmentEffect(playerStats);
+        }
     }
 
     private void Update()
     {
-        // Grid에서 제거된 무기들 확인 및 정리
         var weaponsToRemove = new List<WeaponData>();
+        var equipmentsToRemove = new List<WeaponData>();
 
+        // 무기 체크
         foreach (var weaponPair in activeWeapons)
         {
             WeaponData weaponData = weaponPair.Key;
@@ -37,11 +69,42 @@ public class WeaponManager : MonoBehaviour
             }
         }
 
-        // 제거할 무기들 처리
+        // Equipment 체크
+        foreach (var equipmentPair in activeEquipments)
+        {
+            WeaponData equipmentData = equipmentPair.Key;
+            if (!IsWeaponInGrid(equipmentData))
+            {
+                equipmentsToRemove.Add(equipmentData);
+                RemoveEquipmentEffect(equipmentData);
+            }
+        }
+
+        // 제거할 무기와 장비 처리
         foreach (var weaponData in weaponsToRemove)
         {
             activeWeapons.Remove(weaponData);
-            Debug.Log($"Removed unequipped weapon: {weaponData.weaponName}");
+        }
+
+        foreach (var equipmentData in equipmentsToRemove)
+        {
+            activeEquipments.Remove(equipmentData);
+        }
+    }
+    private void UpdateAllWeaponsStats()
+    {
+        // 모든 무기의 스탯 업데이트
+        foreach (var weaponMechanism in activeWeapons.Values)
+        {
+            weaponMechanism.OnPlayerStatsChanged();
+        }
+
+        // Equipment 효과 재적용
+        foreach (var equipmentPair in activeEquipments)
+        {
+            WeaponData equipmentData = equipmentPair.Key;
+            RemoveEquipmentEffect(equipmentData);
+            ApplyEquipmentEffect(equipmentData);
         }
     }
 
@@ -84,22 +147,53 @@ public class WeaponManager : MonoBehaviour
     {
         if (weaponData == null) return;
 
-        // 이미 해당 무기가 활성화되어 있다면 무시
-        if (activeWeapons.ContainsKey(weaponData))
+        // Equipment 타입인 경우
+        if (weaponData.weaponType == WeaponType.Equipment)
         {
-            Debug.Log($"Weapon already equipped: {weaponData.weaponName}");
+            if (!activeEquipments.ContainsKey(weaponData))
+            {
+                ApplyEquipmentEffect(weaponData);
+                activeEquipments[weaponData] = true;
+                UpdateAllWeaponsStats(); // Equipment 장착 시 모든 무기 스탯 업데이트
+            }
             return;
         }
 
+        // 이미 장착된 무기인 경우 스탯만 업데이트
+        if (activeWeapons.ContainsKey(weaponData))
+        {
+            activeWeapons[weaponData].OnPlayerStatsChanged();
+            return;
+        }
+
+        // 새로운 무기 장착
         WeaponMechanism mechanism = CreateWeaponMechanism(weaponData.weaponType);
         if (mechanism != null)
         {
             mechanism.Initialize(weaponData, transform);
             activeWeapons[weaponData] = mechanism;
-            Debug.Log($"Weapon equipped: {weaponData.weaponName} (Total weapons: {activeWeapons.Count})");
         }
     }
 
+    public void UnequipWeapon(WeaponData weaponData)
+    {
+        if (weaponData == null) return;
+
+        if (weaponData.weaponType == WeaponType.Equipment)
+        {
+            if (activeEquipments.ContainsKey(weaponData))
+            {
+                RemoveEquipmentEffect(weaponData);
+                activeEquipments.Remove(weaponData);
+                UpdateAllWeaponsStats(); // Equipment 제거 시 모든 무기 스탯 업데이트
+            }
+        }
+        else if (activeWeapons.TryGetValue(weaponData, out WeaponMechanism mechanism))
+        {
+            CleanupWeaponMechanism(mechanism);
+            activeWeapons.Remove(weaponData);
+        }
+    }
     private WeaponMechanism CreateWeaponMechanism(WeaponType weaponType)
     {
         return weaponType switch
@@ -118,33 +212,30 @@ public class WeaponManager : MonoBehaviour
         };
     }
 
-    public void UnequipWeapon(WeaponData weaponData)
-    {
-        if (weaponData == null) return;
-
-        if (activeWeapons.TryGetValue(weaponData, out WeaponMechanism mechanism))
-        {
-            CleanupWeaponMechanism(mechanism);
-            activeWeapons.Remove(weaponData);
-            Debug.Log($"Weapon unequipped: {weaponData.weaponName}");
-        }
-    }
-
     public void ClearAllWeapons()
     {
         foreach (var mechanism in activeWeapons.Values)
         {
-            if (mechanism != null)
-            {
-                CleanupWeaponMechanism(mechanism);
-            }
+            CleanupWeaponMechanism(mechanism);
         }
         activeWeapons.Clear();
-        Debug.Log("All weapons cleared");
+
+        foreach (var equipmentData in activeEquipments.Keys.ToList())
+        {
+            RemoveEquipmentEffect(equipmentData);
+        }
+        activeEquipments.Clear();
     }
 
     private void OnDestroy()
     {
+        if (playerStats != null)
+        {
+            playerStats.OnPowerChanged -= UpdateAllWeaponsStats;
+            playerStats.OnCooldownReduceChanged -= UpdateAllWeaponsStats;
+            playerStats.OnKnockbackChanged -= UpdateAllWeaponsStats;
+            playerStats.OnAreaOfEffectChanged -= UpdateAllWeaponsStats;
+        }
         ClearAllWeapons();
     }
 }

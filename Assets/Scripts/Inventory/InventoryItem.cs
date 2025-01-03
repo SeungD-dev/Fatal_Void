@@ -25,6 +25,7 @@ public class InventoryItem : MonoBehaviour
     internal void Set(WeaponData weaponData)
     {
         this.weaponData = weaponData;
+        itemImage.color = weaponData.GetTierColor();
         itemImage.sprite = weaponData.inventoryWeaponIcon;
         rotated = false;
         UpdateSize();

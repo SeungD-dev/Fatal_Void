@@ -1268,6 +1268,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 9450005411114373, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
+      propertyPath: basePickupRange
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2073809303734970117, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
       propertyPath: joystick
       value: 

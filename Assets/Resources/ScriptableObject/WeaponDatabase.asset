@@ -12,16 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3dd5dc578e13a04db85d60847a42b7a, type: 3}
   m_Name: WeaponDatabase
   m_EditorClassIdentifier: 
-  weapons:
+  baseWeapons:
   - {fileID: 11400000, guid: f3560877c2094d14d9e1843f473285cb, type: 2}
-  - {fileID: 11400000, guid: 27eb0d0a3f6e2a544bfff8d2e9d51fb9, type: 2}
-  - {fileID: 11400000, guid: e716a8e0f2773d04f8aa263e871b0cad, type: 2}
-  - {fileID: 11400000, guid: f02689596a065bb45a18c618e425d105, type: 2}
   - {fileID: 11400000, guid: 7d71ed210d5e2ea4dbf1326f0af52ae6, type: 2}
+  - {fileID: 11400000, guid: 1e2331d1758617c41b853f91e226a13d, type: 2}
+  - {fileID: 11400000, guid: f02689596a065bb45a18c618e425d105, type: 2}
+  - {fileID: 11400000, guid: e716a8e0f2773d04f8aa263e871b0cad, type: 2}
+  - {fileID: 11400000, guid: 27eb0d0a3f6e2a544bfff8d2e9d51fb9, type: 2}
   - {fileID: 11400000, guid: 0a722490f58abe54f80d277f8c94615d, type: 2}
   - {fileID: 11400000, guid: 99c56b35d15c3b640afe0245c848db8b, type: 2}
   - {fileID: 11400000, guid: e5775d71c0fa65f4cbafd69739192906, type: 2}
-  - {fileID: 11400000, guid: 1e2331d1758617c41b853f91e226a13d, type: 2}
+  - {fileID: 11400000, guid: 47a1d7d480231bd4babc71a50c13c42e, type: 2}
+  - {fileID: 11400000, guid: b53c456475a1b334790f3fe28e43f76c, type: 2}
+  - {fileID: 11400000, guid: 3b5b05a126bc8e844bf40b63a07d2efe, type: 2}
+  - {fileID: 11400000, guid: 4aec48ee095d37e47b61a85437c1277e, type: 2}
+  - {fileID: 11400000, guid: d69057ff8be36c44989cf49b75861990, type: 2}
+  - {fileID: 11400000, guid: b494474fcbb93204a8e0bb630ace5d7f, type: 2}
+  - {fileID: 11400000, guid: 2e1187eeafd366f4f9aff392bb321caa, type: 2}
   tierProbability:
     tier1Probability: 75
     tier2Probability: 15

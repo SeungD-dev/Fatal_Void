@@ -59,6 +59,49 @@ public class TierStats
     };
 }
 
+[System.Serializable]
+public class EquipmentStats
+{
+    [Header("Power Upper Settings")]
+    [Tooltip("공격력 증가량")]
+    public float powerIncrease;
+
+    [Header("Speed Upper Settings")]
+    [Tooltip("이동속도 증가량")]
+    public float speedIncrease;
+    [Tooltip("쿨다운 감소량 (4티어 전용)")]
+    public float hasteIncrease;
+
+    [Header("Health Upper Settings")]
+    [Tooltip("최대 체력 증가량")]
+    public float healthIncrease;
+    [Tooltip("체력 재생 증가량 (4티어 전용)")]
+    public float regenIncrease;
+
+    [Header("Haste Upper Settings")]
+    [Tooltip("쿨다운 감소량")]
+    public float hasteValue;
+
+    [Header("Portable Magnet Settings")]
+    [Tooltip("아이템 획득 범위 증가량 (유닛)")]
+    public float pickupRangeIncrease;
+    [Header("Portable Magnet Additional Effect")]
+    [Tooltip("4티어 자동 자석 효과 활성화")]
+    public bool enableAutoMagnet = false;
+
+    [Header("Knockback Upper Settings")]
+    [Tooltip("넉백 증가량")]
+    public float knockbackIncrease;
+    [Tooltip("공격력 증가량 (4티어 전용)")]
+    public float knockbackPowerIncrease;
+
+    [Header("Regen Upper Settings")]
+    [Tooltip("체력 재생 증가량")]
+    public float regenValue;
+    [Tooltip("쿨다운 감소량 (4티어 전용)")]
+    public float regenHasteIncrease;
+}
+
 #if UNITY_EDITOR
 [CustomEditor(typeof(WeaponData))]
 public class WeaponDataEditor : Editor
@@ -67,7 +110,6 @@ public class WeaponDataEditor : Editor
     private SerializedProperty height;
     private SerializedProperty weaponIcon;
     private SerializedProperty inventoryWeaponIcon;
- 
     private SerializedProperty weaponType;
     private SerializedProperty price;
     private SerializedProperty weaponName;
@@ -76,10 +118,13 @@ public class WeaponDataEditor : Editor
     private SerializedProperty currentTier;
     private SerializedProperty projectilePrefab;
     private SerializedProperty tierStats;
-    private SerializedProperty tier1Price;  // 티어별 가격 프로퍼티 추가
+    private SerializedProperty tier1Price;
     private SerializedProperty tier2Price;
     private SerializedProperty tier3Price;
     private SerializedProperty tier4Price;
+    private SerializedProperty equipmentType;
+    private SerializedProperty equipmentTierStats;
+
     private void OnEnable()
     {
         width = serializedObject.FindProperty("width");
@@ -98,6 +143,8 @@ public class WeaponDataEditor : Editor
         tier2Price = serializedObject.FindProperty("tier2Price");
         tier3Price = serializedObject.FindProperty("tier3Price");
         tier4Price = serializedObject.FindProperty("tier4Price");
+        equipmentType = serializedObject.FindProperty("equipmentType");
+        equipmentTierStats = serializedObject.FindProperty("equipmentTierStats");
     }
 
     public override void OnInspectorGUI()
@@ -111,10 +158,20 @@ public class WeaponDataEditor : Editor
         DrawTierPrices();
         DrawTierConfiguration();
         EditorGUILayout.Space();
-        DrawTierStats(weaponData);
+
+        // WeaponType이 Equipment일 때는 Equipment 설정을, 아닐 때는 일반 무기 설정을 보여줌
+        if (weaponData.weaponType == WeaponType.Equipment)
+        {
+            DrawEquipmentSettings();
+        }
+        else
+        {
+            DrawTierStats(weaponData);
+        }
 
         serializedObject.ApplyModifiedProperties();
     }
+
     private void DrawBasicSettings()
     {
         EditorGUILayout.LabelField("Basic Settings", EditorStyles.boldLabel);
@@ -123,6 +180,12 @@ public class WeaponDataEditor : Editor
         EditorGUILayout.PropertyField(weaponIcon);
         EditorGUILayout.PropertyField(inventoryWeaponIcon);
         EditorGUILayout.PropertyField(weaponType);
+
+        if (weaponType.enumValueIndex == (int)WeaponType.Equipment)
+        {
+            EditorGUILayout.PropertyField(equipmentType);
+        }
+
         EditorGUILayout.PropertyField(weaponName);
         EditorGUILayout.PropertyField(weaponDescription);
         EditorGUILayout.PropertyField(sellPriceRatio);
@@ -132,71 +195,11 @@ public class WeaponDataEditor : Editor
     {
         EditorGUILayout.LabelField("Tier Configuration", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(currentTier);
-        EditorGUILayout.PropertyField(projectilePrefab);
-    }
 
-    private void DrawTierStats(WeaponData weaponData)
-    {
-        EditorGUILayout.LabelField("Tier Stats", EditorStyles.boldLabel);
-
-        EditorGUI.indentLevel++;
-        for (int i = 0; i < tierStats.arraySize; i++)
+        if (weaponType.enumValueIndex != (int)WeaponType.Equipment)
         {
-            SerializedProperty tierStat = tierStats.GetArrayElementAtIndex(i);
-
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.LabelField($"Tier {i + 1}", EditorStyles.boldLabel);
-
-            // 기본 스탯들
-            EditorGUILayout.LabelField("Basic Stats", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damage"));
-            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("attackDelay"));
-            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("projectileSpeed"));
-            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("knockback"));
-            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("projectileSize"));
-            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("range"));
-
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Projectile Properties", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("canPenetrate"));
-            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("maxPenetrationCount"));
-            EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("penetrationDamageDecay"));
-
-            // 무기 타입별 추가 속성
-            if (weaponData.weaponType == WeaponType.Shotgun)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Shotgun Properties", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("projectileCount"),
-                    new GUIContent("Projectile Count", "샷건의 발사 투사체 수"));
-                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("spreadAngle"),
-                    new GUIContent("Spread Angle", "샷건의 발사 각도 범위 (도)"));
-            }
-            else if (weaponData.weaponType == WeaponType.Grinder)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Grinder Properties", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("attackRadius"),
-                    new GUIContent("Attack Radius", "장판 공격 범위"));
-                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("groundEffectDuration"),
-                    new GUIContent("Ground Effect Duration", "장판 지속 시간"));
-                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damageTickInterval"),
-                    new GUIContent("Damage Tick Interval", "장판 대미지 틱 간격"));
-            }
-            else if (weaponData.weaponType == WeaponType.ForceFieldGenerator)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Force Field Properties", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("forceFieldRadius"),
-                    new GUIContent("Force Field Radius", "포스 필드의 공격 범위"));
-                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("forceFieldTickInterval"),
-                    new GUIContent("Damage Tick Interval", "대미지가 적용되는 시간 간격"));
-            }
-
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(projectilePrefab);
         }
-        EditorGUI.indentLevel--;
     }
 
     private void DrawTierPrices()
@@ -212,6 +215,147 @@ public class WeaponDataEditor : Editor
         EditorGUI.indentLevel--;
         EditorGUILayout.Space();
     }
+
+    private void DrawEquipmentSettings()
+    {
+        if (equipmentTierStats == null) return;
+
+        EditorGUILayout.LabelField("Equipment Settings", EditorStyles.boldLabel);
+        EditorGUI.indentLevel++;
+
+        for (int i = 0; i < 4; i++)
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField($"Tier {i + 1}", EditorStyles.boldLabel);
+
+                SerializedProperty tierStat = equipmentTierStats.GetArrayElementAtIndex(i);
+                WeaponData weaponData = (WeaponData)target;
+
+                switch (weaponData.equipmentType)
+                {
+                    case EquipmentType.PowerUpper:
+                        DrawEquipmentProperty(tierStat, "powerIncrease", "Power Increase", "공격력 증가량");
+                        break;
+                    case EquipmentType.SpeedUpper:
+                        DrawEquipmentProperty(tierStat, "speedIncrease", "Speed Increase", "이동속도 증가량");
+                        if (i == 3) // 4티어
+                        {
+                            DrawEquipmentProperty(tierStat, "hasteIncrease", "Haste Increase", "쿨다운 감소량");
+                        }
+                        break;
+                    case EquipmentType.HealthUpper:
+                        DrawEquipmentProperty(tierStat, "healthIncrease", "Health Increase", "체력 증가량");
+                        if (i == 3) // 4티어
+                        {
+                            DrawEquipmentProperty(tierStat, "regenIncrease", "Regen Increase", "체력 재생 증가량");
+                        }
+                        break;
+                    case EquipmentType.HasteUpper:
+                        DrawEquipmentProperty(tierStat, "hasteValue", "Haste Value", "쿨다운 감소량");
+                        break;
+                    case EquipmentType.PortableMagnet:
+                        DrawEquipmentProperty(tierStat, "pickupRangeIncrease", "Pickup Range Increase", "아이템 획득 범위 증가량");
+                        if (i == 3) // 4티어
+                        {
+                            DrawEquipmentProperty(tierStat, "enableAutoMagnet", "Auto Magnet", "자동 자석 효과 활성화");
+                        }
+                        break;
+                    case EquipmentType.KnockbackUpper:
+                        DrawEquipmentProperty(tierStat, "knockbackIncrease", "Knockback Increase", "넉백 증가량");
+                        if (i == 3) // 4티어
+                        {
+                            DrawEquipmentProperty(tierStat, "knockbackPowerIncrease", "Power Increase", "공격력 증가량");
+                        }
+                        break;
+                    case EquipmentType.RegenUpper:
+                        DrawEquipmentProperty(tierStat, "regenValue", "Regen Value", "체력 재생 증가량");
+                        if (i == 3) // 4티어
+                        {
+                            DrawEquipmentProperty(tierStat, "regenHasteIncrease", "Haste Increase", "쿨다운 감소량");
+                        }
+                        break;
+                }
+            }
+
+            EditorGUILayout.Space();
+        }
+
+        EditorGUI.indentLevel--;
+    }
+
+    private void DrawEquipmentProperty(SerializedProperty tierStat, string propertyName, string label, string tooltip)
+    {
+        var property = tierStat.FindPropertyRelative(propertyName);
+        if (property != null)
+        {
+            EditorGUILayout.PropertyField(property, new GUIContent(label, tooltip));
+        }
+    }
+
+    private void DrawTierStats(WeaponData weaponData)
+    {
+        EditorGUILayout.LabelField("Tier Stats", EditorStyles.boldLabel);
+
+        EditorGUI.indentLevel++;
+        for (int i = 0; i < tierStats.arraySize; i++)
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                SerializedProperty tierStat = tierStats.GetArrayElementAtIndex(i);
+                EditorGUILayout.LabelField($"Tier {i + 1}", EditorStyles.boldLabel);
+
+                // 기본 스탯들
+                EditorGUILayout.LabelField("Basic Stats", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damage"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("attackDelay"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("projectileSpeed"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("knockback"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("projectileSize"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("range"));
+
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Projectile Properties", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("canPenetrate"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("maxPenetrationCount"));
+                EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("penetrationDamageDecay"));
+
+                // 무기 타입별 추가 속성
+                if (weaponData.weaponType == WeaponType.Shotgun)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Shotgun Properties", EditorStyles.boldLabel);
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("projectileCount"),
+                        new GUIContent("Projectile Count", "샷건의 발사 투사체 수"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("spreadAngle"),
+                        new GUIContent("Spread Angle", "샷건의 발사 각도 범위 (도)"));
+                }
+                else if (weaponData.weaponType == WeaponType.Grinder)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Grinder Properties", EditorStyles.boldLabel);
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("attackRadius"),
+                        new GUIContent("Attack Radius", "장판 공격 범위"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("groundEffectDuration"),
+                        new GUIContent("Ground Effect Duration", "장판 지속 시간"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damageTickInterval"),
+                        new GUIContent("Damage Tick Interval", "장판 대미지 틱 간격"));
+                }
+                else if (weaponData.weaponType == WeaponType.ForceFieldGenerator)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Force Field Properties", EditorStyles.boldLabel);
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("forceFieldRadius"),
+                        new GUIContent("Force Field Radius", "포스 필드의 공격 범위"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("forceFieldTickInterval"),
+                        new GUIContent("Damage Tick Interval", "대미지가 적용되는 시간 간격"));
+                }
+            }
+
+            EditorGUILayout.Space();
+        }
+        EditorGUI.indentLevel--;
+    }
 }
 #endif
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Inventory/Weapon")]
@@ -226,7 +370,17 @@ public class WeaponData : ScriptableObject
     public string weaponDescription;
 
     public Sprite inventoryWeaponIcon;
-   
+
+    [Header("Equipment Settings")]
+    [Tooltip("무기 타입이 Equipment일 때만 사용됨")]
+    public EquipmentType equipmentType = EquipmentType.None;
+
+    [Tooltip("각 티어별 장비 능력치")]
+    public EquipmentStats[] equipmentTierStats = new EquipmentStats[4]; // 1-4 티어
+
+    // 현재 티어의 장비 능력치 getter
+    public EquipmentStats CurrentEquipmentStats => equipmentTierStats[Mathf.Clamp(currentTier - 1, 0, 3)];
+
     [Header("Tier Configuration")]
     [Tooltip("현재 무기의 티어")]
     public int currentTier = 1;
@@ -265,6 +419,11 @@ public class WeaponData : ScriptableObject
     }
     public int SellPrice => Mathf.RoundToInt(price * sellPriceRatio);
 
+    private static readonly Color tier1Color = Color.white;       // 티어 1: 흰색 (기본)
+    private static readonly Color tier2Color = new Color(0.3f, 1f, 0.3f);  // 티어 2: 초록색
+    private static readonly Color tier3Color = new Color(0.3f, 0.7f, 1f);  // 티어 3: 파란색
+    private static readonly Color tier4Color = new Color(1f, 0.3f, 0.3f);  // 티어 4: 빨간색
+
     [Tooltip("각 티어별 스탯 설정")]
     public TierStats[] tierStats = new TierStats[4]; // 1-4 티어
 
@@ -284,6 +443,33 @@ public class WeaponData : ScriptableObject
     private void OnEnable()
     {
         currentPrice = -1;  // 복제될 때마다 현재 가격 초기화
+    }
+
+    // 현재 티어에 해당하는 색상 반환
+    public Color GetTierColor()
+    {
+        return currentTier switch
+        {
+            1 => tier1Color,
+            2 => tier2Color,
+            3 => tier3Color,
+            4 => tier4Color,
+            _ => tier1Color
+        };
+    }
+
+    // 색상이 적용된 무기 아이콘 반환
+    public Sprite GetColoredWeaponIcon()
+    {
+        if (weaponIcon == null) return null;
+        return weaponIcon;
+    }
+
+    // 색상이 적용된 인벤토리 무기 아이콘 반환
+    public Sprite GetColoredInventoryWeaponIcon()
+    {
+        if (inventoryWeaponIcon == null) return null;
+        return inventoryWeaponIcon;
     }
 
     public float GetAttackRadius()
@@ -370,6 +556,110 @@ public class WeaponData : ScriptableObject
 
         return damage / attackDelay;
     }
+    public void ApplyEquipmentEffect(PlayerStats playerStats)
+    {
+        if (weaponType != WeaponType.Equipment || playerStats == null) return;
+
+        EquipmentStats stats = CurrentEquipmentStats;
+
+        switch (equipmentType)
+        {
+            case EquipmentType.PowerUpper:
+                playerStats.ModifyPower(stats.powerIncrease);
+                break;
+            case EquipmentType.SpeedUpper:
+                playerStats.ModifyMovementSpeed(stats.speedIncrease, false);
+                if (currentTier == 4)
+                {
+                    playerStats.ModifyCooldownReduce(stats.hasteIncrease);
+                }
+                break;
+            case EquipmentType.HealthUpper:
+                playerStats.ModifyMaxHealth(stats.healthIncrease);
+                if (currentTier == 4)
+                {
+                    playerStats.ModifyHealthRegen(stats.regenIncrease);
+                }
+                break;
+            case EquipmentType.HasteUpper:
+                playerStats.ModifyCooldownReduce(stats.hasteValue);
+                break;
+            case EquipmentType.PortableMagnet:
+                playerStats.ModifyPickupRange(stats.pickupRangeIncrease);
+                if (currentTier == 4)
+                {
+                    playerStats.EnablePeriodicMagnetEffect(true);
+                }
+                break;
+            case EquipmentType.KnockbackUpper:
+                playerStats.ModifyKnockback(stats.knockbackIncrease);
+                if (currentTier == 4)
+                {
+                    playerStats.ModifyPower(stats.knockbackPowerIncrease);
+                }
+                break;
+            case EquipmentType.RegenUpper:
+                playerStats.ModifyHealthRegen(stats.regenValue);
+                if (currentTier == 4)
+                {
+                    playerStats.ModifyCooldownReduce(stats.regenHasteIncrease);
+                }
+                break;
+        }
+    }
+
+    public void RemoveEquipmentEffect(PlayerStats playerStats)
+    {
+        if (weaponType != WeaponType.Equipment || playerStats == null) return;
+
+        EquipmentStats stats = CurrentEquipmentStats;
+
+        switch (equipmentType)
+        {
+            case EquipmentType.PowerUpper:
+                playerStats.ModifyPower(-stats.powerIncrease);
+                break;
+            case EquipmentType.SpeedUpper:
+                playerStats.ModifyMovementSpeed(-stats.speedIncrease, false);
+                if (currentTier == 4)
+                {
+                    playerStats.ModifyCooldownReduce(-stats.hasteIncrease);
+                }
+                break;
+            case EquipmentType.HealthUpper:
+                playerStats.ModifyMaxHealth(-stats.healthIncrease);
+                if (currentTier == 4)
+                {
+                    playerStats.ModifyHealthRegen(-stats.regenIncrease);
+                }
+                break;
+            case EquipmentType.HasteUpper:
+                playerStats.ModifyCooldownReduce(-stats.hasteValue);
+                break;
+            case EquipmentType.PortableMagnet:
+                playerStats.ModifyPickupRange(-stats.pickupRangeIncrease);
+                if (currentTier == 4)
+                {
+                    playerStats.EnablePeriodicMagnetEffect(false);
+                }
+                break;
+            case EquipmentType.KnockbackUpper:
+                playerStats.ModifyKnockback(-stats.knockbackIncrease);
+                if (currentTier == 4)
+                {
+                    playerStats.ModifyPower(-stats.knockbackPowerIncrease);
+                }
+                break;
+            case EquipmentType.RegenUpper:
+                playerStats.ModifyHealthRegen(-stats.regenValue);
+                if (currentTier == 4)
+                {
+                    playerStats.ModifyCooldownReduce(-stats.regenHasteIncrease);
+                }
+                break;
+        }
+    }
+
 
     // 다음 티어 무기 생성
     public WeaponData CreateNextTierWeapon()
@@ -444,6 +734,66 @@ public class WeaponData : ScriptableObject
                     tierStats[i].damageTickInterval = 0.5f - (i * 0.05f);
                 }
             }
+        }
+
+        if (weaponType == WeaponType.Equipment &&
+       (equipmentTierStats == null || equipmentTierStats.Length != 4))
+        {
+            EquipmentStats[] newEquipmentTierStats = new EquipmentStats[4];
+            for (int i = 0; i < 4; i++)
+            {
+                newEquipmentTierStats[i] = new EquipmentStats();
+                float tierMultiplier = 1f + (i * 0.25f); // 티어당 25% 증가
+
+                // 기본값 설정 (에디터에서 수정 가능)
+                switch (equipmentType)
+                {
+                    case EquipmentType.PowerUpper:
+                        newEquipmentTierStats[i].powerIncrease = 5f + (i * 3f); // 5, 8, 11, 14
+                        break;
+
+                    case EquipmentType.SpeedUpper:
+                        newEquipmentTierStats[i].speedIncrease = 1f + (i * 0.5f); // 1, 1.5, 2, 2.5
+                        if (i == 3) // 4티어
+                        {
+                            newEquipmentTierStats[i].hasteIncrease = 20f; // 4티어 쿨다운 감소
+                        }
+                        break;
+
+                    case EquipmentType.HealthUpper:
+                        newEquipmentTierStats[i].healthIncrease = 25f + (i * 15f); // 25, 40, 55, 70
+                        if (i == 3) // 4티어
+                        {
+                            newEquipmentTierStats[i].regenIncrease = 2f; // 4티어 체력 재생
+                        }
+                        break;
+
+                    case EquipmentType.HasteUpper:
+                        newEquipmentTierStats[i].hasteValue = 15f + (i * 5f); // 15, 20, 25, 30
+                        break;
+
+                    case EquipmentType.PortableMagnet:
+                        newEquipmentTierStats[i].pickupRangeIncrease = 1f + (i * 0.5f); // 1, 1.5, 2, 2.5 (유일하게 % 아닌 실제 거리)
+                        break;
+
+                    case EquipmentType.KnockbackUpper:
+                        newEquipmentTierStats[i].knockbackIncrease = 3f + (i * 2f); // 3, 5, 7, 9
+                        if (i == 3) // 4티어
+                        {
+                            newEquipmentTierStats[i].knockbackPowerIncrease = 15f; // 4티어 공격력
+                        }
+                        break;
+
+                    case EquipmentType.RegenUpper:
+                        newEquipmentTierStats[i].regenValue = 1f + (i * 0.5f); // 1, 1.5, 2, 2.5
+                        if (i == 3) // 4티어
+                        {
+                            newEquipmentTierStats[i].regenHasteIncrease = 15f; // 4티어 쿨다운 감소
+                        }
+                        break;
+                }
+            }
+            equipmentTierStats = newEquipmentTierStats;
         }
     }
 }

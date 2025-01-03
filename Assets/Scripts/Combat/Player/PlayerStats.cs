@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
@@ -7,6 +8,7 @@ public class PlayerStats : MonoBehaviour
     public delegate void MovementSpeedChangeHandler(float newSpeed);
     public delegate void LevelChangeHandler(int value);
     public delegate void VoidHandler();
+    public delegate void StatChangeDelegate();
 
     // Public Delegates
     public StatChangeHandler OnHealthChanged;
@@ -15,6 +17,14 @@ public class PlayerStats : MonoBehaviour
     public IntChangeHandler OnKillCountChanged;
     public IntChangeHandler OnCoinChanged;
     public VoidHandler OnPlayerDeath;
+
+    public delegate void MagnetEffectHandler(bool isActive);
+    public event MagnetEffectHandler OnMagnetEffectChanged;
+
+    public event StatChangeDelegate OnPowerChanged;
+    public event StatChangeDelegate OnCooldownReduceChanged;
+    public event StatChangeDelegate OnKnockbackChanged;
+    public event StatChangeDelegate OnAreaOfEffectChanged;
 
     public event MovementSpeedChangeHandler OnMovementSpeedChanged;
 
@@ -55,6 +65,18 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private float knockbackIncreasePerLevel = 0.1f;
     [SerializeField] private float aoeIncreasePerLevel = 0.2f;
 
+    [Header("Item Pickup")]
+    [SerializeField] private float basePickupRange = 5f;
+    private float pickupRange;
+
+    [Header("Magnet Effect")]
+    private bool hasMagnetEffect = false;
+    private float magnetEffectCooldown = 30f;
+    private float lastMagnetEffectTime = -30f;  // 처음에 바로 사용할 수 있도록
+
+   
+
+
     private bool isInitialized = false;
 
     #region Properties
@@ -72,6 +94,9 @@ public class PlayerStats : MonoBehaviour
     public float CooldownReduce => cooldownReduce;
     public float Knockback => knockback;
     public float AreaOfEffect => aoe;
+
+    public float PickupRange => pickupRange;
+    public bool HasMagnetEffect => hasMagnetEffect;
     #endregion
 
     public void InitializeStats()
@@ -83,6 +108,7 @@ public class PlayerStats : MonoBehaviour
         requiredExp = 100;
         killCount = 0;
         coinCount = 0;
+        pickupRange = basePickupRange;
 
         UpdateStats();
         LevelUp();
@@ -93,6 +119,10 @@ public class PlayerStats : MonoBehaviour
     private void UpdateStats()
     {
         float previousMovementSpeed = movementSpeed;
+        float previousPower = power;
+        float previousCooldownReduce = cooldownReduce;
+        float previousKnockback = knockback;
+        float previousAoe = aoe;
 
         maxHealth = baseHealth + (healthPerLevel * (level - 1));
         healthRegen = baseHealthRegen + (healthRegenPerLevel * (level - 1));
@@ -102,9 +132,26 @@ public class PlayerStats : MonoBehaviour
         knockback = baseKnockback + (knockbackIncreasePerLevel * (level - 1));
         aoe = baseAreaOfEffect + (aoeIncreasePerLevel * (level - 1));
 
+        // 변경된 스탯에 대해서만 이벤트 호출
         if (previousMovementSpeed != movementSpeed)
         {
             OnMovementSpeedChanged?.Invoke(movementSpeed);
+        }
+        if (previousPower != power)
+        {
+            OnPowerChanged?.Invoke();
+        }
+        if (previousCooldownReduce != cooldownReduce)
+        {
+            OnCooldownReduceChanged?.Invoke();
+        }
+        if (previousKnockback != knockback)
+        {
+            OnKnockbackChanged?.Invoke();
+        }
+        if (previousAoe != aoe)
+        {
+            OnAreaOfEffectChanged?.Invoke();
         }
 
         currentHealth = maxHealth;
@@ -206,17 +253,78 @@ public class PlayerStats : MonoBehaviour
     #endregion
 
     #region Stat Modification
-    public void ModifyMovementSpeed(float modifier, bool isPercentage = false)
+
+
+    public void ModifyPower(float amount)
+    {
+        // 직접적인 증가값으로 변경
+        power += amount;
+        power = Mathf.Max(basePower, power);
+        OnPowerChanged?.Invoke();
+    }
+
+
+    public void ModifyMaxHealth(float amount)
+    {
+        float oldMaxHealth = maxHealth;
+        // 직접적인 증가값으로 변경
+        maxHealth += amount;
+        maxHealth = Mathf.Max(baseHealth, maxHealth);
+
+        if (oldMaxHealth > 0)
+        {
+            float healthRatio = currentHealth / oldMaxHealth;
+            currentHealth = maxHealth * healthRatio;
+            OnHealthChanged?.Invoke(currentHealth);
+        }
+    }
+    public void ModifyCooldownReduce(float amount)
+    {
+        // 직접적인 증가값으로 변경
+        cooldownReduce += amount;
+        cooldownReduce = Mathf.Max(baseCooldownReduce, cooldownReduce);
+        OnCooldownReduceChanged?.Invoke();
+    }
+
+    public void ModifyKnockback(float amount)
+    {
+        // 직접적인 증가값으로 변경
+        knockback += amount;
+        knockback = Mathf.Max(baseKnockback, knockback);
+        OnKnockbackChanged?.Invoke();
+    }
+
+    public void ModifyAreaOfEffect(float amount)
+    {
+        // 직접적인 증가값으로 변경
+        aoe += amount;
+        aoe = Mathf.Max(baseAreaOfEffect, aoe);
+        OnAreaOfEffectChanged?.Invoke();
+    }
+
+    public void ModifyPickupRange(float amount)
+    {
+        pickupRange += amount;
+        pickupRange = Mathf.Max(basePickupRange, pickupRange);
+    }
+
+    public void ModifyMovementSpeed(float amount, bool isPercentage)
     {
         if (isPercentage)
         {
-            movementSpeed += baseMovementSpeed * (modifier / 100f);
+            movementSpeed += baseMovementSpeed * (amount / 100f);
         }
         else
         {
-            movementSpeed += modifier;
+            movementSpeed += amount;
         }
         movementSpeed = Mathf.Max(baseMovementSpeed * 0.5f, movementSpeed);
+        OnMovementSpeedChanged?.Invoke(movementSpeed);
+    }
+
+    public void ModifyHealthRegen(float modifier)
+    {
+        healthRegen *= (1f + modifier);
     }
 
     public void SetMovementSpeed(float newSpeed)
@@ -229,6 +337,37 @@ public class PlayerStats : MonoBehaviour
         movementSpeed = baseMovementSpeed + (movementSpeedPerLevel * (level - 1));
     }
     #endregion
+
+    public void EnablePeriodicMagnetEffect(bool enable)
+    {
+        if (enable && !hasMagnetEffect)
+        {
+            StartCoroutine(PeriodicMagnetEffectCoroutine());
+        }
+        else if (!enable)
+        {
+            hasMagnetEffect = false;
+            OnMagnetEffectChanged?.Invoke(false);
+        }
+    }
+
+    private IEnumerator PeriodicMagnetEffectCoroutine()
+    {
+        while (true)
+        {
+            hasMagnetEffect = true;
+            OnMagnetEffectChanged?.Invoke(true);
+
+            // 3초 동안 자석 효과 지속
+            yield return new WaitForSeconds(3f);
+
+            hasMagnetEffect = false;
+            OnMagnetEffectChanged?.Invoke(false);
+
+            // 27초 대기 (총 30초 주기)
+            yield return new WaitForSeconds(27f);
+        }
+    }
 
     private void OnDestroy()
     {

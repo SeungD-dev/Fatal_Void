@@ -43,9 +43,10 @@ public class ShopItem : MonoBehaviour
         weaponNameText.text = weaponData.weaponName;
         weaponImage.sprite = weaponData.weaponIcon;
         descriptionText.text = weaponData.weaponDescription;
-        //dpsText.text = $"DPS: {weaponData.weaponDamage}";
-        //weaponLevelText.text = $"Lv.{weaponData.weaponLevel}";
-        priceText.text = $"{weaponData.price} Coins"; // 가격 표시   
+     
+        priceText.text = $"{weaponData.price} Coins"; // 가격 표시
+        Color tierColor = weaponData.GetTierColor();
+        weaponImage.color = tierColor;  // 무기 아이콘에 색상 적용
     }
 
     private void UpdatePurchaseButtonState()
@@ -90,16 +91,6 @@ public class ShopItem : MonoBehaviour
     private void OnCoinCountChanged(int newCoinCount)
     {
         UpdatePurchaseButtonState();
-    }
-
-    private Color GetRarityColor(WeaponRarity rarity)
-    {
-        return rarity switch
-        {
-            WeaponRarity.common => new Color(0.8f, 0.8f, 0.8f),
-            WeaponRarity.uncommon => new Color(0.3f, 0.8f, 0.3f),
-            _ => Color.white
-        };
     }
 
     public WeaponData GetWeaponData()
