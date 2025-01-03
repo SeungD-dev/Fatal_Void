@@ -32,7 +32,7 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private int level = 1;
     [SerializeField] private float currentExp = 0;
     [SerializeField] private float requiredExp = 1;
-
+    [SerializeField] private float initialRequiredExp = 100;
     [Header("Resource Stats")]
     private float currentHealth;
     private int killCount = 0;
@@ -69,7 +69,7 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private float basePickupRange = 5f;
     private float pickupRange;
 
-    [Header("Magnet Effect")]
+   [Header("Magnet Effect")]
     private bool hasMagnetEffect = false;
     private float magnetEffectCooldown = 30f;
     private float lastMagnetEffectTime = -30f;  // 처음에 바로 사용할 수 있도록
@@ -105,7 +105,7 @@ public class PlayerStats : MonoBehaviour
 
         level = 0;
         currentExp = 0;
-        requiredExp = 100;
+        requiredExp = initialRequiredExp;
         killCount = 0;
         coinCount = 0;
         pickupRange = basePickupRange;
