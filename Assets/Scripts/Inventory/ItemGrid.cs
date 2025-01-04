@@ -225,16 +225,31 @@ public class ItemGrid : MonoBehaviour
     }
     private bool CheckAvailableSpace(int posX, int posY, int width, int height)
     {
+        // 경계 체크
+        if (!BoundryCheck(posX, posY, width, height))
+        {
+            return false;
+        }
+
+        // 해당 영역의 모든 칸이 비어있는지 확인
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                if (inventoryItemSlot[posX + x, posY + y] != null)
+                // 현재 검사하는 위치
+                int checkX = posX + x;
+                int checkY = posY + y;
+
+                // 추가 경계 체크
+                if (checkX >= gridSizeWidth || checkY >= gridSizeHeight)
                 {
-                   
-                   return false;
-                        
-                    
+                    return false;
+                }
+
+                // 다른 아이템이 있는지 확인
+                if (inventoryItemSlot[checkX, checkY] != null)
+                {
+                    return false;
                 }
             }
         }
@@ -285,14 +300,30 @@ public class ItemGrid : MonoBehaviour
     }
     public Vector2Int? FindSpaceForObject(InventoryItem itemToInsert)
     {
-        int height = gridSizeHeight - itemToInsert.HEIGHT +1;
-        int width = gridSizeWidth - itemToInsert.WIDTH +1;
-
-        for (int y = 0; y < height; y++)
+        // itemToInsert의 크기가 유효한지 먼저 확인
+        if (itemToInsert.WIDTH <= 0 || itemToInsert.HEIGHT <= 0)
         {
-            for (int x = 0; x < gridSizeWidth; x++)
+            Debug.LogError($"Invalid item size: {itemToInsert.WIDTH}x{itemToInsert.HEIGHT}");
+            return null;
+        }
+
+        // 그리드 내에서 아이템이 들어갈 수 있는 최대 범위 계산
+        int maxY = gridSizeHeight - itemToInsert.HEIGHT + 1;
+        int maxX = gridSizeWidth - itemToInsert.WIDTH + 1;
+
+        if (maxX <= 0 || maxY <= 0)
+        {
+            Debug.LogWarning($"Item size {itemToInsert.WIDTH}x{itemToInsert.HEIGHT} is too large for grid {gridSizeWidth}x{gridSizeHeight}");
+            return null;
+        }
+
+        // 왼쪽 상단부터 순차적으로 검색
+        for (int y = 0; y < maxY; y++)
+        {
+            for (int x = 0; x < maxX; x++)
             {
-                if(CheckAvailableSpace(x, y, itemToInsert.WIDTH, itemToInsert.HEIGHT) == true)
+                // 각 위치에서 아이템의 전체 영역이 비어있는지 확인
+                if (CheckAvailableSpace(x, y, itemToInsert.WIDTH, itemToInsert.HEIGHT))
                 {
                     return new Vector2Int(x, y);
                 }

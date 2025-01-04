@@ -554,18 +554,38 @@ private void HandleItemSelection(InventoryItem item)
 
         // 빈 공간 찾기
         Vector2Int? freePosition = selectedItemGrid.FindSpaceForObject(inventoryItem);
-        Vector2Int gridPosition = freePosition ?? Vector2Int.zero;
 
-        // 아이템 배치
-        InventoryItem overlapItem = null;
-        selectedItemGrid.PlaceItem(inventoryItem, gridPosition.x, gridPosition.y, ref overlapItem);
+        if (freePosition.HasValue)
+        {
+            // 그리드에 빈 공간이 있는 경우
+            Vector2Int gridPosition = freePosition.Value;
+            InventoryItem overlapItem = null;
+            selectedItemGrid.PlaceItem(inventoryItem, gridPosition.x, gridPosition.y, ref overlapItem);
 
-        // UI 위치 설정
-        Vector2 position = selectedItemGrid.CalculatePositionOnGrid(inventoryItem, gridPosition.x, gridPosition.y);
-        rectTransform.localPosition = position;
+            // UI 위치 설정
+            Vector2 position = selectedItemGrid.CalculatePositionOnGrid(inventoryItem, gridPosition.x, gridPosition.y);
+            rectTransform.localPosition = position;
+        }
+        else
+        {
+            // 그리드에 빈 공간이 없는 경우
+            if (itemSpawnPoint != null)
+            {
+                rectTransform.SetParent(canvasTransform, false); // 캔버스의 직계 자식으로 변경
+                rectTransform.position = itemSpawnPoint.position;
+
+                // 아이템이 그리드에 속하지 않음을 표시
+                inventoryItem.onGridPositionX = -1;
+                inventoryItem.onGridPositionY = -1;
+            }
+            else
+            {
+                Debug.LogWarning("ItemSpawn point not set! Using default position.");
+                rectTransform.localPosition = Vector2.zero;
+            }
+        }
     }
 
-    // InventoryController.cs
     public void CreateUpgradedItem(WeaponData weaponData, Vector2Int position)
     {
         if (selectedItemGrid == null)
@@ -581,38 +601,48 @@ private void HandleItemSelection(InventoryItem item)
         rectTransform.SetParent(selectedItemGrid.GetComponent<RectTransform>(), false);
         inventoryItem.Set(weaponData);
 
-        // 지정된 위치에 아이템 배치 시도
+        // 우선 원래 위치에 배치 시도
         InventoryItem overlapItem = null;
         bool placed = selectedItemGrid.PlaceItem(inventoryItem, position.x, position.y, ref overlapItem);
 
         if (!placed)
         {
-            // 지정된 위치에 배치 실패시 새로운 위치 찾기
+            // 원래 위치에 배치 실패시 새로운 위치 찾기
             Vector2Int? freePosition = selectedItemGrid.FindSpaceForObject(inventoryItem);
+
             if (freePosition.HasValue)
             {
+                // 새로운 빈 공간을 찾은 경우
                 selectedItemGrid.PlaceItem(inventoryItem, freePosition.Value.x, freePosition.Value.y, ref overlapItem);
-                position = freePosition.Value;
+                Vector2 uiPosition = selectedItemGrid.CalculatePositionOnGrid(inventoryItem, freePosition.Value.x, freePosition.Value.y);
+                rectTransform.localPosition = uiPosition;
             }
             else
             {
-                Debug.LogError("No space available for upgraded item!");
-                Destroy(itemObj);
-                return;
+                // 빈 공간이 없는 경우
+                if (itemSpawnPoint != null)
+                {
+                    rectTransform.SetParent(canvasTransform, false); // 캔버스의 직계 자식으로 변경
+                    rectTransform.position = itemSpawnPoint.position;
+
+                    // 아이템이 그리드에 속하지 않음을 표시
+                    inventoryItem.onGridPositionX = -1;
+                    inventoryItem.onGridPositionY = -1;
+                }
+                else
+                {
+                    Debug.LogWarning("ItemSpawn point not set! Using default position.");
+                    rectTransform.localPosition = Vector2.zero;
+                }
             }
         }
-
-        // UI 위치 설정
-        Vector2 uiPosition = selectedItemGrid.CalculatePositionOnGrid(inventoryItem, position.x, position.y);
-        rectTransform.localPosition = uiPosition;
-
-        if (weaponInfoUI != null)
+        else
         {
-            weaponInfoUI.UpdateWeaponInfo(weaponData);
+            // 원래 위치에 배치 성공
+            Vector2 uiPosition = selectedItemGrid.CalculatePositionOnGrid(inventoryItem, position.x, position.y);
+            rectTransform.localPosition = uiPosition;
         }
     }
-
-    // 기존 CreatePurchasedItem 메서드는 그대로 유지
     private void PickUpItem(Vector2Int tileGridPosition)
     {
         InventoryItem itemToPickup = selectedItemGrid.GetItem(tileGridPosition.x, tileGridPosition.y);
