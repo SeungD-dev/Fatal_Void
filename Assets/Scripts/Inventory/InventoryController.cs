@@ -633,23 +633,28 @@ public class InventoryController : MonoBehaviour
     }
     private void PickUpItem(Vector2Int tileGridPosition)
     {
-        InventoryItem itemToPickup = selectedItemGrid.GetItem(tileGridPosition.x, tileGridPosition.y);
+        if (selectedItem != null)
+        {
+            // 이미 선택된 아이템이 있다면 원래 위치로 돌려놓기
+            Vector2Int originalPosition = new Vector2Int(selectedItem.onGridPositionX, selectedItem.onGridPositionY);
+            selectedItemGrid.PlaceItem(selectedItem, originalPosition.x, originalPosition.y, ref overlapItem);
+            Vector2 position = selectedItemGrid.CalculatePositionOnGrid(selectedItem, originalPosition.x, originalPosition.y);
+            selectedItem.GetComponent<RectTransform>().localPosition = position;
+            selectedItem = null;
+            isDragging = false;
+            isHolding = false;
+        }
 
+        InventoryItem itemToPickup = selectedItemGrid.GetItem(tileGridPosition.x, tileGridPosition.y);
         if (itemToPickup != null)
         {
-            if (selectedItem != null && selectedItem != itemToPickup)
-            {
-                selectedItem = null;
-                isDragging = false;
-            }
-
             selectedItem = selectedItemGrid.PickUpItem(itemToPickup.onGridPositionX, itemToPickup.onGridPositionY);
             if (selectedItem != null)
             {
                 rectTransform = selectedItem.GetComponent<RectTransform>();
                 isDragging = true;
+                isHolding = true;
 
-                
                 Vector2 currentPos = touchPosition.ReadValue<Vector2>();
                 Vector2 liftedPosition = currentPos + Vector2.up * ITEM_LIFT_OFFSET;
                 rectTransform.position = liftedPosition;
@@ -665,23 +670,21 @@ public class InventoryController : MonoBehaviour
     {
         if (selectedItem == null) return;
 
+        Vector2Int originalPosition = new Vector2Int(selectedItem.onGridPositionX, selectedItem.onGridPositionY);
         bool complete = selectedItemGrid.PlaceItem(selectedItem, tileGridPosition.x, tileGridPosition.y, ref overlapItem);
 
         if (complete)
         {
             if (overlapItem != null)
             {
-                selectedItem = overlapItem;
-                rectTransform = selectedItem.GetComponent<RectTransform>();
-                rectTransform.SetAsLastSibling();
-                isDragging = false;
-                isHolding = false;
+                // 겹치는 아이템이 있을 경우, 원래 위치로 돌아감
+                selectedItemGrid.PlaceItem(selectedItem, originalPosition.x, originalPosition.y, ref overlapItem);
+                Vector2 position = selectedItemGrid.CalculatePositionOnGrid(selectedItem, originalPosition.x, originalPosition.y);
+                selectedItem.GetComponent<RectTransform>().localPosition = position;
             }
-            else
-            {
-                isDragging = false;
-                isHolding = false;
-            }
+
+            isDragging = false;
+            isHolding = false;
 
             if (inventoryHighlight != null)
             {
@@ -692,6 +695,10 @@ public class InventoryController : MonoBehaviour
         }
         else
         {
+            // 배치 실패시 원래 위치로 돌아감
+            selectedItemGrid.PlaceItem(selectedItem, originalPosition.x, originalPosition.y, ref overlapItem);
+            Vector2 position = selectedItemGrid.CalculatePositionOnGrid(selectedItem, originalPosition.x, originalPosition.y);
+            selectedItem.GetComponent<RectTransform>().localPosition = position;
             isDragging = false;
             isHolding = false;
         }
@@ -700,6 +707,8 @@ public class InventoryController : MonoBehaviour
         {
             weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
         }
+
+        selectedItem = null; // 아이템 선택 해제
     }
     private void CleanupInvalidItems()
     {
