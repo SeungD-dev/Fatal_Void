@@ -25,7 +25,7 @@ public class ItemGrid : MonoBehaviour
     private void Start()
     {
         rectTransform = GetComponent<RectTransform>();
-        Init(gridSizeWidth, gridSizeHeight);     
+        Init(gridSizeWidth, gridSizeHeight);
     }
 
     private void OnEnable()

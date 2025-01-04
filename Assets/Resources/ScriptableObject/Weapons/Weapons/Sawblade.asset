@@ -19,11 +19,61 @@ MonoBehaviour:
   weaponName: Sawblade
   weaponDescription: 
   inventoryWeaponIcon: {fileID: -1530235953570945171, guid: 2c59496dc7b860e4ab2f90067ab8d8b1, type: 3}
+  equipmentType: 0
+  equipmentTierStats:
+  - powerIncrease: 0
+    speedIncrease: 0
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
+  - powerIncrease: 0
+    speedIncrease: 0
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
+  - powerIncrease: 0
+    speedIncrease: 0
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
+  - powerIncrease: 0
+    speedIncrease: 0
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
   currentTier: 1
-  tier1Price: 45
-  tier2Price: 90
-  tier3Price: 180
-  tier4Price: 360
+  tier1Price: 0
+  tier2Price: 0
+  tier3Price: 0
+  tier4Price: 0
   sellPriceRatio: 0.5
   tierStats:
   - damage: 30

@@ -19,11 +19,61 @@ MonoBehaviour:
   weaponName: Machinegun
   weaponDescription: 
   inventoryWeaponIcon: {fileID: 21300000, guid: 4333bb2ed971c5b4aa11ea7b993b3fdd, type: 3}
+  equipmentType: 0
+  equipmentTierStats:
+  - powerIncrease: 0
+    speedIncrease: 0
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
+  - powerIncrease: 0
+    speedIncrease: 0
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
+  - powerIncrease: 0
+    speedIncrease: 0
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
+  - powerIncrease: 0
+    speedIncrease: 0
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
   currentTier: 1
-  tier1Price: 25
-  tier2Price: 50
-  tier3Price: 100
-  tier4Price: 200
+  tier1Price: 0
+  tier2Price: 0
+  tier3Price: 0
+  tier4Price: 0
   sellPriceRatio: 0.5
   tierStats:
   - damage: 2

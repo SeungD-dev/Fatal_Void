@@ -53,11 +53,12 @@ public class WeaponManager : MonoBehaviour
         var equipmentsToRemove = new List<WeaponData>();
 
         // 무기 체크
-        foreach (var weaponPair in activeWeapons)
+        foreach (var weaponPair in activeWeapons.ToList()) // ToList()를 사용하여 안전하게 순회
         {
             WeaponData weaponData = weaponPair.Key;
             WeaponMechanism mechanism = weaponPair.Value;
 
+            // 무기가 그리드에서 제거되었는지 확인
             if (!IsWeaponInGrid(weaponData))
             {
                 weaponsToRemove.Add(weaponData);
@@ -65,6 +66,7 @@ public class WeaponManager : MonoBehaviour
             }
             else if (mechanism != null)
             {
+                // 각 무기의 메커니즘을 독립적으로 업데이트
                 mechanism.UpdateMechanism();
             }
         }
@@ -83,12 +85,18 @@ public class WeaponManager : MonoBehaviour
         // 제거할 무기와 장비 처리
         foreach (var weaponData in weaponsToRemove)
         {
-            activeWeapons.Remove(weaponData);
+            if (activeWeapons.ContainsKey(weaponData))
+            {
+                activeWeapons.Remove(weaponData);
+            }
         }
 
         foreach (var equipmentData in equipmentsToRemove)
         {
-            activeEquipments.Remove(equipmentData);
+            if (activeEquipments.ContainsKey(equipmentData))
+            {
+                activeEquipments.Remove(equipmentData);
+            }
         }
     }
     private void UpdateAllWeaponsStats()
@@ -129,37 +137,37 @@ public class WeaponManager : MonoBehaviour
     {
         if (mainItemGrid == null || weaponData == null) return false;
 
-        for (int x = 0; x < mainItemGrid.Width; x++)
+        bool found = false;
+        for (int x = 0; x < mainItemGrid.Width && !found; x++)
         {
-            for (int y = 0; y < mainItemGrid.Height; y++)
+            for (int y = 0; y < mainItemGrid.Height && !found; y++)
             {
                 InventoryItem item = mainItemGrid.GetItem(x, y);
                 if (item != null && item.weaponData == weaponData)
                 {
-                    return true;
+                    found = true;
                 }
             }
         }
-        return false;
+        return found;
     }
-
     public void EquipWeapon(WeaponData weaponData)
     {
         if (weaponData == null) return;
 
-        // Equipment 타입인 경우
+        // Equipment 타입인 경우 기존 로직 유지
         if (weaponData.weaponType == WeaponType.Equipment)
         {
             if (!activeEquipments.ContainsKey(weaponData))
             {
                 ApplyEquipmentEffect(weaponData);
                 activeEquipments[weaponData] = true;
-                UpdateAllWeaponsStats(); // Equipment 장착 시 모든 무기 스탯 업데이트
+                UpdateAllWeaponsStats();
             }
             return;
         }
 
-        // 이미 장착된 무기인 경우 스탯만 업데이트
+        // 이미 장착된 무기라면 스탯만 업데이트
         if (activeWeapons.ContainsKey(weaponData))
         {
             activeWeapons[weaponData].OnPlayerStatsChanged();
@@ -172,9 +180,9 @@ public class WeaponManager : MonoBehaviour
         {
             mechanism.Initialize(weaponData, transform);
             activeWeapons[weaponData] = mechanism;
+            Debug.Log($"Equipped weapon: {weaponData.weaponName} - Total active weapons: {activeWeapons.Count}");
         }
     }
-
     public void UnequipWeapon(WeaponData weaponData)
     {
         if (weaponData == null) return;

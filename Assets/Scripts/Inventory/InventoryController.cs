@@ -78,7 +78,10 @@ public class InventoryController : MonoBehaviour
         touchPress = touchActions.Touch.Press;
         touchDelta = touchActions.Touch.Delta;
 
-
+        if (mainInventoryGrid != null)
+        {
+            mainInventoryGrid.OnItemAdded += OnItemAddedToGrid;
+        }
 
         touchPress.started += OnTouchStarted;
         touchPress.canceled += OnTouchEnded;
@@ -109,13 +112,10 @@ public class InventoryController : MonoBehaviour
     {
         touchActions.Enable();
     }
-
-
     private void OnDisable()
     {
         touchActions.Disable();
     }
-
     public void ToggleInventoryUI(bool isActive)
     {
         if (inventoryUI != null)
@@ -159,7 +159,6 @@ public class InventoryController : MonoBehaviour
         yield return new WaitForEndOfFrame();
         CleanupInvalidItems();
     }
-
     public void StartGame()
     {
         if (selectedItemGrid == null)
@@ -168,35 +167,32 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        bool hasEquippedItem = false;
-        InventoryItem equippedItem = null;
+        bool hasAnyItem = false;
 
-        for (int x = 0; x < selectedItemGrid.Width && !hasEquippedItem; x++)
+        // 그리드의 모든 아이템을 확인
+        for (int x = 0; x < selectedItemGrid.Width; x++)
         {
-            for (int y = 0; y < selectedItemGrid.Height && !hasEquippedItem; y++)
+            for (int y = 0; y < selectedItemGrid.Height; y++)
             {
                 InventoryItem item = selectedItemGrid.GetItem(x, y);
                 if (item != null)
                 {
-                    equippedItem = item;
-                    hasEquippedItem = true;
-                    break;
+                    hasAnyItem = true;
+                    // 각 아이템을 무기로 장착
+                    OnWeaponEquipped(item);
                 }
             }
         }
 
-        if (hasEquippedItem && equippedItem != null)
+        if (hasAnyItem)
         {
-            // ���� ���� �� ���� ����
-            OnWeaponEquipped(equippedItem);
-
-            // UI ��ȯ
+            // UI 전환
             inventoryHighlight?.Show(false);
             inventoryUI?.SetActive(false);
             playerControlUI?.SetActive(true);
             playerStatsUI?.SetActive(true);
 
-            // ���� ���� ����
+            // 게임 상태 변경
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.SetGameState(GameState.Playing);
@@ -204,12 +200,9 @@ public class InventoryController : MonoBehaviour
         }
         else
         {
-            
             Debug.LogWarning("No item equipped! Please place a weapon in the grid.");
-            
         }
     }
-
     private void OnWeaponEquipped(InventoryItem item)
     {
         if (item != null && item.weaponData != null && weaponManager != null)
@@ -218,10 +211,7 @@ public class InventoryController : MonoBehaviour
             weaponManager.EquipWeapon(item.weaponData);
         }
     }
-
-
-
-   private void OnTouchStarted(InputAction.CallbackContext context)
+    private void OnTouchStarted(InputAction.CallbackContext context)
 {
     if (!inventoryUI.activeSelf || selectedItemGrid == null) return;
 
@@ -241,8 +231,7 @@ public class InventoryController : MonoBehaviour
     holdStartPosition = touchPos;
     StartCoroutine(CheckForHold());
 }
-
-private void HandleItemSelection(InventoryItem item)
+    private void HandleItemSelection(InventoryItem item)
 {
     if (item != null && weaponInfoUI != null)
     {
@@ -423,8 +412,6 @@ private void HandleItemSelection(InventoryItem item)
 
         HandleHighlight();
     }
-
-
     private void HandleHighlight()
     {
         if (selectedItemGrid == null || !inventoryUI.activeSelf)
@@ -511,8 +498,6 @@ private void HandleItemSelection(InventoryItem item)
         return selectedItemGrid.GetTileGridPosition(position);
     }
 
-
-
     private InventoryItem itemToHighlight;
     Vector2Int oldPosition;
 
@@ -529,9 +514,13 @@ private void HandleItemSelection(InventoryItem item)
             touchPress.canceled -= OnTouchEnded;
         }
 
+        if (mainInventoryGrid != null)
+        {
+            mainInventoryGrid.OnItemAdded -= OnItemAddedToGrid;
+        }
+
         touchActions?.Dispose();
     }
-
     public InventoryItem GetInventoryItemPrefab()
     {
         return weaponPrefab.GetComponent<InventoryItem>();
@@ -585,7 +574,6 @@ private void HandleItemSelection(InventoryItem item)
             }
         }
     }
-
     public void CreateUpgradedItem(WeaponData weaponData, Vector2Int position)
     {
         if (selectedItemGrid == null)
@@ -673,7 +661,6 @@ private void HandleItemSelection(InventoryItem item)
             }
         }
     }
-
     private void PutDownItem(Vector2Int tileGridPosition)
     {
         if (selectedItem == null) return;
@@ -714,9 +701,6 @@ private void HandleItemSelection(InventoryItem item)
             weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
         }
     }
-
-
-    
     private void CleanupInvalidItems()
     {
         if (selectedItemGrid == null || !selectedItemGrid.gameObject.activeInHierarchy)
@@ -783,7 +767,6 @@ private void HandleItemSelection(InventoryItem item)
 
         CreatePurchasedItem(weaponData);
     }
-
 
     private void HandleTouchEnd()
     {
@@ -888,6 +871,14 @@ private void HandleItemSelection(InventoryItem item)
         }
         selectedItem = null;
         isDragging = false;
+    }
+
+    private void OnItemAddedToGrid(InventoryItem item)
+    {
+        if (GameManager.Instance.IsPlaying())
+        {
+            OnWeaponEquipped(item);
+        }
     }
 
 }
