@@ -1,8 +1,7 @@
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class CombatController : MonoBehaviour
 {
@@ -13,9 +12,7 @@ public class CombatController : MonoBehaviour
     [SerializeField] private float magnetForce = 20f;
 
     private List<CollectibleItem> activeCollectibles = new List<CollectibleItem>();
-
     private PlayerStats playerStats;
-    private Dictionary<ItemType, Queue<GameObject>> itemPools;
     private bool isInitialized = false;
 
     private void Start()
@@ -49,53 +46,153 @@ public class CombatController : MonoBehaviour
 
         if (playerStats != null)
         {
-            // 전투 관련 이벤트만 구독
             playerStats.OnPlayerDeath += HandlePlayerDeath;
             InitializeItemPools();
             isInitialized = true;
         }
     }
 
-    public void SpawnDrops(Vector3 position, DropTable dropTable)
+    public void SpawnDrops(Vector3 position, EnemyDropTable dropTable)
     {
-        if (!isInitialized || dropTable == null) return;
+        if (!isInitialized)
+        {
+            Debug.LogError("CombatController is not initialized!");
+            return;
+        }
+
+        if (dropTable == null)
+        {
+            Debug.LogError("DropTable is null!");
+            return;
+        }
+
+        bool essentialDropSpawned = false;
+        int maxAttempts = 3;  // 최대 시도 횟수
+        int attempts = 0;
+
+        // Essential Drop (Experience or Gold) - 성공할 때까지 시도
+        while (!essentialDropSpawned && attempts < maxAttempts)
+        {
+            float randomValue = Random.Range(0f, 100f);
+            if (randomValue <= dropTable.experienceDropRate)
+            {
+                GameObject expDrop = SpawnExperienceDrop(position, dropTable.experienceInfo);
+                essentialDropSpawned = (expDrop != null);
+            }
+            else
+            {
+                GameObject goldDrop = SpawnGoldDrop(position, dropTable.goldInfo);
+                essentialDropSpawned = (goldDrop != null);
+            }
+            attempts++;
+        }
+
+        if (!essentialDropSpawned)
+        {
+            Debug.LogError("Failed to spawn essential drop after multiple attempts!");
+        }
+
+        // Additional Drop - Enemy의 Die()에서 처리하도록 제거
+    }
+
+
+    private GameObject SpawnExperienceDrop(Vector3 position, ExperienceDropInfo expInfo)
+    {
+        if (expInfo == null)
+        {
+            Debug.LogError("ExperienceDropInfo is null!");
+            return null;
+        }
 
         float randomValue = Random.Range(0f, 100f);
-        float currentRate = 0f;
+        ItemType selectedType;
 
-        foreach (var drop in dropTable.possibleDrops)
+        if (randomValue <= expInfo.smallExpRate)
         {
-            currentRate += drop.dropRate;
-            if (randomValue <= currentRate)
-            {
-                SpawnDropItem(position, drop);
-                break;
-            }
+            selectedType = ItemType.ExperienceSmall;
         }
+        else if (randomValue <= expInfo.smallExpRate + expInfo.mediumExpRate)
+        {
+            selectedType = ItemType.ExperienceMedium;
+        }
+        else
+        {
+            selectedType = ItemType.ExperienceLarge;
+        }
+
+        Vector2 randomOffset = Random.insideUnitCircle * 0.5f;
+        Vector3 spawnPos = position + new Vector3(randomOffset.x, randomOffset.y, 0);
+
+        GameObject spawnedObj = ObjectPool.Instance.SpawnFromPool(
+            selectedType.ToString(),
+            spawnPos,
+            Quaternion.identity
+        );
+
+        if (spawnedObj == null)
+        {
+            Debug.LogError($"Failed to spawn experience item of type: {selectedType}");
+        }
+
+        return spawnedObj;
     }
 
-    private void SpawnDropItem(Vector3 position, DropInfo dropInfo)
+
+    private GameObject SpawnGoldDrop(Vector3 position, GoldDropInfo goldInfo)
     {
-        int amount = Random.Range(dropInfo.minAmount, dropInfo.maxAmount + 1);
-
-        for (int i = 0; i < amount; i++)
+        if (goldInfo == null)
         {
-            Vector2 randomOffset = Random.insideUnitCircle * 0.5f;
-            Vector3 spawnPos = position + new Vector3(randomOffset.x, randomOffset.y, 0);
+            Debug.LogError("GoldDropInfo is null!");
+            return null;
+        }
 
-            GameObject item = ObjectPool.Instance.SpawnFromPool(
-                dropInfo.itemType.ToString(),
-                spawnPos,
-                Quaternion.identity
-            );
+        Vector2 randomOffset = Random.insideUnitCircle * 0.5f;
+        Vector3 spawnPos = position + new Vector3(randomOffset.x, randomOffset.y, 0);
 
-            if (item.TryGetComponent<CollectibleItem>(out var collectible))
+        GameObject goldObj = ObjectPool.Instance.SpawnFromPool(
+            ItemType.Gold.ToString(),
+            spawnPos,
+            Quaternion.identity
+        );
+
+        if (goldObj != null)
+        {
+            int goldAmount = Random.Range(goldInfo.minGoldAmount, goldInfo.maxGoldAmount + 1);
+            if (goldObj.TryGetComponent<CollectibleItem>(out var collectible))
             {
-                collectible.Initialize(dropInfo);
+                collectible.SetGoldAmount(goldAmount);
             }
         }
+        else
+        {
+            Debug.LogError("Failed to spawn gold item");
+        }
+
+        return goldObj;
     }
-    public void ApplyItemEffect(ItemType itemType)
+
+    public void SpawnAdditionalDrop(Vector3 position, AdditionalDrop dropInfo)
+    {
+        GameObject item = SpawnItem(position, dropInfo.itemType);
+        if (item.TryGetComponent<CollectibleItem>(out var collectible))
+        {
+            collectible.Initialize(dropInfo);
+        }
+    }
+
+    private GameObject SpawnItem(Vector3 position, ItemType itemType)
+    {
+        Vector2 randomOffset = Random.insideUnitCircle * 0.5f;
+        Vector3 spawnPos = position + new Vector3(randomOffset.x, randomOffset.y, 0);
+
+        return ObjectPool.Instance.SpawnFromPool(
+            itemType.ToString(),
+            spawnPos,
+            Quaternion.identity
+        );
+    }
+
+    public void ApplyItemEffect(ItemType itemType, int goldAmount = 0)
     {
         if (GameManager.Instance?.PlayerStats == null)
         {
@@ -110,34 +207,36 @@ public class CombatController : MonoBehaviour
             case ItemType.ExperienceSmall:
                 playerStats.AddExperience(1f);
                 break;
-
-            case ItemType.ExperienceLarge:
-                playerStats.AddExperience(10f);
+            case ItemType.ExperienceMedium:
+                playerStats.AddExperience(7f);
                 break;
-
+            case ItemType.ExperienceLarge:
+                playerStats.AddExperience(25f);
+                break;
+            case ItemType.Gold:
+                playerStats.AddCoins(goldAmount);
+                break;
             case ItemType.HealthPotion:
                 playerStats.Heal(healthPotionAmount);
-                break;
-
-            case ItemType.Coin:
-                playerStats.AddCoins(1);
                 break;
             case ItemType.Magnet:
                 ApplyMagnetEffect();
                 break;
-
             default:
                 Debug.LogWarning($"Unknown item type: {itemType}");
                 break;
         }
     }
 
-    private void HandlePlayerDeath()
+    private void ApplyMagnetEffect()
     {
-        // 전투 시스템 정리
-        isInitialized = false;
-        // 게임오버 처리
-        GameManager.Instance.SetGameState(GameState.GameOver);
+        foreach (var item in activeCollectibles.ToList())
+        {
+            if (item != null)
+            {
+                item.PullToPlayer(magnetForce);
+            }
+        }
     }
 
     public void RegisterCollectible(CollectibleItem item)
@@ -153,41 +252,69 @@ public class CombatController : MonoBehaviour
         activeCollectibles.Remove(item);
     }
 
-    private void ApplyMagnetEffect()
+    private void HandlePlayerDeath()
     {
-        foreach (var item in activeCollectibles.ToList())  // ToList()로 복사본 생성하여 순회
+        isInitialized = false;
+        GameManager.Instance.SetGameState(GameState.GameOver);
+    }
+
+    private void InitializeItemPools()
+    {
+        var dropTables = Resources.LoadAll<EnemyDropTable>("");
+        var processedPrefabs = new HashSet<GameObject>();
+
+        foreach (var table in dropTables)
         {
-            if (item != null)
+            // 기본 경험치 풀 초기화
+            if (table.experienceInfo != null)
             {
-                item.PullToPlayer(magnetForce);
+                if (!processedPrefabs.Contains(table.experienceInfo.smallExpPrefab))
+                {
+                    ObjectPool.Instance.CreatePool(ItemType.ExperienceSmall.ToString(),
+                        table.experienceInfo.smallExpPrefab, 10);
+                    processedPrefabs.Add(table.experienceInfo.smallExpPrefab);
+                }
+                if (!processedPrefabs.Contains(table.experienceInfo.mediumExpPrefab))
+                {
+                    ObjectPool.Instance.CreatePool(ItemType.ExperienceMedium.ToString(),
+                        table.experienceInfo.mediumExpPrefab, 10);
+                    processedPrefabs.Add(table.experienceInfo.mediumExpPrefab);
+                }
+                if (!processedPrefabs.Contains(table.experienceInfo.largeExpPrefab))
+                {
+                    ObjectPool.Instance.CreatePool(ItemType.ExperienceLarge.ToString(),
+                        table.experienceInfo.largeExpPrefab, 10);
+                    processedPrefabs.Add(table.experienceInfo.largeExpPrefab);
+                }
+            }
+
+            // 골드 풀 초기화
+            if (table.goldInfo != null && !processedPrefabs.Contains(table.goldInfo.goldPrefab))
+            {
+                ObjectPool.Instance.CreatePool(ItemType.Gold.ToString(),
+                    table.goldInfo.goldPrefab, 10);
+                processedPrefabs.Add(table.goldInfo.goldPrefab);
+            }
+
+            // 추가 아이템 풀 초기화
+            if (table.additionalDrops != null)
+            {
+                foreach (var drop in table.additionalDrops)
+                {
+                    if (drop.itemPrefab != null && !processedPrefabs.Contains(drop.itemPrefab))
+                    {
+                        ObjectPool.Instance.CreatePool(drop.itemType.ToString(), drop.itemPrefab, 10);
+                        processedPrefabs.Add(drop.itemPrefab);
+                    }
+                }
             }
         }
     }
-
     private void OnDestroy()
     {
         if (playerStats != null)
         {
             playerStats.OnPlayerDeath -= HandlePlayerDeath;
-        }
-    }
-
-    private void InitializeItemPools()
-    {
-        var dropTables = Resources.LoadAll<DropTable>("");
-        foreach (var table in dropTables)
-        {
-            foreach (var drop in table.possibleDrops)
-            {
-                if (drop.itemPrefab != null)
-                {
-                    ObjectPool.Instance.CreatePool(
-                        drop.itemType.ToString(),
-                        drop.itemPrefab,
-                        10
-                    );
-                }
-            }
         }
     }
 }

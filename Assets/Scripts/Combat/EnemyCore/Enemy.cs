@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour, IPooledObject
@@ -244,19 +245,60 @@ public class Enemy : MonoBehaviour, IPooledObject
     }
     private void Die()
     {
-        if (enemyData.dropTable != null && GameManager.Instance?.CombatController != null)
+        if (GameManager.Instance?.CombatController == null) return;
+
+        // 1. 필수 드롭 처리 (경험치 or 골드)
+        if (enemyData.dropTable != null)
         {
             GameManager.Instance.CombatController.SpawnDrops(transform.position, enemyData.dropTable);
         }
-
-        // 적 처치 카운트 증가
-        if (GameManager.Instance?.PlayerStats != null)
+        else
         {
-            GameManager.Instance.PlayerStats.AddKill();
+            Debug.LogError($"DropTable is missing for enemy: {enemyData.enemyName}");
         }
+
+        // 2. 추가 아이템 드롭 처리
+        if (enemyData.additionalDropRate > 0 &&
+            enemyData.dropTable?.additionalDrops != null &&
+            enemyData.dropTable.additionalDrops.Length > 0)
+        {
+            float randomValue = Random.Range(0f, 100f);
+            if (randomValue <= enemyData.additionalDropRate)
+            {
+                // 포션 또는 자석 중 하나만 선택하여 드롭
+                var validDrops = enemyData.dropTable.additionalDrops.Where(drop =>
+                    drop.itemType == ItemType.HealthPotion ||
+                    drop.itemType == ItemType.Magnet).ToArray();
+
+                if (validDrops.Length > 0)
+                {
+                    // 각 아이템의 dropRate에 따른 가중치 적용하여 하나 선택
+                    float totalWeight = validDrops.Sum(drop => drop.dropRate);
+                    float randomSelection = Random.Range(0f, totalWeight);
+                    float currentSum = 0f;
+
+                    foreach (var drop in validDrops)
+                    {
+                        currentSum += drop.dropRate;
+                        if (randomSelection <= currentSum)
+                        {
+                            GameManager.Instance.CombatController.SpawnAdditionalDrop(
+                                transform.position,
+                                drop
+                            );
+                            break;  // 하나만 드롭하고 종료
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. 적 처치 카운트 증가
+        GameManager.Instance.PlayerStats?.AddKill();
+
+        // 4. 풀에 반환
         ReturnToPool();
     }
-
     public void ReturnToPool()
     {
         if (enemyData == null)

@@ -15,9 +15,11 @@ MonoBehaviour:
   enemyPrefab: {fileID: 6160214665495999924, guid: f11c4c202d5f78f4cb562e5acd5c106c, type: 3}
   enemyName: Hunter
   enemySprite: {fileID: -4981905265807446599, guid: a8643f6c64f89bc41bf3f7c21049ab53, type: 3}
+  enemyType: 0
   baseHealth: 10
   maxPossibleHealth: 200
   baseDamage: 2
   moveSpeed: 1.5
   initialPoolSize: 10
-  dropTable: {fileID: 11400000, guid: 573c9f276ff1bf247a219fbe008d3363, type: 2}
+  dropTable: {fileID: 11400000, guid: 33f84b4aff8376b44aca27eaef3e8a49, type: 2}
+  additionalDropRate: 10

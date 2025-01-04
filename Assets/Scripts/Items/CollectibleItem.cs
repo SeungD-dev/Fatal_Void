@@ -6,15 +6,18 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
     [SerializeField] private float basemagnetDistance = 5f;
     [SerializeField] private float magnetSpeed = 10f;
     [SerializeField] private ItemType itemType;
+
     private Rigidbody2D rb;
     private Transform playerTransform;
     private bool isBeingMagneted = false;
     private bool isPulledByMagnet = false;
     private float currentMagnetSpeed;
     private float currentMagnetDistance;
-    private DropInfo dropInfo;
-    private PlayerStats playerStats;
     private bool isAutoMagneted = false;
+    private PlayerStats playerStats;
+    private bool isMagnetable = true;
+    private int goldAmount = 0;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -27,10 +30,15 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         currentMagnetDistance = basemagnetDistance;
     }
 
-    public void Initialize(DropInfo info)
+    public void Initialize(AdditionalDrop dropInfo)
     {
-        dropInfo = info;
-        itemType = info.itemType;
+        itemType = dropInfo.itemType;
+        isMagnetable = dropInfo.isMagnetable;
+    }
+
+    public void SetGoldAmount(int amount)
+    {
+        goldAmount = amount;
     }
 
     private void Start()
@@ -39,7 +47,6 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         FindPlayer();
         InitializePlayerStats();
 
-        // PlayerStats의 자석 효과 이벤트 구독
         if (playerStats != null)
         {
             playerStats.OnMagnetEffectChanged += HandleMagnetEffectChanged;
@@ -53,7 +60,6 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             playerStats = playerTransform.GetComponent<PlayerStats>();
             if (playerStats != null)
             {
-                // PlayerStats의 PickupRange가 변경될 때마다 자석 거리 업데이트
                 UpdateMagnetDistance();
             }
         }
@@ -65,6 +71,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         isPulledByMagnet = false;
         currentMagnetSpeed = magnetSpeed;
         currentMagnetDistance = basemagnetDistance;
+        goldAmount = 0;
 
         if (rb != null)
         {
@@ -73,8 +80,6 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         }
 
         GameManager.Instance?.CombatController?.RegisterCollectible(this);
-
-        // Equipment 효과 적용을 위해 PlayerStats 초기화
         InitializePlayerStats();
     }
 
@@ -95,7 +100,6 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
     {
         if (playerStats != null)
         {
-            // PlayerStats의 PickupRange 값을 기반으로 자석 거리 계산
             currentMagnetDistance = basemagnetDistance + playerStats.PickupRange;
         }
     }
@@ -110,12 +114,8 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
         UpdateMagnetDistance();
 
-        if (dropInfo == null || !dropInfo.isMagnetable)
-        {
-            return;
-        }
+        if (!isMagnetable) return;
 
-        // isAutoMagneted가 true이거나 기존 자석 효과 범위 내에 있을 때
         if (isAutoMagneted || isPulledByMagnet ||
             Vector2.Distance(transform.position, playerTransform.position) <= currentMagnetDistance)
         {
@@ -130,9 +130,10 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             rb.linearVelocity = Vector2.zero;
         }
     }
+
     public void PullToPlayer(float magnetForce)
     {
-        if (dropInfo == null || !dropInfo.isMagnetable) return;
+        if (!isMagnetable) return;
         isPulledByMagnet = true;
         currentMagnetSpeed = magnetForce;
     }
@@ -141,7 +142,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
     {
         if (other.CompareTag("Player") && GameManager.Instance?.CombatController != null)
         {
-            GameManager.Instance.CombatController.ApplyItemEffect(itemType);
+            GameManager.Instance.CombatController.ApplyItemEffect(itemType, goldAmount);
             GameManager.Instance.CombatController.UnregisterCollectible(this);
             rb.linearVelocity = Vector2.zero;
             ObjectPool.Instance.ReturnToPool(itemType.ToString(), gameObject);
@@ -153,7 +154,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         if (isActive)
         {
             isAutoMagneted = true;
-            PullToPlayer(magnetSpeed * 2f);  // 자동 자석 효과는 더 강하게
+            PullToPlayer(magnetSpeed * 2f);
         }
         else
         {
@@ -166,9 +167,12 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         }
     }
 
-
     private void OnDestroy()
     {
+        if (playerStats != null)
+        {
+            playerStats.OnMagnetEffectChanged -= HandleMagnetEffectChanged;
+        }
         GameManager.Instance?.CombatController?.UnregisterCollectible(this);
     }
 }
