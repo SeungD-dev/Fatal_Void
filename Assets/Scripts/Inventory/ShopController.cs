@@ -143,9 +143,10 @@ public class ShopController : MonoBehaviour
             }
         }
 
-        // 선택된 티어의 무기들 중에서 랜덤 선택
+        // 선택된 티어의 무기들 중에서 필터링
         List<WeaponData> tierWeapons = weaponDatabase.weapons
             .Where(w => w.currentTier == selectedTier)
+            .Where(w => !isFirstShop || w.weaponType != WeaponType.Equipment) // 첫 상점에서는 Equipment 타입 제외
             .ToList();
 
         if (tierWeapons.Count == 0)
