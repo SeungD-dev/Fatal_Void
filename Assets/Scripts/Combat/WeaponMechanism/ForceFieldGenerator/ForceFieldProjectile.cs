@@ -67,7 +67,7 @@ public class ForceFieldProjectile : BaseProjectile
 
     private void ApplyDamageInRange()
     {
-        Debug.Log($"Checking for enemies in radius: {actualRadius}");
+        //Debug.Log($"Checking for enemies in radius: {actualRadius}");
         // Force Field Radius 값으로 범위 체크
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, actualRadius);
         foreach (Collider2D col in colliders)

@@ -59,8 +59,6 @@ public class InventoryController : MonoBehaviour
     public static float ITEM_LIFT_OFFSET = 350f; 
     private float lastRotationTime = -999f;
     private const float ROTATION_COOLDOWN = 0.3f; 
-    private bool isRotating = false;
-    private int lastRotatingTouchId = -1;
 
 
     private void Awake()
@@ -212,62 +210,105 @@ public class InventoryController : MonoBehaviour
         }
     }
     private void OnTouchStarted(InputAction.CallbackContext context)
-{
-    if (!inventoryUI.activeSelf || selectedItemGrid == null) return;
-
-    Vector2 touchPos = touchPosition.ReadValue<Vector2>();
-    Vector2Int gridPosition = GetTileGridPosition(touchPos);
-    
-    if (IsPositionWithinGrid(gridPosition))
     {
-        InventoryItem touchedItem = selectedItemGrid.GetItem(gridPosition.x, gridPosition.y);
-        if (touchedItem != null)
+        if (!inventoryUI.activeSelf || selectedItemGrid == null) return;
+
+        Vector2 touchPos = touchPosition.ReadValue<Vector2>();
+        Vector2Int gridPosition = GetTileGridPosition(touchPos);
+
+        // 이전 선택 상태 초기화
+        if (selectedItem != null)
         {
-            HandleItemSelection(touchedItem);
+            // 이전에 선택된 아이템이 있다면 원래 위치로 되돌림
+            if (selectedItem.onGridPositionX >= 0 && selectedItem.onGridPositionY >= 0)
+            {
+                Vector2Int originalPosition = new Vector2Int(selectedItem.onGridPositionX, selectedItem.onGridPositionY);
+                selectedItemGrid.PlaceItem(selectedItem, originalPosition.x, originalPosition.y, ref overlapItem);
+                Vector2 position = selectedItemGrid.CalculatePositionOnGrid(selectedItem, originalPosition.x, originalPosition.y);
+                selectedItem.GetComponent<RectTransform>().localPosition = position;
+            }
+
+            selectedItem = null;
+            isDragging = false;
+            isHolding = false;
+        }
+
+        // 그리드 내 위치 확인
+        if (IsPositionWithinGrid(gridPosition))
+        {
+            InventoryItem touchedItem = selectedItemGrid.GetItem(gridPosition.x, gridPosition.y);
+
+            if (touchedItem != null)
+            {
+                // WeaponInfo UI 업데이트
+                HandleItemSelection(touchedItem);
+
+                // 선택된 아이템의 RectTransform 확인
+                RectTransform itemRect = touchedItem.GetComponent<RectTransform>();
+                if (itemRect != null)
+                {
+                    // 터치 위치가 아이템 내부인지 확인
+                    if (RectTransformUtility.RectangleContainsScreenPoint(itemRect, touchPos))
+                    {
+                        // 홀드 체크 시작을 위한 상태 설정
+                        holdStartTime = Time.time;
+                        holdStartPosition = touchPos;
+                        StartCoroutine(CheckForHold());
+                    }
+                }
+            }
+        }
+        else
+        {
+            // 그리드 외부 터치 처리
+            if (inventoryHighlight != null)
+            {
+                inventoryHighlight.Show(false);
+            }
         }
     }
-
-    holdStartTime = Time.time;
-    holdStartPosition = touchPos;
-    StartCoroutine(CheckForHold());
-}
     private void HandleItemSelection(InventoryItem item)
-{
-    if (item != null && weaponInfoUI != null)
     {
-        weaponInfoUI.UpdateWeaponInfo(item.weaponData);
+        if (item == null) return;
+
+        if (weaponInfoUI != null)
+        {
+            weaponInfoUI.UpdateWeaponInfo(item.weaponData);
+        }
+
+        // 하이라이트 업데이트
+        if (inventoryHighlight != null)
+        {
+            inventoryHighlight.Show(true);
+            inventoryHighlight.SetSize(item);
+            inventoryHighlight.SetPosition(selectedItemGrid, item);
+        }
     }
-}
     private IEnumerator CheckForHold()
     {
         float startTime = Time.realtimeSinceStartup;
         bool holdChecking = true;
-
-        
         Vector2 rawTouchPos = holdStartPosition;
         InventoryItem touchedItem = null;
 
-        
-        if (selectedItem != null)
+        // 현재 터치한 위치의 그리드 좌표 계산
+        Vector2Int initialGridPosition = GetTileGridPosition(holdStartPosition);
+
+        // 그리드 내의 아이템 확인
+        if (IsPositionWithinGrid(initialGridPosition))
         {
-            RectTransform itemRect = selectedItem.GetComponent<RectTransform>();
-            
-            if (RectTransformUtility.RectangleContainsScreenPoint(itemRect, rawTouchPos))
+            touchedItem = selectedItemGrid.GetItem(initialGridPosition.x, initialGridPosition.y);
+            if (touchedItem != null)
             {
-                touchedItem = selectedItem;
-                Debug.Log("Touched spawned item");
+                Debug.Log($"Found item at grid position: ({initialGridPosition.x}, {initialGridPosition.y})");
             }
         }
 
-        
+        // 터치한 아이템이 없다면 종료
         if (touchedItem == null)
         {
-            Vector2Int initialGridPosition = GetTileGridPosition(holdStartPosition);
-            if (IsPositionWithinGrid(initialGridPosition))
-            {
-                touchedItem = selectedItemGrid.GetItem(initialGridPosition.x, initialGridPosition.y);
-                Debug.Log($"Checking grid slot at: ({initialGridPosition.x}, {initialGridPosition.y})");
-            }
+            Debug.Log("No item found at touch position");
+            yield break;
         }
 
         while (holdChecking && touchPress.IsPressed())
@@ -277,54 +318,79 @@ public class InventoryController : MonoBehaviour
             Vector2 currentPos = touchPosition.ReadValue<Vector2>();
             float moveDistance = Vector2.Distance(holdStartPosition, currentPos);
 
-            //Debug.Log($"Elapsed: {elapsedTime}, HOLD_THRESHOLD: {HOLD_THRESHOLD}, touchedItem: {touchedItem != null}");
-
+            // 드래그 시작 조건 체크
             if (moveDistance > HOLD_MOVE_THRESHOLD)
             {
-                if (touchedItem != null && !isDragging)
-                {
-                    if (touchedItem == selectedItem)
-                    {
-                        
-                        isDragging = true;
-                        isHolding = true;
-                        rectTransform = touchedItem.GetComponent<RectTransform>();
-                    }
-                    else
-                    {
-                        
-                        PickUpItem(new Vector2Int(touchedItem.onGridPositionX, touchedItem.onGridPositionY));
-                    }
-                }
+                Debug.Log("Move threshold reached - starting drag");
+                StartItemInteraction(touchedItem, currentPos);
                 holdChecking = false;
                 break;
             }
 
-            if (elapsedTime >= HOLD_THRESHOLD && touchedItem != null)
+            // 홀드 시간 조건 체크
+            if (elapsedTime >= HOLD_THRESHOLD)
             {
-                Debug.Log("Hold threshold reached!");
-                selectedItem = touchedItem;
-                rectTransform = selectedItem.GetComponent<RectTransform>();
-
-                isDragging = true;
-                isHolding = true;
-
-                
-                if (touchedItem.onGridPositionX >= 0 && touchedItem.onGridPositionY >= 0)
-                {
-                    selectedItemGrid.PickUpItem(touchedItem.onGridPositionX, touchedItem.onGridPositionY);
-                }
-
-                
-                Vector2 liftedPosition = touchPosition.ReadValue<Vector2>() + Vector2.up * ITEM_LIFT_OFFSET;
-                rectTransform.position = liftedPosition;
-
-                Debug.Log("Hold successful!");
+                Debug.Log("Hold threshold reached - picking up item");
+                StartItemInteraction(touchedItem, currentPos);
                 holdChecking = false;
                 break;
             }
+
             yield return new WaitForEndOfFrame();
         }
+    }
+    private void StartItemInteraction(InventoryItem item, Vector2 currentPos)
+    {
+        if (item == null) return;
+
+        // 이전 선택 상태 정리
+        if (selectedItem != null && selectedItem != item)
+        {
+            ClearPreviousSelection();
+        }
+
+        // 새 아이템 선택 및 상태 설정
+        selectedItem = item;
+        rectTransform = selectedItem.GetComponent<RectTransform>();
+        isDragging = true;
+        isHolding = true;
+
+        // 그리드에서 아이템 제거
+        if (item.onGridPositionX >= 0 && item.onGridPositionY >= 0)
+        {
+            selectedItemGrid.PickUpItem(item.onGridPositionX, item.onGridPositionY);
+        }
+
+        // 아이템 위치 업데이트
+        Vector2 liftedPosition = currentPos + Vector2.up * ITEM_LIFT_OFFSET;
+        rectTransform.position = liftedPosition;
+
+        // 무기 정보 UI 업데이트
+        if (weaponInfoUI != null)
+        {
+            weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
+        }
+    }
+    private void ClearPreviousSelection()
+    {
+        if (selectedItem != null)
+        {
+            // 이전 선택된 아이템이 유효한 그리드 위치를 가지고 있다면
+            if (selectedItem.onGridPositionX >= 0 && selectedItem.onGridPositionY >= 0)
+            {
+                // 원래 위치로 되돌림
+                Vector2Int originalPosition = new Vector2Int(selectedItem.onGridPositionX, selectedItem.onGridPositionY);
+                selectedItemGrid.PlaceItem(selectedItem, originalPosition.x, originalPosition.y, ref overlapItem);
+                Vector2 position = selectedItemGrid.CalculatePositionOnGrid(selectedItem, originalPosition.x, originalPosition.y);
+                selectedItem.GetComponent<RectTransform>().localPosition = position;
+            }
+        }
+
+        // 상태 초기화
+        selectedItem = null;
+        isDragging = false;
+        isHolding = false;
+        rectTransform = null;
     }
     private void OnTouchEnded(InputAction.CallbackContext context)
     {
@@ -423,8 +489,11 @@ public class InventoryController : MonoBehaviour
         Vector2 touchPos = touchPosition.ReadValue<Vector2>();
         Vector2Int positionOnGrid = GetTileGridPosition(touchPos);
 
+        Debug.Log($"HandleHighlight - Touch Position: {touchPos}, Grid Position: {positionOnGrid}");
+
         if (!IsPositionWithinGrid(positionOnGrid))
         {
+            Debug.Log($"Position {positionOnGrid} is not within grid bounds: {selectedItemGrid.Width}x{selectedItemGrid.Height}");
             inventoryHighlight?.Show(false);
             return;
         }
@@ -432,8 +501,11 @@ public class InventoryController : MonoBehaviour
         if (selectedItem == null)
         {
             InventoryItem itemToHighlight = selectedItemGrid.GetItem(positionOnGrid.x, positionOnGrid.y);
+            Debug.Log($"Attempting to highlight item at ({positionOnGrid.x}, {positionOnGrid.y}): {(itemToHighlight != null ? "Found" : "Not found")}");
+
             if (itemToHighlight != null)
             {
+                Debug.Log($"Highlighting item at original position: ({itemToHighlight.onGridPositionX}, {itemToHighlight.onGridPositionY})");
                 inventoryHighlight?.Show(true);
                 inventoryHighlight?.SetSize(itemToHighlight);
                 inventoryHighlight?.SetPosition(selectedItemGrid, itemToHighlight,
@@ -448,6 +520,8 @@ public class InventoryController : MonoBehaviour
         {
             bool isValidPosition = selectedItemGrid.BoundryCheck(positionOnGrid.x, positionOnGrid.y,
                 selectedItem.WIDTH, selectedItem.HEIGHT);
+
+            Debug.Log($"Selected item position check: {isValidPosition} at ({positionOnGrid.x}, {positionOnGrid.y})");
 
             if (isValidPosition)
             {
@@ -631,84 +705,99 @@ public class InventoryController : MonoBehaviour
             rectTransform.localPosition = uiPosition;
         }
     }
-    private void PickUpItem(Vector2Int tileGridPosition)
-    {
-        if (selectedItem != null)
-        {
-            // 이미 선택된 아이템이 있다면 원래 위치로 돌려놓기
-            Vector2Int originalPosition = new Vector2Int(selectedItem.onGridPositionX, selectedItem.onGridPositionY);
-            selectedItemGrid.PlaceItem(selectedItem, originalPosition.x, originalPosition.y, ref overlapItem);
-            Vector2 position = selectedItemGrid.CalculatePositionOnGrid(selectedItem, originalPosition.x, originalPosition.y);
-            selectedItem.GetComponent<RectTransform>().localPosition = position;
-            selectedItem = null;
-            isDragging = false;
-            isHolding = false;
-        }
+    //private void PickUpItem(Vector2Int tileGridPosition)
+    //{
+    //    if (selectedItem != null)
+    //    {
+    //        // 이미 선택된 아이템이 있다면 원래 위치로 돌려놓기
+    //        Vector2Int originalPosition = new Vector2Int(selectedItem.onGridPositionX, selectedItem.onGridPositionY);
+    //        selectedItemGrid.PlaceItem(selectedItem, originalPosition.x, originalPosition.y, ref overlapItem);
+    //        Vector2 position = selectedItemGrid.CalculatePositionOnGrid(selectedItem, originalPosition.x, originalPosition.y);
+    //        selectedItem.GetComponent<RectTransform>().localPosition = position;
+    //        selectedItem = null;
+    //        isDragging = false;
+    //        isHolding = false;
+    //    }
 
-        InventoryItem itemToPickup = selectedItemGrid.GetItem(tileGridPosition.x, tileGridPosition.y);
-        if (itemToPickup != null)
-        {
-            selectedItem = selectedItemGrid.PickUpItem(itemToPickup.onGridPositionX, itemToPickup.onGridPositionY);
-            if (selectedItem != null)
-            {
-                rectTransform = selectedItem.GetComponent<RectTransform>();
-                isDragging = true;
-                isHolding = true;
+    //    InventoryItem itemToPickup = selectedItemGrid.GetItem(tileGridPosition.x, tileGridPosition.y);
+    //    if (itemToPickup != null)
+    //    {
+    //        selectedItem = selectedItemGrid.PickUpItem(itemToPickup.onGridPositionX, itemToPickup.onGridPositionY);
+    //        if (selectedItem != null)
+    //        {
+    //            rectTransform = selectedItem.GetComponent<RectTransform>();
+    //            isDragging = true;
+    //            isHolding = true;
 
-                Vector2 currentPos = touchPosition.ReadValue<Vector2>();
-                Vector2 liftedPosition = currentPos + Vector2.up * ITEM_LIFT_OFFSET;
-                rectTransform.position = liftedPosition;
+    //            Vector2 currentPos = touchPosition.ReadValue<Vector2>();
+    //            Vector2 liftedPosition = currentPos + Vector2.up * ITEM_LIFT_OFFSET;
+    //            rectTransform.position = liftedPosition;
 
-                if (weaponInfoUI != null)
-                {
-                    weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
-                }
-            }
-        }
-    }
+    //            if (weaponInfoUI != null)
+    //            {
+    //                weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
+    //            }
+    //        }
+    //    }
+    //}
     private void PutDownItem(Vector2Int tileGridPosition)
     {
         if (selectedItem == null) return;
 
-        Vector2Int originalPosition = new Vector2Int(selectedItem.onGridPositionX, selectedItem.onGridPositionY);
-        bool complete = selectedItemGrid.PlaceItem(selectedItem, tileGridPosition.x, tileGridPosition.y, ref overlapItem);
+        // 현재 선택된 아이템과 그 위치 저장
+        InventoryItem itemToPlace = selectedItem;
+        Vector2Int originalPosition = new Vector2Int(itemToPlace.onGridPositionX, itemToPlace.onGridPositionY);
+
+        // 먼저 선택 상태와 드래그 상태를 초기화
+        selectedItem = null;
+        isDragging = false;
+        isHolding = false;
+
+        // 아이템 배치 시도
+        bool complete = selectedItemGrid.PlaceItem(itemToPlace, tileGridPosition.x, tileGridPosition.y, ref overlapItem);
 
         if (complete)
         {
             if (overlapItem != null)
             {
-                // 겹치는 아이템이 있을 경우, 원래 위치로 돌아감
-                selectedItemGrid.PlaceItem(selectedItem, originalPosition.x, originalPosition.y, ref overlapItem);
-                Vector2 position = selectedItemGrid.CalculatePositionOnGrid(selectedItem, originalPosition.x, originalPosition.y);
-                selectedItem.GetComponent<RectTransform>().localPosition = position;
+                // 겹치는 아이템이 있는 경우, 원래 위치로 되돌림
+                selectedItemGrid.PlaceItem(itemToPlace, originalPosition.x, originalPosition.y, ref overlapItem);
+                Vector2 position = selectedItemGrid.CalculatePositionOnGrid(itemToPlace, originalPosition.x, originalPosition.y);
+                itemToPlace.GetComponent<RectTransform>().localPosition = position;
             }
 
-            isDragging = false;
-            isHolding = false;
-
+            // 하이라이트 업데이트
             if (inventoryHighlight != null)
             {
                 inventoryHighlight.Show(true);
-                inventoryHighlight.SetSize(selectedItem);
-                inventoryHighlight.SetPosition(selectedItemGrid, selectedItem);
+                inventoryHighlight.SetSize(itemToPlace);
+                inventoryHighlight.SetPosition(selectedItemGrid, itemToPlace);
             }
         }
         else
         {
-            // 배치 실패시 원래 위치로 돌아감
-            selectedItemGrid.PlaceItem(selectedItem, originalPosition.x, originalPosition.y, ref overlapItem);
-            Vector2 position = selectedItemGrid.CalculatePositionOnGrid(selectedItem, originalPosition.x, originalPosition.y);
-            selectedItem.GetComponent<RectTransform>().localPosition = position;
-            isDragging = false;
-            isHolding = false;
+            // 배치 실패 시 원래 위치로 되돌림
+            selectedItemGrid.PlaceItem(itemToPlace, originalPosition.x, originalPosition.y, ref overlapItem);
+            Vector2 position = selectedItemGrid.CalculatePositionOnGrid(itemToPlace, originalPosition.x, originalPosition.y);
+            itemToPlace.GetComponent<RectTransform>().localPosition = position;
+
+            // 실패 시에도 하이라이트 업데이트
+            if (inventoryHighlight != null)
+            {
+                inventoryHighlight.Show(true);
+                inventoryHighlight.SetSize(itemToPlace);
+                inventoryHighlight.SetPosition(selectedItemGrid, itemToPlace, originalPosition.x, originalPosition.y);
+            }
         }
 
-        if (weaponInfoUI != null && selectedItem != null)
+        // 무기 정보 UI 업데이트 - 마지막으로 상호작용한 아이템 정보를 표시
+        if (weaponInfoUI != null)
         {
-            weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
+            weaponInfoUI.UpdateWeaponInfo(itemToPlace.weaponData);
         }
 
-        selectedItem = null; // 아이템 선택 해제
+        // 이벤트 통지가 필요한 경우 여기서 처리
+         selectedItemGrid.NotifyGridChanged(); // 필요한 경우 주석 해제
     }
     private void CleanupInvalidItems()
     {

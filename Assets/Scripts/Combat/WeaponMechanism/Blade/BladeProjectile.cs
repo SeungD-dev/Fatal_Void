@@ -34,10 +34,10 @@ public class BladeProjectile : BaseProjectile
     {
         float distanceFromStart = Vector2.Distance(startPosition, transform.position);
 
-        // 매 프레임마다 값들을 확인
-        Debug.Log($"Update - Current Position: {transform.position}, StartPosition: {startPosition}, " +
-                  $"Distance: {distanceFromStart}, MaxDistance: {maxTravelDistance}, " +
-                  $"Speed: {speed}, Direction: {direction}");
+        //// 매 프레임마다 값들을 확인
+        //Debug.Log($"Update - Current Position: {transform.position}, StartPosition: {startPosition}, " +
+        //          $"Distance: {distanceFromStart}, MaxDistance: {maxTravelDistance}, " +
+        //          $"Speed: {speed}, Direction: {direction}");
 
         // 투사체 이동
         transform.Translate(direction * speed * Time.deltaTime, Space.World);

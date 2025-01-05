@@ -53,7 +53,7 @@ public class BulletDestroyVFX : MonoBehaviour, IPooledObject
             isPlaying = false;
             currentTime = 0f;
             transform.localScale = originalScale;
-            Debug.Log($"Returning to pool with tag: {poolTag}");
+            //Debug.Log($"Returning to pool with tag: {poolTag}");
             ObjectPool.Instance.ReturnToPool(poolTag, gameObject);
         }
         else
