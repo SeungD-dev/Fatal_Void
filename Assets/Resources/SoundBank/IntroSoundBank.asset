@@ -10,6 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 55f99968946de074083ba901218db678, type: 3}
-  m_Name: SoundBank
+  m_Name: IntroSoundBank
   m_EditorClassIdentifier: 
-  sounds: []
+  sounds:
+  - name: Button_sfx
+    clip: {fileID: 8300000, guid: c2af9b728342c6448880478c69057393, type: 3}
+    type: 1
+    priority: 0
+    volume: 0.5
+    pitchVariance: 0

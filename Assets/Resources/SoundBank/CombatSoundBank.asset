@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55f99968946de074083ba901218db678, type: 3}
+  m_Name: CombatSoundBank
+  m_EditorClassIdentifier: 
+  sounds:
+  - name: BGM_Battle
+    clip: {fileID: 8300000, guid: 66bf650021f3fe84aaccc9641bd11c85, type: 3}
+    type: 0
+    priority: 1
+    volume: 0.25
+    pitchVariance: 0
+  - name: Burster_atk
+    clip: {fileID: 8300000, guid: 3131a7caf84e8e04f9e0a5b73c5d9db6, type: 3}
+    type: 1
+    priority: 0
+    volume: 0.5
+    pitchVariance: 0
+  - name: Machinegun_atk
+    clip: {fileID: 8300000, guid: f4f6426276c5b91498fe5ebeafddebcc, type: 3}
+    type: 1
+    priority: 0
+    volume: 0.5
+    pitchVariance: 0
+  - name: Button_sfx
+    clip: {fileID: 8300000, guid: c2af9b728342c6448880478c69057393, type: 3}
+    type: 1
+    priority: 1
+    volume: 0.5
+    pitchVariance: 0
+  - name: ItemDrop_sfx
+    clip: {fileID: 8300000, guid: 18da15f4ad3faef47bd9de65f17d362c, type: 3}
+    type: 1
+    priority: 1
+    volume: 0.5
+    pitchVariance: 0
+  - name: ItemLift_sfx
+    clip: {fileID: 8300000, guid: c495dc740a31ede4d9848a2871c4306b, type: 3}
+    type: 1
+    priority: 1
+    volume: 0.5
+    pitchVariance: 0
+  - name: LevelUp_sfx
+    clip: {fileID: 8300000, guid: 37c048e157fc8734781e0d9743d906ad, type: 3}
+    type: 1
+    priority: 1
+    volume: 0.5
+    pitchVariance: 0
+  - name: ItemLift_sfx
+    clip: {fileID: 8300000, guid: c495dc740a31ede4d9848a2871c4306b, type: 3}
+    type: 1
+    priority: 1
+    volume: 0.5
+    pitchVariance: 0
+  - name: ItemLift_sfx
+    clip: {fileID: 8300000, guid: c495dc740a31ede4d9848a2871c4306b, type: 3}
+    type: 1
+    priority: 1
+    volume: 0.5
+    pitchVariance: 0

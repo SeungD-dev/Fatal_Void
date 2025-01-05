@@ -40,6 +40,9 @@ public class GameManager : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
             InitializeGameScenes();
+
+            // StartScene(MainMenu)에서 시작하므로 IntroSoundBank 로드
+            SoundManager.Instance.LoadSoundBank("IntroSoundBank");
         }
         else
         {
@@ -51,10 +54,10 @@ public class GameManager : MonoBehaviour
     {
         gameScene = new Dictionary<GameState, int>()
         {
-            { GameState.MainMenu, 0 },
-            { GameState.Playing, 1 },
-            { GameState.Paused, 2 },
-            { GameState.GameOver, 3 }
+            { GameState.MainMenu, 0 },   // StartScene
+            { GameState.Playing, 1 },     // CombatScene
+            { GameState.Paused, 1 },      // 같은 CombatScene에서 Pause
+            { GameState.GameOver, 1 }     // 같은 CombatScene에서 GameOver
         };
     }
 
@@ -63,7 +66,6 @@ public class GameManager : MonoBehaviour
         playerStats = stats;
         shopController = shop;
         combatController = combat;
-
         if (playerStats != null)
         {
             playerStats.InitializeStats();
@@ -81,6 +83,14 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
+        // CombatScene으로 전환 시 사운드 설정
+        SoundManager.Instance.LoadSoundBank("CombatSoundBank");
+        if (!SoundManager.Instance.IsBGMPlaying("BGM_Battle"))
+        {
+        SoundManager.Instance.PlaySound("BGM_Battle", 1f, true);
+
+        }
+
         SetGameState(GameState.Playing);
         SceneManager.LoadScene(gameScene[GameState.Playing], LoadSceneMode.Single);
     }
@@ -94,11 +104,14 @@ public class GameManager : MonoBehaviour
 
             switch (newState)
             {
-                case GameState.Paused:
-                    Time.timeScale = 0f;
+                case GameState.MainMenu:
+                    Time.timeScale = 1f;
                     break;
                 case GameState.Playing:
                     Time.timeScale = 1f;
+                    break;
+                case GameState.Paused:
+                    Time.timeScale = 0f;
                     break;
                 case GameState.GameOver:
                     Time.timeScale = 0f;
