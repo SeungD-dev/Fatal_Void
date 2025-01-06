@@ -94,7 +94,7 @@ MonoBehaviour:
     forceFieldTickInterval: 0.5
   - damage: 45
     attackDelay: 2.8
-    projectileSpeed: 3.5
+    projectileSpeed: 3.75
     knockback: 1.5
     projectileSize: 3
     range: 100
@@ -110,9 +110,9 @@ MonoBehaviour:
     forceFieldTickInterval: 0.5
   - damage: 60
     attackDelay: 2.6
-    projectileSpeed: 3.5
+    projectileSpeed: 4
     knockback: 1.5
-    projectileSize: 3
+    projectileSize: 3.5
     range: 100
     canPenetrate: 1
     maxPenetrationCount: 0
@@ -126,9 +126,9 @@ MonoBehaviour:
     forceFieldTickInterval: 0.5
   - damage: 75
     attackDelay: 2.4
-    projectileSpeed: 3.5
+    projectileSpeed: 4.5
     knockback: 1.5
-    projectileSize: 3
+    projectileSize: 4
     range: 100
     canPenetrate: 1
     maxPenetrationCount: 0

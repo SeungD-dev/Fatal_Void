@@ -77,8 +77,8 @@ MonoBehaviour:
   sellPriceRatio: 0.5
   tierStats:
   - damage: 2
-    attackDelay: 0.25
-    projectileSpeed: 3.5
+    attackDelay: 0.2
+    projectileSpeed: 4.5
     knockback: 0.8
     projectileSize: 2
     range: 5
@@ -93,24 +93,8 @@ MonoBehaviour:
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
   - damage: 3
-    attackDelay: 0.22
-    projectileSpeed: 3.5
-    knockback: 0.8
-    projectileSize: 2
-    range: 5
-    canPenetrate: 0
-    maxPenetrationCount: 0
-    penetrationDamageDecay: 0
-    projectileCount: 3
-    spreadAngle: 45
-    attackRadius: 2
-    groundEffectDuration: 3
-    damageTickInterval: 0.5
-    forceFieldRadius: 3
-    forceFieldTickInterval: 0.5
-  - damage: 4
-    attackDelay: 0.2
-    projectileSpeed: 3.5
+    attackDelay: 0.18
+    projectileSpeed: 4.5
     knockback: 0.8
     projectileSize: 2
     range: 5
@@ -125,8 +109,24 @@ MonoBehaviour:
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
   - damage: 5
-    attackDelay: 0.1
-    projectileSpeed: 3.5
+    attackDelay: 0.16
+    projectileSpeed: 4.5
+    knockback: 0.8
+    projectileSize: 2
+    range: 5
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0
+    projectileCount: 3
+    spreadAngle: 45
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
+  - damage: 6.5
+    attackDelay: 0.14
+    projectileSpeed: 4.5
     knockback: 0.8
     projectileSize: 2
     range: 5
