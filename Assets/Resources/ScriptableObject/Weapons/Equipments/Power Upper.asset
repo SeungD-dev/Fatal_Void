@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: 8864161598196001867, guid: 23d223e2023842d40aadad807faf21ff, type: 3}
   weaponType: 10
   weaponName: Power Upper
-  weaponDescription: 
+  weaponDescription: Attack Damage Increase
   inventoryWeaponIcon: {fileID: 8864161598196001867, guid: 23d223e2023842d40aadad807faf21ff, type: 3}
   equipmentType: 1
   equipmentTierStats:

@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: -529716591143091059, guid: e7e400002d213bd449a03fa615eb7f88, type: 3}
   weaponType: 10
   weaponName: Regen Upper
-  weaponDescription: 
+  weaponDescription: HP Regen Increase
   inventoryWeaponIcon: {fileID: -529716591143091059, guid: e7e400002d213bd449a03fa615eb7f88, type: 3}
   equipmentType: 7
   equipmentTierStats:

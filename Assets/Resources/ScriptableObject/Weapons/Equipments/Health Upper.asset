@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: 3736843785630316478, guid: bc3a286633aa14d489ab75fc0ac2901d, type: 3}
   weaponType: 10
   weaponName: Health Upper
-  weaponDescription: 
+  weaponDescription: HP Increase
   inventoryWeaponIcon: {fileID: 3736843785630316478, guid: bc3a286633aa14d489ab75fc0ac2901d, type: 3}
   equipmentType: 3
   equipmentTierStats:

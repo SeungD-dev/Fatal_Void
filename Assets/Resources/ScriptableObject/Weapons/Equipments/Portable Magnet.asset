@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: 5195588404231299207, guid: c9e5532044d88984cb7721e4022b7870, type: 3}
   weaponType: 10
   weaponName: Portable Magnet
-  weaponDescription: 
+  weaponDescription: Magnet effect
   inventoryWeaponIcon: {fileID: 5195588404231299207, guid: c9e5532044d88984cb7721e4022b7870, type: 3}
   equipmentType: 5
   equipmentTierStats:

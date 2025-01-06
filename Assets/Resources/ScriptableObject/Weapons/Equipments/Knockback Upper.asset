@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: -8253279436820264910, guid: 27700b74eb8ae254fbe5a467ab7f7aac, type: 3}
   weaponType: 10
   weaponName: Knockback Upper
-  weaponDescription: 
+  weaponDescription: Knockback Increase
   inventoryWeaponIcon: {fileID: -8253279436820264910, guid: 27700b74eb8ae254fbe5a467ab7f7aac, type: 3}
   equipmentType: 6
   equipmentTierStats:

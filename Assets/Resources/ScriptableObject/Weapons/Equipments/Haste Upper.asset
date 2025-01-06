@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: 1282047131859422604, guid: c10b6198892845749a6297bd0eb2df84, type: 3}
   weaponType: 10
   weaponName: Haste Upper
-  weaponDescription: 
+  weaponDescription: Cooldown Decrease
   inventoryWeaponIcon: {fileID: 1282047131859422604, guid: c10b6198892845749a6297bd0eb2df84, type: 3}
   equipmentType: 4
   equipmentTierStats:

@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: 1738988352296312530, guid: 9414b5a47128c3c46b5c0767ecefef79, type: 3}
   weaponType: 10
   weaponName: Speed Upper
-  weaponDescription: 
+  weaponDescription: Move Speed Increase
   inventoryWeaponIcon: {fileID: 1738988352296312530, guid: 9414b5a47128c3c46b5c0767ecefef79, type: 3}
   equipmentType: 2
   equipmentTierStats:
