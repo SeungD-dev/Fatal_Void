@@ -55,8 +55,8 @@ MonoBehaviour:
     priority: 1
     volume: 0.5
     pitchVariance: 0
-  - name: ItemLift_sfx
-    clip: {fileID: 8300000, guid: c495dc740a31ede4d9848a2871c4306b, type: 3}
+  - name: Slash_sfx
+    clip: {fileID: 8300000, guid: a0c53a66d6382ab4894739f31f11d945, type: 3}
     type: 1
     priority: 1
     volume: 0.5

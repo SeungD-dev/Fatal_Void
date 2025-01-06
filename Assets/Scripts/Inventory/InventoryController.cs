@@ -979,4 +979,23 @@ public class InventoryController : MonoBehaviour
         }
     }
 
+    public void OpenInventory()
+    {
+        inventoryUI.SetActive(true);
+        if (playerControlUI != null && playerStatsUI != null)
+        {
+            playerControlUI.SetActive(false);
+            playerStatsUI.SetActive(false);
+        }
+    }
+
+    public void OpenShop()
+    {
+        inventoryUI.SetActive(false);
+        var shopController = GameManager.Instance.ShopController;
+        if (shopController != null)
+        {
+            shopController.OpenShop();
+        }
+    }
 }

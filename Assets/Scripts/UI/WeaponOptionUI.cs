@@ -12,10 +12,14 @@ public class WeaponOptionUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI weaponLevelText;
     [SerializeField] private Button myPurchaseButton;
     [SerializeField] private TextMeshProUGUI priceText;
-   
+    [SerializeField] private TextMeshProUGUI weaponTierText; // 티어 텍스트 추가
+
     private ShopController shopUI;
     private PlayerStats playerStats;
     private WeaponData weaponData;
+    private bool isPurchased = false;
+
+    public WeaponData WeaponData => weaponData;
 
     private void Start()
     {
@@ -26,6 +30,7 @@ public class WeaponOptionUI : MonoBehaviour
     {
         weaponData = weapon;
         shopUI = shop;
+        isPurchased = false;
         SetupUI();
         SetupButtons();
         UpdatePurchaseButtonState();
@@ -38,11 +43,20 @@ public class WeaponOptionUI : MonoBehaviour
         weaponNameText.text = weaponData.weaponName;
         weaponImage.sprite = weaponData.weaponIcon;
         descriptionText.text = weaponData.weaponDescription;
+
         Color tierColor = weaponData.GetTierColor();
-        weaponImage.color = tierColor;  // 무기 아이콘에 색상 적용
+        weaponImage.color = tierColor;
         weaponImage.sprite = weaponData.weaponIcon;
-        weaponImage.preserveAspect = true;  // 이미지 비율 유지 설정
-        priceText.text = weaponData.price == 0 ? "FREE" : $"{weaponData.price} Coins";     
+        weaponImage.preserveAspect = true;
+
+        priceText.text = weaponData.price == 0 ? "FREE" : $"{weaponData.price} Coins";
+
+        // 티어 텍스트 설정
+        if (weaponTierText != null)
+        {
+            weaponTierText.text = $"Tier {weaponData.currentTier}";
+            weaponTierText.color = tierColor; // 티어 색상 적용
+        }
     }
 
     private void SetupButtons()
@@ -51,37 +65,49 @@ public class WeaponOptionUI : MonoBehaviour
         {
             myPurchaseButton.onClick.RemoveAllListeners();
             myPurchaseButton.onClick.AddListener(OnPurchaseClicked);
-        }    
+        }
     }
 
     private void UpdatePurchaseButtonState()
     {
         if (myPurchaseButton != null && playerStats != null && weaponData != null)
         {
-            
-            bool canAfford = weaponData.price == 0 || playerStats.CoinCount >= weaponData.price;
+            bool canAfford = (weaponData.price == 0 || playerStats.CoinCount >= weaponData.price) && !isPurchased;
             myPurchaseButton.interactable = canAfford;
-
-            Color buttonColor = canAfford ? Color.white : Color.gray;
+            Color buttonColor = isPurchased ? Color.gray : (canAfford ? Color.white : Color.gray);
             myPurchaseButton.GetComponent<Image>().color = buttonColor;
         }
     }
 
     private void OnPurchaseClicked()
     {
-        if (weaponData != null && shopUI != null && playerStats != null)
+        if (weaponData != null && shopUI != null && playerStats != null && !isPurchased)
         {
-            
             if (weaponData.price == 0 || playerStats.CoinCount >= weaponData.price)
             {
                 if (weaponData.price > 0)
                 {
                     playerStats.SpendCoins(weaponData.price);
                 }
+                isPurchased = true;
+                UpdatePurchaseButtonState();
                 shopUI.PurchaseWeapon(weaponData);
             }
         }
     }
+
+    public void SetPurchased(bool purchased)
+    {
+        isPurchased = purchased;
+        UpdatePurchaseButtonState();
+    }
+
+    public void UpdateUI()
+    {
+        SetupUI();
+        UpdatePurchaseButtonState();
+    }
+
     private void OnEnable()
     {
         if (playerStats != null)
@@ -101,5 +127,5 @@ public class WeaponOptionUI : MonoBehaviour
     private void OnCoinCountChanged(int newCoinCount)
     {
         UpdatePurchaseButtonState();
-    } 
+    }
 }
