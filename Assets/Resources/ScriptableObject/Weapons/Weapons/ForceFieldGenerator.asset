@@ -70,10 +70,10 @@ MonoBehaviour:
     regenValue: 0
     regenHasteIncrease: 0
   currentTier: 1
-  tier1Price: 0
-  tier2Price: 0
-  tier3Price: 0
-  tier4Price: 0
+  tier1Price: 25
+  tier2Price: 50
+  tier3Price: 100
+  tier4Price: 200
   sellPriceRatio: 0.5
   tierStats:
   - damage: 6
@@ -111,7 +111,7 @@ MonoBehaviour:
   - damage: 18
     attackDelay: 0.5
     projectileSpeed: 10
-    knockback: 1
+    knockback: 1.5
     projectileSize: 0
     range: 0
     canPenetrate: 0
@@ -127,7 +127,7 @@ MonoBehaviour:
   - damage: 24
     attackDelay: 0.5
     projectileSpeed: 10
-    knockback: 1
+    knockback: 2
     projectileSize: 0
     range: 0
     canPenetrate: 0
@@ -138,7 +138,7 @@ MonoBehaviour:
     attackRadius: 2
     groundEffectDuration: 3
     damageTickInterval: 0.5
-    forceFieldRadius: 4
+    forceFieldRadius: 3.5
     forceFieldTickInterval: 0.5
   projectilePrefab: {fileID: 4589099209072863335, guid: 303cac38330921348b3eb8bec063a20a, type: 3}
   attackRadius: 2
