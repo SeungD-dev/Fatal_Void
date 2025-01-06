@@ -1,5 +1,6 @@
 using UnityEngine;
 
+
 public class CollectibleItem : MonoBehaviour, IPooledObject
 {
     [Header("Movement Settings")]
@@ -17,6 +18,11 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
     private PlayerStats playerStats;
     private bool isMagnetable = true;
     private int goldAmount = 0;
+    private bool isInitialized = false;
+
+    private CombatController combatController;
+    private bool isCollected = false;
+
 
     private void Awake()
     {
@@ -30,6 +36,43 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         currentMagnetDistance = basemagnetDistance;
     }
 
+    private void OnEnable()
+    {
+        if (!isInitialized)
+        {
+            Initialize();
+        }
+    }
+
+    private void Initialize()
+    {
+        if (isInitialized) return;
+
+        FindPlayer();
+        InitializePlayerStats();
+
+        if (GameManager.Instance?.CombatController != null)
+        {
+            combatController = GameManager.Instance.CombatController;
+            combatController.RegisterCollectible(this);
+        }
+
+        if (playerStats != null)
+        {
+            playerStats.OnMagnetEffectChanged += HandleMagnetEffectChanged;
+        }
+
+        isInitialized = true;
+    }
+
+    private void RegisterToManager()
+    {
+        if (GameManager.Instance?.CombatController != null)
+        {
+            GameManager.Instance.CombatController.RegisterCollectible(this);
+        }
+    }
+
     public void Initialize(AdditionalDrop dropInfo)
     {
         itemType = dropInfo.itemType;
@@ -41,15 +84,15 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         goldAmount = amount;
     }
 
-    private void Start()
+    private void FindPlayer()
     {
-        GameManager.Instance?.CombatController?.RegisterCollectible(this);
-        FindPlayer();
-        InitializePlayerStats();
-
-        if (playerStats != null)
+        if (playerTransform == null)
         {
-            playerStats.OnMagnetEffectChanged += HandleMagnetEffectChanged;
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                playerTransform = player.transform;
+            }
         }
     }
 
@@ -72,6 +115,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         currentMagnetSpeed = magnetSpeed;
         currentMagnetDistance = basemagnetDistance;
         goldAmount = 0;
+        isInitialized = false;
 
         if (rb != null)
         {
@@ -79,21 +123,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             rb.angularVelocity = 0f;
         }
 
-        GameManager.Instance?.CombatController?.RegisterCollectible(this);
-        InitializePlayerStats();
-    }
-
-    private void FindPlayer()
-    {
-        if (playerTransform == null)
-        {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                playerTransform = player.transform;
-                InitializePlayerStats();
-            }
-        }
+        Initialize();
     }
 
     private void UpdateMagnetDistance()
@@ -116,8 +146,8 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
         if (!isMagnetable) return;
 
-        if (isAutoMagneted || isPulledByMagnet ||
-            Vector2.Distance(transform.position, playerTransform.position) <= currentMagnetDistance)
+        float distance = Vector2.Distance(transform.position, playerTransform.position);
+        if (isAutoMagneted || isPulledByMagnet || distance <= currentMagnetDistance)
         {
             isBeingMagneted = true;
             Vector2 direction = (playerTransform.position - transform.position).normalized;
@@ -140,25 +170,36 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player") && GameManager.Instance?.CombatController != null)
+        if (!other.CompareTag("Player") || isCollected || combatController == null) return;
+
+        isCollected = true; // �ߺ� ȣ�� ����
+
+        // ���� ������ �����Ͽ� ����
+        var itemTypeToApply = itemType;
+        var goldAmountToApply = goldAmount;
+
+        // ���� ���� �� ȿ�� ����
+        combatController.UnregisterCollectible(this);
+        combatController.ApplyItemEffect(itemTypeToApply, goldAmountToApply);
+
+        if (rb != null)
         {
-            GameManager.Instance.CombatController.ApplyItemEffect(itemType, goldAmount);
-            GameManager.Instance.CombatController.UnregisterCollectible(this);
             rb.linearVelocity = Vector2.zero;
-            ObjectPool.Instance.ReturnToPool(itemType.ToString(), gameObject);
         }
+
+        ObjectPool.Instance.ReturnToPool(itemTypeToApply.ToString(), gameObject);
     }
+
 
     private void HandleMagnetEffectChanged(bool isActive)
     {
+        isAutoMagneted = isActive;
         if (isActive)
         {
-            isAutoMagneted = true;
             PullToPlayer(magnetSpeed * 2f);
         }
         else
         {
-            isAutoMagneted = false;
             isPulledByMagnet = false;
             if (rb != null)
             {
@@ -167,6 +208,19 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         }
     }
 
+    private void OnDisable()
+    {
+        isCollected = false;
+        if (combatController != null)
+        {
+            combatController.UnregisterCollectible(this);
+        }
+        if (playerStats != null)
+        {
+            playerStats.OnMagnetEffectChanged -= HandleMagnetEffectChanged;
+        }
+        isInitialized = false;
+    }
     private void OnDestroy()
     {
         if (playerStats != null)

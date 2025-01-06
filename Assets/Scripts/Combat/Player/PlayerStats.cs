@@ -74,7 +74,8 @@ public class PlayerStats : MonoBehaviour
     private float magnetEffectCooldown = 30f;
     private float lastMagnetEffectTime = -30f;  // 처음에 바로 사용할 수 있도록
 
-   
+    private bool isLevelingUp = false;
+    private ShopController cachedShopController;
 
 
     private bool isInitialized = false;
@@ -98,12 +99,15 @@ public class PlayerStats : MonoBehaviour
     public float PickupRange => pickupRange;
     public bool HasMagnetEffect => hasMagnetEffect;
     #endregion
-
+    private void Start()
+    {
+        cachedShopController = GameManager.Instance?.ShopController;
+    }
     public void InitializeStats()
     {
         if (isInitialized) return;
 
-        level = 0;
+        level = 0;  // 0으로 시작해서 자동으로 1이 되도록
         currentExp = 0;
         requiredExp = initialRequiredExp;
         killCount = 0;
@@ -111,10 +115,12 @@ public class PlayerStats : MonoBehaviour
         pickupRange = basePickupRange;
 
         UpdateStats();
-        LevelUp();
+        LevelUp();  // 첫 레벨업으로 상점 열기
 
         isInitialized = true;
     }
+
+
 
     private void UpdateStats()
     {
@@ -214,17 +220,25 @@ public class PlayerStats : MonoBehaviour
     #region Level and Experience
     public void AddExperience(float exp)
     {
+        if (exp <= 0) return;
+
         currentExp += exp;
         OnExpChanged?.Invoke(currentExp);
 
-        if (currentExp >= requiredExp)
+        while (currentExp >= requiredExp)  // if 대신 while 사용
         {
+            float remainingExp = currentExp - requiredExp;
             LevelUp();
+            currentExp = remainingExp;
         }
     }
 
     public void LevelUp()
     {
+        if (isLevelingUp) return; // 중복 호출 방지
+
+        isLevelingUp = true;
+
         level++;
         if (level > 1)
         {
@@ -238,16 +252,26 @@ public class PlayerStats : MonoBehaviour
         OnHealthChanged?.Invoke(currentHealth);
         OnExpChanged?.Invoke(currentExp);
 
-        GameManager.Instance.SetGameState(GameState.Paused);
-        ShowShopUI();
-    }
+        // GameState 변경과 상점 열기를 분리
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetGameState(GameState.Paused);
+        }
 
+        ShowShopUI();
+
+        isLevelingUp = false;
+    }
     private void ShowShopUI()
     {
-        var shopController = GameManager.Instance.ShopController;
-        if (shopController != null)
+        if (cachedShopController != null)
         {
-            shopController.InitializeShop();
+            cachedShopController.InitializeShop();
+        }
+        else if (GameManager.Instance?.ShopController != null)
+        {
+            cachedShopController = GameManager.Instance.ShopController;
+            cachedShopController.InitializeShop();
         }
     }
     #endregion
