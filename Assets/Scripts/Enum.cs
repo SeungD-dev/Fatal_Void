@@ -12,6 +12,13 @@ public enum WeaponType
     ForceFieldGenerator,
     Equipment
 }
+public enum WeaponTier
+{
+    Tier1 = 1,
+    Tier2 = 2,
+    Tier3 = 3,
+    Tier4 = 4
+}
 
 public enum EquipmentType
 {
