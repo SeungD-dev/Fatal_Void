@@ -30,9 +30,9 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Level Settings")]
     [SerializeField] private int level = 1;
-    [SerializeField] private float currentExp = 0;
-    [SerializeField] private float requiredExp = 1;
-    [SerializeField] private float initialRequiredExp = 100;
+    [SerializeField] private int currentExp = 0;
+    [SerializeField] private int requiredExp = 1;
+    [SerializeField] private int initialRequiredExp = 100;
     [Header("Resource Stats")]
     private float currentHealth;
     private int killCount = 0;
@@ -107,7 +107,7 @@ public class PlayerStats : MonoBehaviour
     {
         if (isInitialized) return;
 
-        level = 0;  // 0으로 시작해서 자동으로 1이 되도록
+        level = 0;
         currentExp = 0;
         requiredExp = initialRequiredExp;
         killCount = 0;
@@ -218,33 +218,40 @@ public class PlayerStats : MonoBehaviour
     #endregion
 
     #region Level and Experience
-    public void AddExperience(float exp)
+    public void AddExperience(float expAmount)
     {
-        if (exp <= 0) return;
+        if (expAmount <= 0) return;
 
-        currentExp += exp;
-        OnExpChanged?.Invoke(currentExp);
+        int expToAdd = Mathf.RoundToInt(expAmount);  // 소수점 경험치를 정수로 변환
+        currentExp += expToAdd;
 
-        while (currentExp >= requiredExp)  // if 대신 while 사용
+        while (currentExp >= requiredExp)
         {
-            float remainingExp = currentExp - requiredExp;
-            LevelUp();
-            currentExp = remainingExp;
+            if (!isLevelingUp)  // 레벨업 중복 방지
+            {
+                int overflow = currentExp - requiredExp;
+                LevelUp();
+                currentExp = overflow;  // 남은 경험치 적용
+            }
+            else
+            {
+                break;  // 레벨업 중이면 추가 레벨업 방지
+            }
         }
+
+        OnExpChanged?.Invoke(currentExp);
     }
 
     public void LevelUp()
     {
-        if (isLevelingUp) return; // 중복 호출 방지
+        if (isLevelingUp) return;
 
         isLevelingUp = true;
 
         level++;
-        if (level > 1)
-        {
-            currentExp -= requiredExp;
-        }
-        requiredExp *= 1.2f;
+
+        // 다음 레벨 경험치 요구량 계산 (20% 증가)
+        requiredExp = Mathf.RoundToInt(requiredExp * 1.2f);
 
         UpdateStats();
 
@@ -256,9 +263,8 @@ public class PlayerStats : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.SetGameState(GameState.Paused);
+            ShowShopUI();
         }
-
-        ShowShopUI();
 
         isLevelingUp = false;
     }
