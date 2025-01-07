@@ -55,28 +55,32 @@ public class BeamSaberProjectile : BaseProjectile
         enemyLayer = enemyMask;
         playerTransform = player;
 
+        // 스프라이트의 원래 크기를 기준으로 계산
         if (spriteRenderer != null && spriteRenderer.sprite != null)
         {
+            // 먼저 scale을 1로 리셋해서 정확한 sprite bounds를 얻음
+            transform.localScale = Vector3.one;
             float spriteRadius = spriteRenderer.sprite.bounds.extents.x;
+
             if (spriteRadius > 0)
             {
-                // Vector3.one을 기준으로 새로 계산
-                float radiusScale = attackRadius / spriteRadius;
-                transform.localScale = Vector3.one * baseScaleFactor * radiusScale;
-
-                // 디버그 로그 추가
-                Debug.Log($"BeamSaber #{instanceId} Scale - Base: {baseScaleFactor}, Radius: {radiusScale}, Final: {transform.localScale.x}");
+                // baseScaleFactor만 적용
+                transform.localScale = Vector3.one * baseScaleFactor;
             }
         }
 
         hasInitialized = true;
+    }
+    private void ResetToDefaultScale()
+    {
+        transform.localScale = Vector3.one * baseScaleFactor;
     }
 
 
     public override void OnObjectSpawn()
     {
         base.OnObjectSpawn();
-        transform.localScale = Vector3.one;  // 스폰 시 크기 초기화
+        ResetToDefaultScale();
         ResetState();
     }
 
@@ -195,18 +199,19 @@ public class BeamSaberProjectile : BaseProjectile
     protected override void OnDisable()
     {
         base.OnDisable();
-        transform.localScale = Vector3.one;  // 비활성화 시 크기 초기화
+        ResetToDefaultScale();
         hasInitialized = false;
         isAttackActive = false;
         currentState = AttackState.Ready;
     }
+
 
     protected override void ReturnToPool()
     {
         if (!string.IsNullOrEmpty(poolTag))
         {
             transform.rotation = Quaternion.identity;
-            transform.localScale = Vector3.one;  // 풀 반환 시 크기 초기화
+            ResetToDefaultScale();
             ObjectPool.Instance.ReturnToPool(poolTag, gameObject);
         }
         else
