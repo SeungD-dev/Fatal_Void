@@ -80,7 +80,7 @@ MonoBehaviour:
     attackDelay: 2
     projectileSpeed: 10
     knockback: 2
-    projectileSize: 1.25
+    projectileSize: 5.2
     range: 1.25
     canPenetrate: 1
     maxPenetrationCount: 0
@@ -96,7 +96,7 @@ MonoBehaviour:
     attackDelay: 2
     projectileSpeed: 10
     knockback: 2
-    projectileSize: 2
+    projectileSize: 8.32
     range: 2
     canPenetrate: 1
     maxPenetrationCount: 0
@@ -112,7 +112,7 @@ MonoBehaviour:
     attackDelay: 2
     projectileSpeed: 10
     knockback: 2
-    projectileSize: 2.5
+    projectileSize: 10.4
     range: 2.5
     canPenetrate: 1
     maxPenetrationCount: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
     attackDelay: 2
     projectileSpeed: 10
     knockback: 2
-    projectileSize: 3
+    projectileSize: 12.48
     range: 3
     canPenetrate: 1
     maxPenetrationCount: 0
