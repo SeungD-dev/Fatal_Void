@@ -53,6 +53,7 @@ public class ShopController : MonoBehaviour
     // UI 전환 메서드
     public void OpenInventory()
     {
+        SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
         shopUI.SetActive(false);
         if (inventoryController != null)
         {

@@ -11,6 +11,8 @@ public class WeaponManager : MonoBehaviour
     private Dictionary<WeaponData, bool> activeEquipments = new Dictionary<WeaponData, bool>();
     private PlayerStats playerStats;
 
+    private bool isUpdatingStats = false;
+
     private void Awake()
     {
         if (mainItemGrid == null)
@@ -33,6 +35,7 @@ public class WeaponManager : MonoBehaviour
     }
     private void ApplyEquipmentEffect(WeaponData equipmentData)
     {
+        if (isUpdatingStats) return;
         if (playerStats != null)
         {
             equipmentData.ApplyEquipmentEffect(playerStats);
@@ -41,6 +44,7 @@ public class WeaponManager : MonoBehaviour
 
     private void RemoveEquipmentEffect(WeaponData equipmentData)
     {
+        if (isUpdatingStats) return;
         if (playerStats != null)
         {
             equipmentData.RemoveEquipmentEffect(playerStats);
@@ -101,21 +105,30 @@ public class WeaponManager : MonoBehaviour
     }
     private void UpdateAllWeaponsStats()
     {
-        // 모든 무기의 스탯 업데이트
-        foreach (var weaponMechanism in activeWeapons.Values)
+        if (isUpdatingStats) return;
+        try
         {
-            weaponMechanism.OnPlayerStatsChanged();
-        }
+            isUpdatingStats = true;
 
-        // Equipment 효과 재적용
-        foreach (var equipmentPair in activeEquipments)
+            // 모든 무기의 스탯 업데이트
+            foreach (var weaponMechanism in activeWeapons.Values)
+            {
+                weaponMechanism.OnPlayerStatsChanged();
+            }
+
+            // Equipment 효과 재적용
+            foreach (var equipmentPair in activeEquipments.ToList())  // ToList()로 복사본 사용
+            {
+                WeaponData equipmentData = equipmentPair.Key;
+                RemoveEquipmentEffect(equipmentData);
+                ApplyEquipmentEffect(equipmentData);
+            }
+        }
+        finally
         {
-            WeaponData equipmentData = equipmentPair.Key;
-            RemoveEquipmentEffect(equipmentData);
-            ApplyEquipmentEffect(equipmentData);
+            isUpdatingStats = false;
         }
     }
-
     private void CleanupWeaponMechanism(WeaponMechanism mechanism)
     {
         switch (mechanism)

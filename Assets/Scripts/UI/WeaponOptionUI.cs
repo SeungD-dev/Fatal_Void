@@ -81,6 +81,7 @@ public class WeaponOptionUI : MonoBehaviour
 
     private void OnPurchaseClicked()
     {
+        SoundManager.Instance.PlaySound("Button_sfx",1f,false);
         if (weaponData != null && shopUI != null && playerStats != null && !isPurchased)
         {
             if (weaponData.price == 0 || playerStats.CoinCount >= weaponData.price)

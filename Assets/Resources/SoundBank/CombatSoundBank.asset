@@ -16,8 +16,8 @@ MonoBehaviour:
   - name: BGM_Battle
     clip: {fileID: 8300000, guid: 66bf650021f3fe84aaccc9641bd11c85, type: 3}
     type: 0
-    priority: 1
-    volume: 0.25
+    priority: 0
+    volume: 0.15
     pitchVariance: 0
   - name: Burster_atk
     clip: {fileID: 8300000, guid: 3131a7caf84e8e04f9e0a5b73c5d9db6, type: 3}
@@ -37,18 +37,6 @@ MonoBehaviour:
     priority: 1
     volume: 0.5
     pitchVariance: 0
-  - name: ItemDrop_sfx
-    clip: {fileID: 8300000, guid: 18da15f4ad3faef47bd9de65f17d362c, type: 3}
-    type: 1
-    priority: 1
-    volume: 0.5
-    pitchVariance: 0
-  - name: ItemLift_sfx
-    clip: {fileID: 8300000, guid: c495dc740a31ede4d9848a2871c4306b, type: 3}
-    type: 1
-    priority: 1
-    volume: 0.5
-    pitchVariance: 0
   - name: LevelUp_sfx
     clip: {fileID: 8300000, guid: 37c048e157fc8734781e0d9743d906ad, type: 3}
     type: 1
@@ -64,6 +52,30 @@ MonoBehaviour:
   - name: ItemLift_sfx
     clip: {fileID: 8300000, guid: c495dc740a31ede4d9848a2871c4306b, type: 3}
     type: 1
+    priority: 2
+    volume: 1
+    pitchVariance: 0
+  - name: EnemyHit_sfx
+    clip: {fileID: 8300000, guid: 1acbe94d1f727344a8b3cf1fedeb8420, type: 3}
+    type: 1
+    priority: 2
+    volume: 0.5
+    pitchVariance: 0
+  - name: Throw_sfx
+    clip: {fileID: 8300000, guid: b82f69e002d25fc44861469ab7c3f60f, type: 3}
+    type: 1
+    priority: 1
+    volume: 0.8
+    pitchVariance: 0
+  - name: Shotgun_sfx
+    clip: {fileID: 8300000, guid: 08b10bb6bb3f46b46a8b3f0d319bf963, type: 3}
+    type: 1
     priority: 1
     volume: 0.5
+    pitchVariance: 0
+  - name: ItemDown_sfx
+    clip: {fileID: 8300000, guid: 18da15f4ad3faef47bd9de65f17d362c, type: 3}
+    type: 1
+    priority: 2
+    volume: 1
     pitchVariance: 0

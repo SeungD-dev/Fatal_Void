@@ -9,7 +9,7 @@ public class BladeProjectile : BaseProjectile
         base.OnObjectSpawn();
         // 스폰될 때마다 시작 위치 업데이트
         startPosition = transform.position;
-        Debug.Log($"OnObjectSpawn - StartPosition set to: {startPosition}, MaxTravelDistance: {maxTravelDistance}");
+        //Debug.Log($"OnObjectSpawn - StartPosition set to: {startPosition}, MaxTravelDistance: {maxTravelDistance}");
     }
 
     protected override void ApplyDamageAndEffects(Enemy enemy)

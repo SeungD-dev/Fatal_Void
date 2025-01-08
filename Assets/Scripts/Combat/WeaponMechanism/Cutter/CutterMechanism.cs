@@ -6,6 +6,8 @@ public class CutterMechanism : WeaponMechanism
     {
         if (target == null) return;
 
+        SoundManager.Instance.PlaySound("Throw_sfx", 1f, false);
+
         Vector2 direction = (target.position - playerTransform.position).normalized;
 
         GameObject projectileObj = ObjectPool.Instance.SpawnFromPool(

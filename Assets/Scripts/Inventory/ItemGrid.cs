@@ -185,7 +185,7 @@ public class ItemGrid : MonoBehaviour
         OnItemAdded?.Invoke(inventoryItem);
         NotifyGridChanged();
 
-        Debug.Log($"Item placed at position ({posX}, {posY})");
+        //Debug.Log($"Item placed at position ({posX}, {posY})");
     }
     public Vector2 CalculatePositionOnGrid(InventoryItem inventoryItem, int posX, int posY)
     {
@@ -285,13 +285,13 @@ public class ItemGrid : MonoBehaviour
     {
         if (posX < 0 || posY < 0)
         {
-            Debug.Log($"BoundryCheck failed: position ({posX}, {posY}) is negative");
+            //Debug.Log($"BoundryCheck failed: position ({posX}, {posY}) is negative");
             return false;
         }
 
         if (posX + width > gridSizeWidth || posY + height > gridSizeHeight)
         {
-            Debug.Log($"BoundryCheck failed: item size {width}x{height} at ({posX}, {posY}) exceeds grid bounds {gridSizeWidth}x{gridSizeHeight}");
+            //Debug.Log($"BoundryCheck failed: item size {width}x{height} at ({posX}, {posY}) exceeds grid bounds {gridSizeWidth}x{gridSizeHeight}");
             return false;
         }
 
@@ -302,14 +302,14 @@ public class ItemGrid : MonoBehaviour
     {
         if (inventoryItemSlot == null)
         {
-            Debug.LogError($"inventoryItemSlot is null! Grid might not be initialized properly.");
+            //Debug.LogError($"inventoryItemSlot is null! Grid might not be initialized properly.");
             return null;
         }
 
         // 기본 경계 체크
         if (x < 0 || y < 0 || x >= gridSizeWidth || y >= gridSizeHeight)
         {
-            Debug.Log($"GetItem: Position ({x}, {y}) is outside grid bounds {gridSizeWidth}x{gridSizeHeight}");
+            //Debug.Log($"GetItem: Position ({x}, {y}) is outside grid bounds {gridSizeWidth}x{gridSizeHeight}");
             return null;
         }
 
@@ -323,14 +323,14 @@ public class ItemGrid : MonoBehaviour
         if (item.onGridPositionX < 0 || item.onGridPositionY < 0 ||
             item.onGridPositionX >= gridSizeWidth || item.onGridPositionY >= gridSizeHeight)
         {
-            Debug.LogWarning($"Item at ({x}, {y}) has invalid origin position: ({item.onGridPositionX}, {item.onGridPositionY})");
+            //Debug.LogWarning($"Item at ({x}, {y}) has invalid origin position: ({item.onGridPositionX}, {item.onGridPositionY})");
             return null;
         }
 
         // 아이템의 크기가 그리드를 벗어나는지 확인
         if (!BoundryCheck(item.onGridPositionX, item.onGridPositionY, item.WIDTH, item.HEIGHT))
         {
-            Debug.LogWarning($"Item at ({x}, {y}) extends beyond grid bounds");
+           // Debug.LogWarning($"Item at ({x}, {y}) extends beyond grid bounds");
             return null;
         }
 
@@ -342,7 +342,7 @@ public class ItemGrid : MonoBehaviour
         // itemToInsert의 크기가 유효한지 먼저 확인
         if (itemToInsert.WIDTH <= 0 || itemToInsert.HEIGHT <= 0)
         {
-            Debug.LogError($"Invalid item size: {itemToInsert.WIDTH}x{itemToInsert.HEIGHT}");
+           // Debug.LogError($"Invalid item size: {itemToInsert.WIDTH}x{itemToInsert.HEIGHT}");
             return null;
         }
 
@@ -352,7 +352,7 @@ public class ItemGrid : MonoBehaviour
 
         if (maxX <= 0 || maxY <= 0)
         {
-            Debug.LogWarning($"Item size {itemToInsert.WIDTH}x{itemToInsert.HEIGHT} is too large for grid {gridSizeWidth}x{gridSizeHeight}");
+            //Debug.LogWarning($"Item size {itemToInsert.WIDTH}x{itemToInsert.HEIGHT} is too large for grid {gridSizeWidth}x{gridSizeHeight}");
             return null;
         }
 

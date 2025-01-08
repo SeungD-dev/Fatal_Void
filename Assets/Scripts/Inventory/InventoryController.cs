@@ -159,6 +159,7 @@ public class InventoryController : MonoBehaviour
     }
     public void StartGame()
     {
+        SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
         if (selectedItemGrid == null)
         {
             Debug.LogError("No ItemGrid selected! Cannot start game.");
@@ -205,7 +206,7 @@ public class InventoryController : MonoBehaviour
     {
         if (item != null && item.weaponData != null && weaponManager != null)
         {
-            Debug.Log($"Equipping weapon: {item.weaponData.weaponName}");
+            //Debug.Log($"Equipping weapon: {item.weaponData.weaponName}");
             weaponManager.EquipWeapon(item.weaponData);
         }
     }
@@ -300,14 +301,14 @@ public class InventoryController : MonoBehaviour
             touchedItem = selectedItemGrid.GetItem(initialGridPosition.x, initialGridPosition.y);
             if (touchedItem != null)
             {
-                Debug.Log($"Found item at grid position: ({initialGridPosition.x}, {initialGridPosition.y})");
+                //Debug.Log($"Found item at grid position: ({initialGridPosition.x}, {initialGridPosition.y})");
             }
         }
 
         // 터치한 아이템이 없다면 종료
         if (touchedItem == null)
         {
-            Debug.Log("No item found at touch position");
+            //Debug.Log("No item found at touch position");
             yield break;
         }
 
@@ -321,7 +322,7 @@ public class InventoryController : MonoBehaviour
             // 드래그 시작 조건 체크
             if (moveDistance > HOLD_MOVE_THRESHOLD)
             {
-                Debug.Log("Move threshold reached - starting drag");
+                //Debug.Log("Move threshold reached - starting drag");
                 StartItemInteraction(touchedItem, currentPos);
                 holdChecking = false;
                 break;
@@ -330,7 +331,7 @@ public class InventoryController : MonoBehaviour
             // 홀드 시간 조건 체크
             if (elapsedTime >= HOLD_THRESHOLD)
             {
-                Debug.Log("Hold threshold reached - picking up item");
+                //Debug.Log("Hold threshold reached - picking up item");
                 StartItemInteraction(touchedItem, currentPos);
                 holdChecking = false;
                 break;
@@ -342,7 +343,7 @@ public class InventoryController : MonoBehaviour
     private void StartItemInteraction(InventoryItem item, Vector2 currentPos)
     {
         if (item == null) return;
-
+        SoundManager.Instance.PlaySound("ItemLift_sfx", 1f, false);
         // 이전 선택 상태 정리
         if (selectedItem != null && selectedItem != item)
         {
@@ -364,7 +365,7 @@ public class InventoryController : MonoBehaviour
         // 아이템 위치 업데이트
         Vector2 liftedPosition = currentPos + Vector2.up * ITEM_LIFT_OFFSET;
         rectTransform.position = liftedPosition;
-
+       
         // 무기 정보 UI 업데이트
         if (weaponInfoUI != null)
         {
@@ -437,7 +438,7 @@ public class InventoryController : MonoBehaviour
                 t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Stationary
             ).ToList();
 
-            Debug.Log($"Active touches count: {activeTouches.Count}");
+            
 
             
             if (activeTouches.Count == 1)
@@ -452,14 +453,14 @@ public class InventoryController : MonoBehaviour
 
                 foreach (var touch in secondaryTouches)
                 {
-                    Debug.Log($"Secondary touch phase: {touch.phase.ReadValue()}");
+                    
 
                     if (touch.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began)
                     {
                         float currentTime = Time.time;
                         if (currentTime - lastRotationTime >= ROTATION_COOLDOWN)
                         {
-                            Debug.Log("Rotating item");
+                             
                             RotateItem();
                             lastRotationTime = currentTime;
                             break;
@@ -489,11 +490,11 @@ public class InventoryController : MonoBehaviour
         Vector2 touchPos = touchPosition.ReadValue<Vector2>();
         Vector2Int positionOnGrid = GetTileGridPosition(touchPos);
 
-        Debug.Log($"HandleHighlight - Touch Position: {touchPos}, Grid Position: {positionOnGrid}");
+        //Debug.Log($"HandleHighlight - Touch Position: {touchPos}, Grid Position: {positionOnGrid}");
 
         if (!IsPositionWithinGrid(positionOnGrid))
         {
-            Debug.Log($"Position {positionOnGrid} is not within grid bounds: {selectedItemGrid.Width}x{selectedItemGrid.Height}");
+            //Debug.Log($"Position {positionOnGrid} is not within grid bounds: {selectedItemGrid.Width}x{selectedItemGrid.Height}");
             inventoryHighlight?.Show(false);
             return;
         }
@@ -501,11 +502,11 @@ public class InventoryController : MonoBehaviour
         if (selectedItem == null)
         {
             InventoryItem itemToHighlight = selectedItemGrid.GetItem(positionOnGrid.x, positionOnGrid.y);
-            Debug.Log($"Attempting to highlight item at ({positionOnGrid.x}, {positionOnGrid.y}): {(itemToHighlight != null ? "Found" : "Not found")}");
+            //Debug.Log($"Attempting to highlight item at ({positionOnGrid.x}, {positionOnGrid.y}): {(itemToHighlight != null ? "Found" : "Not found")}");
 
             if (itemToHighlight != null)
             {
-                Debug.Log($"Highlighting item at original position: ({itemToHighlight.onGridPositionX}, {itemToHighlight.onGridPositionY})");
+                //Debug.Log($"Highlighting item at original position: ({itemToHighlight.onGridPositionX}, {itemToHighlight.onGridPositionY})");
                 inventoryHighlight?.Show(true);
                 inventoryHighlight?.SetSize(itemToHighlight);
                 inventoryHighlight?.SetPosition(selectedItemGrid, itemToHighlight,
@@ -521,7 +522,7 @@ public class InventoryController : MonoBehaviour
             bool isValidPosition = selectedItemGrid.BoundryCheck(positionOnGrid.x, positionOnGrid.y,
                 selectedItem.WIDTH, selectedItem.HEIGHT);
 
-            Debug.Log($"Selected item position check: {isValidPosition} at ({positionOnGrid.x}, {positionOnGrid.y})");
+            //Debug.Log($"Selected item position check: {isValidPosition} at ({positionOnGrid.x}, {positionOnGrid.y})");
 
             if (isValidPosition)
             {
@@ -743,7 +744,7 @@ public class InventoryController : MonoBehaviour
     private void PutDownItem(Vector2Int tileGridPosition)
     {
         if (selectedItem == null) return;
-
+        SoundManager.Instance.PlaySound("ItemDown_sfx", 1f, false);
         // 현재 선택된 아이템과 그 위치 저장
         InventoryItem itemToPlace = selectedItem;
         Vector2Int originalPosition = new Vector2Int(itemToPlace.onGridPositionX, itemToPlace.onGridPositionY);
@@ -796,6 +797,7 @@ public class InventoryController : MonoBehaviour
             weaponInfoUI.UpdateWeaponInfo(itemToPlace.weaponData);
         }
 
+      
         // 이벤트 통지가 필요한 경우 여기서 처리
          selectedItemGrid.NotifyGridChanged(); // 필요한 경우 주석 해제
     }
@@ -981,6 +983,7 @@ public class InventoryController : MonoBehaviour
 
     public void OpenInventory()
     {
+        SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
         inventoryUI.SetActive(true);
         if (playerControlUI != null && playerStatsUI != null)
         {
@@ -991,6 +994,7 @@ public class InventoryController : MonoBehaviour
 
     public void OpenShop()
     {
+        SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
         inventoryUI.SetActive(false);
         var shopController = GameManager.Instance.ShopController;
         if (shopController != null)

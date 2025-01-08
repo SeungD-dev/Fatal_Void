@@ -20,7 +20,7 @@ public class BulletDestroyVFX : MonoBehaviour, IPooledObject
         if (clipInfo != null && clipInfo.Length > 0)
         {
             animationLength = clipInfo[0].clip.length;
-            Debug.Log($"Animation Length: {animationLength}");
+            //Debug.Log($"Animation Length: {animationLength}");
         }
     }
 
@@ -65,7 +65,7 @@ public class BulletDestroyVFX : MonoBehaviour, IPooledObject
     public void SetPoolTag(string tag)
     {
         poolTag = tag;
-        Debug.Log($"Pool tag set to: {tag}");
+        //Debug.Log($"Pool tag set to: {tag}");
     }
 
     public void SetEffectScale(Vector3 bulletScale)

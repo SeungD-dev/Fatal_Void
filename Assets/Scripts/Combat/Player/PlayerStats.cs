@@ -79,6 +79,7 @@ public class PlayerStats : MonoBehaviour
 
 
     private bool isInitialized = false;
+    private bool isModifyingStats = false;
 
     #region Properties
     public bool IsInitialized => isInitialized;
@@ -287,74 +288,138 @@ public class PlayerStats : MonoBehaviour
 
     public void ModifyPower(float amount)
     {
-        // 직접적인 증가값으로 변경
-        power += amount;
-        power = Mathf.Max(basePower, power);
-        OnPowerChanged?.Invoke();
+        if (isModifyingStats) return;
+        try
+        {
+            isModifyingStats = true;
+            power += amount;
+            power = Mathf.Max(basePower, power);
+            OnPowerChanged?.Invoke();
+        }
+        finally
+        {
+            isModifyingStats = false;
+        }
     }
-
 
     public void ModifyMaxHealth(float amount)
     {
-        float oldMaxHealth = maxHealth;
-        // 직접적인 증가값으로 변경
-        maxHealth += amount;
-        maxHealth = Mathf.Max(baseHealth, maxHealth);
-
-        if (oldMaxHealth > 0)
+        if (isModifyingStats) return;
+        try
         {
-            float healthRatio = currentHealth / oldMaxHealth;
-            currentHealth = maxHealth * healthRatio;
-            OnHealthChanged?.Invoke(currentHealth);
+            isModifyingStats = true;
+            float oldMaxHealth = maxHealth;
+            maxHealth += amount;
+            maxHealth = Mathf.Max(baseHealth, maxHealth);
+
+            if (oldMaxHealth > 0)
+            {
+                float healthRatio = currentHealth / oldMaxHealth;
+                currentHealth = maxHealth * healthRatio;
+                OnHealthChanged?.Invoke(currentHealth);
+            }
+        }
+        finally
+        {
+            isModifyingStats = false;
         }
     }
     public void ModifyCooldownReduce(float amount)
     {
-        // 직접적인 증가값으로 변경
-        cooldownReduce += amount;
-        cooldownReduce = Mathf.Max(baseCooldownReduce, cooldownReduce);
-        OnCooldownReduceChanged?.Invoke();
+        if (isModifyingStats) return;
+        try
+        {
+            isModifyingStats = true;
+            cooldownReduce += amount;
+            cooldownReduce = Mathf.Max(baseCooldownReduce, cooldownReduce);
+            OnCooldownReduceChanged?.Invoke();
+        }
+        finally
+        {
+            isModifyingStats = false;
+        }
     }
-
     public void ModifyKnockback(float amount)
     {
-        // 직접적인 증가값으로 변경
-        knockback += amount;
-        knockback = Mathf.Max(baseKnockback, knockback);
-        OnKnockbackChanged?.Invoke();
+        if (isModifyingStats) return;
+        try
+        {
+            isModifyingStats = true;
+            knockback += amount;
+            knockback = Mathf.Max(baseKnockback, knockback);
+            OnKnockbackChanged?.Invoke();
+        }
+        finally
+        {
+            isModifyingStats = false;
+        }
     }
-
     public void ModifyAreaOfEffect(float amount)
     {
-        // 직접적인 증가값으로 변경
-        aoe += amount;
-        aoe = Mathf.Max(baseAreaOfEffect, aoe);
-        OnAreaOfEffectChanged?.Invoke();
+        if (isModifyingStats) return;
+        try
+        {
+            isModifyingStats = true;
+            aoe += amount;
+            aoe = Mathf.Max(baseAreaOfEffect, aoe);
+            OnAreaOfEffectChanged?.Invoke();
+        }
+        finally
+        {
+            isModifyingStats = false;
+        }
     }
 
     public void ModifyPickupRange(float amount)
     {
-        pickupRange += amount;
-        pickupRange = Mathf.Max(basePickupRange, pickupRange);
+        if (isModifyingStats) return;
+        try
+        {
+            isModifyingStats = true;
+            pickupRange += amount;
+            pickupRange = Mathf.Max(basePickupRange, pickupRange);
+        }
+        finally
+        {
+            isModifyingStats = false;
+        }
     }
 
     public void ModifyMovementSpeed(float amount, bool isPercentage)
     {
-        if (isPercentage)
+        if (isModifyingStats) return;
+        try
         {
-            movementSpeed += baseMovementSpeed * (amount / 100f);
+            isModifyingStats = true;
+            if (isPercentage)
+            {
+                movementSpeed += baseMovementSpeed * (amount / 100f);
+            }
+            else
+            {
+                movementSpeed += amount;
+            }
+            movementSpeed = Mathf.Max(baseMovementSpeed * 0.5f, movementSpeed);
+            OnMovementSpeedChanged?.Invoke(movementSpeed);
         }
-        else
+        finally
         {
-            movementSpeed += amount;
+            isModifyingStats = false;
         }
-        movementSpeed = Mathf.Max(baseMovementSpeed * 0.5f, movementSpeed);
-        OnMovementSpeedChanged?.Invoke(movementSpeed);
     }
 
     public void ModifyHealthRegen(float modifier)
     {
-        healthRegen *= (1f + modifier);
+        if (isModifyingStats) return;
+        try
+        {
+            isModifyingStats = true;
+            healthRegen *= (1f + modifier);
+        }
+        finally
+        {
+            isModifyingStats = false;
+        }
     }
 
     public void SetMovementSpeed(float newSpeed)

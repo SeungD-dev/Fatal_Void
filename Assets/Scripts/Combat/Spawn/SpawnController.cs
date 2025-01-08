@@ -239,16 +239,16 @@ public class SpawnController : MonoBehaviour
     //}
 
     // 디버그용 기즈모
-    private void OnDrawGizmos()
-    {
-        if (!Application.isPlaying || playerTransform == null)
-            return;
+    //private void OnDrawGizmos()
+    //{
+    //    if (!Application.isPlaying || playerTransform == null)
+    //        return;
 
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(playerTransform.position, spawnRadius);
+    //    Gizmos.color = Color.yellow;
+    //    Gizmos.DrawWireSphere(playerTransform.position, spawnRadius);
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(playerTransform.position, minSpawnDistance);
-    }
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawWireSphere(playerTransform.position, minSpawnDistance);
+    //}
 }
 

@@ -39,6 +39,15 @@ public class MainMenuUI : MonoBehaviour
 
     public void OnStartButtonClick()
     {
+        if(SoundManager.Instance.currentSoundBank == null)
+        {
+            SoundManager.Instance.LoadSoundBank("IntroSoundBank");
+        }
+        if(SoundManager.Instance.currentSoundBank != null)
+        {
+        SoundManager.Instance.PlaySound("Button_sfx",1f,false);
+
+        }
         if (!isWalking)
         {
             isWalking = true;

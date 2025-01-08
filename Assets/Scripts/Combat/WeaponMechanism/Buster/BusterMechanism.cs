@@ -14,6 +14,8 @@ public class BusterMechanism : WeaponMechanism
             Quaternion.identity
         );
 
+        SoundManager.Instance.PlaySound("Burster_atk", 1f, false);
+
         BusterProjectile projectile = projectileObj.GetComponent<BusterProjectile>();
         if (projectile != null)
         {

@@ -118,7 +118,7 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
         if (knockbackPower > 0)
         {
             Vector2 knockbackForce = direction * knockbackPower;
-            Debug.Log($"Projectile knockback power: {knockbackPower}, Direction: {direction}, Final force: {knockbackForce}"); // 디버그용
+            //Debug.Log($"Projectile knockback power: {knockbackPower}, Direction: {direction}, Final force: {knockbackForce}"); // 디버그용
             enemy.ApplyKnockback(knockbackForce);
         }
 

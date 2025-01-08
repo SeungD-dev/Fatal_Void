@@ -75,8 +75,13 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     public void Initialize(AdditionalDrop dropInfo)
     {
+        if (isInitialized) return;
+
         itemType = dropInfo.itemType;
         isMagnetable = dropInfo.isMagnetable;
+        isCollected = false; // 초기화 시 수집 상태 리셋
+
+        isInitialized = true;
     }
 
     public void SetGoldAmount(int amount)
@@ -110,17 +115,24 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     public void OnObjectSpawn()
     {
+        isCollected = false;
         isBeingMagneted = false;
         isPulledByMagnet = false;
         currentMagnetSpeed = magnetSpeed;
         currentMagnetDistance = basemagnetDistance;
-        goldAmount = 0;
-        isInitialized = false;
 
         if (rb != null)
         {
+            rb.simulated = true;  // 물리 시뮬레이션 다시 활성화
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
+        }
+
+        // 콜라이더 재활성화
+        var colliders = GetComponents<Collider2D>();
+        foreach (var collider in colliders)
+        {
+            collider.enabled = true;
         }
 
         Initialize();
@@ -170,26 +182,42 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag("Player") || isCollected || combatController == null) return;
+        // 이미 수집되었거나 필요한 컴포넌트가 없으면 무시
+        if (isCollected) return;
+        if (!other.CompareTag("Player") || combatController == null) return;
 
-        isCollected = true; // �ߺ� ȣ�� ����
+        // 즉시 수집 상태로 변경
+        isCollected = true;
 
-        // ���� ������ �����Ͽ� ����
+        // 현재 상태 저장
         var itemTypeToApply = itemType;
         var goldAmountToApply = goldAmount;
 
-        // ���� ���� �� ȿ�� ����
-        combatController.UnregisterCollectible(this);
-        combatController.ApplyItemEffect(itemTypeToApply, goldAmountToApply);
-
+        // 물리 효과는 유지하되 속도만 0으로 설정
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
         }
 
-        ObjectPool.Instance.ReturnToPool(itemTypeToApply.ToString(), gameObject);
-    }
+        // Magnet 아이템이 아닌 경우에만 콜라이더 비활성화
+        if (itemType != ItemType.Magnet)  // ItemType.Magnet은 실제 enum 값에 맞게 수정
+        {
+            var colliders = GetComponents<Collider2D>();
+            foreach (var collider in colliders)
+            {
+                collider.enabled = false;
+            }
+        }
 
+        // UnregisterCollectible 호출
+        combatController.UnregisterCollectible(this);
+
+        // 오브젝트 풀에 반환
+        ObjectPool.Instance.ReturnToPool(itemTypeToApply.ToString(), gameObject);
+
+        // 마지막으로 효과 적용
+        combatController.ApplyItemEffect(itemTypeToApply, goldAmountToApply);
+    }
 
     private void HandleMagnetEffectChanged(bool isActive)
     {
@@ -210,7 +238,8 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     private void OnDisable()
     {
-        isCollected = false;
+        if (isCollected) return; // 이미 수집된 아이템은 처리하지 않음
+
         if (combatController != null)
         {
             combatController.UnregisterCollectible(this);

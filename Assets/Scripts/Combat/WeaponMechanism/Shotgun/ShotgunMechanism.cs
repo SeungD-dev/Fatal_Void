@@ -18,6 +18,8 @@ public class ShotgunMechanism : WeaponMechanism
     {
         if (target == null) return;
 
+        SoundManager.Instance.PlaySound("Shotgun_sfx", 1f, false);
+
         Vector2 direction = (target.position - playerTransform.position).normalized;
         float baseAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 

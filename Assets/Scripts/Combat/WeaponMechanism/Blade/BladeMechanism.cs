@@ -18,6 +18,8 @@ public class BladeMechanism : WeaponMechanism
     {
         if (target == null) return;
 
+        SoundManager.Instance.PlaySound("Slash_sfx", 1f, false);
+
         // 풀 태그가 설정되어 있는지 확인
         if (string.IsNullOrEmpty(poolTag))
         {
@@ -25,7 +27,7 @@ public class BladeMechanism : WeaponMechanism
         }
 
         Vector2 direction = (target.position - playerTransform.position).normalized;
-        Debug.Log($"Attacking with pool tag: {poolTag}");  // 디버그 로그 추가
+        //Debug.Log($"Attacking with pool tag: {poolTag}");  // 디버그 로그 추가
 
         GameObject projectileObj = ObjectPool.Instance.SpawnFromPool(
             poolTag,

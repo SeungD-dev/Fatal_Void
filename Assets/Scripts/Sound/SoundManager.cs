@@ -157,25 +157,23 @@ public class SoundManager : Singleton<SoundManager>
         activeSFXSources.Add(source);
         AdjustSFXVolumes();
 
-        float fadeTime = 0.1f; // SFX 페이드 시간
+        float fadeTime = 0.1f;
         float t = 0;
         while (t < fadeTime)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;  // deltaTime 대신 unscaledDeltaTime 사용
             source.volume = Mathf.Lerp(0, sound.volume * sfxVolume * masterVolume, t / fadeTime);
             yield return null;
         }
 
         if (!loop)
         {
-            // 루프가 아닌 경우에만 사운드가 끝날 때까지 대기
-            yield return new WaitForSeconds(source.clip.length - source.time - fadeTime);
+            yield return new WaitForSecondsRealtime(source.clip.length - source.time - fadeTime);  // WaitForSeconds 대신 WaitForSecondsRealtime 사용
 
-            // 페이드 아웃
             t = 0;
             while (t < fadeTime)
             {
-                t += Time.deltaTime;
+                t += Time.unscaledDeltaTime;  // deltaTime 대신 unscaledDeltaTime 사용
                 source.volume = Mathf.Lerp(sound.volume * sfxVolume * masterVolume, 0, t / fadeTime);
                 yield return null;
             }

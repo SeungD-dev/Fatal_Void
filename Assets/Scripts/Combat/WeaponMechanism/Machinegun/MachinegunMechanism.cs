@@ -8,6 +8,8 @@ public class MachinegunMechanism : WeaponMechanism
     {
         if (target == null) return;
 
+        SoundManager.Instance.PlaySound("Machinegun_atk", 1f, false);
+
         // 기본 발사 방향 계산
         Vector2 baseDirection = (target.position - playerTransform.position).normalized;
 

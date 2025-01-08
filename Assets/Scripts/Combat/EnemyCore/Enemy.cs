@@ -153,6 +153,8 @@ public class Enemy : MonoBehaviour, IPooledObject
         Color textColor = Color.white;
         string damageText = damage.ToString("F0");
 
+        SoundManager.Instance.PlaySound("EnemyHit_sfx", 1f, false);
+
         if (FloatingTextManager.Instance != null && FloatingTextManager.Instance.isFloatingTextEnabled == true)
         {
             FloatingTextManager.Instance.ShowFloatingText(damageText, transform.position, textColor);
