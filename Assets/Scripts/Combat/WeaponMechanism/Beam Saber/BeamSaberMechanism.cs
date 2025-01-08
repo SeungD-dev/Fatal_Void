@@ -84,6 +84,7 @@ public class BeamSaberMechanism : WeaponMechanism
     {
         if (ownerComponent != null && ownerComponent.gameObject.activeInHierarchy)
         {
+            SoundManager.Instance.PlaySound("Slash_sfx", 1f, false);
             SpawnCircularAttack();
         }
         else
