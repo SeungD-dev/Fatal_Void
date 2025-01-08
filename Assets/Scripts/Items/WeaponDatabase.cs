@@ -33,15 +33,15 @@ public class TierProbability
     [Header("Level Range Probabilities")]
     public List<LevelRangeProbability> levelRanges = new List<LevelRangeProbability>()
     {
-        new LevelRangeProbability { minLevel = 1, maxLevel = 5,
+        new LevelRangeProbability { minLevel = 1, maxLevel = 4,
             tier1Probability = 85, tier2Probability = 15, tier3Probability = 0, tier4Probability = 0 },
-        new LevelRangeProbability { minLevel = 5, maxLevel = 10,
+        new LevelRangeProbability { minLevel = 4, maxLevel = 7,
             tier1Probability = 70, tier2Probability = 25, tier3Probability = 5, tier4Probability = 0 },
-        new LevelRangeProbability { minLevel = 10, maxLevel = 15,
-            tier1Probability = 60, tier2Probability = 30, tier3Probability = 8, tier4Probability = 2 },
-        new LevelRangeProbability { minLevel = 15, maxLevel = 25,
-            tier1Probability = 45, tier2Probability = 35, tier3Probability = 15, tier4Probability = 5 },
-        new LevelRangeProbability { minLevel = 25, maxLevel = 99,
+        new LevelRangeProbability { minLevel = 7, maxLevel = 10,
+            tier1Probability = 55, tier2Probability = 30, tier3Probability = 10, tier4Probability = 5 },
+        new LevelRangeProbability { minLevel = 10, maxLevel = 16,
+            tier1Probability = 40, tier2Probability = 35, tier3Probability = 15, tier4Probability = 10 },
+        new LevelRangeProbability { minLevel = 16, maxLevel = 99,
             tier1Probability = 30, tier2Probability = 40, tier3Probability = 20, tier4Probability = 10 }
     };
 

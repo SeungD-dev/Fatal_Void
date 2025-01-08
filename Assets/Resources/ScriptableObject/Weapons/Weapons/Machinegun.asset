@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: 8748014352817928020, guid: 891e64b129e3c5240b8d03093668611a, type: 3}
   weaponType: 1
   weaponName: Machinegun
-  weaponDescription: 
+  weaponDescription: rapid fire
   inventoryWeaponIcon: {fileID: 21300000, guid: 4333bb2ed971c5b4aa11ea7b993b3fdd, type: 3}
   equipmentType: 0
   equipmentTierStats:

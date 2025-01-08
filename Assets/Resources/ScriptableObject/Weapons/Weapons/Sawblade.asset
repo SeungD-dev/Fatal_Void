@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: -1530235953570945171, guid: 2c59496dc7b860e4ab2f90067ab8d8b1, type: 3}
   weaponType: 4
   weaponName: Sawblade
-  weaponDescription: 
+  weaponDescription: Firing sawblade that bounce
   inventoryWeaponIcon: {fileID: -1530235953570945171, guid: 2c59496dc7b860e4ab2f90067ab8d8b1, type: 3}
   equipmentType: 0
   equipmentTierStats:

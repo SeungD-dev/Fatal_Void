@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: 21300000, guid: e996c245e2c1d6e4d9fa924f7e28bd01, type: 3}
   weaponType: 3
   weaponName: Cutter
-  weaponDescription: 
+  weaponDescription: Firing weapon that return like boomerangs
   inventoryWeaponIcon: {fileID: 21300000, guid: e996c245e2c1d6e4d9fa924f7e28bd01, type: 3}
   equipmentType: 0
   equipmentTierStats:

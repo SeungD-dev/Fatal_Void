@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: -441460259038740994, guid: 5d8b241621138f245ac222150178813e, type: 3}
   weaponType: 8
   weaponName: Grinder
-  weaponDescription: 
+  weaponDescription: Generates damaging area
   inventoryWeaponIcon: {fileID: -441460259038740994, guid: 5d8b241621138f245ac222150178813e, type: 3}
   equipmentType: 0
   equipmentTierStats:

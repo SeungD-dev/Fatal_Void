@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: -5476380460940941738, guid: 31dfa654119cd0743ab1b89df4317938, type: 3}
   weaponType: 9
   weaponName: Force Field
-  weaponDescription: 
+  weaponDescription: Damages nearby enemies
   inventoryWeaponIcon: {fileID: -5476380460940941738, guid: 31dfa654119cd0743ab1b89df4317938, type: 3}
   equipmentType: 0
   equipmentTierStats:

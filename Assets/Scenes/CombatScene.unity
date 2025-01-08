@@ -479,7 +479,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 40
-    OrthographicSize: 5
+    OrthographicSize: 7.5
     NearClipPlane: 0.1
     FarClipPlane: 5000
     Dutch: 0
@@ -1126,7 +1126,7 @@ Camera:
   far clip plane: 5000
   field of view: 40
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 7.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1332,8 +1332,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9450005411114373, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
+      propertyPath: baseMovementSpeed
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9450005411114373, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
       propertyPath: initialRequiredExp
-      value: 20
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2073809303734970117, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
       propertyPath: joystick
