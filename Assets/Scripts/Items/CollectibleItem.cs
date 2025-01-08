@@ -209,6 +209,15 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             }
         }
 
+        if(itemType == ItemType.Gold)
+        {
+            SoundManager.Instance.PlaySound("Coin_sfx", 1f, false);
+        }
+        if (itemType== ItemType.ExperienceLarge || itemType == ItemType.ExperienceMedium || itemType == ItemType.ExperienceSmall)
+        {
+            SoundManager.Instance.PlaySound("Exp_sfx", 1f, false);
+        }
+
         // UnregisterCollectible 호출
         combatController.UnregisterCollectible(this);
 

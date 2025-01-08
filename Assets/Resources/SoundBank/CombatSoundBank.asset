@@ -79,3 +79,21 @@ MonoBehaviour:
     priority: 2
     volume: 1
     pitchVariance: 0
+  - name: Coin_sfx
+    clip: {fileID: 8300000, guid: fed3516190eb0cf45acc0c50f152feec, type: 3}
+    type: 1
+    priority: 1
+    volume: 1
+    pitchVariance: 0
+  - name: Exp_sfx
+    clip: {fileID: 8300000, guid: cff32bdcf3435d240b4a7c9aecbdf914, type: 3}
+    type: 1
+    priority: 1
+    volume: 1
+    pitchVariance: 0
+  - name: Grinder_sfx
+    clip: {fileID: 8300000, guid: 80de21e2bde85734eb14df49e113034c, type: 3}
+    type: 1
+    priority: 1
+    volume: 1
+    pitchVariance: 0

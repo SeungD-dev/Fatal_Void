@@ -33,6 +33,7 @@ public class GrinderGroundEffect : MonoBehaviour, IPooledObject
 
     public void SetPoolTag(string tag)
     {
+        SoundManager.Instance.PlaySound("Grinder_sfx", 1f, false);
         this.poolTag = tag;
         gameObject.tag = tag;
     }
