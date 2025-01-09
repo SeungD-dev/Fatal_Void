@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
@@ -217,55 +216,27 @@ public class InventoryController : MonoBehaviour
         Vector2 touchPos = touchPosition.ReadValue<Vector2>();
         Vector2Int gridPosition = GetTileGridPosition(touchPos);
 
-        // 이전 선택 상태 초기화
-        if (selectedItem != null)
-        {
-            // 이전에 선택된 아이템이 있다면 원래 위치로 되돌림
-            if (selectedItem.onGridPositionX >= 0 && selectedItem.onGridPositionY >= 0)
-            {
-                Vector2Int originalPosition = new Vector2Int(selectedItem.onGridPositionX, selectedItem.onGridPositionY);
-                selectedItemGrid.PlaceItem(selectedItem, originalPosition.x, originalPosition.y, ref overlapItem);
-                Vector2 position = selectedItemGrid.CalculatePositionOnGrid(selectedItem, originalPosition.x, originalPosition.y);
-                selectedItem.GetComponent<RectTransform>().localPosition = position;
-            }
+        // 이전 선택 상태 정리
+        ClearPreviousSelection();
 
-            selectedItem = null;
-            isDragging = false;
-            isHolding = false;
-        }
-
-        // 그리드 내 위치 확인
+        // 그리드 내 위치 확인 및 아이템 터치 검사
         if (IsPositionWithinGrid(gridPosition))
         {
             InventoryItem touchedItem = selectedItemGrid.GetItem(gridPosition.x, gridPosition.y);
-
             if (touchedItem != null)
             {
                 // WeaponInfo UI 업데이트
                 HandleItemSelection(touchedItem);
 
-                // 선택된 아이템의 RectTransform 확인
-                RectTransform itemRect = touchedItem.GetComponent<RectTransform>();
-                if (itemRect != null)
-                {
-                    // 터치 위치가 아이템 내부인지 확인
-                    if (RectTransformUtility.RectangleContainsScreenPoint(itemRect, touchPos))
-                    {
-                        // 홀드 체크 시작을 위한 상태 설정
-                        holdStartTime = Time.time;
-                        holdStartPosition = touchPos;
-                        StartCoroutine(CheckForHold());
-                    }
-                }
+                // 홀드 체크 시작
+                holdStartTime = Time.time;
+                holdStartPosition = touchPos;
+                StartCoroutine(CheckForHold(touchedItem));
             }
         }
         else
         {
-            // 그리드 외부 터치 처리
-            if (inventoryHighlight != null)
-            {
-                inventoryHighlight.Show(false);
-            }
+            inventoryHighlight?.Show(false);
         }
     }
     private void HandleItemSelection(InventoryItem item)
@@ -285,72 +256,34 @@ public class InventoryController : MonoBehaviour
             inventoryHighlight.SetPosition(selectedItemGrid, item);
         }
     }
-    private IEnumerator CheckForHold()
+    private IEnumerator CheckForHold(InventoryItem touchedItem)
     {
-        float startTime = Time.realtimeSinceStartup;
-        bool holdChecking = true;
-        Vector2 rawTouchPos = holdStartPosition;
-        InventoryItem touchedItem = null;
+        float elapsedTime = 0f;
+        bool holdComplete = false;
+        Vector2 initialTouchPos = holdStartPosition;
 
-        // 현재 터치한 위치의 그리드 좌표 계산
-        Vector2Int initialGridPosition = GetTileGridPosition(holdStartPosition);
-
-        // 그리드 내의 아이템 확인
-        if (IsPositionWithinGrid(initialGridPosition))
+        while (!holdComplete && touchPress.IsPressed())
         {
-            touchedItem = selectedItemGrid.GetItem(initialGridPosition.x, initialGridPosition.y);
-            if (touchedItem != null)
-            {
-                //Debug.Log($"Found item at grid position: ({initialGridPosition.x}, {initialGridPosition.y})");
-            }
-        }
-
-        // 터치한 아이템이 없다면 종료
-        if (touchedItem == null)
-        {
-            //Debug.Log("No item found at touch position");
-            yield break;
-        }
-
-        while (holdChecking && touchPress.IsPressed())
-        {
-            float currentTime = Time.realtimeSinceStartup;
-            float elapsedTime = currentTime - startTime;
+            elapsedTime += Time.deltaTime;
             Vector2 currentPos = touchPosition.ReadValue<Vector2>();
-            float moveDistance = Vector2.Distance(holdStartPosition, currentPos);
+            float moveDistance = Vector2.Distance(initialTouchPos, currentPos);
 
-            // 드래그 시작 조건 체크
-            if (moveDistance > HOLD_MOVE_THRESHOLD)
+            // 드래그 또는 홀드 조건 체크
+            if (moveDistance > HOLD_MOVE_THRESHOLD || elapsedTime >= HOLD_THRESHOLD)
             {
-                //Debug.Log("Move threshold reached - starting drag");
                 StartItemInteraction(touchedItem, currentPos);
-                holdChecking = false;
-                break;
+                holdComplete = true;
             }
 
-            // 홀드 시간 조건 체크
-            if (elapsedTime >= HOLD_THRESHOLD)
-            {
-                //Debug.Log("Hold threshold reached - picking up item");
-                StartItemInteraction(touchedItem, currentPos);
-                holdChecking = false;
-                break;
-            }
-
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
     }
     private void StartItemInteraction(InventoryItem item, Vector2 currentPos)
     {
         if (item == null) return;
-        SoundManager.Instance.PlaySound("ItemLift_sfx", 1f, false);
-        // 이전 선택 상태 정리
-        if (selectedItem != null && selectedItem != item)
-        {
-            ClearPreviousSelection();
-        }
 
-        // 새 아이템 선택 및 상태 설정
+        SoundManager.Instance.PlaySound("ItemLift_sfx", 1f, false);
+
         selectedItem = item;
         rectTransform = selectedItem.GetComponent<RectTransform>();
         isDragging = true;
@@ -362,14 +295,30 @@ public class InventoryController : MonoBehaviour
             selectedItemGrid.PickUpItem(item.onGridPositionX, item.onGridPositionY);
         }
 
-        // 아이템 위치 업데이트
+        // 들어올린 위치로 아이템 이동
         Vector2 liftedPosition = currentPos + Vector2.up * ITEM_LIFT_OFFSET;
         rectTransform.position = liftedPosition;
-       
+
+        // UI 업데이트
+        UpdateUIForSelectedItem();
+    }
+
+    private void UpdateUIForSelectedItem()
+    {
+        if (selectedItem == null) return;
+
         // 무기 정보 UI 업데이트
         if (weaponInfoUI != null)
         {
             weaponInfoUI.UpdateWeaponInfo(selectedItem.weaponData);
+        }
+
+        // 하이라이트 업데이트
+        if (inventoryHighlight != null)
+        {
+            inventoryHighlight.Show(true);
+            inventoryHighlight.SetSize(selectedItem);
+            inventoryHighlight.SetPosition(selectedItemGrid, selectedItem);
         }
     }
     private void ClearPreviousSelection()

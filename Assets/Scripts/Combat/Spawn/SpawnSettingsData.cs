@@ -1,4 +1,3 @@
-// SpawnSettingsData.cs
 using UnityEditor;
 using UnityEngine;
 

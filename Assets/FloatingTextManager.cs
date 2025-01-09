@@ -2,8 +2,6 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
-using static UnityEngine.RuleTile.TilingRuleOutput;
-using Unity.VisualScripting;
 
 public class FloatingTextManager : Singleton<FloatingTextManager>
 {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ItemGrid : MonoBehaviour
@@ -109,57 +110,46 @@ public class ItemGrid : MonoBehaviour
     {
         InventoryItem toReturn = inventoryItemSlot[x, y];
 
-        if (toReturn == null) { return null; }
+        if (toReturn == null) return null;
 
-        CleanGridReference(toReturn);
+        // 아이템 참조 정리
+        CleanupItemReferences(toReturn);
+
+        // 픽업 후 그리드 상태 검증
+        ValidateGridState();
+
+        OnItemRemoved?.Invoke(toReturn);
+        NotifyGridChanged();
 
         return toReturn;
-    }
-
-    private void CleanGridReference(InventoryItem item)
-    {
-        if (!BoundryCheck(item.onGridPositionX, item.onGridPositionY, item.WIDTH, item.HEIGHT))
-        {
-            Debug.LogWarning($"Attempted to clean grid reference outside bounds: pos({item.onGridPositionX}, {item.onGridPositionY}), size({item.WIDTH}, {item.HEIGHT})");
-            return;
-        }
-
-        for (int ix = 0; ix < item.WIDTH; ix++)
-        {
-            for (int iy = 0; iy < item.HEIGHT; iy++)
-            {
-                if (item.onGridPositionX + ix < gridSizeWidth &&
-                    item.onGridPositionY + iy < gridSizeHeight)
-                {
-                    inventoryItemSlot[item.onGridPositionX + ix, item.onGridPositionY + iy] = null;
-                }
-            }
-        }
-
-        OnItemRemoved?.Invoke(item);
-        NotifyGridChanged();
     }
 
     public bool PlaceItem(InventoryItem inventoryItem, int posX, int posY, ref InventoryItem overlapItem)
     {
         if (!BoundryCheck(posX, posY, inventoryItem.WIDTH, inventoryItem.HEIGHT))
         {
-            Debug.LogWarning($"Cannot place item: position ({posX}, {posY}) is out of bounds");
             return false;
         }
 
+        // 기존 참조 정리
+        CleanupItemReferences(inventoryItem);
+
         if (!OverlapCheck(posX, posY, inventoryItem.WIDTH, inventoryItem.HEIGHT, ref overlapItem))
         {
-            Debug.LogWarning($"Cannot place item: overlap check failed at ({posX}, {posY})");
             return false;
         }
 
         if (overlapItem != null && overlapItem != inventoryItem)
         {
-            CleanGridReference(overlapItem);
+            CleanupItemReferences(overlapItem);
         }
 
+        // 실제 배치는 private 메서드에 위임
         PlaceItem(inventoryItem, posX, posY);
+
+        // 배치 후 그리드 상태 검증
+        ValidateGridState();
+
         return true;
     }
 
@@ -184,8 +174,6 @@ public class ItemGrid : MonoBehaviour
 
         OnItemAdded?.Invoke(inventoryItem);
         NotifyGridChanged();
-
-        //Debug.Log($"Item placed at position ({posX}, {posY})");
     }
     public Vector2 CalculatePositionOnGrid(InventoryItem inventoryItem, int posX, int posY)
     {
@@ -271,16 +259,57 @@ public class ItemGrid : MonoBehaviour
         return true;
     }
 
-    bool PositionCheck(int posX, int posY)
+    public void ValidateGridState()
     {
-        if(posX < 0 || posY < 0) { return false; }
+        // 모든 아이템의 참조를 임시로 저장
+        HashSet<InventoryItem> processedItems = new HashSet<InventoryItem>();
+        List<InventoryItem> invalidItems = new List<InventoryItem>();
 
-        if(posX >= gridSizeWidth || posY >= gridSizeHeight) {  return false; }
+        // 전체 그리드 순회하면서 상태 체크
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                InventoryItem item = inventoryItemSlot[x, y];
+                if (item != null)
+                {
+                    // 아이템의 등록된 위치가 실제 위치와 일치하는지 확인
+                    if (item.onGridPositionX != x || item.onGridPositionY != y)
+                    {
+                        // 이미 다른 위치에서 발견된 아이템인 경우
+                        if (!processedItems.Contains(item))
+                        {
+                            invalidItems.Add(item);
+                        }
+                    }
+                    processedItems.Add(item);
+                }
+            }
+        }
 
-        return true;
+        // 잘못된 참조를 가진 아이템들 처리
+        foreach (var item in invalidItems)
+        {
+            CleanupItemReferences(item);
+        }
     }
 
+    private void CleanupItemReferences(InventoryItem item)
+    {
+        if (item == null) return;
 
+        // 전체 그리드에서 해당 아이템의 참조 제거
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                if (inventoryItemSlot[x, y] == item)
+                {
+                    inventoryItemSlot[x, y] = null;
+                }
+            }
+        }
+    }
     public bool BoundryCheck(int posX, int posY, int width, int height)
     {
         if (posX < 0 || posY < 0)
