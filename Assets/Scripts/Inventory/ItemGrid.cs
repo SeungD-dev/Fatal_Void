@@ -1,296 +1,299 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System;
 
+/// <summary>
+/// 그리드 기반 인벤토리 시스템을 관리하는 클래스
+/// 아이템의 배치, 이동, 검증을 처리
+/// </summary>
 public class ItemGrid : MonoBehaviour
 {
-    public static float tileSizeWidth = 32f;
-    public static float tileSizeHeight = 32f;
+    #region Constants
+    public const float TILE_SIZE = 32f;
+    #endregion
 
-    InventoryItem[,] inventoryItemSlot;
+    #region Serialized Fields
+    [Header("Grid Settings")]
+    [SerializeField] private int gridWidth = 4;
+    [SerializeField] private int gridHeight = 4;
+    #endregion
 
-    RectTransform rectTransform;
+    #region Events
+    public event Action<InventoryItem> OnItemAdded;
+    public event Action<InventoryItem> OnItemRemoved;
+    public event Action OnGridChanged;
+    #endregion
 
-    [SerializeField] int gridSizeWidth;
-    [SerializeField] int gridSizeHeight;
-    public int Width => gridSizeWidth;
-    public int Height => gridSizeHeight;
+    #region Properties
+    public int Width => gridWidth;
+    public int Height => gridHeight;
+    #endregion
 
-    public System.Action<InventoryItem> OnItemAdded;
-    public System.Action<InventoryItem> OnItemRemoved;
-    public System.Action OnGridChanged;
+    #region Private Fields
+    private InventoryItem[,] gridItems;
+    private RectTransform rectTransform;
+    #endregion
 
-    public void NotifyGridChanged()
+    #region Unity Methods
+    private void Awake()
     {
-        OnGridChanged?.Invoke();
-    }
-    private void Start()
-    {
-        rectTransform = GetComponent<RectTransform>();
-        Init(gridSizeWidth, gridSizeHeight);
+        InitializeComponents();
+        InitializeGrid();
     }
 
     private void OnEnable()
     {
-        // UI가 활성화될 때마다 RectTransform 확인
+        ValidateGridState();
+    }
+    #endregion
+
+    #region Initialization
+    private void InitializeComponents()
+    {
+        rectTransform = GetComponent<RectTransform>();
         if (rectTransform == null)
         {
-            rectTransform = GetComponent<RectTransform>();
-            Init(gridSizeWidth, gridSizeHeight);
-        }
-    }
-
-    private void Init(int width, int height)
-    {
-        if (width <= 0 || height <= 0)
-        {
-            Debug.LogError($"Invalid grid size: {width}x{height}");
+            Debug.LogError("RectTransform component missing!");
             return;
         }
+    }
 
-        inventoryItemSlot = new InventoryItem[width, height];
-        Vector2 size = new Vector2(width * tileSizeWidth, height * tileSizeHeight);
+    private void InitializeGrid()
+    {
+        gridItems = new InventoryItem[gridWidth, gridHeight];
+        UpdateGridSize();
+    }
+
+    private void UpdateGridSize()
+    {
         if (rectTransform != null)
         {
-            rectTransform.sizeDelta = size;
-        }
-        else
-        {
-            Debug.LogError("RectTransform is null!");
+            rectTransform.sizeDelta = new Vector2(
+                gridWidth * TILE_SIZE,
+                gridHeight * TILE_SIZE
+            );
         }
     }
-    public Vector2Int GetTileGridPosition(Vector2 touchPosition)
-    {
-        if (rectTransform == null)
-        {
-            rectTransform = GetComponent<RectTransform>();
-            if (rectTransform == null)
-            {
-                Debug.LogError($"RectTransform still null on {gameObject.name}");
-                return Vector2Int.zero;
-            }
-        }
+    #endregion
 
+    #region Grid Operations
+    /// <summary>
+    /// 스크린 좌표를 그리드 좌표로 변환
+    /// </summary>
+    public Vector2Int GetGridPosition(Vector2 screenPosition)
+    {
         Vector3[] corners = new Vector3[4];
         rectTransform.GetWorldCorners(corners);
         Vector2 gridTopLeft = corners[1];
-        float scale = rectTransform.localScale.x;
 
-        Vector2 positionFromTopLeft = touchPosition - gridTopLeft;
-        positionFromTopLeft += new Vector2(tileSizeWidth * scale * 0.5f, tileSizeHeight * scale * 0.5f);
-        Vector2 positionOnTheGrid = positionFromTopLeft / scale;
+        Vector2 positionInGrid = screenPosition - gridTopLeft;
+        positionInGrid /= rectTransform.lossyScale.x;
 
-        Vector2Int rawGridPosition = new Vector2Int(
-            Mathf.FloorToInt(positionOnTheGrid.x / tileSizeWidth),
-            Mathf.FloorToInt(-positionOnTheGrid.y / tileSizeHeight)
+        return new Vector2Int(
+            Mathf.FloorToInt(positionInGrid.x / TILE_SIZE),
+            Mathf.FloorToInt(-positionInGrid.y / TILE_SIZE)
         );
-
-        // 터치한 위치에서 아이템을 찾음
-        InventoryItem touchedItem = GetItemAtPosition(rawGridPosition);
-        if (touchedItem != null)
-        {
-            // 아이템의 원점 위치를 반환
-            return new Vector2Int(touchedItem.onGridPositionX, touchedItem.onGridPositionY);
-        }
-
-        return rawGridPosition;
     }
 
-    private InventoryItem GetItemAtPosition(Vector2Int position)
+    /// <summary>
+    /// 아이템을 지정된 위치에 배치
+    /// </summary>
+    public bool PlaceItem(InventoryItem item, Vector2Int position)
     {
-        // 경계 체크
-        if (position.x < 0 || position.y < 0 || position.x >= gridSizeWidth || position.y >= gridSizeHeight)
+        if (!CanPlaceItem(item, position)) return false;
+
+        // 기존 아이템 제거
+        CleanupItemReferences(item);
+
+        // 새 위치에 아이템 배치
+        for (int x = 0; x < item.Width; x++)
+        {
+            for (int y = 0; y < item.Height; y++)
+            {
+                Vector2Int gridPos = position + new Vector2Int(x, y);
+                gridItems[gridPos.x, gridPos.y] = item;
+            }
+        }
+
+        item.SetGridPosition(position);
+        UpdateItemVisualPosition(item, position);
+
+        OnItemAdded?.Invoke(item);
+        OnGridChanged?.Invoke();
+
+        return true;
+    }
+
+    // 오버로드된 메서드들
+    public bool PlaceItem(InventoryItem item, int x, int y)
+    {
+        return PlaceItem(item, new Vector2Int(x, y));
+    }
+
+    public bool PlaceItem(InventoryItem item, Vector2Int position, ref InventoryItem overlapItem)
+    {
+        overlapItem = GetItem(position);
+        return PlaceItem(item, position);
+    }
+
+    public bool PlaceItem(InventoryItem item, int x, int y, ref InventoryItem overlapItem)
+    {
+        return PlaceItem(item, new Vector2Int(x, y), ref overlapItem);
+    }
+    /// <summary>
+    /// 지정된 위치에서 아이템 제거
+    /// </summary>
+    public InventoryItem RemoveItem(Vector2Int position)
+    {
+        InventoryItem item = GetItem(position);
+        if (item == null) return null;
+
+        // 아이템이 차지하는 모든 칸에서 참조 제거
+        for (int x = 0; x < item.Width; x++)
+        {
+            for (int y = 0; y < item.Height; y++)
+            {
+                Vector2Int gridPos = position + new Vector2Int(x, y);
+                if (IsValidPosition(gridPos))
+                {
+                    gridItems[gridPos.x, gridPos.y] = null;
+                }
+            }
+        }
+
+        OnItemRemoved?.Invoke(item);
+        OnGridChanged?.Invoke();
+
+        return item;
+    }
+
+    public InventoryItem PickUpItem(Vector2Int position)
+    {
+        InventoryItem item = GetItem(position.x, position.y);
+        if (item == null) return null;
+
+        RemoveItem(position);
+        return item;
+    }
+
+    /// <summary>
+    /// 아이템을 배치할 수 있는지 검사
+    /// </summary>
+    public bool CanPlaceItem(InventoryItem item, Vector2Int position)
+    {
+        if (!IsValidPosition(position) || item == null) return false;
+
+        // 아이템이 그리드 범위를 벗어나는지 검사
+        if (position.x + item.Width > gridWidth ||
+            position.y + item.Height > gridHeight)
+        {
+            return false;
+        }
+
+        // 다른 아이템과 겹치는지 검사
+        for (int x = 0; x < item.Width; x++)
+        {
+            for (int y = 0; y < item.Height; y++)
+            {
+                Vector2Int checkPos = position + new Vector2Int(x, y);
+                InventoryItem existingItem = gridItems[checkPos.x, checkPos.y];
+
+                if (existingItem != null && existingItem != item)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public bool CanPlaceItem(InventoryItem item, int x, int y)
+    {
+        return CanPlaceItem(item, new Vector2Int(x, y));
+    }
+    /// <summary>
+    /// 그리드 내 빈 공간 찾기
+    /// </summary>
+    public Vector2Int? FindSpaceForObject(InventoryItem item)
+    {
+        if (item == null) return null;
+
+        for (int y = 0; y < gridHeight - item.Height + 1; y++)
+        {
+            for (int x = 0; x < gridWidth - item.Width + 1; x++)
+            {
+                Vector2Int position = new Vector2Int(x, y);
+                if (CanPlaceItem(item, position))
+                {
+                    return position;
+                }
+            }
+        }
+
+        return null;
+    }
+    #endregion
+
+    #region Helper Methods
+    /// <summary>
+    /// 지정된 위치의 아이템 반환
+    /// </summary>
+    public InventoryItem GetItem(Vector2Int position)
+    {
+        return GetItem(position.x, position.y);
+    }
+
+    public InventoryItem GetItem(int x, int y)
+    {
+        if (!IsValidPosition(new Vector2Int(x, y)))
         {
             return null;
         }
-
-        return inventoryItemSlot[position.x, position.y];
+        return gridItems[x, y];
     }
 
-    public InventoryItem PickUpItem(int x, int y)
+    /// <summary>
+    /// 위치가 그리드 범위 내인지 확인
+    /// </summary>
+    public bool IsValidPosition(Vector2Int position)
     {
-        InventoryItem toReturn = inventoryItemSlot[x, y];
-
-        if (toReturn == null) return null;
-
-        // 아이템 참조 정리
-        CleanupItemReferences(toReturn);
-
-        // 픽업 후 그리드 상태 검증
-        ValidateGridState();
-
-        OnItemRemoved?.Invoke(toReturn);
-        NotifyGridChanged();
-
-        return toReturn;
+        return position.x >= 0 && position.x < gridWidth &&
+               position.y >= 0 && position.y < gridHeight;
     }
 
-    public bool PlaceItem(InventoryItem inventoryItem, int posX, int posY, ref InventoryItem overlapItem)
+    /// <summary>
+    /// 아이템의 그리드상 위치 계산
+    /// </summary>
+    public Vector2 CalculatePositionOnGrid(InventoryItem item, int posX, int posY)
     {
-        if (!BoundryCheck(posX, posY, inventoryItem.WIDTH, inventoryItem.HEIGHT))
-        {
-            return false;
-        }
+        if (item == null) return Vector2.zero;
 
-        // 기존 참조 정리
-        CleanupItemReferences(inventoryItem);
-
-        if (!OverlapCheck(posX, posY, inventoryItem.WIDTH, inventoryItem.HEIGHT, ref overlapItem))
-        {
-            return false;
-        }
-
-        if (overlapItem != null && overlapItem != inventoryItem)
-        {
-            CleanupItemReferences(overlapItem);
-        }
-
-        // 실제 배치는 private 메서드에 위임
-        PlaceItem(inventoryItem, posX, posY);
-
-        // 배치 후 그리드 상태 검증
-        ValidateGridState();
-
-        return true;
+        return new Vector2(
+            posX * TILE_SIZE + (item.Width * TILE_SIZE / 2),
+            -(posY * TILE_SIZE + (item.Height * TILE_SIZE / 2))
+        );
     }
 
-    private void PlaceItem(InventoryItem inventoryItem, int posX, int posY)
+    /// <summary>
+    /// 그리드 상태 검증
+    /// </summary>
+    private void ValidateGridState()
     {
-        RectTransform rectTransform = inventoryItem.GetComponent<RectTransform>();
-        rectTransform.SetParent(this.rectTransform);
-
-        for (int x = 0; x < inventoryItem.WIDTH; x++)
+        for (int x = 0; x < gridWidth; x++)
         {
-            for (int y = 0; y < inventoryItem.HEIGHT; y++)
+            for (int y = 0; y < gridHeight; y++)
             {
-                inventoryItemSlot[posX + x, posY + y] = inventoryItem;
-            }
-        }
-
-        inventoryItem.onGridPositionX = posX;
-        inventoryItem.onGridPositionY = posY;
-
-        Vector2 position = CalculatePositionOnGrid(inventoryItem, posX, posY);
-        rectTransform.localPosition = position;
-
-        OnItemAdded?.Invoke(inventoryItem);
-        NotifyGridChanged();
-    }
-    public Vector2 CalculatePositionOnGrid(InventoryItem inventoryItem, int posX, int posY)
-    {
-        Vector2 position = new Vector2();
-
-
-        position.x = posX * tileSizeWidth + (tileSizeWidth * inventoryItem.WIDTH / 2);
-        position.y = -(posY * tileSizeHeight + (tileSizeHeight * inventoryItem.HEIGHT / 2));
-
-        return position;
-    }
-    private bool OverlapCheck(int posX, int posY, int width, int height, ref InventoryItem overlapItem)
-    {
-        // 경계 체크
-        if (!BoundryCheck(posX, posY, width, height))
-        {
-            return false;
-        }
-
-        overlapItem = null;
-        bool hasOverlap = false;
-
-        // 아이템을 놓으려는 영역 전체를 검사
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                InventoryItem currentSlot = inventoryItemSlot[posX + x, posY + y];
-
-                if (currentSlot != null)
-                {
-                    // 첫 번째 겹침을 발견한 경우
-                    if (!hasOverlap)
-                    {
-                        overlapItem = currentSlot;
-                        hasOverlap = true;
-                    }
-                    // 다른 아이템과 겹치는 경우
-                    else if (currentSlot != overlapItem)
-                    {
-                        overlapItem = null;
-                        return false;
-                    }
-                }
-            }
-        }
-
-        // hasOverlap이 false인 경우 = 완전히 빈 공간
-        // hasOverlap이 true인 경우 = 단일 아이템과만 겹침
-        return true;
-    }
-    private bool CheckAvailableSpace(int posX, int posY, int width, int height)
-    {
-        // 경계 체크
-        if (!BoundryCheck(posX, posY, width, height))
-        {
-            return false;
-        }
-
-        // 해당 영역의 모든 칸이 비어있는지 확인
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                // 현재 검사하는 위치
-                int checkX = posX + x;
-                int checkY = posY + y;
-
-                // 추가 경계 체크
-                if (checkX >= gridSizeWidth || checkY >= gridSizeHeight)
-                {
-                    return false;
-                }
-
-                // 다른 아이템이 있는지 확인
-                if (inventoryItemSlot[checkX, checkY] != null)
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public void ValidateGridState()
-    {
-        // 모든 아이템의 참조를 임시로 저장
-        HashSet<InventoryItem> processedItems = new HashSet<InventoryItem>();
-        List<InventoryItem> invalidItems = new List<InventoryItem>();
-
-        // 전체 그리드 순회하면서 상태 체크
-        for (int x = 0; x < Width; x++)
-        {
-            for (int y = 0; y < Height; y++)
-            {
-                InventoryItem item = inventoryItemSlot[x, y];
+                InventoryItem item = gridItems[x, y];
                 if (item != null)
                 {
-                    // 아이템의 등록된 위치가 실제 위치와 일치하는지 확인
-                    if (item.onGridPositionX != x || item.onGridPositionY != y)
+                    Vector2Int itemPos = new Vector2Int(item.GridPosition.x, item.GridPosition.y);
+                    if (!IsValidPosition(itemPos))
                     {
-                        // 이미 다른 위치에서 발견된 아이템인 경우
-                        if (!processedItems.Contains(item))
-                        {
-                            invalidItems.Add(item);
-                        }
+                        gridItems[x, y] = null;
+                        OnGridChanged?.Invoke();
                     }
-                    processedItems.Add(item);
                 }
             }
-        }
-
-        // 잘못된 참조를 가진 아이템들 처리
-        foreach (var item in invalidItems)
-        {
-            CleanupItemReferences(item);
         }
     }
 
@@ -298,106 +301,49 @@ public class ItemGrid : MonoBehaviour
     {
         if (item == null) return;
 
-        // 전체 그리드에서 해당 아이템의 참조 제거
-        for (int x = 0; x < Width; x++)
+        for (int x = 0; x < gridWidth; x++)
         {
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < gridHeight; y++)
             {
-                if (inventoryItemSlot[x, y] == item)
+                if (gridItems[x, y] == item)
                 {
-                    inventoryItemSlot[x, y] = null;
+                    gridItems[x, y] = null;
                 }
             }
         }
     }
-    public bool BoundryCheck(int posX, int posY, int width, int height)
+
+    private void UpdateItemVisualPosition(InventoryItem item, Vector2Int position)
     {
-        if (posX < 0 || posY < 0)
-        {
-            //Debug.Log($"BoundryCheck failed: position ({posX}, {posY}) is negative");
-            return false;
-        }
+        if (item == null) return;
 
-        if (posX + width > gridSizeWidth || posY + height > gridSizeHeight)
+        RectTransform itemRect = item.GetComponent<RectTransform>();
+        if (itemRect != null)
         {
-            //Debug.Log($"BoundryCheck failed: item size {width}x{height} at ({posX}, {posY}) exceeds grid bounds {gridSizeWidth}x{gridSizeHeight}");
-            return false;
+            Vector2 gridPosition = CalculatePositionOnGrid(item, position.x, position.y);
+            itemRect.localPosition = gridPosition;
         }
-
-        return true;
     }
+    #endregion
 
-    public InventoryItem GetItem(int x, int y)
+
+
+    #region Debug Methods
+    /// <summary>
+    /// 그리드 상태 디버그 출력
+    /// </summary>
+    public void DebugPrintGrid()
     {
-        if (inventoryItemSlot == null)
+        string debug = "Grid State:\n";
+        for (int y = 0; y < gridHeight; y++)
         {
-            //Debug.LogError($"inventoryItemSlot is null! Grid might not be initialized properly.");
-            return null;
-        }
-
-        // 기본 경계 체크
-        if (x < 0 || y < 0 || x >= gridSizeWidth || y >= gridSizeHeight)
-        {
-            //Debug.Log($"GetItem: Position ({x}, {y}) is outside grid bounds {gridSizeWidth}x{gridSizeHeight}");
-            return null;
-        }
-
-        InventoryItem item = inventoryItemSlot[x, y];
-        if (item == null)
-        {
-            return null;
-        }
-
-        // 아이템의 원점 위치가 유효한지 확인
-        if (item.onGridPositionX < 0 || item.onGridPositionY < 0 ||
-            item.onGridPositionX >= gridSizeWidth || item.onGridPositionY >= gridSizeHeight)
-        {
-            //Debug.LogWarning($"Item at ({x}, {y}) has invalid origin position: ({item.onGridPositionX}, {item.onGridPositionY})");
-            return null;
-        }
-
-        // 아이템의 크기가 그리드를 벗어나는지 확인
-        if (!BoundryCheck(item.onGridPositionX, item.onGridPositionY, item.WIDTH, item.HEIGHT))
-        {
-           // Debug.LogWarning($"Item at ({x}, {y}) extends beyond grid bounds");
-            return null;
-        }
-
-        // 원점 위치의 아이템을 반환
-        return inventoryItemSlot[item.onGridPositionX, item.onGridPositionY];
-    }
-    public Vector2Int? FindSpaceForObject(InventoryItem itemToInsert)
-    {
-        // itemToInsert의 크기가 유효한지 먼저 확인
-        if (itemToInsert.WIDTH <= 0 || itemToInsert.HEIGHT <= 0)
-        {
-           // Debug.LogError($"Invalid item size: {itemToInsert.WIDTH}x{itemToInsert.HEIGHT}");
-            return null;
-        }
-
-        // 그리드 내에서 아이템이 들어갈 수 있는 최대 범위 계산
-        int maxY = gridSizeHeight - itemToInsert.HEIGHT + 1;
-        int maxX = gridSizeWidth - itemToInsert.WIDTH + 1;
-
-        if (maxX <= 0 || maxY <= 0)
-        {
-            //Debug.LogWarning($"Item size {itemToInsert.WIDTH}x{itemToInsert.HEIGHT} is too large for grid {gridSizeWidth}x{gridSizeHeight}");
-            return null;
-        }
-
-        // 왼쪽 상단부터 순차적으로 검색
-        for (int y = 0; y < maxY; y++)
-        {
-            for (int x = 0; x < maxX; x++)
+            for (int x = 0; x < gridWidth; x++)
             {
-                // 각 위치에서 아이템의 전체 영역이 비어있는지 확인
-                if (CheckAvailableSpace(x, y, itemToInsert.WIDTH, itemToInsert.HEIGHT))
-                {
-                    return new Vector2Int(x, y);
-                }
+                debug += gridItems[x, y] != null ? "X " : "- ";
             }
+            debug += "\n";
         }
-
-        return null;
+        Debug.Log(debug);
     }
-} 
+    #endregion
+}

@@ -532,6 +532,34 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: -7106705765877761268, guid: 0a4afb6ae1801ba4e897e947d6f30828, type: 3}
+    - target: {fileID: 5273576202989994993, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5273576202989994993, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_Pivot.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5273576202989994993, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5273576202989994993, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5273576202989994993, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5273576202989994993, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5273576202989994993, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6481573906762372406, guid: c97874d7a910b6645809d2e37b595c90, type: 3}
       propertyPath: m_Name
       value: InventoryPanel

@@ -156,9 +156,13 @@ public class WeaponManager : MonoBehaviour
             for (int y = 0; y < mainItemGrid.Height && !found; y++)
             {
                 InventoryItem item = mainItemGrid.GetItem(x, y);
-                if (item != null && item.weaponData == weaponData)
+                if (item != null)
                 {
-                    found = true;
+                    WeaponData itemWeapon = item.GetWeaponData();
+                    if (itemWeapon == weaponData)
+                    {
+                        found = true;
+                    }
                 }
             }
         }

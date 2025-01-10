@@ -4,12 +4,17 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 
+/// <summary>
+/// 무기 정보 및 업그레이드 UI를 관리하는 클래스
+/// </summary>
 public class WeaponInfoUI : MonoBehaviour
 {
+    #region SerializeFields
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI weaponLevelText;
     [SerializeField] private TextMeshProUGUI weaponNameText;
     [SerializeField] private TextMeshProUGUI weaponDescriptionText;
+    //[SerializeField] private TextMeshProUGUI weaponStatsText;
 
     [Header("Upgrade System")]
     [SerializeField] private Button upgradeButton;
@@ -18,39 +23,31 @@ public class WeaponInfoUI : MonoBehaviour
 
     [Header("Scene References")]
     [SerializeField] private InventoryController inventoryController;
-
-    [Header("Grid References")]
     [SerializeField] private ItemGrid mainItemGrid;
+    #endregion
 
+    #region Private Fields
     private PlayerStats playerStats;
     private WeaponData selectedWeapon;
     private List<InventoryItem> upgradeableWeapons;
-    private bool isInitialized = false;
+    private bool isInitialized;
+    #endregion
 
+    #region Unity Methods
     private void Start()
     {
         ValidateReferences();
-
-        if (upgradeButton != null)
-        {
-            upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
-            upgradeButton.gameObject.SetActive(false);
-        }
-
-        // Grid 이벤트 리스너 등록
-        if (mainItemGrid != null)
-        {
-            mainItemGrid.OnGridChanged += RefreshUpgradeUI;
-        }
-
-        if (GameManager.Instance.IsInitialized)
-        {
-            InitializeReferences();
-        }
-
-        GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
+        InitializeUI();
+        SubscribeToEvents();
     }
 
+    private void OnDestroy()
+    {
+        UnsubscribeFromEvents();
+    }
+    #endregion
+
+    #region Initialization
     private void ValidateReferences()
     {
         if (weaponLevelText == null) Debug.LogError($"Missing reference: {nameof(weaponLevelText)} in {gameObject.name}");
@@ -63,13 +60,24 @@ public class WeaponInfoUI : MonoBehaviour
         if (inventoryController == null) Debug.LogError($"Missing reference: {nameof(inventoryController)} in {gameObject.name}");
     }
 
+    private void InitializeUI()
+    {
+        upgradeableWeapons = new List<InventoryItem>();
+
+        if (upgradeButton != null)
+        {
+            upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
+            upgradeButton.gameObject.SetActive(false);
+        }
+
+        gameObject.SetActive(false);
+    }
 
     private void InitializeReferences()
     {
         if (isInitialized) return;
 
         playerStats = GameManager.Instance.PlayerStats;
-
         if (playerStats != null && inventoryController != null)
         {
             isInitialized = true;
@@ -79,21 +87,49 @@ public class WeaponInfoUI : MonoBehaviour
             }
         }
     }
-    public void RefreshUpgradeUI()
+
+    private void SubscribeToEvents()
     {
-        if (selectedWeapon != null)
+        if (mainItemGrid != null)
         {
-            CheckUpgradePossibility();
+            mainItemGrid.OnGridChanged += RefreshUpgradeUI;
         }
-    }
-    private void OnGameStateChanged(GameState newState)
-    {
-        if (!isInitialized && GameManager.Instance.IsInitialized)
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
+        }
+
+        if (GameManager.Instance.IsInitialized)
         {
             InitializeReferences();
         }
     }
 
+    private void UnsubscribeFromEvents()
+    {
+        if (upgradeButton != null)
+        {
+            upgradeButton.onClick.RemoveListener(OnUpgradeButtonClick);
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged -= OnGameStateChanged;
+        }
+
+        if (mainItemGrid != null)
+        {
+            mainItemGrid.OnGridChanged -= RefreshUpgradeUI;
+        }
+    }
+    #endregion
+
+    #region Public Methods
+    /// <summary>
+    /// 무기 정보 UI를 업데이트합니다.
+    /// </summary>
+    /// <param name="weaponData">표시할 무기 데이터</param>
     public void UpdateWeaponInfo(WeaponData weaponData)
     {
         if (weaponData == null)
@@ -105,104 +141,161 @@ public class WeaponInfoUI : MonoBehaviour
         selectedWeapon = weaponData;
         gameObject.SetActive(true);
 
-        weaponLevelText.text = $"Tier {weaponData.currentTier}";
-        weaponNameText.text = weaponData.weaponName;
-        
-        weaponDescriptionText.text = weaponData.weaponDescription;
+        UpdateBasicInfo(weaponData);
 
         if (isInitialized && playerStats != null)
         {
-            UpdateDetailedStats(weaponData);
+            //UpdateDetailedStats(weaponData);
             CheckUpgradePossibility();
         }
     }
-    private void UpdateDetailedStats(WeaponData weaponData)
+
+    /// <summary>
+    /// 업그레이드 UI를 새로고침합니다.
+    /// </summary>
+    public void RefreshUpgradeUI()
     {
-        float dps = weaponData.CalculateTheoreticalDPS(playerStats);
-        float damage = weaponData.CalculateFinalDamage(playerStats);
-        float attacksPerSecond = weaponData.CalculateAttacksPerSecond(playerStats);
-        float knockbackPower = weaponData.CalculateFinalKnockback(playerStats);
-        float range = weaponData.CalculateFinalRange(playerStats);
-        float projectileSize = weaponData.CalculateFinalProjectileSize(playerStats);
-        var penetrationInfo = weaponData.GetPenetrationInfo();
-
-        string penetrationText = penetrationInfo.canPenetrate ?
-            $"관통: {(penetrationInfo.maxCount == 0 ? "무제한" : penetrationInfo.maxCount.ToString())}회" :
-            "관통: 불가";
-
-        string statText = $"DPS: {dps:F1}\n" +
-                         $"DMG: {damage:F1}\n" +
-                         $"ASPD: {attacksPerSecond:F2}/s\n" +
-                         $"Range: {range:F1}\n" +
-                         $"Size: {projectileSize:F1}x\n" +
-                         $"KnockBack: {knockbackPower:F1}x\n" +
-                         penetrationText;
+        if (selectedWeapon != null)
+        {
+            CheckUpgradePossibility();
+        }
     }
+    #endregion
+
+    #region Private Methods
+    private void OnGameStateChanged(GameState newState)
+    {
+        if (!isInitialized && GameManager.Instance.IsInitialized)
+        {
+            InitializeReferences();
+        }
+    }
+
+    private void UpdateBasicInfo(WeaponData weaponData)
+    {
+        weaponLevelText.text = $"Tier {weaponData.currentTier}";
+        weaponNameText.text = weaponData.weaponName;
+        weaponDescriptionText.text = weaponData.weaponDescription;
+    }
+
+    //private void UpdateDetailedStats(WeaponData weaponData)
+    //{
+    //    float dps = weaponData.CalculateTheoreticalDPS(playerStats);
+    //    float damage = weaponData.CalculateFinalDamage(playerStats);
+    //    float attacksPerSecond = weaponData.CalculateAttacksPerSecond(playerStats);
+    //    float knockbackPower = weaponData.CalculateFinalKnockback(playerStats);
+    //    float range = weaponData.CalculateFinalRange(playerStats);
+    //    float projectileSize = weaponData.CalculateFinalProjectileSize(playerStats);
+    //    var penetrationInfo = weaponData.GetPenetrationInfo();
+
+    //    string penetrationText = penetrationInfo.canPenetrate ?
+    //        $"관통: {(penetrationInfo.maxCount == 0 ? "무제한" : penetrationInfo.maxCount.ToString())}회" :
+    //        "관통: 불가";
+
+    //    weaponStatsText.text = $"DPS: {dps:F1}\n" +
+    //                          $"DMG: {damage:F1}\n" +
+    //                          $"ASPD: {attacksPerSecond:F2}/s\n" +
+    //                          $"Range: {range:F1}\n" +
+    //                          $"Size: {projectileSize:F1}x\n" +
+    //                          $"KnockBack: {knockbackPower:F1}x\n" +
+    //                          penetrationText;
+    //}
 
     private void CheckUpgradePossibility()
     {
-        if (!isInitialized || selectedWeapon == null || mainItemGrid == null || upgradeButton == null)
+        if (!ValidateUpgradeRequirements())
         {
-            Debug.LogWarning($"CheckUpgradePossibility failed: initialized={isInitialized}, selectedWeapon={selectedWeapon != null}, mainItemGrid={mainItemGrid != null}, upgradeButton={upgradeButton != null}");
+            upgradeButton.gameObject.SetActive(false);
             return;
         }
 
-        upgradeableWeapons = new List<InventoryItem>();
+        upgradeableWeapons.Clear();
 
-        // 현재 선택된 무기의 정보 저장
         WeaponType targetType = selectedWeapon.weaponType;
         int targetTier = selectedWeapon.currentTier;
+        EquipmentType targetEquipmentType = selectedWeapon.equipmentType;
 
-        // Equipment 타입일 경우 추가로 체크할 equipmentType
-        EquipmentType targetEquipmentType = EquipmentType.None;
-        if (targetType == WeaponType.Equipment)
+        // 더 엄격한 업그레이드 가능 조건 검사
+        SearchUpgradeableWeapons(targetType, targetTier, targetEquipmentType);
+
+        // 동일한 무기 종류, 같은 티어, 최소 2개 필요
+        bool canUpgrade = CanPerformUpgrade(targetType, targetTier, targetEquipmentType);
+
+        UpdateUpgradeButtonState(canUpgrade);
+    }
+
+    private bool CanPerformUpgrade(WeaponType targetType, int targetTier, EquipmentType targetEquipmentType)
+    {
+        // 같은 종류, 같은 티어의 무기 개수 카운트
+        int matchingWeaponCount = upgradeableWeapons.Count(weapon =>
+            weapon.GetWeaponData().weaponType == targetType &&
+            weapon.GetWeaponData().currentTier == targetTier &&
+            (targetType != WeaponType.Equipment ||
+             weapon.GetWeaponData().equipmentType == targetEquipmentType)
+        );
+
+        return matchingWeaponCount >= 2 && targetTier < 4;
+    }
+
+    private bool ValidateUpgradeRequirements()
+    {
+        if (!isInitialized || selectedWeapon == null || mainItemGrid == null || upgradeButton == null)
         {
-            targetEquipmentType = selectedWeapon.equipmentType;
+            Debug.LogWarning($"CheckUpgradePossibility failed: initialized={isInitialized}, " +
+                           $"selectedWeapon={selectedWeapon != null}, " +
+                           $"mainItemGrid={mainItemGrid != null}, " +
+                           $"upgradeButton={upgradeButton != null}");
+            return false;
         }
+        return true;
+    }
 
-        // Grid의 모든 아이템을 검사
+    private void SearchUpgradeableWeapons(WeaponType targetType, int targetTier, EquipmentType targetEquipmentType)
+    {
         for (int x = 0; x < mainItemGrid.Width; x++)
         {
             for (int y = 0; y < mainItemGrid.Height; y++)
             {
                 InventoryItem item = mainItemGrid.GetItem(x, y);
-                if (item != null && item.weaponData != null)
+                if (item == null) continue;
+
+                WeaponData itemWeapon = item.GetWeaponData();
+                if (itemWeapon == null) continue;
+
+                if (IsWeaponMatchingCriteria(itemWeapon, targetType, targetTier, targetEquipmentType))
                 {
-                    bool isMatchingType = false;
-
-                    if (targetType == WeaponType.Equipment)
-                    {
-                        // Equipment인 경우 WeaponType과 EquipmentType 모두 체크
-                        isMatchingType = item.weaponData.weaponType == targetType &&
-                                       item.weaponData.equipmentType == targetEquipmentType;
-                    }
-                    else
-                    {
-                        // 일반 무기인 경우 WeaponType만 체크
-                        isMatchingType = item.weaponData.weaponType == targetType;
-                    }
-
-                    if (isMatchingType &&
-                        item.weaponData.currentTier == targetTier &&
-                        !upgradeableWeapons.Contains(item))
-                    {
-                        upgradeableWeapons.Add(item);
-                    }
+                    upgradeableWeapons.Add(item);
                 }
             }
         }
+    }
 
-        bool canUpgrade = upgradeableWeapons.Count >= 2 && targetTier < 4;
+    private bool IsWeaponMatchingCriteria(WeaponData weaponData, WeaponType targetType, int targetTier, EquipmentType targetEquipmentType)
+    {
+        if (weaponData.currentTier != targetTier) return false;
+
+        if (targetType == WeaponType.Equipment)
+        {
+            return weaponData.weaponType == targetType &&
+                   weaponData.equipmentType == targetEquipmentType;
+        }
+
+        return weaponData.weaponType == targetType;
+    }
+
+    private void UpdateUpgradeButtonState(bool canUpgrade)
+    {
         upgradeButton.gameObject.SetActive(canUpgrade);
 
         if (canUpgrade)
         {
-            upgradeButtonText.text = $"Upgrade to Tier {targetTier + 1}";
+            upgradeButtonText.text = $"Upgrade to Tier {selectedWeapon.currentTier + 1}";
         }
     }
+
     private void OnUpgradeButtonClick()
     {
-        if (!isInitialized || upgradeableWeapons == null || upgradeableWeapons.Count < 2 || selectedWeapon == null || mainItemGrid == null)
+        if (!ValidateUpgradeOperation())
         {
             Debug.LogWarning("Cannot upgrade: missing requirements");
             return;
@@ -215,64 +308,84 @@ public class WeaponInfoUI : MonoBehaviour
             return;
         }
 
-        // 기존 무기들의 위치를 저장
-        Vector2Int upgradePosition = new Vector2Int(
-            upgradeableWeapons[0].onGridPositionX,
-            upgradeableWeapons[0].onGridPositionY
-        );
-
-        // Equipment 효과 제거
-        if (selectedWeapon.weaponType == WeaponType.Equipment)
-        {
-            var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
-            if (weaponManager != null)
-            {
-                // 업그레이드에 사용되는 두 장비의 효과를 제거
-                foreach (var weapon in upgradeableWeapons.Take(2))
-                {
-                    weaponManager.UnequipWeapon(weapon.weaponData);
-                }
-            }
-        }
-
-        // 기존 무기들 제거
-        foreach (var weapon in upgradeableWeapons.Take(2))
-        {
-            if (weapon != null)
-            {
-                mainItemGrid.PickUpItem(weapon.onGridPositionX, weapon.onGridPositionY);
-                Destroy(weapon.gameObject);
-            }
-        }
-
-        // 새 무기 생성 및 배치
-        upgradeableWeapons.Clear();
-        selectedWeapon = null;
-        if (inventoryController != null)
-        {
-            inventoryController.CreateUpgradedItem(nextTierWeapon, upgradePosition);
-        }
-
-        upgradeButton.gameObject.SetActive(false);
+        ProcessWeaponUpgrade(nextTierWeapon);
     }
+
+    private bool ValidateUpgradeOperation()
+    {
+        return isInitialized &&
+               upgradeableWeapons != null &&
+               upgradeableWeapons.Count >= 2 &&
+               selectedWeapon != null &&
+               mainItemGrid != null;
+    }
+
     private WeaponData GetNextTierWeapon()
     {
         if (selectedWeapon == null || selectedWeapon.currentTier >= 4) return null;
         return selectedWeapon.CreateNextTierWeapon();
-    }  
-    private void OnDestroy()
+    }
+
+    private void ProcessWeaponUpgrade(WeaponData nextTierWeapon)
     {
-        if (upgradeButton != null)
+        Vector2Int upgradePosition = GetUpgradePosition();
+        RemoveUpgradeMaterials();
+        CreateUpgradedWeapon(nextTierWeapon, upgradePosition);
+        CleanupUpgradeState();
+    }
+
+    private Vector2Int GetUpgradePosition()
+    {
+        var firstWeapon = upgradeableWeapons[0];
+        return new Vector2Int(
+            firstWeapon.GridPosition.x,
+            firstWeapon.GridPosition.y
+        );
+    }
+
+    private void RemoveUpgradeMaterials()
+    {
+        if (selectedWeapon.weaponType == WeaponType.Equipment)
         {
-            upgradeButton.onClick.RemoveListener(OnUpgradeButtonClick);
+            RemoveEquipmentEffects();
         }
-        if (GameManager.Instance != null)
+
+        foreach (var weapon in upgradeableWeapons.Take(2))
         {
-            GameManager.Instance.OnGameStateChanged -= OnGameStateChanged;
-        }
-        if (mainItemGrid != null)
-        {
-            mainItemGrid.OnGridChanged -= RefreshUpgradeUI;
+            if (weapon != null)
+            {
+                mainItemGrid.RemoveItem(weapon.GridPosition);
+                Destroy(weapon.gameObject);
+            }
         }
     }
+
+    private void RemoveEquipmentEffects()
+    {
+        var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
+        if (weaponManager != null)
+        {
+            foreach (var weapon in upgradeableWeapons.Take(2))
+            {
+                WeaponData weaponData = weapon.GetWeaponData();
+                if (weaponData != null)
+                {
+                    weaponManager.UnequipWeapon(weaponData);
+                }
+            }
+        }
+    }
+
+    private void CreateUpgradedWeapon(WeaponData nextTierWeapon, Vector2Int position)
+    {
+        inventoryController?.CreateUpgradedItem(nextTierWeapon, position);
+    }
+
+    private void CleanupUpgradeState()
+    {
+        upgradeableWeapons.Clear();
+        selectedWeapon = null;
+        upgradeButton.gameObject.SetActive(false);
+    }
+    #endregion
 }

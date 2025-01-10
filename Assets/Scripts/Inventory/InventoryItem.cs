@@ -1,91 +1,167 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
+/// <summary>
+/// 인벤토리에서 사용되는 아이템을 관리하는 컴포넌트
+/// 아이템의 크기, 회전, 그리드 위치 등을 처리
+/// </summary>
 public class InventoryItem : MonoBehaviour
 {
-    public WeaponData weaponData;
-    private Vector2 originalSize;
-    private RectTransform rectTransform;
-    private Image itemImage;
+    #region Fields
+    [SerializeField] private Image itemImage;
+    [SerializeField] private RectTransform rectTransform;
+    [SerializeField] private WeaponData itemData;
 
-    public int HEIGHT => rotated ? weaponData.width : weaponData.height;
-    public int WIDTH => rotated ? weaponData.height : weaponData.width;
+    private Vector2Int gridPosition = new Vector2Int(-1, -1);
+    private bool isRotated;
+    private readonly Vector2Int INVALID_POSITION = new Vector2Int(-1, -1);
+    #endregion
 
-    public int onGridPositionX;
-    public int onGridPositionY;
-    public bool rotated = false;
+    #region Properties
+    #region Properties
+    /// <summary>
+    /// 아이템의 무기 데이터에 대한 공개 접근자
+    /// </summary>
+    public WeaponData WeaponData
+    {
+        get { return itemData; }
+        private set { itemData = value; }
+    }
 
+  
+    public int Width => isRotated ? itemData.height : itemData.width;
+
+   
+    public int Height => isRotated ? itemData.width : itemData.height;
+
+    public Vector2Int GridPosition => gridPosition;
+
+  
+    public bool IsRotated => isRotated;
+
+    public bool OnGrid => gridPosition.x >= 0 && gridPosition.y >= 0;
+
+
+   
+    public int onGridPositionX => gridPosition.x;
+    public int onGridPositionY => gridPosition.y;
+    #endregion
+
+
+    #region Unity Methods
     private void Awake()
     {
-        rectTransform = GetComponent<RectTransform>();
-        itemImage = GetComponent<Image>();
+        InitializeComponents();
+        gridPosition = INVALID_POSITION;
     }
 
-    internal void Set(WeaponData weaponData)
+    private void OnValidate()
     {
-        this.weaponData = weaponData;
-        itemImage.color = weaponData.GetTierColor();
-        itemImage.sprite = weaponData.inventoryWeaponIcon;
-        rotated = false;
+        InitializeComponents();
+    }
+    #endregion
+
+    #region Public Methods
+    /// <summary>
+    /// 아이템 초기화
+    /// </summary>
+    /// <param name="data">무기 데이터</param>
+    /// 
+    public WeaponData GetWeaponData()
+    {
+        return itemData;
+    }
+    public void Initialize(WeaponData data)
+    {
+        WeaponData = data;
+        isRotated = false;
+        gridPosition = INVALID_POSITION;
+
+        UpdateVisuals();
         UpdateSize();
-        originalSize = rectTransform.sizeDelta;
-        rectTransform.rotation = Quaternion.identity;
     }
-
-    internal void Rotate()
+    /// <summary>
+    /// 아이템 회전
+    /// </summary>
+    public void Rotate()
     {
-        rotated = !rotated;
-
-        // 실제 그리드 크기 계산
-        float gridWidth = WIDTH * ItemGrid.tileSizeWidth;
-        float gridHeight = HEIGHT * ItemGrid.tileSizeHeight;
-
-        // 이미지 회전
-        rectTransform.rotation = Quaternion.Euler(0, 0, rotated ? 90f : 0f);
-
-        // 크기 업데이트
-        if (rotated)
-        {
-            rectTransform.sizeDelta = new Vector2(gridHeight, gridWidth);
-        }
-        else
-        {
-            rectTransform.sizeDelta = new Vector2(gridWidth, gridHeight);
-        }
-
-        // 회전 후 위치 조정이 필요한 경우
-        Vector2 currentPos = rectTransform.anchoredPosition;
-        if (rotated)
-        {
-            float offsetX = (gridHeight - gridWidth) * 0.5f;
-            float offsetY = (gridWidth - gridHeight) * 0.5f;
-            rectTransform.anchoredPosition = new Vector2(currentPos.x + offsetX, currentPos.y + offsetY);
-        }
-        else
-        {
-            float offsetX = (gridHeight - gridWidth) * 0.5f;
-            float offsetY = (gridWidth - gridHeight) * 0.5f;
-            rectTransform.anchoredPosition = new Vector2(currentPos.x - offsetX, currentPos.y - offsetY);
-        }
+        isRotated = !isRotated;
+        UpdateRotation();
+        UpdateSize();
     }
 
-    private void UpdateSize()
+    /// <summary>
+    /// 그리드 위치 설정
+    /// </summary>
+    public void SetGridPosition(Vector2Int position)
     {
-        if (rectTransform == null)
-        {
-            rectTransform = GetComponent<RectTransform>();
-        }
-
-        float width = weaponData.width * ItemGrid.tileSizeWidth;
-        float height = weaponData.height * ItemGrid.tileSizeHeight;
-
-        rectTransform.sizeDelta = new Vector2(width, height);
+        gridPosition = position;
     }
-
-    // 아이템의 실제 월드 크기를 반환하는 메서드 추가
+    /// <summary>
+    /// 아이템 크기 반환
+    /// </summary>
     public Vector2 GetWorldSize()
     {
-        return new Vector2(WIDTH * ItemGrid.tileSizeWidth, HEIGHT * ItemGrid.tileSizeHeight);
+        return new Vector2(
+            Width * ItemGrid.TILE_SIZE,
+            Height * ItemGrid.TILE_SIZE
+        );
     }
+    #endregion
+
+    #region Private Methods
+    /// <summary>
+    /// 아이템의 시각적 요소 업데이트
+    /// </summary>
+    private void InitializeComponents()
+    {
+        if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
+        if (itemImage == null) itemImage = GetComponent<Image>();
+    }
+    private void UpdateVisuals()
+    {
+        if (itemImage != null && WeaponData != null)
+        {
+            itemImage.sprite = WeaponData.GetColoredInventoryWeaponIcon();
+            itemImage.color = WeaponData.GetTierColor();
+        }
+    }
+
+    /// <summary>
+    /// RectTransform 크기 업데이트
+    /// </summary>
+    private void UpdateSize()
+    {
+        if (rectTransform != null)
+        {
+            rectTransform.sizeDelta = new Vector2(
+                Width * ItemGrid.TILE_SIZE,
+                Height * ItemGrid.TILE_SIZE
+            );
+        }
+    }
+
+    /// <summary>
+    /// 회전 적용
+    /// </summary>
+    private void UpdateRotation()
+    {
+        if (rectTransform == null) return;
+
+        rectTransform.localRotation = Quaternion.Euler(0, 0, isRotated ? 90f : 0f);
+        UpdateRotationOffset();
+    }
+    private void UpdateRotationOffset()
+    {
+        float gridWidth = Width * ItemGrid.TILE_SIZE;
+        float gridHeight = Height * ItemGrid.TILE_SIZE;
+
+        float offsetX = (gridHeight - gridWidth) * 0.5f;
+        float offsetY = (gridWidth - gridHeight) * 0.5f;
+
+        Vector2 offset = new Vector2(offsetX, offsetY);
+        rectTransform.anchoredPosition += isRotated ? offset : -offset;
+    }
+    #endregion
+    #endregion   
 }
