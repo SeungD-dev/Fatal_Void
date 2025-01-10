@@ -50,7 +50,9 @@ public class InventoryController : MonoBehaviour
     private RectTransform selectedItemRectTransform;
     private float lastRotationTime = -999f;
     private const float ROTATION_COOLDOWN = 0.3f;
-
+    private int lastTouchCount = 0;
+    private bool lastPressState = false;
+    private float lastTouchTime = 0f;
     #endregion
 
     #region Properties
@@ -131,15 +133,32 @@ public class InventoryController : MonoBehaviour
 
     private void HandleItemRotation()
     {
-        // 현재 활성화된 터치 확인
-        var activeTouches = Touchscreen.current.touches
-            .Where(t => t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began)
-            .ToList();
+        if (!isDragging || !isHolding || selectedItem == null) return;
 
-        // 2개 이상의 터치가 있고, 회전 쿨다운이 지났는지 확인
-        if (activeTouches.Count >= 2 && IsRotationAllowed())
+        // 현재 활성화된 터치들을 확인
+        var activeTouches = Touchscreen.current.touches.Where(t =>
+            t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began ||
+            t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved ||
+            t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Stationary
+        ).ToList();
+
+        // 터치가 1개일 때 쿨다운 초기화 (드래그 중인 터치)
+        if (activeTouches.Count == 1)
         {
-            PerformItemRotation();
+            lastRotationTime = Time.time - ROTATION_COOLDOWN;
+        }
+
+        // 추가 터치가 발생했을 때 회전
+        if (activeTouches.Count >= 2)
+        {
+            foreach (var touch in activeTouches.Skip(1)) // 첫 번째 터치(드래그)를 제외한 터치들 확인
+            {
+                if (touch.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began && IsRotationAllowed())
+                {
+                    PerformItemRotation();
+                    break;
+                }
+            }
         }
     }
     private bool IsRotationAllowed()

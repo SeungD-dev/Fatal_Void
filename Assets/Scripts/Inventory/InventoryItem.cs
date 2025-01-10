@@ -78,17 +78,23 @@ public class InventoryItem : MonoBehaviour
         gridPosition = INVALID_POSITION;
 
         UpdateVisuals();
-        UpdateSize();
+        UpdateSize();  // 초기 크기 설정
     }
+
     /// <summary>
     /// 아이템 회전
     /// </summary>
     public void Rotate()
     {
         isRotated = !isRotated;
-        UpdateRotation();
-        UpdateSize();
+
+        // 이미지만 회전하고 크기는 유지
+        if (rectTransform != null)
+        {
+            rectTransform.localRotation = Quaternion.Euler(0, 0, isRotated ? 90f : 0f);
+        }
     }
+
 
     /// <summary>
     /// 그리드 위치 설정
@@ -134,9 +140,10 @@ public class InventoryItem : MonoBehaviour
     {
         if (rectTransform != null)
         {
+            // 초기 크기 설정
             rectTransform.sizeDelta = new Vector2(
-                Width * ItemGrid.TILE_SIZE,
-                Height * ItemGrid.TILE_SIZE
+                itemData.width * ItemGrid.TILE_SIZE,   // Width 대신 직접 itemData.width 사용
+                itemData.height * ItemGrid.TILE_SIZE   // Height 대신 직접 itemData.height 사용
             );
         }
     }
@@ -144,24 +151,8 @@ public class InventoryItem : MonoBehaviour
     /// <summary>
     /// 회전 적용
     /// </summary>
-    private void UpdateRotation()
-    {
-        if (rectTransform == null) return;
 
-        rectTransform.localRotation = Quaternion.Euler(0, 0, isRotated ? 90f : 0f);
-        UpdateRotationOffset();
-    }
-    private void UpdateRotationOffset()
-    {
-        float gridWidth = Width * ItemGrid.TILE_SIZE;
-        float gridHeight = Height * ItemGrid.TILE_SIZE;
 
-        float offsetX = (gridHeight - gridWidth) * 0.5f;
-        float offsetY = (gridWidth - gridHeight) * 0.5f;
-
-        Vector2 offset = new Vector2(offsetX, offsetY);
-        rectTransform.anchoredPosition += isRotated ? offset : -offset;
-    }
     #endregion
-    #endregion   
+    #endregion
 }
