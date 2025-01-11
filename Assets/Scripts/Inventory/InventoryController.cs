@@ -684,15 +684,33 @@ public class InventoryController : MonoBehaviour
 
     private void TransitionToGameplay()
     {
+        // inventoryUI가 비활성화되기 전에 하이라이트 숨기기
         inventoryHighlight?.Show(false);
-        inventoryUI.SetActive(false);
-        playerControlUI.SetActive(true);
-        playerStatsUI.SetActive(true);
 
+        // UI 상태 전환
+        if (inventoryUI != null)
+        {
+            inventoryUI.SetActive(false);
+        }
+
+        if (playerControlUI != null)
+        {
+            playerControlUI.SetActive(true);
+        }
+
+        if (playerStatsUI != null)
+        {
+            playerStatsUI.SetActive(true);
+        }
+
+        // 게임 상태 변경
         if (GameManager.Instance != null)
         {
             GameManager.Instance.SetGameState(GameState.Playing);
         }
+
+        // 선택 상태 초기화
+        itemInteractionManager?.ClearSelection();
     }
     #endregion
 

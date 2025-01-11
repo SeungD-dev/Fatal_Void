@@ -14,7 +14,6 @@ public class WeaponInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI weaponLevelText;
     [SerializeField] private TextMeshProUGUI weaponNameText;
     [SerializeField] private TextMeshProUGUI weaponDescriptionText;
-    //[SerializeField] private TextMeshProUGUI weaponStatsText;
 
     [Header("Upgrade System")]
     [SerializeField] private Button upgradeButton;
@@ -41,13 +40,38 @@ public class WeaponInfoUI : MonoBehaviour
         SubscribeToEvents();
     }
 
-    private void OnDestroy()
+    private void OnDestroy() => UnsubscribeFromEvents();
+    #endregion
+
+    #region Public Methods
+    public void UpdateWeaponInfo(WeaponData weaponData)
     {
-        UnsubscribeFromEvents();
+        if (weaponData == null)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
+        selectedWeapon = weaponData;
+        gameObject.SetActive(true);
+        UpdateBasicInfo(weaponData);
+
+        if (isInitialized && playerStats != null)
+        {
+            CheckUpgradePossibility();
+        }
+    }
+
+    public void RefreshUpgradeUI()
+    {
+        if (selectedWeapon != null)
+        {
+            CheckUpgradePossibility();
+        }
     }
     #endregion
 
-    #region Initialization
+    #region Private Methods - Initialization
     private void ValidateReferences()
     {
         if (weaponLevelText == null) Debug.LogError($"Missing reference: {nameof(weaponLevelText)} in {gameObject.name}");
@@ -63,13 +87,8 @@ public class WeaponInfoUI : MonoBehaviour
     private void InitializeUI()
     {
         upgradeableWeapons = new List<InventoryItem>();
-
-        if (upgradeButton != null)
-        {
-            upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
-            upgradeButton.gameObject.SetActive(false);
-        }
-
+        upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
+        upgradeButton.gameObject.SetActive(false);
         gameObject.SetActive(false);
     }
 
@@ -87,82 +106,23 @@ public class WeaponInfoUI : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region Private Methods - Event Handling
     private void SubscribeToEvents()
     {
-        if (mainItemGrid != null)
-        {
-            mainItemGrid.OnGridChanged += RefreshUpgradeUI;
-        }
-
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
-        }
-
-        if (GameManager.Instance.IsInitialized)
-        {
-            InitializeReferences();
-        }
+        if (mainItemGrid != null) mainItemGrid.OnGridChanged += RefreshUpgradeUI;
+        if (GameManager.Instance != null) GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
+        if (GameManager.Instance.IsInitialized) InitializeReferences();
     }
 
     private void UnsubscribeFromEvents()
     {
-        if (upgradeButton != null)
-        {
-            upgradeButton.onClick.RemoveListener(OnUpgradeButtonClick);
-        }
-
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnGameStateChanged -= OnGameStateChanged;
-        }
-
-        if (mainItemGrid != null)
-        {
-            mainItemGrid.OnGridChanged -= RefreshUpgradeUI;
-        }
-    }
-    #endregion
-
-    #region Public Methods
-    /// <summary>
-    /// 무기 정보 UI를 업데이트합니다.
-    /// </summary>
-    /// <param name="weaponData">표시할 무기 데이터</param>
-    public void UpdateWeaponInfo(WeaponData weaponData)
-    {
-        if (weaponData == null)
-        {
-            gameObject.SetActive(false);
-            return;
-        }
-
-        selectedWeapon = weaponData;
-        gameObject.SetActive(true);
-
-        UpdateBasicInfo(weaponData);
-
-        if (isInitialized && playerStats != null)
-        {
-            //UpdateDetailedStats(weaponData);
-            CheckUpgradePossibility();
-        }
+        if (upgradeButton != null) upgradeButton.onClick.RemoveListener(OnUpgradeButtonClick);
+        if (GameManager.Instance != null) GameManager.Instance.OnGameStateChanged -= OnGameStateChanged;
+        if (mainItemGrid != null) mainItemGrid.OnGridChanged -= RefreshUpgradeUI;
     }
 
-    /// <summary>
-    /// 업그레이드 UI를 새로고침합니다.
-    /// </summary>
-    public void RefreshUpgradeUI()
-    {
-        if (selectedWeapon != null)
-        {
-            CheckUpgradePossibility();
-        }
-    }
-    #endregion
-
-    #region Private Methods
     private void OnGameStateChanged(GameState newState)
     {
         if (!isInitialized && GameManager.Instance.IsInitialized)
@@ -170,7 +130,9 @@ public class WeaponInfoUI : MonoBehaviour
             InitializeReferences();
         }
     }
+    #endregion
 
+    #region Private Methods - UI Updates
     private void UpdateBasicInfo(WeaponData weaponData)
     {
         weaponLevelText.text = $"Tier {weaponData.currentTier}";
@@ -178,78 +140,26 @@ public class WeaponInfoUI : MonoBehaviour
         weaponDescriptionText.text = weaponData.weaponDescription;
     }
 
-    //private void UpdateDetailedStats(WeaponData weaponData)
-    //{
-    //    float dps = weaponData.CalculateTheoreticalDPS(playerStats);
-    //    float damage = weaponData.CalculateFinalDamage(playerStats);
-    //    float attacksPerSecond = weaponData.CalculateAttacksPerSecond(playerStats);
-    //    float knockbackPower = weaponData.CalculateFinalKnockback(playerStats);
-    //    float range = weaponData.CalculateFinalRange(playerStats);
-    //    float projectileSize = weaponData.CalculateFinalProjectileSize(playerStats);
-    //    var penetrationInfo = weaponData.GetPenetrationInfo();
-
-    //    string penetrationText = penetrationInfo.canPenetrate ?
-    //        $"관통: {(penetrationInfo.maxCount == 0 ? "무제한" : penetrationInfo.maxCount.ToString())}회" :
-    //        "관통: 불가";
-
-    //    weaponStatsText.text = $"DPS: {dps:F1}\n" +
-    //                          $"DMG: {damage:F1}\n" +
-    //                          $"ASPD: {attacksPerSecond:F2}/s\n" +
-    //                          $"Range: {range:F1}\n" +
-    //                          $"Size: {projectileSize:F1}x\n" +
-    //                          $"KnockBack: {knockbackPower:F1}x\n" +
-    //                          penetrationText;
-    //}
-
     private void CheckUpgradePossibility()
     {
-        if (!ValidateUpgradeRequirements())
-        {
-            upgradeButton.gameObject.SetActive(false);
-            return;
-        }
+        if (!ValidateUpgradeRequirements()) return;
 
         upgradeableWeapons.Clear();
-
         WeaponType targetType = selectedWeapon.weaponType;
         int targetTier = selectedWeapon.currentTier;
-        EquipmentType targetEquipmentType = selectedWeapon.equipmentType;
 
-        // 더 엄격한 업그레이드 가능 조건 검사
-        SearchUpgradeableWeapons(targetType, targetTier, targetEquipmentType);
+        SearchUpgradeableWeapons(targetType, targetTier, selectedWeapon.equipmentType);
+        bool canUpgrade = upgradeableWeapons.Count >= 2 && targetTier < 4;
 
-        // 동일한 무기 종류, 같은 티어, 최소 2개 필요
-        bool canUpgrade = CanPerformUpgrade(targetType, targetTier, targetEquipmentType);
-
-        UpdateUpgradeButtonState(canUpgrade);
-    }
-
-    private bool CanPerformUpgrade(WeaponType targetType, int targetTier, EquipmentType targetEquipmentType)
-    {
-        // 같은 종류, 같은 티어의 무기 개수 카운트
-        int matchingWeaponCount = upgradeableWeapons.Count(weapon =>
-            weapon.GetWeaponData().weaponType == targetType &&
-            weapon.GetWeaponData().currentTier == targetTier &&
-            (targetType != WeaponType.Equipment ||
-             weapon.GetWeaponData().equipmentType == targetEquipmentType)
-        );
-
-        return matchingWeaponCount >= 2 && targetTier < 4;
-    }
-
-    private bool ValidateUpgradeRequirements()
-    {
-        if (!isInitialized || selectedWeapon == null || mainItemGrid == null || upgradeButton == null)
+        upgradeButton.gameObject.SetActive(canUpgrade);
+        if (canUpgrade)
         {
-            Debug.LogWarning($"CheckUpgradePossibility failed: initialized={isInitialized}, " +
-                           $"selectedWeapon={selectedWeapon != null}, " +
-                           $"mainItemGrid={mainItemGrid != null}, " +
-                           $"upgradeButton={upgradeButton != null}");
-            return false;
+            upgradeButtonText.text = $"Upgrade to Tier {targetTier + 1}";
         }
-        return true;
     }
+    #endregion
 
+    #region Private Methods - Upgrade Logic
     private void SearchUpgradeableWeapons(WeaponType targetType, int targetTier, EquipmentType targetEquipmentType)
     {
         for (int x = 0; x < mainItemGrid.Width; x++)
@@ -257,12 +167,13 @@ public class WeaponInfoUI : MonoBehaviour
             for (int y = 0; y < mainItemGrid.Height; y++)
             {
                 InventoryItem item = mainItemGrid.GetItem(x, y);
-                if (item == null) continue;
+                if (item == null || item.WeaponData == null) continue;
 
-                WeaponData itemWeapon = item.GetWeaponData();
-                if (itemWeapon == null) continue;
+                bool isMatchingType = (targetType == WeaponType.Equipment) ?
+                    item.WeaponData.weaponType == targetType && item.WeaponData.equipmentType == targetEquipmentType :
+                    item.WeaponData.weaponType == targetType;
 
-                if (IsWeaponMatchingCriteria(itemWeapon, targetType, targetTier, targetEquipmentType))
+                if (isMatchingType && item.WeaponData.currentTier == targetTier && !upgradeableWeapons.Contains(item))
                 {
                     upgradeableWeapons.Add(item);
                 }
@@ -270,122 +181,93 @@ public class WeaponInfoUI : MonoBehaviour
         }
     }
 
-    private bool IsWeaponMatchingCriteria(WeaponData weaponData, WeaponType targetType, int targetTier, EquipmentType targetEquipmentType)
-    {
-        if (weaponData.currentTier != targetTier) return false;
-
-        if (targetType == WeaponType.Equipment)
-        {
-            return weaponData.weaponType == targetType &&
-                   weaponData.equipmentType == targetEquipmentType;
-        }
-
-        return weaponData.weaponType == targetType;
-    }
-
-    private void UpdateUpgradeButtonState(bool canUpgrade)
-    {
-        upgradeButton.gameObject.SetActive(canUpgrade);
-
-        if (canUpgrade)
-        {
-            upgradeButtonText.text = $"Upgrade to Tier {selectedWeapon.currentTier + 1}";
-        }
-    }
-
     private void OnUpgradeButtonClick()
     {
+        Debug.Log("Upgrade button clicked");
+
         if (!ValidateUpgradeOperation())
         {
             Debug.LogWarning("Cannot upgrade: missing requirements");
             return;
         }
 
-        WeaponData nextTierWeapon = GetNextTierWeapon();
+        WeaponData nextTierWeapon = selectedWeapon.CreateNextTierWeapon();
         if (nextTierWeapon == null)
         {
             Debug.LogWarning("Failed to create next tier weapon");
             return;
         }
 
-        ProcessWeaponUpgrade(nextTierWeapon);
-    }
+        Debug.Log($"Found {upgradeableWeapons.Count} upgradeable weapons");
 
-    private bool ValidateUpgradeOperation()
-    {
-        return isInitialized &&
-               upgradeableWeapons != null &&
-               upgradeableWeapons.Count >= 2 &&
-               selectedWeapon != null &&
-               mainItemGrid != null;
-    }
+        // 업그레이드 재료로 사용될 무기들의 위치 저장
+        Vector2Int upgradePosition = upgradeableWeapons[0].GridPosition;
 
-    private WeaponData GetNextTierWeapon()
-    {
-        if (selectedWeapon == null || selectedWeapon.currentTier >= 4) return null;
-        return selectedWeapon.CreateNextTierWeapon();
-    }
-
-    private void ProcessWeaponUpgrade(WeaponData nextTierWeapon)
-    {
-        Vector2Int upgradePosition = GetUpgradePosition();
+        // 기존 무기 제거
         RemoveUpgradeMaterials();
-        CreateUpgradedWeapon(nextTierWeapon, upgradePosition);
-        CleanupUpgradeState();
-    }
 
-    private Vector2Int GetUpgradePosition()
-    {
-        var firstWeapon = upgradeableWeapons[0];
-        return new Vector2Int(
-            firstWeapon.GridPosition.x,
-            firstWeapon.GridPosition.y
-        );
+        // 새로운 무기 생성
+        inventoryController?.CreateUpgradedItem(nextTierWeapon, upgradePosition);
+
+        // 상태 정리
+        CleanupUpgradeState();
     }
 
     private void RemoveUpgradeMaterials()
     {
+        Debug.Log($"Attempting to remove {upgradeableWeapons.Count} materials");
+
         if (selectedWeapon.weaponType == WeaponType.Equipment)
         {
-            RemoveEquipmentEffects();
+            var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
+            if (weaponManager != null)
+            {
+                foreach (var weapon in upgradeableWeapons.Take(2))
+                {
+                    Debug.Log($"Removing equipment effect from weapon at position {weapon.GridPosition}");
+                    weaponManager.UnequipWeapon(weapon.GetWeaponData());
+                }
+            }
         }
 
-        foreach (var weapon in upgradeableWeapons.Take(2))
+        // 업그레이드에 사용될 2개의 무기만 처리
+        var weaponsToRemove = upgradeableWeapons.Take(2).ToList();
+        foreach (var weapon in weaponsToRemove)
         {
             if (weapon != null)
             {
+                Debug.Log($"Removing weapon from grid at position {weapon.GridPosition}");
                 mainItemGrid.RemoveItem(weapon.GridPosition);
+                Debug.Log($"Destroying weapon GameObject");
                 Destroy(weapon.gameObject);
             }
         }
     }
 
-    private void RemoveEquipmentEffects()
+    #endregion
+
+    #region Private Methods - Validation
+    private bool ValidateUpgradeRequirements()
     {
-        var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
-        if (weaponManager != null)
+        if (!isInitialized || selectedWeapon == null || mainItemGrid == null || upgradeButton == null)
         {
-            foreach (var weapon in upgradeableWeapons.Take(2))
-            {
-                WeaponData weaponData = weapon.GetWeaponData();
-                if (weaponData != null)
-                {
-                    weaponManager.UnequipWeapon(weaponData);
-                }
-            }
+            upgradeButton.gameObject.SetActive(false);
+            return false;
         }
+        return true;
     }
-
-    private void CreateUpgradedWeapon(WeaponData nextTierWeapon, Vector2Int position)
-    {
-        inventoryController?.CreateUpgradedItem(nextTierWeapon, position);
-    }
-
     private void CleanupUpgradeState()
     {
+        Debug.Log("Cleaning up upgrade state");
         upgradeableWeapons.Clear();
         selectedWeapon = null;
         upgradeButton.gameObject.SetActive(false);
+    }
+    private bool ValidateUpgradeOperation()
+    {
+        return isInitialized && upgradeableWeapons != null &&
+               upgradeableWeapons.Count >= 2 && selectedWeapon != null &&
+               mainItemGrid != null && selectedWeapon.currentTier < 4;
     }
     #endregion
 }
