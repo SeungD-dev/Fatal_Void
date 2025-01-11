@@ -1,12 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.UI;
 
 public class ShopController : MonoBehaviour
 {
     [Header("Refresh Settings")]
     [SerializeField] private int initialRefreshCost = 5;
     [SerializeField] private int refreshCostIncrease = 1;
+    [SerializeField] private Button refreshButton;
     private int currentRefreshCost;
 
     [Header("References")]
@@ -21,13 +23,31 @@ public class ShopController : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI refreshCostText;
     [SerializeField] private TMPro.TextMeshProUGUI playerCoinsText;
 
-    private bool isFirstShop = true;
+    public bool isFirstShop = true;
     private bool hasFirstPurchase = false;
     private PlayerStats playerStats;
     private HashSet<WeaponData> purchasedWeapons = new HashSet<WeaponData>();
 
+    private void Start()
+    {
+        // 리프레시 버튼 이벤트 설정
+        if (refreshButton != null)
+        {
+            refreshButton.onClick.AddListener(RefreshShop);
+        }
+        else
+        {
+            Debug.LogError("Refresh button reference is missing!");
+        }
+    }
+
     private void OnDestroy()
     {
+        if (refreshButton != null)
+        {
+            refreshButton.onClick.RemoveListener(RefreshShop);
+        }
+
         if (playerStats != null)
         {
             playerStats.OnCoinChanged -= UpdatePlayerCoinsText;
@@ -54,7 +74,16 @@ public class ShopController : MonoBehaviour
     public void OpenInventory()
     {
         SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
+
+        // 상점 상태 초기화
+        if (isFirstShop && hasFirstPurchase)
+        {
+            isFirstShop = false;
+        }
+
+        // UI 전환
         shopUI.SetActive(false);
+
         if (inventoryController != null)
         {
             inventoryController.OpenInventory();
@@ -67,36 +96,89 @@ public class ShopController : MonoBehaviour
         playerStatsUI.SetActive(false);
         shopUI.SetActive(true);
         inventoryUI.SetActive(false);
+
+        // 첫 상점이 아닐 경우에만 새로운 무기 옵션을 생성
+        if (!isFirstShop)
+        {
+            InitializeNewWeapons();
+        }
+        // 첫 상점이면서 아직 구매하지 않은 경우
+        else if (!hasFirstPurchase)
+        {
+            InitializeFreeWeapons();
+        }
+        // 첫 상점에서 이미 구매한 경우
+        else if (isFirstShop && hasFirstPurchase)
+        {
+            foreach (var option in weaponOptions)
+            {
+                if (option != null)
+                {
+                    option.SetPurchased(true);
+                }
+            }
+        }
+
         UpdateRefreshCostText();
     }
-
-    private void InitializeWeaponOption(WeaponOptionUI option, WeaponData weapon)
+    private void InitializeNewWeapons()
     {
-        if (option == null || weapon == null) return;
+        List<WeaponData> randomWeapons = GetRandomWeapons(weaponOptions.Length);
 
-        // 이미 구매한 무기인지 확인
-        if (purchasedWeapons.Contains(weapon))
+        foreach (var option in weaponOptions)
         {
-            option.SetPurchased(true);  // WeaponOptionUI에 SetPurchased 메서드 필요
-            return;
+            if (option != null)
+            {
+                option.ResetPurchaseState();
+            }
         }
 
-        // 첫 상점에서 아직 첫 구매가 없었을 때만 무료
-        if (isFirstShop && !hasFirstPurchase)
+        for (int i = 0; i < weaponOptions.Length; i++)
         {
-            weapon.price = 0;
+            if (i < randomWeapons.Count && weaponOptions[i] != null)
+            {
+                weaponOptions[i].Initialize(randomWeapons[i], this);
+            }
         }
-
-        option.Initialize(weapon, this);
     }
 
+    private void InitializeFreeWeapons()
+    {
+        List<WeaponData> randomWeapons = GetRandomWeapons(weaponOptions.Length);
+
+        foreach (var option in weaponOptions)
+        {
+            if (option != null)
+            {
+                option.ResetPurchaseState();
+            }
+        }
+
+        for (int i = 0; i < weaponOptions.Length; i++)
+        {
+            if (i < randomWeapons.Count && weaponOptions[i] != null)
+            {
+                randomWeapons[i].price = 0;
+                weaponOptions[i].Initialize(randomWeapons[i], this);
+            }
+        }
+    }
+    public WeaponOptionUI[] GetWeaponOptions()
+    {
+        return weaponOptions;
+    }
     public void InitializeShop()
     {
+        if (GameManager.Instance.currentGameState != GameState.Paused)
+        {
+            GameManager.Instance.SetGameState(GameState.Paused);
+        }
+
         // 상점이 새로 열릴 때마다 리프레시 비용 초기화
         currentRefreshCost = initialRefreshCost;
         UpdateRefreshCostText();
 
-        // PlayerStats 참조 가져오기
+        // PlayerStats 참조 설정
         if (playerStats == null)
         {
             playerStats = GameManager.Instance.PlayerStats;
@@ -105,38 +187,36 @@ public class ShopController : MonoBehaviour
                 Debug.LogError("PlayerStats reference is null in ShopController!");
                 return;
             }
-
-            // PlayerStats 이벤트 구독
             playerStats.OnCoinChanged += UpdatePlayerCoinsText;
         }
 
-        // 초기 코인 표시
+        // UI 초기화
         UpdatePlayerCoinsText(playerStats.CoinCount);
-
         playerControlUI.SetActive(false);
         playerStatsUI.SetActive(false);
         shopUI.SetActive(true);
 
-        if (weaponOptions == null || weaponOptions.Length == 0)
-        {
-            Debug.LogError("No weapon options assigned to ShopUI!");
-            return;
-        }
-
+        // 무기 옵션 초기화
         List<WeaponData> randomWeapons = GetRandomWeapons(weaponOptions.Length);
 
+        // 모든 무기 옵션 초기화
         for (int i = 0; i < weaponOptions.Length; i++)
         {
             if (i < randomWeapons.Count && weaponOptions[i] != null)
             {
                 WeaponData weapon = randomWeapons[i];
-                InitializeWeaponOption(weaponOptions[i], weapon);
+                // 첫 상점이고 아직 구매하지 않았다면 무료로 설정
+                if (isFirstShop && !hasFirstPurchase)
+                {
+                    weapon.price = 0;
+                }
+
+                // 무기 옵션 초기화 (항상 구매 가능한 상태로 시작)
+                weaponOptions[i].ResetPurchaseState();
+                weaponOptions[i].Initialize(weapon, this);
             }
         }
-
-        isFirstShop = false;
     }
-
     private List<WeaponData> GetRandomWeapons(int count)
     {
         if (weaponDatabase == null || playerStats == null)
@@ -189,7 +269,19 @@ public class ShopController : MonoBehaviour
 
         return ScriptableObject.Instantiate(tierWeapons[Random.Range(0, tierWeapons.Count)]);
     }
+    private void GenerateNewWeaponOptions()
+    {
+        List<WeaponData> randomWeapons = GetRandomWeapons(weaponOptions.Length);
 
+        for (int i = 0; i < weaponOptions.Length; i++)
+        {
+            if (i < randomWeapons.Count && weaponOptions[i] != null)
+            {
+                weaponOptions[i].ResetPurchaseState();
+                weaponOptions[i].Initialize(randomWeapons[i], this);
+            }
+        }
+    }
     public void PurchaseWeapon(WeaponData weaponData)
     {
         if (weaponData != null)
@@ -197,24 +289,16 @@ public class ShopController : MonoBehaviour
             // 구매한 무기 목록에 추가
             purchasedWeapons.Add(weaponData);
 
-            // 첫 상점에서 첫 구매가 발생한 경우
+            // 첫 상점에서의 첫 구매 처리
             if (isFirstShop && !hasFirstPurchase)
             {
                 hasFirstPurchase = true;
-                // 나머지 무기들의 가격을 원래 가격으로 복원
+                // 첫 상점에서만 나머지 무기들을 비활성화
                 foreach (var option in weaponOptions)
                 {
                     if (option.WeaponData != weaponData)
                     {
-                        option.WeaponData.price = option.WeaponData.currentTier switch
-                        {
-                            1 => option.WeaponData.tier1Price,
-                            2 => option.WeaponData.tier2Price,
-                            3 => option.WeaponData.tier3Price,
-                            4 => option.WeaponData.tier4Price,
-                            _ => option.WeaponData.tier1Price
-                        };
-                        option.UpdateUI(); // WeaponOptionUI에 UpdateUI 메서드 필요
+                        option.SetPurchased(true);
                     }
                 }
             }
@@ -224,22 +308,33 @@ public class ShopController : MonoBehaviour
             inventoryController.OnPurchaseItem(weaponData);
         }
     }
-
-    public void RefreshShop()
+    private void SetAllOptionsPurchased()
     {
-        if (playerStats.SpendCoins(currentRefreshCost))
+        foreach (var option in weaponOptions)
         {
-            currentRefreshCost += refreshCostIncrease;
-            UpdateRefreshCostText();
-
-            List<WeaponData> randomWeapons = GetRandomWeapons(weaponOptions.Length);
-            for (int i = 0; i < weaponOptions.Length; i++)
+            if (option != null)
             {
-                if (i < randomWeapons.Count && weaponOptions[i] != null)
-                {
-                    weaponOptions[i].Initialize(randomWeapons[i], this);
-                }
+                option.SetPurchased(true);
             }
         }
+    }
+
+    public void CloseShop()
+    {
+        shopUI.SetActive(false);
+    }
+    public void RefreshShop()
+    {
+        if (playerStats == null || !playerStats.SpendCoins(currentRefreshCost)) return;
+
+        // 리프레시 비용 증가
+        currentRefreshCost += refreshCostIncrease;
+        UpdateRefreshCostText();
+
+        // 새로운 무기 목록 생성
+        GenerateNewWeaponOptions();
+
+        // 효과음 재생
+        SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
     }
 }

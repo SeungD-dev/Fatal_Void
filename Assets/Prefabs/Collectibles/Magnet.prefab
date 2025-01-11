@@ -131,7 +131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   basemagnetDistance: 0.7
   magnetSpeed: 10
-  itemType: 4
+  itemType: 5
 --- !u!61 &4960299962660039755
 BoxCollider2D:
   m_ObjectHideFlags: 0

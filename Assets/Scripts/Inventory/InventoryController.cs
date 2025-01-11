@@ -19,15 +19,13 @@ public class InventoryController : MonoBehaviour
     [SerializeField] private Button progressButton;
 
     [Header("UI References")]
+    [SerializeField] private GameObject shopUI;
     [SerializeField] private GameObject inventoryUI;
     [SerializeField] private GameObject playerControlUI;
     [SerializeField] private GameObject playerStatsUI;
     [SerializeField] private GameObject weaponPrefab;
     [SerializeField] private Transform canvasTransform;
-
-    [Header("Sell Zone Settings")]
-    [SerializeField] private RectTransform sellZoneRect;
-    [SerializeField] private GameObject sellPopupPrefab;
+ 
     #endregion
 
     #region Private Fields
@@ -36,10 +34,7 @@ public class InventoryController : MonoBehaviour
     private InventoryHighlight inventoryHighlight;
     private TouchActions touchActions;
     private InputAction touchPosition;
-    private InputAction touchPress;
-
-    private GameObject currentSellPopup;
-    private bool isOverSellZone = false;
+    private InputAction touchPress;   
     private Vector2 originalSpawnPosition;
     private const float HOLD_THRESHOLD = 0.3f;
     private const float HOLD_MOVE_THRESHOLD = 20f;
@@ -356,15 +351,7 @@ public class InventoryController : MonoBehaviour
 
         Vector2 finalPosition = touchPosition.ReadValue<Vector2>();
 
-        if (isOverSellZone)
-        {
-            HandleItemSell();
-        }
-        else
-        {
-            itemInteractionManager.EndDragging(finalPosition);
-        }
-
+        itemInteractionManager.EndDragging(finalPosition);    
         // 상태 초기화
         ResetDragState();
     }
@@ -376,67 +363,14 @@ public class InventoryController : MonoBehaviour
         isDragging = false;
         isHolding = false;
 
-        UpdateSellZoneState(false);
     }
-    private void HandleItemSell()
-    {
-        var selectedItem = itemInteractionManager.GetSelectedItem();
-        if (selectedItem == null) return;
+   
 
-        if (CheckCanSellItem(selectedItem))
-        {
-            ProcessItemSell(selectedItem);
-        }
-        else
-        {
-            ReturnItemToGrid(selectedItem);
-        }
-    }
+    
 
-    private bool CheckCanSellItem(InventoryItem item)
-    {
-        int itemCount = CountItemsInGrid();
-        return itemCount > 1; // 마지막 아이템은 판매 불가
-    }
+   
 
-    private int CountItemsInGrid()
-    {
-        int count = 0;
-        for (int x = 0; x < mainInventoryGrid.Width; x++)
-        {
-            for (int y = 0; y < mainInventoryGrid.Height; y++)
-            {
-                if (mainInventoryGrid.GetItem(x, y) != null)
-                {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-
-    private void ProcessItemSell(InventoryItem item)
-    {
-        if (item == null) return;
-
-        WeaponData weaponData = item.GetWeaponData(); // 수정된 부분
-        if (weaponData != null)
-        {
-            GameManager.Instance.PlayerStats.AddCoins(weaponData.SellPrice);
-            Destroy(item.gameObject);
-            itemInteractionManager.ClearSelection();
-            HideSellPopup();
-        }
-    }
-
-    private void ReturnItemToGrid(InventoryItem item)
-    {
-        Vector2Int gridPosition = mainInventoryGrid.GetGridPosition(touchPosition.ReadValue<Vector2>());
-        if (mainInventoryGrid.IsValidPosition(gridPosition))
-        {
-            itemInteractionManager.EndDragging(touchPosition.ReadValue<Vector2>());
-        }
-    }
+    
     #endregion
 
     private IEnumerator CleanupInvalidItemsDelayed()
@@ -519,72 +453,42 @@ public class InventoryController : MonoBehaviour
     #endregion
 
     #region UI Management
+    
+    public void OpenShop()
+    {
+        SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
+        ToggleShopUI(true);
+
+        if (GameManager.Instance.currentGameState != GameState.Paused)
+        {
+            GameManager.Instance.SetGameState(GameState.Paused);
+        }
+    }
 
     public void OpenInventory()
     {
         SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
-        inventoryUI.SetActive(true);
-
-        if (playerControlUI != null && playerStatsUI != null)
-        {
-            playerControlUI.SetActive(false);
-            playerStatsUI.SetActive(false);
-        }
-
-        // 인벤토리를 열 때 청소
+        ToggleInventoryUI(true);
         StartCoroutine(CleanupInvalidItemsDelayed());
+
+        if (GameManager.Instance.currentGameState != GameState.Paused)
+        {
+            GameManager.Instance.SetGameState(GameState.Paused);
+        }
     }
     public void ToggleInventoryUI(bool isActive)
     {
         inventoryUI.SetActive(isActive);
         playerControlUI.SetActive(!isActive);
         playerStatsUI.SetActive(!isActive);
-
-        if (isActive)
-        {
-            StartCoroutine(CleanupInvalidItemsDelayed());
-        }
-        else
-        {
-            itemInteractionManager.ClearSelection();
-        }
     }
-
-    private void UpdateSellZoneState(bool isOver)
+    public void ToggleShopUI(bool isActive)
     {
-        isOverSellZone = isOver;
-
-        if (isOver && itemInteractionManager.HasSelectedItem)
-        {
-            ShowSellPopup();
-        }
-        else
-        {
-            HideSellPopup();
-        }
+        shopUI.SetActive(isActive);
+        playerControlUI.SetActive(!isActive);
+        playerStatsUI.SetActive(!isActive);
     }
 
-    private void ShowSellPopup()
-    {
-        if (currentSellPopup == null)
-        {
-            currentSellPopup = Instantiate(sellPopupPrefab, canvasTransform);
-            var selectedItem = itemInteractionManager.GetSelectedItem();
-            if (selectedItem != null)
-            {
-                SetupSellPopup(currentSellPopup, selectedItem.WeaponData);
-            }
-        }
-    }
-
-    private void HideSellPopup()
-    {
-        if (currentSellPopup != null)
-        {
-            Destroy(currentSellPopup);
-            currentSellPopup = null;
-        }
-    }
     #endregion
 
     #region Game Flow
@@ -684,34 +588,23 @@ public class InventoryController : MonoBehaviour
 
     private void TransitionToGameplay()
     {
-        // inventoryUI가 비활성화되기 전에 하이라이트 숨기기
+        // UI 전환 전에 모든 상태 초기화
         inventoryHighlight?.Show(false);
+        itemInteractionManager?.ClearSelection();
 
         // UI 상태 전환
-        if (inventoryUI != null)
-        {
-            inventoryUI.SetActive(false);
-        }
+        inventoryUI.SetActive(false);
+        shopUI.SetActive(false);  // 상점 UI 강제 비활성화
+        playerControlUI.SetActive(true);
+        playerStatsUI.SetActive(true);
 
-        if (playerControlUI != null)
-        {
-            playerControlUI.SetActive(true);
-        }
-
-        if (playerStatsUI != null)
-        {
-            playerStatsUI.SetActive(true);
-        }
-
-        // 게임 상태 변경
+        // 게임 상태를 Playing으로 변경
         if (GameManager.Instance != null)
         {
             GameManager.Instance.SetGameState(GameState.Playing);
         }
-
-        // 선택 상태 초기화
-        itemInteractionManager?.ClearSelection();
     }
+
     #endregion
 
     #region Helper Methods
@@ -726,7 +619,7 @@ public class InventoryController : MonoBehaviour
     {
         return mainInventoryGrid.IsValidPosition(position);
     }
-
+   
 
     private bool HasAnyItemInGrid()
     {

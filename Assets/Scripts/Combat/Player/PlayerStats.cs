@@ -273,11 +273,20 @@ public class PlayerStats : MonoBehaviour
     {
         if (cachedShopController != null)
         {
+            // 첫 상점이 아닌 경우 (레벨 2 이상)
+            if (level >= 2)
+            {
+                cachedShopController.isFirstShop = false;  // 첫 상점 플래그를 false로 설정
+            }
             cachedShopController.InitializeShop();
         }
         else if (GameManager.Instance?.ShopController != null)
         {
             cachedShopController = GameManager.Instance.ShopController;
+            if (level >= 2)
+            {
+                cachedShopController.isFirstShop = false;
+            }
             cachedShopController.InitializeShop();
         }
     }

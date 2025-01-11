@@ -14,6 +14,9 @@ public class WeaponInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI weaponLevelText;
     [SerializeField] private TextMeshProUGUI weaponNameText;
     [SerializeField] private TextMeshProUGUI weaponDescriptionText;
+    [SerializeField] private Button sellButton; // 판매 버튼 추가
+    [SerializeField] private TextMeshProUGUI sellPriceText; // 판매 가격 텍스트 추가
+
 
     [Header("Upgrade System")]
     [SerializeField] private Button upgradeButton;
@@ -59,9 +62,92 @@ public class WeaponInfoUI : MonoBehaviour
         if (isInitialized && playerStats != null)
         {
             CheckUpgradePossibility();
+            UpdateSellButton();
+        }
+    }
+    private void UpdateSellButton()
+    {
+        if (sellButton != null && selectedWeapon != null)
+        {
+            bool canSell = CanSellCurrentItem();
+            sellButton.gameObject.SetActive(true);
+            sellButton.interactable = canSell;
+
+            if (sellPriceText != null)
+            {
+                sellPriceText.text = $"Sell: {selectedWeapon.SellPrice}";
+            }
         }
     }
 
+    private bool CanSellCurrentItem()
+    {
+        int itemCount = CountItemsInGrid();
+        return itemCount > 1; // 그리드에 아이템이 2개 이상일 때만 판매 가능
+    }
+
+    private int CountItemsInGrid()
+    {
+        int count = 0;
+        for (int x = 0; x < mainItemGrid.Width; x++)
+        {
+            for (int y = 0; y < mainItemGrid.Height; y++)
+            {
+                if (mainItemGrid.GetItem(x, y) != null)
+                {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private void OnSellButtonClick()
+    {
+        if (!CanSellCurrentItem() || selectedWeapon == null) return;
+
+        // 현재 선택된 아이템의 위치 찾기
+        Vector2Int? itemPosition = FindSelectedItemPosition();
+        if (!itemPosition.HasValue) return;
+
+        // 판매 처리
+        SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
+        playerStats.AddCoins(selectedWeapon.SellPrice);
+
+        // 아이템이 Equipment인 경우 효과 제거
+        if (selectedWeapon.weaponType == WeaponType.Equipment)
+        {
+            var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
+            weaponManager?.UnequipWeapon(selectedWeapon);
+        }
+
+        // 그리드에서 아이템 제거
+        InventoryItem item = mainItemGrid.RemoveItem(itemPosition.Value);
+        if (item != null)
+        {
+            Destroy(item.gameObject);
+        }
+
+        // UI 상태 초기화
+        selectedWeapon = null;
+        gameObject.SetActive(false);
+    }
+
+    private Vector2Int? FindSelectedItemPosition()
+    {
+        for (int x = 0; x < mainItemGrid.Width; x++)
+        {
+            for (int y = 0; y < mainItemGrid.Height; y++)
+            {
+                InventoryItem item = mainItemGrid.GetItem(x, y);
+                if (item != null && item.WeaponData == selectedWeapon)
+                {
+                    return new Vector2Int(x, y);
+                }
+            }
+        }
+        return null;
+    }
     public void RefreshUpgradeUI()
     {
         if (selectedWeapon != null)
@@ -88,8 +174,10 @@ public class WeaponInfoUI : MonoBehaviour
     {
         upgradeableWeapons = new List<InventoryItem>();
         upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
+        sellButton.onClick.AddListener(OnSellButtonClick);
         upgradeButton.gameObject.SetActive(false);
-        gameObject.SetActive(false);
+        sellButton.gameObject.SetActive(false);
+        gameObject.SetActive(true);
     }
 
     private void InitializeReferences()
@@ -119,6 +207,7 @@ public class WeaponInfoUI : MonoBehaviour
     private void UnsubscribeFromEvents()
     {
         if (upgradeButton != null) upgradeButton.onClick.RemoveListener(OnUpgradeButtonClick);
+        if (sellButton != null) sellButton.onClick.RemoveListener(OnSellButtonClick);
         if (GameManager.Instance != null) GameManager.Instance.OnGameStateChanged -= OnGameStateChanged;
         if (mainItemGrid != null) mainItemGrid.OnGridChanged -= RefreshUpgradeUI;
     }

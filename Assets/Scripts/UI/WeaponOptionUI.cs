@@ -11,7 +11,7 @@ public class WeaponOptionUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI weaponLevelText;
     [SerializeField] private Button myPurchaseButton;
     [SerializeField] private TextMeshProUGUI priceText;
-    [SerializeField] private TextMeshProUGUI weaponTierText; // 티어 텍스트 추가
+    [SerializeField] private TextMeshProUGUI weaponTierText;
 
     private ShopController shopUI;
     private PlayerStats playerStats;
@@ -45,17 +45,22 @@ public class WeaponOptionUI : MonoBehaviour
 
         Color tierColor = weaponData.GetTierColor();
         weaponImage.color = tierColor;
-        weaponImage.sprite = weaponData.weaponIcon;
         weaponImage.preserveAspect = true;
 
         priceText.text = weaponData.price == 0 ? "FREE" : $"{weaponData.price} Coins";
 
-        // 티어 텍스트 설정
         if (weaponTierText != null)
         {
             weaponTierText.text = $"Tier {weaponData.currentTier}";
-            weaponTierText.color = tierColor; // 티어 색상 적용
+            weaponTierText.color = tierColor;
         }
+    }
+
+    public void ResetPurchaseState()
+    {
+        isPurchased = false;
+        UpdatePurchaseButtonState();
+        SetupUI();  // UI 전체를 리셋
     }
 
     private void SetupButtons()
@@ -71,28 +76,44 @@ public class WeaponOptionUI : MonoBehaviour
     {
         if (myPurchaseButton != null && playerStats != null && weaponData != null)
         {
-            bool canAfford = (weaponData.price == 0 || playerStats.CoinCount >= weaponData.price) && !isPurchased;
-            myPurchaseButton.interactable = canAfford;
-            Color buttonColor = isPurchased ? Color.gray : (canAfford ? Color.white : Color.gray);
-            myPurchaseButton.GetComponent<Image>().color = buttonColor;
+            bool canAfford = (weaponData.price == 0 || playerStats.CoinCount >= weaponData.price);
+            bool canPurchase = canAfford && !isPurchased;
+
+            myPurchaseButton.interactable = canPurchase;
+
+            // 버튼 색상 설정
+            myPurchaseButton.GetComponent<Image>().color = canPurchase ? Color.white : Color.gray;
+
+            // 가격 텍스트 업데이트
+            if (priceText != null)
+            {
+                if (isPurchased)
+                {
+                    priceText.text = "SOLD";
+                }
+                else
+                {
+                    priceText.text = weaponData.price == 0 ? "FREE" : $"{weaponData.price} Coins";
+                }
+            }
         }
     }
-
     private void OnPurchaseClicked()
     {
-        SoundManager.Instance.PlaySound("Button_sfx",1f,false);
-        if (weaponData != null && shopUI != null && playerStats != null && !isPurchased)
+        if (weaponData == null || shopUI == null || playerStats == null || isPurchased) return;
+
+        if (weaponData.price == 0 || playerStats.CoinCount >= weaponData.price)
         {
-            if (weaponData.price == 0 || playerStats.CoinCount >= weaponData.price)
+            SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
+
+            if (weaponData.price > 0)
             {
-                if (weaponData.price > 0)
-                {
-                    playerStats.SpendCoins(weaponData.price);
-                }
-                isPurchased = true;
-                UpdatePurchaseButtonState();
-                shopUI.PurchaseWeapon(weaponData);
+                playerStats.SpendCoins(weaponData.price);
             }
+
+            isPurchased = true;
+            UpdatePurchaseButtonState();
+            shopUI.PurchaseWeapon(weaponData);
         }
     }
 
