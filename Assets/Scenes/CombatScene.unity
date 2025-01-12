@@ -1417,22 +1417,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerUI
       objectReference: {fileID: 0}
-    - target: {fileID: 6598508820099746697, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 80
+    - target: {fileID: 7144755084900930789, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6598508820099746697, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 80
-      objectReference: {fileID: 0}
-    - target: {fileID: 8643996476354668043, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 7675826601332790545, guid: 212005ee5a23a2c4b84260028e843a81, type: 3}
-    - target: {fileID: 8976687962997150694, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 2577121107724698631, guid: a128c1b2d70da5846ac46ebe5f3aec41, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

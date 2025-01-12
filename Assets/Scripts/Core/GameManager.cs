@@ -1,7 +1,10 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
+/// <summary>
+/// 게임의 전반적인 상태와 시스템을 관리하는 매니저 클래스
+/// </summary>
 public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
@@ -17,21 +20,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    #region Properties
     public GameState currentGameState { get; private set; }
     public Dictionary<GameState, int> gameScene { get; private set; }
 
-    // 씬 참조들
     private PlayerStats playerStats;
     private ShopController shopController;
     private CombatController combatController;
 
-    // Public 속성들
     public PlayerStats PlayerStats => playerStats;
     public ShopController ShopController => shopController;
     public CombatController CombatController => combatController;
     public bool IsInitialized { get; private set; }
 
     public event System.Action<GameState> OnGameStateChanged;
+    #endregion
 
     private void Awake()
     {
@@ -40,9 +43,7 @@ public class GameManager : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
             InitializeGameScenes();
-
-            // StartScene(MainMenu)에서 시작하므로 IntroSoundBank 로드
-            SoundManager.Instance.LoadSoundBank("IntroSoundBank");
+            InitializeSound();
         }
         else
         {
@@ -50,22 +51,39 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 게임 씬 정보를 초기화합니다.
+    /// </summary>
     private void InitializeGameScenes()
     {
         gameScene = new Dictionary<GameState, int>()
         {
-            { GameState.MainMenu, 0 },   // StartScene
+            { GameState.MainMenu, 0 },    // StartScene
             { GameState.Playing, 1 },     // CombatScene
             { GameState.Paused, 1 },      // 같은 CombatScene에서 Pause
             { GameState.GameOver, 1 }     // 같은 CombatScene에서 GameOver
         };
     }
 
+    /// <summary>
+    /// 사운드 시스템을 초기화합니다.
+    /// </summary>
+    private void InitializeSound()
+    {
+        // StartScene(MainMenu)에서 시작하므로 IntroSoundBank 로드
+        var soundManager = SoundManager.Instance;
+        soundManager.LoadSoundBank("IntroSoundBank");
+    }
+
+    /// <summary>
+    /// CombatScene의 주요 컴포넌트들을 설정합니다.
+    /// </summary>
     public void SetCombatSceneReferences(PlayerStats stats, ShopController shop, CombatController combat)
     {
         playerStats = stats;
         shopController = shop;
         combatController = combat;
+
         if (playerStats != null)
         {
             playerStats.InitializeStats();
@@ -73,6 +91,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 씬 전환 시 참조를 초기화합니다.
+    /// </summary>
     public void ClearSceneReferences()
     {
         playerStats = null;
@@ -81,20 +102,29 @@ public class GameManager : MonoBehaviour
         IsInitialized = false;
     }
 
+    /// <summary>
+    /// 게임을 시작하고 CombatScene으로 전환합니다.
+    /// </summary>
     public void StartGame()
     {
-        // CombatScene으로 전환 시 사운드 설정
-        SoundManager.Instance.LoadSoundBank("CombatSoundBank");
-        if (!SoundManager.Instance.IsBGMPlaying("BGM_Battle"))
-        {
-        SoundManager.Instance.PlaySound("BGM_Battle", 1f, true);
+        var soundManager = SoundManager.Instance;
 
+        // CombatScene으로 전환 시 사운드뱅크 로드
+        soundManager.LoadSoundBank("CombatSoundBank");
+
+        // 기존 볼륨 설정 유지한 채로 배경음악 재생
+        if (!soundManager.IsBGMPlaying("BGM_Battle"))
+        {
+            soundManager.PlaySound("BGM_Battle", 1f, true);
         }
 
         SetGameState(GameState.Playing);
         SceneManager.LoadScene(gameScene[GameState.Playing], LoadSceneMode.Single);
     }
 
+    /// <summary>
+    /// 게임의 상태를 변경하고 관련 시스템을 업데이트합니다.
+    /// </summary>
     public void SetGameState(GameState newState)
     {
         if (currentGameState != newState)
@@ -115,9 +145,19 @@ public class GameManager : MonoBehaviour
                     break;
                 case GameState.GameOver:
                     Time.timeScale = 0f;
+                    HandleGameOver();
                     break;
             }
         }
+    }
+
+    /// <summary>
+    /// 게임 오버 상태에서의 처리를 담당합니다.
+    /// </summary>
+    private void HandleGameOver()
+    {
+        SavePlayerProgress();
+        // 게임 오버 시 추가적인 처리가 필요한 경우 여기에 구현
     }
 
     public bool IsPlaying() => currentGameState == GameState.Playing;
@@ -127,8 +167,12 @@ public class GameManager : MonoBehaviour
         SavePlayerProgress();
     }
 
-    private void SavePlayerProgress()
+    /// <summary>
+    /// 플레이어의 진행 상황을 저장합니다.
+    /// </summary>
+    public void SavePlayerProgress()
     {
-        // TODO: 필요한 경우 플레이어 진행 상황 저장
+        // 현재는 SoundManager가 자체적으로 볼륨 설정을 저장하므로
+        // 추가적인 데이터 저장이 필요한 경우 여기에 구현
     }
 }
