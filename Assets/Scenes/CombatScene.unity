@@ -652,6 +652,7 @@ MonoBehaviour:
   playerStats: {fileID: 389333318044411464}
   shopController: {fileID: 3302047816804777912}
   combatController: {fileID: 1291325810}
+  gameOverController: {fileID: 7947131200979300811}
 --- !u!4 &815165775
 Transform:
   m_ObjectHideFlags: 0
@@ -1106,6 +1107,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 9450005411114373, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
+      propertyPath: baseHealth
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9450005411114373, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
       propertyPath: basePickupRange
       value: 0
       objectReference: {fileID: 0}
@@ -1417,10 +1422,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerUI
       objectReference: {fileID: 0}
-    - target: {fileID: 7144755084900930789, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1436,6 +1437,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2713294773536293992, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
   m_PrefabInstance: {fileID: 7947131200979300798}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7947131200979300811 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5086119628564153083, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
+  m_PrefabInstance: {fileID: 7947131200979300798}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eb27301a43eb674693919799bf45682, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

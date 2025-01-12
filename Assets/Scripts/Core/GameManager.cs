@@ -31,6 +31,9 @@ public class GameManager : MonoBehaviour
     public PlayerStats PlayerStats => playerStats;
     public ShopController ShopController => shopController;
     public CombatController CombatController => combatController;
+
+    private GameOverController gameOverController;
+    public GameOverController GameOverController => gameOverController;
     public bool IsInitialized { get; private set; }
 
     public event System.Action<GameState> OnGameStateChanged;
@@ -78,11 +81,12 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// CombatScene의 주요 컴포넌트들을 설정합니다.
     /// </summary>
-    public void SetCombatSceneReferences(PlayerStats stats, ShopController shop, CombatController combat)
+    public void SetCombatSceneReferences(PlayerStats stats, ShopController shop, CombatController combat, GameOverController gameOver)
     {
         playerStats = stats;
         shopController = shop;
         combatController = combat;
+        gameOverController = gameOver;
 
         if (playerStats != null)
         {
@@ -99,6 +103,7 @@ public class GameManager : MonoBehaviour
         playerStats = null;
         shopController = null;
         combatController = null;
+        gameOverController = null;
         IsInitialized = false;
     }
 
@@ -144,8 +149,12 @@ public class GameManager : MonoBehaviour
                     Time.timeScale = 0f;
                     break;
                 case GameState.GameOver:
-                    Time.timeScale = 0f;
+                    if (gameOverController != null)
+                    {
+                        gameOverController.ShowGameOverPanel();
+                    }
                     HandleGameOver();
+                    Time.timeScale = 0f;
                     break;
             }
         }
@@ -157,9 +166,16 @@ public class GameManager : MonoBehaviour
     private void HandleGameOver()
     {
         SavePlayerProgress();
-        // 게임 오버 시 추가적인 처리가 필요한 경우 여기에 구현
-    }
 
+        if (gameOverController != null)
+        {
+            gameOverController.ShowGameOverPanel();
+        }
+        else
+        {
+            Debug.LogError("GameOverController reference is missing!");
+        }
+    }
     public bool IsPlaying() => currentGameState == GameState.Playing;
 
     private void OnApplicationQuit()
