@@ -73,14 +73,25 @@ public class InventoryItem : MonoBehaviour
     }
     public void Initialize(WeaponData data)
     {
-        WeaponData = data;
-        isRotated = false;
-        gridPosition = INVALID_POSITION;
+        if (data == null)
+        {
+            Debug.LogError("Attempted to initialize InventoryItem with null WeaponData!");
+            return;
+        }
 
-        UpdateVisuals();
-        UpdateSize();  // 초기 크기 설정
+        try
+        {
+            WeaponData = data;
+            isRotated = false;
+            gridPosition = INVALID_POSITION;
+            UpdateVisuals();
+            UpdateSize();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error in Initialize: {e.Message}");
+        }
     }
-
     /// <summary>
     /// 아이템 회전
     /// </summary>

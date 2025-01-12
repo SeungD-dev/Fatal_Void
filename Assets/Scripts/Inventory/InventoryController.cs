@@ -494,36 +494,56 @@ public class InventoryController : MonoBehaviour
     #region Game Flow
     public void StartGame()
     {
-        if (!ValidateGameStart()) return;
+        // 게임 시작 전 유효성 검사
+        if (!ValidateGameStart())
+        {
+            Debug.LogError("Failed to start game: Validation failed!");
+            return;
+        }
 
         PlayButtonSound();
         EquipAllGridItems();
         TransitionToGameplay();
     }
-
     private bool ValidateGameStart()
     {
-        return mainInventoryGrid != null && HasAnyItemInGrid();
-    }
+        // 초기화 및 유효성 검사
+        if (mainInventoryGrid == null || !mainInventoryGrid.IsInitialized)
+        {
+            Debug.LogError("Main Inventory Grid is not initialized!");
+            return false;
+        }
 
+        return HasAnyItemInGrid();
+    }
     private void EquipAllGridItems()
     {
-        for (int x = 0; x < mainInventoryGrid.Width; x++)
+        if (mainInventoryGrid == null || weaponManager == null) return;
+
+        try
         {
-            for (int y = 0; y < mainInventoryGrid.Height; y++)
+            for (int x = 0; x < mainInventoryGrid.Width; x++)
             {
-                InventoryItem item = mainInventoryGrid.GetItem(x, y);
-                if (item != null)
+                for (int y = 0; y < mainInventoryGrid.Height; y++)
                 {
-                    WeaponData weaponData = item.GetWeaponData(); // 수정된 부분
-                    if (weaponData != null)
+                    InventoryItem item = mainInventoryGrid.GetItem(x, y);
+                    if (item != null)
                     {
-                        weaponManager.EquipWeapon(weaponData);
+                        WeaponData weaponData = item.GetWeaponData();
+                        if (weaponData != null)
+                        {
+                            weaponManager.EquipWeapon(weaponData);
+                        }
                     }
                 }
             }
         }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error equipping items: {e.Message}");
+        }
     }
+
 
     public void CreateUpgradedItem(WeaponData weaponData, Vector2Int position)
     {
@@ -594,7 +614,7 @@ public class InventoryController : MonoBehaviour
 
         // UI 상태 전환
         inventoryUI.SetActive(false);
-        shopUI.SetActive(false);  // 상점 UI 강제 비활성화
+        shopUI.SetActive(false);
         playerControlUI.SetActive(true);
         playerStatsUI.SetActive(true);
 
@@ -619,10 +639,12 @@ public class InventoryController : MonoBehaviour
     {
         return mainInventoryGrid.IsValidPosition(position);
     }
-   
+
 
     private bool HasAnyItemInGrid()
     {
+        if (mainInventoryGrid == null) return false;
+
         for (int x = 0; x < mainInventoryGrid.Width; x++)
         {
             for (int y = 0; y < mainInventoryGrid.Height; y++)

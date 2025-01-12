@@ -26,11 +26,13 @@ public class ItemGrid : MonoBehaviour
     #region Properties
     public int Width => gridWidth;
     public int Height => gridHeight;
+    public bool IsInitialized => isInitialized;
     #endregion
 
     #region Private Fields
     private InventoryItem[,] gridItems;
     private RectTransform rectTransform;
+    private bool isInitialized = false;
     #endregion
 
     #region Unity Methods
@@ -42,6 +44,10 @@ public class ItemGrid : MonoBehaviour
 
     private void OnEnable()
     {
+        if (!isInitialized)
+        {
+            InitializeGrid();
+        }
         ValidateGridState();
     }
     #endregion
@@ -59,10 +65,23 @@ public class ItemGrid : MonoBehaviour
 
     private void InitializeGrid()
     {
-        gridItems = new InventoryItem[gridWidth, gridHeight];
-        UpdateGridSize();
+        try
+        {
+            // gridItems가 null이거나 크기가 다르면 새로 초기화
+            if (gridItems == null || gridItems.GetLength(0) != gridWidth || gridItems.GetLength(1) != gridHeight)
+            {
+                gridItems = new InventoryItem[gridWidth, gridHeight];
+                Debug.Log($"Grid initialized with size: {gridWidth}x{gridHeight}");
+            }
+            UpdateGridSize();
+            isInitialized = true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error initializing grid: {e.Message}");
+            isInitialized = false;
+        }
     }
-
     private void UpdateGridSize()
     {
         if (rectTransform != null)
@@ -180,33 +199,56 @@ public class ItemGrid : MonoBehaviour
     /// </summary>
     public bool CanPlaceItem(InventoryItem item, Vector2Int position)
     {
-        if (!IsValidPosition(position) || item == null) return false;
-
-        // 아이템이 그리드 범위를 벗어나는지 검사
-        if (position.x + item.Width > gridWidth ||
-            position.y + item.Height > gridHeight)
+        if (!isInitialized)
         {
+            Debug.LogError("Grid is not initialized!");
             return false;
         }
 
-        // 다른 아이템과 겹치는지 검사
-        for (int x = 0; x < item.Width; x++)
+        if (item == null)
         {
-            for (int y = 0; y < item.Height; y++)
-            {
-                Vector2Int checkPos = position + new Vector2Int(x, y);
-                InventoryItem existingItem = gridItems[checkPos.x, checkPos.y];
-
-                if (existingItem != null && existingItem != item)
-                {
-                    return false;
-                }
-            }
+            Debug.LogError("Attempted to check placement for null item!");
+            return false;
         }
 
-        return true;
-    }
+        try
+        {
+            // 그리드 범위 체크
+            if (position.x < 0 || position.y < 0 ||
+                position.x + item.Width > gridWidth ||
+                position.y + item.Height > gridHeight)
+            {
+                return false;
+            }
 
+            // gridItems null 체크
+            if (gridItems == null)
+            {
+                Debug.LogError("gridItems array is null!");
+                return false;
+            }
+
+            // 겹침 체크
+            for (int x = 0; x < item.Width; x++)
+            {
+                for (int y = 0; y < item.Height; y++)
+                {
+                    Vector2Int checkPos = position + new Vector2Int(x, y);
+                    if (gridItems[checkPos.x, checkPos.y] != null)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error in CanPlaceItem: {e.Message}\nStackTrace: {e.StackTrace}");
+            return false;
+        }
+    }
     public bool CanPlaceItem(InventoryItem item, int x, int y)
     {
         return CanPlaceItem(item, new Vector2Int(x, y));
@@ -216,21 +258,34 @@ public class ItemGrid : MonoBehaviour
     /// </summary>
     public Vector2Int? FindSpaceForObject(InventoryItem item)
     {
-        if (item == null) return null;
-
-        for (int y = 0; y < gridHeight - item.Height + 1; y++)
+        if (item == null)
         {
-            for (int x = 0; x < gridWidth - item.Width + 1; x++)
-            {
-                Vector2Int position = new Vector2Int(x, y);
-                if (CanPlaceItem(item, position))
-                {
-                    return position;
-                }
-            }
+            Debug.LogError("Attempted to find space for null item!");
+            return null;
         }
 
-        return null;
+        try
+        {
+            for (int y = 0; y < gridHeight - item.Height + 1; y++)
+            {
+                for (int x = 0; x < gridWidth - item.Width + 1; x++)
+                {
+                    Vector2Int position = new Vector2Int(x, y);
+                    if (CanPlaceItem(item, position))
+                    {
+                        return position;
+                    }
+                }
+            }
+
+            Debug.Log("No free space found in grid");
+            return null;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error in FindSpaceForObject: {e.Message}");
+            return null;
+        }
     }
     #endregion
 
@@ -238,6 +293,12 @@ public class ItemGrid : MonoBehaviour
     /// <summary>
     /// 지정된 위치의 아이템 반환
     /// </summary>
+    /// 
+    public void ForceInitialize()
+    {
+        InitializeComponents();
+        InitializeGrid();
+    }
     public InventoryItem GetItem(Vector2Int position)
     {
         return GetItem(position.x, position.y);

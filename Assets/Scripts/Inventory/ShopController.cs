@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
+using System.Collections;
 
 public class ShopController : MonoBehaviour
 {
@@ -19,15 +20,20 @@ public class ShopController : MonoBehaviour
     [SerializeField] private GameObject shopUI;
     [SerializeField] private GameObject playerControlUI;
     [SerializeField] private GameObject playerStatsUI;
+    [SerializeField] private GameObject noticeUI;
+    [SerializeField] private ItemGrid mainInventoryGrid;
+    [SerializeField] private GameObject weaponPrefab;
     [Header("UI Texts")]
     [SerializeField] private TMPro.TextMeshProUGUI refreshCostText;
     [SerializeField] private TMPro.TextMeshProUGUI playerCoinsText;
-
+    [SerializeField] private TMPro.TextMeshProUGUI noticeText;
+    [SerializeField] private float noticeDisplayTime = 2f;
     public bool isFirstShop = true;
     private bool hasFirstPurchase = false;
+    private bool isNoticeClosed = true;
     private PlayerStats playerStats;
     private HashSet<WeaponData> purchasedWeapons = new HashSet<WeaponData>();
-
+    private Coroutine currentNoticeCoroutine;
     private void Start()
     {
         // 리프레시 버튼 이벤트 설정
@@ -39,8 +45,30 @@ public class ShopController : MonoBehaviour
         {
             Debug.LogError("Refresh button reference is missing!");
         }
+        if (noticeUI != null)
+        {
+            noticeUI.SetActive(false);
+        }
+        if (mainInventoryGrid != null)
+        {
+            mainInventoryGrid.ForceInitialize();
+        }
     }
+    private void OnDisable()
+    {
+        // 컴포넌트가 비활성화될 때 실행 중인 코루틴 정리
+        if (currentNoticeCoroutine != null)
+        {
+            StopCoroutine(currentNoticeCoroutine);
+            currentNoticeCoroutine = null;
+        }
 
+        // Notice UI가 활성화된 상태로 남아있지 않도록 보장
+        if (noticeUI != null)
+        {
+            noticeUI.SetActive(false);
+        }
+    }
     private void OnDestroy()
     {
         if (refreshButton != null)
@@ -52,6 +80,7 @@ public class ShopController : MonoBehaviour
         {
             playerStats.OnCoinChanged -= UpdatePlayerCoinsText;
         }
+        StopAllCoroutines();
     }
 
     private void UpdatePlayerCoinsText(int coins)
@@ -141,7 +170,121 @@ public class ShopController : MonoBehaviour
             }
         }
     }
+    public void OnPurchaseClicked(WeaponOptionUI weaponOption)
+    {
+        if (weaponOption == null || weaponOption.WeaponData == null || playerStats == null) return;
 
+        WeaponData weaponData = weaponOption.WeaponData;
+
+        // 인벤토리 공간 체크
+        if (!HasEnoughSpaceForItem(weaponData))
+        {
+            ShowNotice("Not enough space in inventory!");
+            return;
+        }
+
+        // 기존의 구매 로직
+        if (weaponData.price == 0 || playerStats.SpendCoins(weaponData.price))
+        {
+            SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
+            weaponOption.SetPurchased(true);
+            PurchaseWeapon(weaponData);
+        }
+    }
+    private bool HasEnoughSpaceForItem(WeaponData weaponData)
+    {
+        if (mainInventoryGrid != null && !mainInventoryGrid.IsInitialized)
+        {
+            mainInventoryGrid.ForceInitialize();
+        }
+        // weaponData 체크
+        if (weaponData == null)
+        {
+            Debug.LogError("WeaponData is null!");
+            return false;
+        }
+
+        // mainInventoryGrid 체크
+        if (mainInventoryGrid == null)
+        {
+            Debug.LogError("MainInventoryGrid is not assigned!");
+            return false;
+        }
+
+        // weaponPrefab 체크
+        if (weaponPrefab == null)
+        {
+            Debug.LogError("WeaponPrefab is not assigned!");
+            return false;
+        }
+
+        try
+        {
+            Debug.Log($"Creating temp item for weapon: {weaponData.weaponName}");
+
+            // 임시 InventoryItem 생성
+            GameObject tempObj = Instantiate(weaponPrefab);
+            if (tempObj == null)
+            {
+                Debug.LogError("Failed to instantiate weapon prefab!");
+                return false;
+            }
+
+            InventoryItem tempItem = tempObj.GetComponent<InventoryItem>();
+            if (tempItem == null)
+            {
+                Debug.LogError("WeaponPrefab does not have InventoryItem component!");
+                Destroy(tempObj);
+                return false;
+            }
+
+            Debug.Log("Initializing temp item...");
+            tempItem.Initialize(weaponData);
+
+            Debug.Log("Checking for free space...");
+            // 공간 체크
+            Vector2Int? freePosition = mainInventoryGrid.FindSpaceForObject(tempItem);
+
+            Debug.Log($"Free position found: {freePosition.HasValue}");
+
+            // 임시 오브젝트 제거
+            Destroy(tempObj);
+
+            return freePosition.HasValue;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error in HasEnoughSpaceForItem: {e.Message}\nStackTrace: {e.StackTrace}");
+            return false;
+        }
+    }
+    private void ShowNotice(string message)
+    {
+        if (noticeUI == null || noticeText == null) return;
+
+        // 이전에 실행 중인 코루틴이 있다면 중지
+        if (currentNoticeCoroutine != null)
+        {
+            StopCoroutine(currentNoticeCoroutine);
+        }
+
+        noticeText.text = message;
+        noticeUI.SetActive(true);
+
+        currentNoticeCoroutine = StartCoroutine(HideNoticeAfterDelay());
+    }
+
+
+    private IEnumerator HideNoticeAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(noticeDisplayTime);
+
+        if (noticeUI != null)
+        {
+            noticeUI.SetActive(false);
+        }
+        currentNoticeCoroutine = null;
+    }
     private void InitializeFreeWeapons()
     {
         List<WeaponData> randomWeapons = GetRandomWeapons(weaponOptions.Length);
@@ -308,17 +451,7 @@ public class ShopController : MonoBehaviour
             inventoryController.OnPurchaseItem(weaponData);
         }
     }
-    private void SetAllOptionsPurchased()
-    {
-        foreach (var option in weaponOptions)
-        {
-            if (option != null)
-            {
-                option.SetPurchased(true);
-            }
-        }
-    }
-
+  
     public void CloseShop()
     {
         shopUI.SetActive(false);

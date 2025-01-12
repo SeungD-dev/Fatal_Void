@@ -102,19 +102,8 @@ public class WeaponOptionUI : MonoBehaviour
     {
         if (weaponData == null || shopUI == null || playerStats == null || isPurchased) return;
 
-        if (weaponData.price == 0 || playerStats.CoinCount >= weaponData.price)
-        {
-            SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
-
-            if (weaponData.price > 0)
-            {
-                playerStats.SpendCoins(weaponData.price);
-            }
-
-            isPurchased = true;
-            UpdatePurchaseButtonState();
-            shopUI.PurchaseWeapon(weaponData);
-        }
+        // 구매 로직을 ShopController로 위임
+        shopUI.OnPurchaseClicked(this);
     }
 
     public void SetPurchased(bool purchased)
