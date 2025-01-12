@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      joystick2_0: 5697728592898419042
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
