@@ -73,11 +73,15 @@ public class PlayerStats : MonoBehaviour
     private bool hasMagnetEffect = false;
     private float magnetEffectCooldown = 30f;
     private float lastMagnetEffectTime = -30f;  // 처음에 바로 사용할 수 있도록
+    [Header("Hit Effect")]
+    [SerializeField] private float hitFlashDuration = 0.1f;
+    [SerializeField] private Color hitColor = Color.red;
 
     private bool isLevelingUp = false;
     private ShopController cachedShopController;
-
-
+    private bool isFlashing = false;
+    private SpriteRenderer spriteRenderer;
+    private Color originalColor;
     private bool isInitialized = false;
     private bool isModifyingStats = false;
 
@@ -100,6 +104,15 @@ public class PlayerStats : MonoBehaviour
     public float PickupRange => pickupRange;
     public bool HasMagnetEffect => hasMagnetEffect;
     #endregion
+
+    private void Awake()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
+    }
     private void Start()
     {
         cachedShopController = GameManager.Instance?.ShopController;
@@ -181,13 +194,31 @@ public class PlayerStats : MonoBehaviour
     {
         currentHealth = Mathf.Max(0, currentHealth - damage);
         OnHealthChanged?.Invoke(currentHealth);
-
+        PlayHitEffect();
         if (currentHealth <= 0)
         {
             Die();
         }
     }
+    private void PlayHitEffect()
+    {
+        if (spriteRenderer != null & !isFlashing)
+        {
+            StartCoroutine(HitFlashCoroutine());
+        }
+    }
+    private IEnumerator HitFlashCoroutine()
+    {
+        isFlashing = true;
 
+        spriteRenderer.color = hitColor;
+
+        yield return new WaitForSeconds(hitFlashDuration);
+
+        spriteRenderer.color = originalColor;
+
+        isFlashing = false;
+    }
     public bool SpendCoins(int amount)
     {
         if (coinCount >= amount)

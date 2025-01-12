@@ -360,6 +360,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c82947591f9f724f91805a760b2d0ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainItemGrid: {fileID: 0}
 --- !u!114 &9450005411114373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -375,6 +376,7 @@ MonoBehaviour:
   level: 0
   currentExp: 0
   requiredExp: 1
+  initialRequiredExp: 100
   baseHealth: 100
   baseHealthRegen: 1
   basePower: 10
@@ -389,6 +391,7 @@ MonoBehaviour:
   cooldownReducePerLevel: 0.05
   knockbackIncreasePerLevel: 0.1
   aoeIncreasePerLevel: 0.2
+  basePickupRange: 5
 --- !u!61 &3271718317218111153
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -423,7 +426,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.00020176731, y: 0.00091762096}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -433,7 +436,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2.04, y: 2.61}
+  m_Size: {x: 0.12074776, y: 0.11647943}
   m_EdgeRadius: 0
 --- !u!95 &3082598081083516877
 Animator:
