@@ -102,20 +102,17 @@ public class ShopController : MonoBehaviour
     // UI 전환 메서드
     public void OpenInventory()
     {
-        SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
-
-        // 상점 상태 초기화
-        if (isFirstShop && hasFirstPurchase)
-        {
-            isFirstShop = false;
-        }
-
-        // UI 전환
-        shopUI.SetActive(false);
-
         if (inventoryController != null)
         {
+            // 상점 UI 비활성화
+            shopUI.SetActive(false);
+
+            // 인벤토리 컨트롤러를 통해 인벤토리 열기
             inventoryController.OpenInventory();
+        }
+        else
+        {
+            Debug.LogError("InventoryController reference is missing!");
         }
     }
 
@@ -183,10 +180,10 @@ public class ShopController : MonoBehaviour
             return;
         }
 
-        // 기존의 구매 로직
+        // 구매 진행
         if (weaponData.price == 0 || playerStats.SpendCoins(weaponData.price))
         {
-            SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
+            SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
             weaponOption.SetPurchased(true);
             PurchaseWeapon(weaponData);
         }
@@ -452,6 +449,7 @@ public class ShopController : MonoBehaviour
         }
     }
   
+
     public void CloseShop()
     {
         shopUI.SetActive(false);

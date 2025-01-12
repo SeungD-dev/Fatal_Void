@@ -338,23 +338,44 @@ public class ItemGrid : MonoBehaviour
     /// <summary>
     /// 그리드 상태 검증
     /// </summary>
-    private void ValidateGridState()
+    public void ValidateGridState()
     {
-        for (int x = 0; x < gridWidth; x++)
+        if (!IsInitialized)
         {
-            for (int y = 0; y < gridHeight; y++)
+            ForceInitialize();
+        }
+
+        try
+        {
+            for (int x = 0; x < gridWidth; x++)
             {
-                InventoryItem item = gridItems[x, y];
-                if (item != null)
+                for (int y = 0; y < gridHeight; y++)
                 {
-                    Vector2Int itemPos = new Vector2Int(item.GridPosition.x, item.GridPosition.y);
-                    if (!IsValidPosition(itemPos))
+                    InventoryItem item = gridItems[x, y];
+                    if (item != null)
                     {
-                        gridItems[x, y] = null;
-                        OnGridChanged?.Invoke();
+                        Vector2Int itemPos = item.GridPosition;
+                        // 아이템의 위치가 유효하지 않으면 재배치 시도
+                        if (!IsValidPosition(itemPos))
+                        {
+                            Vector2Int? newPos = FindSpaceForObject(item);
+                            if (newPos.HasValue)
+                            {
+                                PlaceItem(item, newPos.Value);
+                            }
+                            else
+                            {
+                                gridItems[x, y] = null;
+                            }
+                        }
                     }
                 }
             }
+            OnGridChanged?.Invoke();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error in ValidateGridState: {e.Message}");
         }
     }
 

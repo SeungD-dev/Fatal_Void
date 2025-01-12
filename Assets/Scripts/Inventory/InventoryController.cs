@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections;
 using TMPro;
 using System.Linq;
+using System.Collections.Generic;
 
 /// <summary>
 /// 인벤토리 시스템의 메인 컨트롤러
@@ -25,7 +26,11 @@ public class InventoryController : MonoBehaviour
     [SerializeField] private GameObject playerStatsUI;
     [SerializeField] private GameObject weaponPrefab;
     [SerializeField] private Transform canvasTransform;
- 
+    [Header("Notice UI")]
+    [SerializeField] private GameObject noticeUI;
+    [SerializeField] private TMPro.TextMeshProUGUI noticeText;
+    [SerializeField] private float noticeDisplayTime = 2f;
+    private Coroutine currentNoticeCoroutine;
     #endregion
 
     #region Private Fields
@@ -48,6 +53,8 @@ public class InventoryController : MonoBehaviour
     private int lastTouchCount = 0;
     private bool lastPressState = false;
     private float lastTouchTime = 0f;
+    private bool isInventoryInitialized = false;
+    private HashSet<InventoryItem> activeItems = new HashSet<InventoryItem>();
     #endregion
 
     #region Properties
@@ -70,7 +77,7 @@ public class InventoryController : MonoBehaviour
         SetupInputSystem();
         InitializeGrid();
     }
-
+  
     private void Start()
     {
         if (itemSpawnPoint != null)
@@ -211,17 +218,83 @@ public class InventoryController : MonoBehaviour
     }
 
     private void OnDisable()
-    {
+    {  // Notice 코루틴 정리
+        if (currentNoticeCoroutine != null)
+        {
+            StopCoroutine(currentNoticeCoroutine);
+            currentNoticeCoroutine = null;
+        }
+
+        // Notice UI가 활성화된 상태로 남아있지 않도록 보장
+        if (noticeUI != null)
+        {
+            noticeUI.SetActive(false);
+        }
         touchActions?.Disable();
+        SaveGridState();
     }
 
     private void OnDestroy()
     {
+        activeItems.Clear();
         CleanupEventListeners();
     }
     #endregion
 
     #region Initialization
+
+    public void InitializeInventory()
+    {
+        if (isInventoryInitialized) return;
+
+        try
+        {
+            InitializeComponents();
+            SetupInputSystem();
+            InitializeGrid();
+            RestoreGridItems(); // 그리드 아이템 상태 복원
+            isInventoryInitialized = true;
+            Debug.Log("Inventory initialized successfully");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to initialize inventory: {e.Message}");
+            isInventoryInitialized = false;
+        }
+    }
+    private void SaveGridState()
+    {
+        activeItems.Clear();
+        if (mainInventoryGrid == null) return;
+
+        for (int x = 0; x < mainInventoryGrid.Width; x++)
+        {
+            for (int y = 0; y < mainInventoryGrid.Height; y++)
+            {
+                InventoryItem item = mainInventoryGrid.GetItem(x, y);
+                if (item != null)
+                {
+                    activeItems.Add(item);
+                }
+            }
+        }
+    }
+    private void RestoreGridItems()
+    {
+        if (mainInventoryGrid == null) return;
+
+        foreach (var item in activeItems)
+        {
+            if (item != null)
+            {
+                Vector2Int gridPos = item.GridPosition;
+                if (mainInventoryGrid.IsValidPosition(gridPos))
+                {
+                    mainInventoryGrid.PlaceItem(item, gridPos);
+                }
+            }
+        }
+    }
     private void InitializeComponents()
     {
         inventoryHighlight = GetComponentInChildren<InventoryHighlight>();
@@ -411,6 +484,12 @@ public class InventoryController : MonoBehaviour
             ToggleInventoryUI(true);
         }
 
+        // 구매 후 그리드 초기화 및 상태 검증
+        if (!isInventoryInitialized || !mainInventoryGrid.IsInitialized)
+        {
+            InitializeInventory();
+        }
+
         StartCoroutine(CreatePurchasedItemDelayed(weaponData));
     }
 
@@ -418,6 +497,19 @@ public class InventoryController : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
         CreateInventoryItem(weaponData);
+
+        // 아이템 생성 후 그리드 상태 검증
+        StartCoroutine(ValidateGridStateAfterPurchase());
+    }
+
+    private IEnumerator ValidateGridStateAfterPurchase()
+    {
+        yield return new WaitForEndOfFrame();
+        if (mainInventoryGrid != null)
+        {
+            mainInventoryGrid.ValidateGridState();
+            LogGridState(); // 디버그용 로그
+        }
     }
 
     private void CreateInventoryItem(WeaponData weaponData)
@@ -453,7 +545,33 @@ public class InventoryController : MonoBehaviour
     #endregion
 
     #region UI Management
-    
+    private void ShowNotice(string message)
+    {
+        if (noticeUI == null || noticeText == null) return;
+
+        // 이전 Notice 코루틴이 실행 중이라면 중지
+        if (currentNoticeCoroutine != null)
+        {
+            StopCoroutine(currentNoticeCoroutine);
+        }
+
+        noticeText.text = message;
+        noticeUI.SetActive(true);
+
+        // 새로운 코루틴 시작
+        currentNoticeCoroutine = StartCoroutine(HideNoticeAfterDelay());
+    }
+
+    private IEnumerator HideNoticeAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(noticeDisplayTime);
+
+        if (noticeUI != null)
+        {
+            noticeUI.SetActive(false);
+        }
+        currentNoticeCoroutine = null;
+    }
     public void OpenShop()
     {
         SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
@@ -467,21 +585,77 @@ public class InventoryController : MonoBehaviour
 
     public void OpenInventory()
     {
-        SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
-        ToggleInventoryUI(true);
-        StartCoroutine(CleanupInvalidItemsDelayed());
-
-        if (GameManager.Instance.currentGameState != GameState.Paused)
+        try
         {
-            GameManager.Instance.SetGameState(GameState.Paused);
+            SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
+
+            if (GameManager.Instance.currentGameState != GameState.Paused)
+            {
+                GameManager.Instance.SetGameState(GameState.Paused);
+            }
+
+            // UI 활성화 전에 필요한 초기화 수행
+            if (!isInventoryInitialized || !mainInventoryGrid.IsInitialized)
+            {
+                InitializeInventory();
+            }
+
+            // UI 활성화
+            ToggleInventoryUI(true);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error in OpenInventory: {e.Message}");
         }
     }
+
     public void ToggleInventoryUI(bool isActive)
     {
-        inventoryUI.SetActive(isActive);
-        playerControlUI.SetActive(!isActive);
-        playerStatsUI.SetActive(!isActive);
+        try
+        {
+            // 1. 먼저 초기화 상태 확인 및 처리
+            if (isActive && (!isInventoryInitialized || !mainInventoryGrid.IsInitialized))
+            {
+                InitializeInventory();
+            }
+
+            // 2. UI 상태 변경
+            inventoryUI.SetActive(isActive);
+            playerControlUI.SetActive(!isActive);
+            playerStatsUI.SetActive(!isActive);
+
+            // 3. UI가 활성화된 후에 상태 검증 진행
+            if (isActive && inventoryUI.activeSelf)
+            {
+                ValidateGridStateImmediate();
+                // 추가 검증이 필요한 경우에만 코루틴 시작
+                StartCoroutine(ValidateGridStateDelayed());
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error in ToggleInventoryUI: {e.Message}");
+        }
     }
+    private void ValidateGridStateImmediate()
+    {
+        if (mainInventoryGrid != null)
+        {
+            mainInventoryGrid.ValidateGridState();
+            Debug.Log("Grid state validated immediately");
+        }
+    }
+    private IEnumerator ValidateGridStateDelayed()
+    {
+        yield return new WaitForEndOfFrame();
+
+        if (mainInventoryGrid != null && inventoryUI.activeSelf)
+        {
+            mainInventoryGrid.ValidateGridState();
+            LogGridState();
+        }
+    }
+
     public void ToggleShopUI(bool isActive)
     {
         shopUI.SetActive(isActive);
@@ -494,10 +668,10 @@ public class InventoryController : MonoBehaviour
     #region Game Flow
     public void StartGame()
     {
-        // 게임 시작 전 유효성 검사
         if (!ValidateGameStart())
         {
-            Debug.LogError("Failed to start game: Validation failed!");
+            string message = "Please equip at least one weapon before starting!";
+            ShowNotice(message);
             return;
         }
 
@@ -505,17 +679,41 @@ public class InventoryController : MonoBehaviour
         EquipAllGridItems();
         TransitionToGameplay();
     }
+    private string GetStartGameErrorMessage()
+    {
+        if (!isInventoryInitialized)
+            return "Inventory not initialized";
+        if (mainInventoryGrid == null)
+            return "Grid reference missing";
+        if (!mainInventoryGrid.IsInitialized)
+            return "Grid not initialized";
+        if (!HasAnyItemInGrid())
+            return "No items in grid";
+        return "Unknown error";
+    }
+
     private bool ValidateGameStart()
     {
-        // 초기화 및 유효성 검사
-        if (mainInventoryGrid == null || !mainInventoryGrid.IsInitialized)
+        if (!isInventoryInitialized)
         {
-            Debug.LogError("Main Inventory Grid is not initialized!");
+            InitializeInventory();
+        }
+
+        if (mainInventoryGrid == null)
+        {
+            Debug.LogError("Main Inventory Grid is null");
             return false;
         }
 
+        if (!mainInventoryGrid.IsInitialized)
+        {
+            mainInventoryGrid.ForceInitialize();
+        }
+
+        // 그리드 상태 검증 후 아이템 존재 여부 확인
         return HasAnyItemInGrid();
     }
+
     private void EquipAllGridItems()
     {
         if (mainInventoryGrid == null || weaponManager == null) return;
@@ -645,18 +843,24 @@ public class InventoryController : MonoBehaviour
     {
         if (mainInventoryGrid == null) return false;
 
+        bool hasItems = false;
         for (int x = 0; x < mainInventoryGrid.Width; x++)
         {
             for (int y = 0; y < mainInventoryGrid.Height; y++)
             {
-                if (mainInventoryGrid.GetItem(x, y) != null)
+                var item = mainInventoryGrid.GetItem(x, y);
+                if (item != null)
                 {
-                    return true;
+                    hasItems = true;
+                    // 디버그 로그 추가
+                    Debug.Log($"Found item at position ({x}, {y}): {item.WeaponData?.weaponName}");
                 }
             }
         }
-        return false;
+
+        return hasItems;
     }
+
 
     private void PlayLiftSound()
     {
@@ -690,4 +894,24 @@ public class InventoryController : MonoBehaviour
         touchActions?.Dispose();
     }
     #endregion
+
+    #region Debug
+    private void LogGridState()
+    {
+        if (mainInventoryGrid == null) return;
+
+        string gridState = "Current Grid State:\n";
+        for (int y = 0; y < mainInventoryGrid.Height; y++)
+        {
+            for (int x = 0; x < mainInventoryGrid.Width; x++)
+            {
+                var item = mainInventoryGrid.GetItem(x, y);
+                gridState += item != null ? "X " : "- ";
+            }
+            gridState += "\n";
+        }
+        Debug.Log(gridState);
+    }
+    #endregion
+
 }
