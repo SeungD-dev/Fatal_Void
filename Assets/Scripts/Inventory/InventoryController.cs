@@ -55,6 +55,7 @@ public class InventoryController : MonoBehaviour
     private float lastTouchTime = 0f;
     private bool isInventoryInitialized = false;
     private HashSet<InventoryItem> activeItems = new HashSet<InventoryItem>();
+    private bool isInputSystemInitialized = false;
     #endregion
 
     #region Properties
@@ -236,6 +237,13 @@ public class InventoryController : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (isInputSystemInitialized)
+        {
+            touchPress.started -= OnTouchStarted;
+            touchPress.canceled -= OnTouchEnded;
+            touchActions?.Dispose();
+            isInputSystemInitialized = false;
+        }
         activeItems.Clear();
         CleanupEventListeners();
     }
@@ -250,9 +258,8 @@ public class InventoryController : MonoBehaviour
         try
         {
             InitializeComponents();
-            SetupInputSystem();
+            InitializeInputSystem();  // 입력 시스템 초기화 추가
             InitializeGrid();
-            RestoreGridItems(); // 그리드 아이템 상태 복원
             isInventoryInitialized = true;
             Debug.Log("Inventory initialized successfully");
         }
@@ -260,6 +267,30 @@ public class InventoryController : MonoBehaviour
         {
             Debug.LogError($"Failed to initialize inventory: {e.Message}");
             isInventoryInitialized = false;
+        }
+    }
+
+    private void InitializeInputSystem()
+    {
+        if (isInputSystemInitialized) return;
+
+        try
+        {
+            touchActions = new TouchActions();
+            touchPosition = touchActions.Touch.Position;
+            touchPress = touchActions.Touch.Press;
+
+            touchPress.started += OnTouchStarted;
+            touchPress.canceled += OnTouchEnded;
+
+            touchActions.Enable();
+            isInputSystemInitialized = true;
+            Debug.Log("Input system initialized successfully");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to initialize input system: {e.Message}");
+            isInputSystemInitialized = false;
         }
     }
     private void SaveGridState()
@@ -613,10 +644,20 @@ public class InventoryController : MonoBehaviour
     {
         try
         {
-            // 1. 먼저 초기화 상태 확인 및 처리
-            if (isActive && (!isInventoryInitialized || !mainInventoryGrid.IsInitialized))
+            // 1. UI를 활성화하는 경우의 초기화 처리
+            if (isActive)
             {
-                InitializeInventory();
+                // 인벤토리 시스템 초기화 체크
+                if (!isInventoryInitialized || !mainInventoryGrid.IsInitialized)
+                {
+                    InitializeInventory();
+                }
+
+                // 입력 시스템 초기화 체크
+                if (!isInputSystemInitialized)
+                {
+                    InitializeInputSystem();
+                }
             }
 
             // 2. UI 상태 변경
@@ -624,19 +665,30 @@ public class InventoryController : MonoBehaviour
             playerControlUI.SetActive(!isActive);
             playerStatsUI.SetActive(!isActive);
 
-            // 3. UI가 활성화된 후에 상태 검증 진행
+            // 3. UI가 활성화된 경우 추가 검증 진행
             if (isActive && inventoryUI.activeSelf)
             {
                 ValidateGridStateImmediate();
-                // 추가 검증이 필요한 경우에만 코루틴 시작
-                StartCoroutine(ValidateGridStateDelayed());
+
+                // 그리드 상태가 유효한 경우에만 추가 검증 실행
+                if (mainInventoryGrid != null && mainInventoryGrid.IsInitialized)
+                {
+                    StartCoroutine(ValidateGridStateDelayed());
+                }
+            }
+
+            // 4. UI가 비활성화되는 경우 정리 작업
+            if (!isActive)
+            {
+                SaveGridState();
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Error in ToggleInventoryUI: {e.Message}");
+            Debug.LogError($"Error in ToggleInventoryUI: {e.Message}\nStackTrace: {e.StackTrace}");
         }
     }
+
     private void ValidateGridStateImmediate()
     {
         if (mainInventoryGrid != null)
