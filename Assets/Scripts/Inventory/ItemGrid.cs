@@ -71,7 +71,6 @@ public class ItemGrid : MonoBehaviour
             if (gridItems == null || gridItems.GetLength(0) != gridWidth || gridItems.GetLength(1) != gridHeight)
             {
                 gridItems = new InventoryItem[gridWidth, gridHeight];
-                Debug.Log($"Grid initialized with size: {gridWidth}x{gridHeight}");
             }
             UpdateGridSize();
             isInitialized = true;

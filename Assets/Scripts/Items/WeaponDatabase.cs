@@ -183,28 +183,7 @@ public class WeaponDatabase : ScriptableObject
     {
         InitializeWeapons();
     }
-
-    //private void OnValidate()
-    //{
-    //    // baseWeapons 유효성 검사
-    //    foreach (var weapon in baseWeapons)
-    //    {
-    //        if (weapon != null && weapon.currentTier != 1)
-    //        {
-    //            Debug.LogWarning($"Warning: {weapon.name}의 티어가 1이 아닙니다. baseWeapons에는 티어 1 무기만 등록해야 합니다.");
-    //        }
-    //    }
-
-    //    // TierProbability 유효성 검사
-    //    tierProbability?.OnValidate();
-
-    //    // 게임 실행 중이 아닐 때만 무기 초기화 실행
-    //    if (!Application.isPlaying)
-    //    {
-    //        InitializeWeapons();
-    //    }
-    //}
-
+   
     private void InitializeWeapons()
     {
         allWeapons.Clear();
@@ -230,11 +209,9 @@ public class WeaponDatabase : ScriptableObject
             }
         }
 
-        Debug.Log($"WeaponDatabase initialized with {allWeapons.Count} total weapons");
         foreach (var tier in Enum.GetValues(typeof(WeaponTier)))
         {
             int count = allWeapons.Count(w => w.currentTier == (int)tier);
-            Debug.Log($"{tier} weapons: {count}");
         }
     }
 

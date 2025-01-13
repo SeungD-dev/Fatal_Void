@@ -221,20 +221,20 @@ public class BeamSaberProjectile : BaseProjectile
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        if (!hasInitialized) return;
+    //private void OnDrawGizmos()
+    //{
+    //    if (!hasInitialized) return;
 
-        // 실제 공격 범위
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRadius);
+    //    // 실제 공격 범위
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawWireSphere(transform.position, attackRadius);
 
-        // 시각적 크기
-        Gizmos.color = Color.yellow;
-        if (spriteRenderer != null && spriteRenderer.sprite != null)
-        {
-            float visualRadius = spriteRenderer.sprite.bounds.extents.x * transform.localScale.x;
-            Gizmos.DrawWireSphere(transform.position, visualRadius);
-        }
-    }
+    //    // 시각적 크기
+    //    Gizmos.color = Color.yellow;
+    //    if (spriteRenderer != null && spriteRenderer.sprite != null)
+    //    {
+    //        float visualRadius = spriteRenderer.sprite.bounds.extents.x * transform.localScale.x;
+    //        Gizmos.DrawWireSphere(transform.position, visualRadius);
+    //    }
+    //}
 }

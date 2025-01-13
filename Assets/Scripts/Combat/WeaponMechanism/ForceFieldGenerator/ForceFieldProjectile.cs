@@ -93,12 +93,12 @@ public class ForceFieldProjectile : BaseProjectile
     protected override void HandlePenetration() { }
     protected override void ReturnToPool() { }
 
-    private void OnDrawGizmos()
-    {
-        if (!Application.isPlaying) return;
+    //private void OnDrawGizmos()
+    //{
+    //    if (!Application.isPlaying) return;
 
-        // 실제 공격 범위와 시각적 범위 (이제 동일해야 함)
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, actualRadius);
-    }
+    //    // 실제 공격 범위와 시각적 범위 (이제 동일해야 함)
+    //    Gizmos.color = Color.yellow;
+    //    Gizmos.DrawWireSphere(transform.position, actualRadius);
+    //}
 }

@@ -261,7 +261,6 @@ public class InventoryController : MonoBehaviour
             InitializeInputSystem();  // 입력 시스템 초기화 추가
             InitializeGrid();
             isInventoryInitialized = true;
-            Debug.Log("Inventory initialized successfully");
         }
         catch (System.Exception e)
         {
@@ -285,7 +284,6 @@ public class InventoryController : MonoBehaviour
 
             touchActions.Enable();
             isInputSystemInitialized = true;
-            Debug.Log("Input system initialized successfully");
         }
         catch (System.Exception e)
         {
@@ -539,7 +537,7 @@ public class InventoryController : MonoBehaviour
         if (mainInventoryGrid != null)
         {
             mainInventoryGrid.ValidateGridState();
-            LogGridState(); // 디버그용 로그
+            //LogGridState(); // 디버그용 로그
         }
     }
 
@@ -694,7 +692,6 @@ public class InventoryController : MonoBehaviour
         if (mainInventoryGrid != null)
         {
             mainInventoryGrid.ValidateGridState();
-            Debug.Log("Grid state validated immediately");
         }
     }
     private IEnumerator ValidateGridStateDelayed()
@@ -704,7 +701,7 @@ public class InventoryController : MonoBehaviour
         if (mainInventoryGrid != null && inventoryUI.activeSelf)
         {
             mainInventoryGrid.ValidateGridState();
-            LogGridState();
+            //LogGridState();
         }
     }
 
@@ -948,22 +945,22 @@ public class InventoryController : MonoBehaviour
     #endregion
 
     #region Debug
-    private void LogGridState()
-    {
-        if (mainInventoryGrid == null) return;
+    //private void LogGridState()
+    //{
+    //    if (mainInventoryGrid == null) return;
 
-        string gridState = "Current Grid State:\n";
-        for (int y = 0; y < mainInventoryGrid.Height; y++)
-        {
-            for (int x = 0; x < mainInventoryGrid.Width; x++)
-            {
-                var item = mainInventoryGrid.GetItem(x, y);
-                gridState += item != null ? "X " : "- ";
-            }
-            gridState += "\n";
-        }
-        Debug.Log(gridState);
-    }
+    //    string gridState = "Current Grid State:\n";
+    //    for (int y = 0; y < mainInventoryGrid.Height; y++)
+    //    {
+    //        for (int x = 0; x < mainInventoryGrid.Width; x++)
+    //        {
+    //            var item = mainInventoryGrid.GetItem(x, y);
+    //            gridState += item != null ? "X " : "- ";
+    //        }
+    //        gridState += "\n";
+    //    }
+    //    Debug.Log(gridState);
+    //}
     #endregion
 
 }

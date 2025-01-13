@@ -50,7 +50,6 @@ public class ChasingState : IState
                 enemyTransform.Translate(direction * enemyStats.MoveSpeed * Time.deltaTime);
             }
 
-            // �ٿ ȿ�� ������Ʈ
             enemyStats.UpdateBounceEffect();
         }
     }
