@@ -5,6 +5,7 @@ using System.Collections;
 using TMPro;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine.InputSystem.LowLevel;
 
 /// <summary>
 /// 인벤토리 시스템의 메인 컨트롤러
@@ -138,32 +139,73 @@ public class InventoryController : MonoBehaviour
     {
         if (!isDragging || !isHolding || selectedItem == null) return;
 
-        // 현재 활성화된 터치들을 확인
-        var activeTouches = Touchscreen.current.touches.Where(t =>
-            t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began ||
-            t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved ||
-            t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Stationary
-        ).ToList();
+        int currentTouchCount = 0;
+        bool isSecondTouchBegan = false;
+        TouchState touchState = new TouchState();
 
-        // 터치가 1개일 때 쿨다운 초기화 (드래그 중인 터치)
-        if (activeTouches.Count == 1)
+        // 터치 상태 분석
+        foreach (var touch in Touchscreen.current.touches)
         {
-            lastRotationTime = Time.time - ROTATION_COOLDOWN;
-        }
-
-        // 추가 터치가 발생했을 때 회전
-        if (activeTouches.Count >= 2)
-        {
-            foreach (var touch in activeTouches.Skip(1)) // 첫 번째 터치(드래그)를 제외한 터치들 확인
+            var phase = touch.phase.ReadValue();
+            if (phase == UnityEngine.InputSystem.TouchPhase.Began ||
+                phase == UnityEngine.InputSystem.TouchPhase.Moved ||
+                phase == UnityEngine.InputSystem.TouchPhase.Stationary)
             {
-                if (touch.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began && IsRotationAllowed())
+                currentTouchCount++;
+
+                // 두 번째 터치인 경우 상태 저장
+                if (currentTouchCount == 2 && phase == UnityEngine.InputSystem.TouchPhase.Began)
                 {
-                    PerformItemRotation();
-                    break;
+                    touchState.position = touch.position.ReadValue();
+                    touchState.startTime = Time.time;
+                    isSecondTouchBegan = true;
                 }
             }
         }
+
+        // 두 손가락 터치 상태에서 회전 처리
+        if (currentTouchCount == 2 && isSecondTouchBegan)
+        {
+            if (ValidateRotationGesture(touchState))
+            {
+                PerformItemRotation();
+            }
+        }
+
+        // 터치 카운트 상태 업데이트
+        if (currentTouchCount == 0)
+        {
+            lastTouchCount = 0;
+        }
+        else
+        {
+            lastTouchCount = currentTouchCount;
+        }
     }
+
+    private struct TouchState
+    {
+        public Vector2 position;
+        public float startTime;
+    }
+    private bool ValidateRotationGesture(TouchState touchState)
+    {
+        // 첫 번째 터치(드래그중인 터치)와의 거리 확인
+        Vector2 firstTouchPos = touchPosition.ReadValue<Vector2>();
+        float touchDistance = Vector2.Distance(firstTouchPos, touchState.position);
+
+        // 최소 터치 거리 (너무 가까운 터치는 무시)
+        const float MIN_TOUCH_DISTANCE = 50f;
+
+        // 두 터치 포인트가 충분히 떨어져 있는지 확인
+        if (touchDistance < MIN_TOUCH_DISTANCE)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     private bool IsRotationAllowed()
     {
         float currentTime = Time.time;
@@ -172,18 +214,29 @@ public class InventoryController : MonoBehaviour
 
     private void PerformItemRotation()
     {
-        // 아이템 회전
-        selectedItem.Rotate();
+        if (selectedItem == null) return;
 
-        // 회전 시간 갱신
-        lastRotationTime = Time.time;
+        selectedItem.Rotate();
 
         // 현재 터치 위치 기준 그리드 포지션 계산
         Vector2 currentPos = touchPosition.ReadValue<Vector2>();
         Vector2Int gridPosition = GetTileGridPosition(currentPos);
 
         // 하이라이트 업데이트
-        UpdateHighlightAfterRotation(gridPosition);
+        if (IsPositionWithinGrid(gridPosition))
+        {
+            bool isValidPosition = IsValidItemPlacement(gridPosition);
+            inventoryHighlight?.Show(isValidPosition);
+            if (isValidPosition)
+            {
+                inventoryHighlight?.SetSize(selectedItem);
+                inventoryHighlight?.SetPosition(mainInventoryGrid, selectedItem, gridPosition.x, gridPosition.y);
+            }
+        }
+        else
+        {
+            inventoryHighlight?.Show(false);
+        }
     }
 
     private void UpdateHighlightAfterRotation(Vector2Int gridPosition)
@@ -454,10 +507,11 @@ public class InventoryController : MonoBehaviour
         if (!inventoryUI.activeSelf) return;
 
         Vector2 finalPosition = touchPosition.ReadValue<Vector2>();
+        itemInteractionManager.EndDragging(finalPosition);
 
-        itemInteractionManager.EndDragging(finalPosition);    
-        // 상태 초기화
+        // 상태 초기화시 lastTouchCount도 초기화
         ResetDragState();
+        lastTouchCount = 0;
     }
 
     private void ResetDragState()
