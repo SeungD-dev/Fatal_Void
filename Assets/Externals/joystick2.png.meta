@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e4f9a65b43cdfb740a9c323b09a72b0a
+guid: 1454042902932a1418f38a2eccab0e66
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3244622203517571467
-    second: Diamond_0
+      213: 5697728592898419042
+    second: joystick2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -74,7 +74,7 @@ TextureImporter:
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 4
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Diamond_0
+      name: joystick2_0
       rect:
         serializedVersion: 2
-        x: 2
+        x: 0
         y: 0
-        width: 28
-        height: 32
+        width: 766
+        height: 766
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b81920f04b6370d20800000000000000
-      internalID: 3244622203517571467
+      spriteID: 269eb46a7f5621f40800000000000000
+      internalID: 5697728592898419042
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Diamond_0: 3244622203517571467
+      joystick2_0: 5697728592898419042
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
