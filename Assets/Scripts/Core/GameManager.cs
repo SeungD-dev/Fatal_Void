@@ -7,14 +7,24 @@ using System.Collections.Generic;
 /// </summary>
 public class GameManager : MonoBehaviour
 {
+    // 싱글톤 인스턴스
     private static GameManager instance;
+    private static readonly object _lock = new object();
+
     public static GameManager Instance
     {
         get
         {
             if (instance == null)
             {
-                instance = new GameObject("GameManager").AddComponent<GameManager>();
+                lock (_lock)
+                {
+                    if (instance == null)
+                    {
+                        var go = new GameObject("GameManager");
+                        instance = go.AddComponent<GameManager>();
+                    }
+                }
             }
             return instance;
         }
@@ -27,16 +37,20 @@ public class GameManager : MonoBehaviour
     private PlayerStats playerStats;
     private ShopController shopController;
     private CombatController combatController;
+    private GameOverController gameOverController;
 
+    // 자주 사용되는 속성들을 캐싱
+    private bool isInitialized;
+    public bool IsInitialized => isInitialized;
     public PlayerStats PlayerStats => playerStats;
     public ShopController ShopController => shopController;
     public CombatController CombatController => combatController;
-
-    private GameOverController gameOverController;
     public GameOverController GameOverController => gameOverController;
-    public bool IsInitialized { get; private set; }
 
     public event System.Action<GameState> OnGameStateChanged;
+
+    // 자주 사용되는 WaitForSeconds 캐싱
+    private static readonly WaitForSeconds InitializationDelay = new WaitForSeconds(0.1f);
     #endregion
 
     private void Awake()
@@ -59,7 +73,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void InitializeGameScenes()
     {
-        gameScene = new Dictionary<GameState, int>()
+        gameScene = new Dictionary<GameState, int>(4) // 초기 용량 지정으로 재할당 방지
         {
             { GameState.MainMenu, 0 },    // StartScene
             { GameState.Playing, 1 },     // CombatScene
@@ -73,9 +87,11 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void InitializeSound()
     {
-        // StartScene(MainMenu)에서 시작하므로 IntroSoundBank 로드
         var soundManager = SoundManager.Instance;
-        soundManager.LoadSoundBank("IntroSoundBank");
+        if (soundManager != null)
+        {
+            soundManager.LoadSoundBank("IntroSoundBank");
+        }
     }
 
     /// <summary>
@@ -83,15 +99,17 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void SetCombatSceneReferences(PlayerStats stats, ShopController shop, CombatController combat, GameOverController gameOver)
     {
+        bool shouldInitialize = !isInitialized && stats != null;
+
         playerStats = stats;
         shopController = shop;
         combatController = combat;
         gameOverController = gameOver;
 
-        if (playerStats != null)
+        if (shouldInitialize)
         {
             playerStats.InitializeStats();
-            IsInitialized = true;
+            isInitialized = true;
         }
     }
 
@@ -104,7 +122,7 @@ public class GameManager : MonoBehaviour
         shopController = null;
         combatController = null;
         gameOverController = null;
-        IsInitialized = false;
+        isInitialized = false;
     }
 
     /// <summary>
@@ -113,18 +131,21 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         var soundManager = SoundManager.Instance;
-
-        // CombatScene으로 전환 시 사운드뱅크 로드
-        soundManager.LoadSoundBank("CombatSoundBank");
-
-        // 기존 볼륨 설정 유지한 채로 배경음악 재생
-        if (!soundManager.IsBGMPlaying("BGM_Battle"))
+        if (soundManager != null)
         {
-            soundManager.PlaySound("BGM_Battle", 1f, true);
+            if (!soundManager.IsBGMPlaying("BGM_Battle"))
+            {
+                soundManager.LoadSoundBank("CombatSoundBank");
+                soundManager.PlaySound("BGM_Battle", 1f, true);
+            }
         }
 
-        SetGameState(GameState.Playing);
-        SceneManager.LoadScene(gameScene[GameState.Playing], LoadSceneMode.Single);
+        int sceneIndex;
+        if (gameScene.TryGetValue(GameState.Playing, out sceneIndex))
+        {
+            SetGameState(GameState.Playing);
+            SceneManager.LoadScene(sceneIndex, LoadSceneMode.Single);
+        }
     }
 
     /// <summary>
@@ -132,31 +153,25 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void SetGameState(GameState newState)
     {
-        if (currentGameState != newState)
-        {
-            currentGameState = newState;
-            OnGameStateChanged?.Invoke(newState);
+        if (currentGameState == newState) return;
 
-            switch (newState)
-            {
-                case GameState.MainMenu:
-                    Time.timeScale = 1f;
-                    break;
-                case GameState.Playing:
-                    Time.timeScale = 1f;
-                    break;
-                case GameState.Paused:
-                    Time.timeScale = 0f;
-                    break;
-                case GameState.GameOver:
-                    if (gameOverController != null)
-                    {
-                        gameOverController.ShowGameOverPanel();
-                    }
+        currentGameState = newState;
+        OnGameStateChanged?.Invoke(newState);
+
+        switch (newState)
+        {
+            case GameState.MainMenu:
+            case GameState.Playing:
+                Time.timeScale = 1f;
+                break;
+            case GameState.Paused:
+            case GameState.GameOver:
+                Time.timeScale = 0f;
+                if (newState == GameState.GameOver)
+                {
                     HandleGameOver();
-                    Time.timeScale = 0f;
-                    break;
-            }
+                }
+                break;
         }
     }
 
@@ -176,6 +191,7 @@ public class GameManager : MonoBehaviour
             Debug.LogError("GameOverController reference is missing!");
         }
     }
+
     public bool IsPlaying() => currentGameState == GameState.Playing;
 
     private void OnApplicationQuit()
@@ -188,7 +204,6 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void SavePlayerProgress()
     {
-        // 현재는 SoundManager가 자체적으로 볼륨 설정을 저장하므로
-        // 추가적인 데이터 저장이 필요한 경우 여기에 구현
+        // 현재는 SoundManager가 자체적으로 볼륨 설정을 저장
     }
 }

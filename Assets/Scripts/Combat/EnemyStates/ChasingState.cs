@@ -2,62 +2,127 @@ using UnityEngine;
 
 public class ChasingState : IState
 {
-    private readonly EnemyAI enemyAI;
+    // ������Ʈ ĳ��
     private readonly Transform enemyTransform;
-    private readonly Enemy enemyStats;
     private readonly Transform playerTransform;
     private readonly Rigidbody2D rb;
+    private readonly Enemy enemyStats;
+    private readonly SpriteRenderer spriteRenderer;
+
+    // ������ ����
+    private readonly Vector2 directionVector = Vector2.zero;
+    private readonly Vector2 velocityVector = Vector2.zero;
+
+    // ����ȭ�� ���� ĳ�� ����
+    private float currentMoveSpeed;
+    private bool wasFlipped;
+    private GameManager gameManager;
+
     public ChasingState(EnemyAI enemyAI)
     {
-        this.enemyAI = enemyAI;
-        this.enemyTransform = enemyAI.transform;
-        this.enemyStats = enemyAI.GetComponent<Enemy>();
-        this.rb = enemyAI.GetComponent<Rigidbody2D>();
-        this.playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
+        enemyTransform = enemyAI.transform;
+        enemyStats = enemyAI.GetComponent<Enemy>();
+        rb = enemyAI.GetComponent<Rigidbody2D>();
+        spriteRenderer = enemyAI.spriteRenderer;
+        playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
+        gameManager = GameManager.Instance;
     }
 
     public void OnEnter()
     {
-
+        // ���� ���� �� �ӵ� �ʱ�ȭ
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+        currentMoveSpeed = enemyStats.MoveSpeed;
+        wasFlipped = spriteRenderer.flipX;
     }
 
     public void OnExit()
     {
+        // ���� ���� �� �ٿ ȿ�� ����
         enemyStats.ResetBounceEffect();
+
+        // ���� �ӵ� �ʱ�ȭ
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 
     public void Update()
     {
-        
-        if (enemyStats.IsKnockBack) return;
+        if (ShouldSkipUpdate()) return;
 
-        if (playerTransform != null && GameManager.Instance.currentGameState == GameState.Playing)
+        CalculateDirection();
+        UpdateMovement();
+        UpdateVisuals();
+    }
+
+    private bool ShouldSkipUpdate()
+    {
+        return enemyStats.IsKnockBack ||
+               playerTransform == null ||
+               gameManager.currentGameState != GameState.Playing;
+    }
+
+    private void CalculateDirection()
+    {
+        float dx = playerTransform.position.x - enemyTransform.position.x;
+        float dy = playerTransform.position.y - enemyTransform.position.y;
+
+        directionVector.Set(dx, dy);
+        float magnitude = directionVector.magnitude;
+
+        if (magnitude > 0)
         {
-            
-            Vector2 direction = (playerTransform.position - enemyTransform.position).normalized;
-            if (direction.x != 0)
-            {
-                enemyAI.spriteRenderer.flipX = direction.x < 0;
-            }
-
-           
-            if (rb != null)
-            {
-                rb.linearVelocity = direction * enemyStats.MoveSpeed;
-            }
-            else
-            {
-                enemyTransform.Translate(direction * enemyStats.MoveSpeed * Time.deltaTime);
-            }
-
-            enemyStats.UpdateBounceEffect();
+            // ����ȭ ����ȭ
+            float invMagnitude = 1f / magnitude;
+            directionVector.Set(
+                directionVector.x * invMagnitude,
+                directionVector.y * invMagnitude
+            );
         }
     }
 
+    private void UpdateMovement()
+    {
+        if (rb != null)
+        {
+            // �ӵ� ���� ����
+            velocityVector.Set(
+                directionVector.x * currentMoveSpeed,
+                directionVector.y * currentMoveSpeed
+            );
+            rb.linearVelocity = velocityVector;
+        }
+        else
+        {
+            // Transform ���� �̵�
+            Vector3 currentPos = enemyTransform.position;
+            currentPos.x += directionVector.x * currentMoveSpeed * Time.deltaTime;
+            currentPos.y += directionVector.y * currentMoveSpeed * Time.deltaTime;
+            enemyTransform.position = currentPos;
+        }
+    }
+
+    private void UpdateVisuals()
+    {
+        // ��������Ʈ �ø� ����ȭ
+        bool shouldFlip = directionVector.x < 0;
+        if (wasFlipped != shouldFlip)
+        {
+            spriteRenderer.flipX = shouldFlip;
+            wasFlipped = shouldFlip;
+        }
+
+        // �ٿ ȿ�� ������Ʈ
+        enemyStats.UpdateBounceEffect();
+    }
 
     public void FixedUpdate()
     {
+        // FixedUpdate�� ������� ���� - ��� ���� ������Ʈ�� Update���� ó��
     }
-
-
 }

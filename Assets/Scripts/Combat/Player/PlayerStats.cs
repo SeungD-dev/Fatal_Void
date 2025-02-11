@@ -3,49 +3,33 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
+    #region Delegates
     public delegate void StatChangeHandler(float value);
     public delegate void IntChangeHandler(int value);
     public delegate void MovementSpeedChangeHandler(float newSpeed);
     public delegate void LevelChangeHandler(int value);
     public delegate void VoidHandler();
     public delegate void StatChangeDelegate();
+    public delegate void MagnetEffectHandler(bool isActive);
 
-    // Public Delegates
+    // Events
     public StatChangeHandler OnHealthChanged;
     public StatChangeHandler OnExpChanged;
     public LevelChangeHandler OnLevelUp;
     public IntChangeHandler OnKillCountChanged;
     public IntChangeHandler OnCoinChanged;
     public VoidHandler OnPlayerDeath;
-
-    public delegate void MagnetEffectHandler(bool isActive);
     public event MagnetEffectHandler OnMagnetEffectChanged;
-
     public event StatChangeDelegate OnPowerChanged;
     public event StatChangeDelegate OnCooldownReduceChanged;
     public event StatChangeDelegate OnKnockbackChanged;
     public event StatChangeDelegate OnAreaOfEffectChanged;
-
     public event MovementSpeedChangeHandler OnMovementSpeedChanged;
+    #endregion
 
+    #region Serialized Fields
     [Header("Level Settings")]
-    [SerializeField] private int level = 1;
-    [SerializeField] private int currentExp = 0;
-    [SerializeField] private int requiredExp = 1;
     [SerializeField] private int initialRequiredExp = 100;
-    [Header("Resource Stats")]
-    private float currentHealth;
-    private int killCount = 0;
-    private int coinCount = 0;
-
-    [Header("Current Stats")]
-    private float maxHealth;
-    private float healthRegen;
-    private float power;
-    private float movementSpeed;
-    private float cooldownReduce;
-    private float knockback;
-    private float aoe;
 
     [Header("Base Stats")]
     [SerializeField] private float baseHealth = 100f;
@@ -67,23 +51,49 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Item Pickup")]
     [SerializeField] private float basePickupRange = 5f;
-    private float pickupRange;
 
-   [Header("Magnet Effect")]
-    private bool hasMagnetEffect = false;
-    private float magnetEffectCooldown = 30f;
-    private float lastMagnetEffectTime = -30f;  // 처음에 바로 사용할 수 있도록
     [Header("Hit Effect")]
     [SerializeField] private float hitFlashDuration = 0.1f;
     [SerializeField] private Color hitColor = Color.red;
+    #endregion
 
-    private bool isLevelingUp = false;
-    private ShopController cachedShopController;
-    private bool isFlashing = false;
+    #region Private Fields
+    private int level = 1;
+    private int currentExp;
+    private int requiredExp = 1;
+    private float currentHealth;
+    private int killCount;
+    private int coinCount;
+
+    // Current Stats
+    private float maxHealth;
+    private float healthRegen;
+    private float power;
+    private float movementSpeed;
+    private float cooldownReduce;
+    private float knockback;
+    private float aoe;
+    private float pickupRange;
+
+    // Cached Components
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
-    private bool isInitialized = false;
-    private bool isModifyingStats = false;
+    private ShopController cachedShopController;
+
+    // State Flags
+    private bool isInitialized;
+    private bool isModifyingStats;
+    private bool isLevelingUp;
+    private bool isFlashing;
+    private bool hasMagnetEffect;
+
+    // Optimization
+    private static readonly WaitForSeconds HitFlashWait;
+    private static readonly WaitForSeconds MagnetEffectDuration = new WaitForSeconds(3f);
+    private static readonly WaitForSeconds MagnetEffectCooldown = new WaitForSeconds(27f);
+    private const float StatUpdateThreshold = 0.1f;
+    private float lastStatUpdateTime;
+    #endregion
 
     #region Properties
     public bool IsInitialized => isInitialized;
@@ -100,10 +110,14 @@ public class PlayerStats : MonoBehaviour
     public float CooldownReduce => cooldownReduce;
     public float Knockback => knockback;
     public float AreaOfEffect => aoe;
-
     public float PickupRange => pickupRange;
     public bool HasMagnetEffect => hasMagnetEffect;
     #endregion
+
+    static PlayerStats()
+    {
+        HitFlashWait = new WaitForSeconds(0.1f);
+    }
 
     private void Awake()
     {
@@ -113,10 +127,12 @@ public class PlayerStats : MonoBehaviour
             originalColor = spriteRenderer.color;
         }
     }
+
     private void Start()
     {
         cachedShopController = GameManager.Instance?.ShopController;
     }
+
     public void InitializeStats()
     {
         if (isInitialized) return;
@@ -134,44 +150,55 @@ public class PlayerStats : MonoBehaviour
         isInitialized = true;
     }
 
-
-
     private void UpdateStats()
     {
+        if (Time.time - lastStatUpdateTime < StatUpdateThreshold) return;
+
         float previousMovementSpeed = movementSpeed;
         float previousPower = power;
         float previousCooldownReduce = cooldownReduce;
         float previousKnockback = knockback;
         float previousAoe = aoe;
 
-        maxHealth = baseHealth + (healthPerLevel * (level - 1));
-        healthRegen = baseHealthRegen + (healthRegenPerLevel * (level - 1));
-        power = basePower + (powerPerLevel * (level - 1));
-        movementSpeed = baseMovementSpeed + (movementSpeedPerLevel * (level - 1));
-        cooldownReduce = baseCooldownReduce + (cooldownReducePerLevel * (level - 1));
-        knockback = baseKnockback + (knockbackIncreasePerLevel * (level - 1));
-        aoe = baseAreaOfEffect + (aoeIncreasePerLevel * (level - 1));
+        int levelMinus1 = level - 1;
+        maxHealth = baseHealth + (healthPerLevel * levelMinus1);
+        healthRegen = baseHealthRegen + (healthRegenPerLevel * levelMinus1);
+        power = basePower + (powerPerLevel * levelMinus1);
+        movementSpeed = baseMovementSpeed + (movementSpeedPerLevel * levelMinus1);
+        cooldownReduce = baseCooldownReduce + (cooldownReducePerLevel * levelMinus1);
+        knockback = baseKnockback + (knockbackIncreasePerLevel * levelMinus1);
+        aoe = baseAreaOfEffect + (aoeIncreasePerLevel * levelMinus1);
 
-        // 변경된 스탯에 대해서만 이벤트 호출
+        bool statsChanged = false;
         if (previousMovementSpeed != movementSpeed)
         {
             OnMovementSpeedChanged?.Invoke(movementSpeed);
+            statsChanged = true;
         }
         if (previousPower != power)
         {
             OnPowerChanged?.Invoke();
+            statsChanged = true;
         }
         if (previousCooldownReduce != cooldownReduce)
         {
             OnCooldownReduceChanged?.Invoke();
+            statsChanged = true;
         }
         if (previousKnockback != knockback)
         {
             OnKnockbackChanged?.Invoke();
+            statsChanged = true;
         }
         if (previousAoe != aoe)
         {
             OnAreaOfEffectChanged?.Invoke();
+            statsChanged = true;
+        }
+
+        if (statsChanged)
+        {
+            lastStatUpdateTime = Time.time;
         }
 
         currentHealth = maxHealth;
@@ -193,32 +220,41 @@ public class PlayerStats : MonoBehaviour
     public void TakeDamage(float damage)
     {
         currentHealth = Mathf.Max(0, currentHealth - damage);
-        OnHealthChanged?.Invoke(currentHealth);
-        PlayHitEffect();
+
+        if (Time.time - lastStatUpdateTime >= StatUpdateThreshold)
+        {
+            OnHealthChanged?.Invoke(currentHealth);
+            lastStatUpdateTime = Time.time;
+        }
+
+        if (!isFlashing)
+        {
+            PlayHitEffect();
+        }
+
         if (currentHealth <= 0)
         {
             Die();
         }
     }
+
     private void PlayHitEffect()
     {
-        if (spriteRenderer != null & !isFlashing)
+        if (spriteRenderer != null && !isFlashing)
         {
             StartCoroutine(HitFlashCoroutine());
         }
     }
+
     private IEnumerator HitFlashCoroutine()
     {
         isFlashing = true;
-
         spriteRenderer.color = hitColor;
-
-        yield return new WaitForSeconds(hitFlashDuration);
-
+        yield return HitFlashWait;
         spriteRenderer.color = originalColor;
-
         isFlashing = false;
     }
+
     public bool SpendCoins(int amount)
     {
         if (coinCount >= amount)
@@ -235,9 +271,10 @@ public class PlayerStats : MonoBehaviour
         float oldHealth = currentHealth;
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
 
-        if (currentHealth != oldHealth)
+        if (currentHealth != oldHealth && Time.time - lastStatUpdateTime >= StatUpdateThreshold)
         {
             OnHealthChanged?.Invoke(currentHealth);
+            lastStatUpdateTime = Time.time;
         }
     }
 
@@ -245,33 +282,29 @@ public class PlayerStats : MonoBehaviour
     {
         OnPlayerDeath?.Invoke();
         GameManager.Instance.SetGameState(GameState.GameOver);
-        Debug.Log("Player Died");
     }
     #endregion
 
     #region Level and Experience
     public void AddExperience(float expAmount)
     {
-        if (expAmount <= 0) return;
+        if (expAmount <= 0 || isLevelingUp) return;
 
-        int expToAdd = Mathf.RoundToInt(expAmount);  // 소수점 경험치를 정수로 변환
+        int expToAdd = Mathf.RoundToInt(expAmount);
         currentExp += expToAdd;
 
-        while (currentExp >= requiredExp)
+        while (currentExp >= requiredExp && !isLevelingUp)
         {
-            if (!isLevelingUp)  // 레벨업 중복 방지
-            {
-                int overflow = currentExp - requiredExp;
-                LevelUp();
-                currentExp = overflow;  // 남은 경험치 적용
-            }
-            else
-            {
-                break;  // 레벨업 중이면 추가 레벨업 방지
-            }
+            int overflow = currentExp - requiredExp;
+            LevelUp();
+            currentExp = overflow;
         }
 
-        OnExpChanged?.Invoke(currentExp);
+        if (Time.time - lastStatUpdateTime >= StatUpdateThreshold)
+        {
+            OnExpChanged?.Invoke(currentExp);
+            lastStatUpdateTime = Time.time;
+        }
     }
 
     public void LevelUp()
@@ -281,17 +314,19 @@ public class PlayerStats : MonoBehaviour
         isLevelingUp = true;
 
         level++;
-
-        // 다음 레벨 경험치 요구량 계산 (20% 증가)
         requiredExp = Mathf.RoundToInt(requiredExp * 1.2f);
 
         UpdateStats();
 
         OnLevelUp?.Invoke(level);
-        OnHealthChanged?.Invoke(currentHealth);
-        OnExpChanged?.Invoke(currentExp);
 
-        // GameState 변경과 상점 열기를 분리
+        if (Time.time - lastStatUpdateTime >= StatUpdateThreshold)
+        {
+            OnHealthChanged?.Invoke(currentHealth);
+            OnExpChanged?.Invoke(currentExp);
+            lastStatUpdateTime = Time.time;
+        }
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.SetGameState(GameState.Paused);
@@ -300,20 +335,16 @@ public class PlayerStats : MonoBehaviour
 
         isLevelingUp = false;
     }
+
     private void ShowShopUI()
     {
+        if (cachedShopController == null)
+        {
+            cachedShopController = GameManager.Instance?.ShopController;
+        }
+
         if (cachedShopController != null)
         {
-            // 첫 상점이 아닌 경우 (레벨 2 이상)
-            if (level >= 2)
-            {
-                cachedShopController.isFirstShop = false;  // 첫 상점 플래그를 false로 설정
-            }
-            cachedShopController.InitializeShop();
-        }
-        else if (GameManager.Instance?.ShopController != null)
-        {
-            cachedShopController = GameManager.Instance.ShopController;
             if (level >= 2)
             {
                 cachedShopController.isFirstShop = false;
@@ -324,14 +355,13 @@ public class PlayerStats : MonoBehaviour
     #endregion
 
     #region Stat Modification
-
-
     public void ModifyPower(float amount)
     {
         if (isModifyingStats) return;
+
+        isModifyingStats = true;
         try
         {
-            isModifyingStats = true;
             power += amount;
             power = Mathf.Max(basePower, power);
             OnPowerChanged?.Invoke();
@@ -345,9 +375,10 @@ public class PlayerStats : MonoBehaviour
     public void ModifyMaxHealth(float amount)
     {
         if (isModifyingStats) return;
+
+        isModifyingStats = true;
         try
         {
-            isModifyingStats = true;
             float oldMaxHealth = maxHealth;
             maxHealth += amount;
             maxHealth = Mathf.Max(baseHealth, maxHealth);
@@ -364,12 +395,14 @@ public class PlayerStats : MonoBehaviour
             isModifyingStats = false;
         }
     }
+
     public void ModifyCooldownReduce(float amount)
     {
         if (isModifyingStats) return;
+
+        isModifyingStats = true;
         try
         {
-            isModifyingStats = true;
             cooldownReduce += amount;
             cooldownReduce = Mathf.Max(baseCooldownReduce, cooldownReduce);
             OnCooldownReduceChanged?.Invoke();
@@ -379,12 +412,14 @@ public class PlayerStats : MonoBehaviour
             isModifyingStats = false;
         }
     }
+
     public void ModifyKnockback(float amount)
     {
         if (isModifyingStats) return;
+
+        isModifyingStats = true;
         try
         {
-            isModifyingStats = true;
             knockback += amount;
             knockback = Mathf.Max(baseKnockback, knockback);
             OnKnockbackChanged?.Invoke();
@@ -394,12 +429,14 @@ public class PlayerStats : MonoBehaviour
             isModifyingStats = false;
         }
     }
+
     public void ModifyAreaOfEffect(float amount)
     {
         if (isModifyingStats) return;
+
+        isModifyingStats = true;
         try
         {
-            isModifyingStats = true;
             aoe += amount;
             aoe = Mathf.Max(baseAreaOfEffect, aoe);
             OnAreaOfEffectChanged?.Invoke();
@@ -413,9 +450,10 @@ public class PlayerStats : MonoBehaviour
     public void ModifyPickupRange(float amount)
     {
         if (isModifyingStats) return;
+
+        isModifyingStats = true;
         try
         {
-            isModifyingStats = true;
             pickupRange += amount;
             pickupRange = Mathf.Max(basePickupRange, pickupRange);
         }
@@ -428,9 +466,10 @@ public class PlayerStats : MonoBehaviour
     public void ModifyMovementSpeed(float amount, bool isPercentage)
     {
         if (isModifyingStats) return;
+
+        isModifyingStats = true;
         try
         {
-            isModifyingStats = true;
             if (isPercentage)
             {
                 movementSpeed += baseMovementSpeed * (amount / 100f);
@@ -451,9 +490,10 @@ public class PlayerStats : MonoBehaviour
     public void ModifyHealthRegen(float modifier)
     {
         if (isModifyingStats) return;
+
+        isModifyingStats = true;
         try
         {
-            isModifyingStats = true;
             healthRegen *= (1f + modifier);
         }
         finally
@@ -464,12 +504,21 @@ public class PlayerStats : MonoBehaviour
 
     public void SetMovementSpeed(float newSpeed)
     {
-        movementSpeed = newSpeed;
+        if (movementSpeed != newSpeed)
+        {
+            movementSpeed = newSpeed;
+            OnMovementSpeedChanged?.Invoke(movementSpeed);
+        }
     }
 
     public void ResetMovementSpeed()
     {
-        movementSpeed = baseMovementSpeed + (movementSpeedPerLevel * (level - 1));
+        float newSpeed = baseMovementSpeed + (movementSpeedPerLevel * (level - 1));
+        if (movementSpeed != newSpeed)
+        {
+            movementSpeed = newSpeed;
+            OnMovementSpeedChanged?.Invoke(movementSpeed);
+        }
     }
     #endregion
 
@@ -493,19 +542,18 @@ public class PlayerStats : MonoBehaviour
             hasMagnetEffect = true;
             OnMagnetEffectChanged?.Invoke(true);
 
-            // 3초 동안 자석 효과 지속
-            yield return new WaitForSeconds(3f);
+            yield return MagnetEffectDuration;  // 캐시된 WaitForSeconds 사용
 
             hasMagnetEffect = false;
             OnMagnetEffectChanged?.Invoke(false);
 
-            // 27초 대기 (총 30초 주기)
-            yield return new WaitForSeconds(27f);
+            yield return MagnetEffectCooldown;  // 캐시된 WaitForSeconds 사용
         }
     }
 
     private void OnDestroy()
     {
+        // 이벤트 핸들러 정리
         OnHealthChanged = null;
         OnExpChanged = null;
         OnLevelUp = null;
@@ -513,6 +561,12 @@ public class PlayerStats : MonoBehaviour
         OnCoinChanged = null;
         OnPlayerDeath = null;
         OnMovementSpeedChanged = null;
+        OnPowerChanged = null;
+        OnCooldownReduceChanged = null;
+        OnKnockbackChanged = null;
+        OnAreaOfEffectChanged = null;
+        OnMagnetEffectChanged = null;
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ClearSceneReferences();

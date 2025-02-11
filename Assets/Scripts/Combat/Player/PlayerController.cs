@@ -11,39 +11,57 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private PlayerStats playerStats;
-    private float currentMovementSpeed;
     private Animator animator;
 
+    // Ï∫êÏã±Îêú Í∞íÎì§
+    private float currentMovementSpeed;
+    private bool wasWalking;
+    private bool wasFacingLeft;
+
+    private Vector2 movementVector;
+
     private void Awake()
+    {
+        CacheComponents();
+        SetupRigidbody();
+    }
+
+    private void CacheComponents()
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-        SetupRigidbody();
+        playerStats = GetComponent<PlayerStats>();
     }
 
     private void SetupRigidbody()
     {
-        rb.gravityScale = 0f;
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        if (rb != null)
+        {
+            rb.gravityScale = 0f;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        }
     }
 
     private void Start()
     {
-        playerStats = GetComponent<PlayerStats>();
         if (playerStats == null)
         {
             Debug.LogError("PlayerStats not found!");
+            enabled = false;
             return;
         }
 
-        
         currentMovementSpeed = playerStats.MovementSpeed;
 
+        // Ïù¥Î≤§Ìä∏ Íµ¨ÎèÖ
         playerStats.OnMovementSpeedChanged += HandleMovementSpeedChanged;
-        GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+        }
     }
 
     private void HandleMovementSpeedChanged(float newSpeed)
@@ -53,29 +71,49 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMovement()
     {
-        Vector2 movement = new Vector2(joystick.Horizontal, joystick.Vertical);
-        if (movement.magnitude > 1f)
-        {
-            movement.Normalize();
-        }
-        rb.linearVelocity = movement * currentMovementSpeed;
+        if (joystick == null) return;
 
-        // æ÷¥œ∏ﬁ¿Ãº« ªÛ≈¬ ¿¸»Ø
+        float horizontalInput = joystick.Horizontal;
+        float verticalInput = joystick.Vertical;
+
+        movementVector.Set(horizontalInput, verticalInput);
+        float magnitude = movementVector.magnitude;
+
+        if (magnitude > 1f)
+        {
+            horizontalInput /= magnitude;
+            verticalInput /= magnitude;
+            movementVector.Set(horizontalInput, verticalInput);
+        }
+
+        rb.linearVelocity = movementVector * currentMovementSpeed;
+
+        // Ïï†ÎãàÎ©îÏù¥ÏÖò ÏÉÅÌÉú ÏóÖÎç∞Ïù¥Ìä∏
         if (animator != null)
         {
-            // movement.magnitude∞° 0∫∏¥Ÿ ≈©∏È ∞»¥¬ ªÛ≈¬
-            animator.SetBool("IsWalking", movement.magnitude > 0);
+            bool isWalking = magnitude > 0;
+            if (wasWalking != isWalking)
+            {
+                animator.SetBool("IsWalking", isWalking);
+                wasWalking = isWalking;
+            }
         }
 
-        if (movement.x != 0 && spriteRenderer != null)
+        // Ïä§ÌîÑÎùºÏù¥Ìä∏ ÌîåÎ¶Ω
+        if (spriteRenderer != null && horizontalInput != 0)
         {
-            spriteRenderer.flipX = movement.x < 0;
+            bool shouldFaceLeft = horizontalInput < 0;
+            if (wasFacingLeft != shouldFaceLeft)
+            {
+                spriteRenderer.flipX = shouldFaceLeft;
+                wasFacingLeft = shouldFaceLeft;
+            }
         }
     }
 
     private void FixedUpdate()
     {
-        if (enabled && playerStats != null)
+        if (enabled)
         {
             HandleMovement();
         }
@@ -84,6 +122,20 @@ public class PlayerController : MonoBehaviour
     private void HandleGameStateChanged(GameState newState)
     {
         enabled = (newState == GameState.Playing);
+
+        // ÏùºÏãúÏ†ïÏßÄ Ïãú ÏÜçÎèÑ Ï¶âÏãú 0ÏúºÎ°ú ÏÑ§Ï†ï
+        if (!enabled && rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    private void OnValidate()
+    {
+        if (minMovementSpeed < 0)
+        {
+            minMovementSpeed = 0;
+        }
     }
 
     private void OnDestroy()

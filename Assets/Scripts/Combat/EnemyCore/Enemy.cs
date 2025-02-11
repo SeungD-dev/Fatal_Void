@@ -1,9 +1,9 @@
 ﻿using System.Collections;
-using System.Linq;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour, IPooledObject
 {
+    #region Serialized Fields
     [Header("Hit Effect")]
     [SerializeField] private float hitFlashDuration = 0.1f;
     [SerializeField] private Color hitColor = Color.red;
@@ -11,41 +11,70 @@ public class Enemy : MonoBehaviour, IPooledObject
     [Header("Bounce Effect")]
     [SerializeField] private float bounceSpeed;
     [SerializeField] private float bounceAmount;
-    private Vector3 originalScale;
-    private float bounceTime;
-    private bool isXBounce = false;
 
     [Header("Knockback Properties")]
     [SerializeField] private float knockbackRecoveryTime = 0.1f;
-    private bool isKnockedBack = false;
+    [SerializeField] private EnemyData enemyData;
+    #endregion
+
+    #region Private Fields
+    private Transform cachedTransform;
+    private Vector3 originalScale;
+    private float bounceTime;
+    private bool isXBounce;
+
+    private bool isKnockedBack;
     private Coroutine knockbackCoroutine;
 
-    [SerializeField] private EnemyData enemyData;
     private float currentHealth;
     private float calculatedMaxHealth;
     private float lastDamageTime;
     private const float damageDelay = 1f;
     private Transform targetTransform;
-    private bool isFlashing = false;
+    private bool isFlashing;
 
-    // 컴포넌트 캐싱
+    // 캐시된 컴포넌트
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
     private Rigidbody2D rb;
 
+    // 재사용 가능한 벡터
+    private readonly Vector2 tempVector = Vector2.zero;
+
+    // 캐시된 WaitForSeconds
+    private static readonly WaitForSeconds HitFlashWait;
+    private static readonly WaitForSeconds KnockbackWait;
+    #endregion
+
+    #region Properties
     public bool IsKnockBack => isKnockedBack;
+    public float CurrentHealth => currentHealth;
+    public float MaxHealth => calculatedMaxHealth;
+    public float Damage => enemyData?.baseDamage ?? 0f;
+    public float MoveSpeed => enemyData?.moveSpeed ?? 0f;
+    public string EnemyName => enemyData?.enemyName ?? "Unknown Enemy";
+    #endregion
+
+    static Enemy()
+    {
+        HitFlashWait = new WaitForSeconds(0.1f);
+        KnockbackWait = new WaitForSeconds(0.1f);
+    }
 
     private void Awake()
     {
+        cachedTransform = transform;
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
         if (spriteRenderer != null)
         {
             originalColor = spriteRenderer.color;
         }
 
-        originalScale = transform.localScale;
+        originalScale = cachedTransform.localScale;
     }
+
     public void Initialize(Transform target)
     {
         targetTransform = target;
@@ -56,36 +85,30 @@ public class Enemy : MonoBehaviour, IPooledObject
         if (!gameObject.activeSelf) return;
 
         bounceTime += Time.deltaTime * bounceSpeed;
-
         float bounce = Mathf.Abs(Mathf.Sin(bounceTime)) * bounceAmount;
 
-        // bounceTime이 PI에 도달할 때마다 바운스 축을 변경
         if (bounceTime >= Mathf.PI)
         {
             bounceTime = 0f;
-            isXBounce = !isXBounce; // 축 전환
+            isXBounce = !isXBounce;
         }
 
-        // 현재 바운스 축에 따라 스케일 조정
+        var newScale = originalScale;
         if (isXBounce)
         {
-            transform.localScale = new Vector3(
-                originalScale.x + bounce,
-                originalScale.y,
-                originalScale.z);
+            newScale.x += bounce;
         }
         else
         {
-            transform.localScale = new Vector3(
-                originalScale.x,
-                originalScale.y + bounce,
-                originalScale.z);
+            newScale.y += bounce;
         }
+
+        cachedTransform.localScale = newScale;
     }
 
     public void ResetBounceEffect()
     {
-        transform.localScale = originalScale;
+        cachedTransform.localScale = originalScale;
         bounceTime = 0f;
         isXBounce = false;
     }
@@ -100,13 +123,11 @@ public class Enemy : MonoBehaviour, IPooledObject
 
         enemyData = data;
 
-        // 스프라이트 설정
         if (spriteRenderer != null && enemyData.enemySprite != null)
         {
             spriteRenderer.sprite = enemyData.enemySprite;
         }
 
-        // 스탯 초기화
         InitializeStats();
     }
 
@@ -125,8 +146,8 @@ public class Enemy : MonoBehaviour, IPooledObject
         {
             spriteRenderer.color = originalColor;
         }
-        isFlashing = false;
 
+        isFlashing = false;
         ResetBounceEffect();
     }
 
@@ -134,7 +155,6 @@ public class Enemy : MonoBehaviour, IPooledObject
     {
         if (enemyData == null) return;
 
-        // 플레이어 레벨에 따른 체력 계산
         int playerLevel = GameManager.Instance.PlayerStats.Level;
         calculatedMaxHealth = Mathf.Min(
             enemyData.baseHealth * playerLevel,
@@ -150,14 +170,20 @@ public class Enemy : MonoBehaviour, IPooledObject
 
         currentHealth -= damage;
 
-        Color textColor = Color.white;
-        string damageText = damage.ToString("F0");
-
-        SoundManager.Instance.PlaySound("EnemyHit_sfx", 1f, false);
-
-        if (FloatingTextManager.Instance != null && FloatingTextManager.Instance.isFloatingTextEnabled == true)
+        var soundManager = SoundManager.Instance;
+        if (soundManager != null)
         {
-            FloatingTextManager.Instance.ShowFloatingText(damageText, transform.position, textColor);
+            soundManager.PlaySound("EnemyHit_sfx", 1f, false);
+        }
+
+        var floatingTextManager = FloatingTextManager.Instance;
+        if (floatingTextManager != null && floatingTextManager.isFloatingTextEnabled)
+        {
+            floatingTextManager.ShowFloatingText(
+                damage.ToString("F0"),
+                cachedTransform.position,
+                Color.white
+            );
         }
 
         PlayHitEffect();
@@ -170,60 +196,50 @@ public class Enemy : MonoBehaviour, IPooledObject
 
     private void PlayHitEffect()
     {
-        if (spriteRenderer != null & !isFlashing)
+        if (spriteRenderer != null && !isFlashing)
         {
             StartCoroutine(HitFlashCoroutine());
         }
     }
 
-
-
     private IEnumerator HitFlashCoroutine()
     {
         isFlashing = true;
-
         spriteRenderer.color = hitColor;
-
-        yield return new WaitForSeconds(hitFlashDuration);
-
+        yield return HitFlashWait;
         spriteRenderer.color = originalColor;
-
         isFlashing = false;
     }
 
     public void ApplyKnockback(Vector2 force)
     {
-        // 오브젝트가 비활성화되어 있거나 체력이 0 이하라면 넉백 처리하지 않음
-        if (!gameObject.activeInHierarchy || currentHealth <= 0)
+        if (!gameObject.activeInHierarchy || currentHealth <= 0 || rb == null)
             return;
 
-        if (rb != null)
+        if (knockbackCoroutine != null)
         {
-            if (knockbackCoroutine != null)
-            {
-                StopCoroutine(knockbackCoroutine);
-                knockbackCoroutine = null;
-            }
+            StopCoroutine(knockbackCoroutine);
+        }
 
-            isKnockedBack = true;
-            rb.linearVelocity = Vector2.zero;
-            rb.AddForce(force, ForceMode2D.Impulse);
+        isKnockedBack = true;
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(force, ForceMode2D.Impulse);
 
-            // 코루틴 시작 전에 게임오브젝트 상태 한번 더 확인
-            if (gameObject.activeInHierarchy)
-            {
-                knockbackCoroutine = StartCoroutine(KnockbackRecovery());
-            }
+        if (gameObject.activeInHierarchy)
+        {
+            knockbackCoroutine = StartCoroutine(KnockbackRecovery());
         }
     }
+
     private IEnumerator KnockbackRecovery()
     {
-        yield return new WaitForSeconds(knockbackRecoveryTime);
+        yield return KnockbackWait;
 
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
         }
+
         isKnockedBack = false;
         knockbackCoroutine = null;
     }
@@ -232,75 +248,87 @@ public class Enemy : MonoBehaviour, IPooledObject
     {
         if (!gameObject.activeSelf) return;
 
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.CompareTag("Player") && Time.time >= lastDamageTime + damageDelay)
         {
-            if (Time.time >= lastDamageTime + damageDelay)
+            if (collision.TryGetComponent(out PlayerStats playerStats))
             {
-                PlayerStats playerStats = collision.gameObject.GetComponent<PlayerStats>();
-                if (playerStats != null)
-                {
-                    playerStats.TakeDamage(enemyData.baseDamage);
-                    lastDamageTime = Time.time;
-                }
+                playerStats.TakeDamage(enemyData.baseDamage);
+                lastDamageTime = Time.time;
             }
         }
     }
+
     private void Die()
     {
-        if (GameManager.Instance?.CombatController == null) return;
+        var combatController = GameManager.Instance?.CombatController;
+        if (combatController == null) return;
 
-        // 1. 필수 드롭 처리 (경험치 or 골드)
-        if (enemyData.dropTable != null)
-        {
-            GameManager.Instance.CombatController.SpawnDrops(transform.position, enemyData.dropTable);
-        }
-        else
-        {
-            Debug.LogError($"DropTable is missing for enemy: {enemyData.enemyName}");
-        }
+        var position = cachedTransform.position;
+        var dropTable = enemyData?.dropTable;
 
-        // 2. 추가 아이템 드롭 처리
-        if (enemyData.additionalDropRate > 0 &&
-            enemyData.dropTable?.additionalDrops != null &&
-            enemyData.dropTable.additionalDrops.Length > 0)
+        if (dropTable != null)
         {
-            float randomValue = Random.Range(0f, 100f);
-            if (randomValue <= enemyData.additionalDropRate)
+            combatController.SpawnDrops(position, dropTable);
+
+            if (ShouldSpawnAdditionalDrop())
             {
-                // 포션 또는 자석 중 하나만 선택하여 드롭
-                var validDrops = enemyData.dropTable.additionalDrops.Where(drop =>
-                    drop.itemType == ItemType.HealthPotion ||
-                    drop.itemType == ItemType.Magnet).ToArray();
-
-                if (validDrops.Length > 0)
-                {
-                    // 각 아이템의 dropRate에 따른 가중치 적용하여 하나 선택
-                    float totalWeight = validDrops.Sum(drop => drop.dropRate);
-                    float randomSelection = Random.Range(0f, totalWeight);
-                    float currentSum = 0f;
-
-                    foreach (var drop in validDrops)
-                    {
-                        currentSum += drop.dropRate;
-                        if (randomSelection <= currentSum)
-                        {
-                            GameManager.Instance.CombatController.SpawnAdditionalDrop(
-                                transform.position,
-                                drop
-                            );
-                            break;  // 하나만 드롭하고 종료
-                        }
-                    }
-                }
+                HandleAdditionalDrops(position, dropTable);
             }
         }
 
-        // 3. 적 처치 카운트 증가
         GameManager.Instance.PlayerStats?.AddKill();
-
-        // 4. 풀에 반환
         ReturnToPool();
     }
+
+    private bool ShouldSpawnAdditionalDrop()
+    {
+        return enemyData.additionalDropRate > 0 &&
+               enemyData.dropTable?.additionalDrops != null &&
+               enemyData.dropTable.additionalDrops.Length > 0 &&
+               Random.value <= enemyData.additionalDropRate / 100f;
+    }
+
+    private void HandleAdditionalDrops(Vector3 position, EnemyDropTable dropTable)
+    {
+        float totalWeight = 0f;
+        var additionalDrops = dropTable.additionalDrops;
+
+        for (int i = 0; i < additionalDrops.Length; i++)
+        {
+            var drop = additionalDrops[i];
+            if (IsValidDropType(drop.itemType))
+            {
+                totalWeight += drop.dropRate;
+            }
+        }
+
+        if (totalWeight <= 0) return;
+
+        float randomSelection = Random.Range(0f, totalWeight);
+        float currentSum = 0f;
+
+        for (int i = 0; i < additionalDrops.Length; i++)
+        {
+            var drop = additionalDrops[i];
+            if (!IsValidDropType(drop.itemType)) continue;
+
+            currentSum += drop.dropRate;
+            if (randomSelection <= currentSum)
+            {
+                GameManager.Instance.CombatController.SpawnAdditionalDrop(
+                    position,
+                    drop
+                );
+                break;
+            }
+        }
+    }
+
+    private bool IsValidDropType(ItemType itemType)
+    {
+        return itemType == ItemType.HealthPotion || itemType == ItemType.Magnet;
+    }
+
     public void ReturnToPool()
     {
         if (enemyData == null)
@@ -309,41 +337,29 @@ public class Enemy : MonoBehaviour, IPooledObject
             return;
         }
 
-        // 컴포넌트 상태 초기화
         currentHealth = 0;
         lastDamageTime = 0;
 
-        // 물리 관련 초기화
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
 
-        // 타겟 초기화
         targetTransform = null;
-
-        // 적의 이름으로 풀에 반환
         ObjectPool.Instance.ReturnToPool(enemyData.enemyName, gameObject);
     }
+
     private void OnDisable()
     {
         StopAllCoroutines();
+
         if (spriteRenderer != null)
         {
             spriteRenderer.color = originalColor;
         }
 
         isFlashing = false;
-
         ResetBounceEffect();
     }
-
-
-    // 프로퍼티
-    public float CurrentHealth => currentHealth;
-    public float MaxHealth => calculatedMaxHealth;
-    public float Damage => enemyData?.baseDamage ?? 0f;
-    public float MoveSpeed => enemyData?.moveSpeed ?? 0f;
-    public string EnemyName => enemyData?.enemyName ?? "Unknown Enemy";
 }

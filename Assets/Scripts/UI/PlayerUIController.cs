@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using System.Text;
 
 public class PlayerUIController : MonoBehaviour
 {
@@ -13,11 +14,34 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField] private Slider expBar;
     [SerializeField] private Slider healthBar;
 
-    [Header("Format Settings")]
-    [SerializeField] private string timeFormat = "mm:ss";
+    [Header("UI Update Settings")]
+    [SerializeField] private float uiUpdateInterval = 0.1f;
 
+    // 캐시된 참조
+    private PlayerStats playerStats;
+    private GameManager gameManager;
+    private StringBuilder stringBuilder;
+
+    // 상태 관리
     private float gameTime;
-    private bool isInitialized = false;
+    private bool isInitialized;
+    private float nextUpdateTime;
+
+    // 캐시된 시간 변수
+    private int cachedMinutes;
+    private int cachedSeconds;
+
+    // 캐시된 문자열 포맷
+    private const string TIME_FORMAT = "{0:00}:{1:00}";
+    private const string KILL_FORMAT = "Kills: {0}";
+    private const string LEVEL_FORMAT = "Lv.{0}";
+    private static readonly WaitForSeconds InitializationDelay = new WaitForSeconds(0.1f);
+
+    private void Awake()
+    {
+        stringBuilder = new StringBuilder(32);
+        gameManager = GameManager.Instance;
+    }
 
     private void Start()
     {
@@ -29,10 +53,10 @@ public class PlayerUIController : MonoBehaviour
         float timeout = 5f;
         float elapsed = 0f;
 
-        while (!GameManager.Instance.IsInitialized && elapsed < timeout)
+        while (!gameManager.IsInitialized && elapsed < timeout)
         {
             elapsed += Time.deltaTime;
-            yield return null;
+            yield return InitializationDelay;
         }
 
         if (elapsed >= timeout)
@@ -46,19 +70,18 @@ public class PlayerUIController : MonoBehaviour
 
     private void InitializeUI()
     {
-        var playerStats = GameManager.Instance.PlayerStats;
+        playerStats = gameManager.PlayerStats;
         if (playerStats != null)
         {
-            // UI 관련 이벤트 구독
-            SubscribeToEvents(playerStats);
-
+            // UI 이벤트 구독
+            SubscribeToEvents();
             // 초기 UI 설정
-            ResetUI(playerStats);
+            ResetUI();
             isInitialized = true;
         }
     }
 
-    private void SubscribeToEvents(PlayerStats playerStats)
+    private void SubscribeToEvents()
     {
         playerStats.OnHealthChanged += UpdateHealthBar;
         playerStats.OnExpChanged += UpdateExpBar;
@@ -66,97 +89,93 @@ public class PlayerUIController : MonoBehaviour
         playerStats.OnKillCountChanged += UpdateKillCount;
         playerStats.OnCoinChanged += UpdateCoinCount;
         playerStats.OnPlayerDeath += HandlePlayerDeath;
-
-        GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+        gameManager.OnGameStateChanged += HandleGameStateChanged;
     }
 
     private void Update()
     {
-        if (isInitialized && GameManager.Instance.IsPlaying())
+        if (!isInitialized || !gameManager.IsPlaying()) return;
+
+        gameTime += Time.deltaTime;
+
+        if (Time.time >= nextUpdateTime)
         {
-            gameTime += Time.deltaTime;
             UpdateTimeDisplay();
-            // Debug.Log($"Game Time: {gameTime}");  // 필요시 디버그 로그
+            nextUpdateTime = Time.time + uiUpdateInterval;
         }
     }
 
-    private void ResetUI(PlayerStats playerStats)
+    private void ResetUI()
     {
         gameTime = 0f;
+        nextUpdateTime = 0f;
 
         UpdateTimeDisplay();
         UpdateKillCount(playerStats.KillCount);
         UpdateCoinCount(playerStats.CoinCount);
         UpdateLevel(playerStats.Level);
-        UpdateExpBar(playerStats.CurrentExp, playerStats.RequiredExp);
-        UpdateHealthBar(playerStats.CurrentHealth, playerStats.MaxHealth);
+        UpdateExpBar(playerStats.CurrentExp);
+        UpdateHealthBar(playerStats.CurrentHealth);
     }
 
     #region UI Update Methods
     private void UpdateTimeDisplay()
     {
-        if (timeTxt != null)
+        if (timeTxt == null) return;
+
+        int minutes = Mathf.FloorToInt(gameTime / 60f);
+        int seconds = Mathf.FloorToInt(gameTime % 60f);
+
+        // 시간이 변경되었을 때만 텍스트 업데이트
+        if (minutes != cachedMinutes || seconds != cachedSeconds)
         {
-            int minutes = Mathf.FloorToInt(gameTime / 60f);
-            int seconds = Mathf.FloorToInt(gameTime % 60f);
-            timeTxt.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+            stringBuilder.Clear();
+            stringBuilder.AppendFormat(TIME_FORMAT, minutes, seconds);
+            timeTxt.text = stringBuilder.ToString();
+
+            cachedMinutes = minutes;
+            cachedSeconds = seconds;
         }
     }
 
     private void UpdateKillCount(int count)
     {
-        if (killCountTxt != null)
-        {
-            killCountTxt.text = $"Kills: {count}";
-        }
+        if (killCountTxt == null) return;
+
+        stringBuilder.Clear();
+        stringBuilder.AppendFormat(KILL_FORMAT, count);
+        killCountTxt.text = stringBuilder.ToString();
     }
 
     private void UpdateCoinCount(int count)
     {
-        if (coinTxt != null)
-        {
-            coinTxt.text = $"{count}";
-        }
+        if (coinTxt == null) return;
+        coinTxt.text = count.ToString();
     }
 
     private void UpdateLevel(int level)
     {
-        if (lvlTxt != null)
-        {
-            lvlTxt.text = $"Lv.{level}";
-        }
+        if (lvlTxt == null) return;
+
+        stringBuilder.Clear();
+        stringBuilder.AppendFormat(LEVEL_FORMAT, level);
+        lvlTxt.text = stringBuilder.ToString();
     }
 
-    private void UpdateExpBar(float currentExp, float requiredExp)
+    private void UpdateExpBar(float currentExp)
     {
-        if (expBar != null)
-        {
-            expBar.value = currentExp / requiredExp;
-        }
+        if (expBar == null || playerStats == null) return;
+        expBar.value = currentExp / playerStats.RequiredExp;
     }
 
-    private void UpdateHealthBar(float currentHealth, float maxHealth)
+    private void UpdateHealthBar(float currentHealth)
     {
-        if (healthBar != null)
-        {
-            healthBar.value = currentHealth / maxHealth;
-        }
+        if (healthBar == null || playerStats == null) return;
+        healthBar.value = currentHealth / playerStats.MaxHealth;
     }
     #endregion
 
     #region Event Handlers
-    private void UpdateExpBar(float newExp)
-    {
-        var playerStats = GameManager.Instance.PlayerStats;
-        UpdateExpBar(newExp, playerStats.RequiredExp);
-    }
-
-    private void UpdateHealthBar(float newHealth)
-    {
-        var playerStats = GameManager.Instance.PlayerStats;
-        UpdateHealthBar(newHealth, playerStats.MaxHealth);
-    }
-
     private void HandlePlayerDeath()
     {
         enabled = false;
@@ -165,13 +184,16 @@ public class PlayerUIController : MonoBehaviour
     private void HandleGameStateChanged(GameState newState)
     {
         enabled = (newState == GameState.Playing);
-        Debug.Log($"Game State Changed to: {newState}, UI Enabled: {enabled}");  // 디버그 로그 추가
     }
     #endregion
 
     private void OnDestroy()
     {
-        var playerStats = GameManager.Instance?.PlayerStats;
+        UnsubscribeFromEvents();
+    }
+
+    private void UnsubscribeFromEvents()
+    {
         if (playerStats != null)
         {
             playerStats.OnHealthChanged -= UpdateHealthBar;
@@ -182,9 +204,9 @@ public class PlayerUIController : MonoBehaviour
             playerStats.OnPlayerDeath -= HandlePlayerDeath;
         }
 
-        if (GameManager.Instance != null)
+        if (gameManager != null)
         {
-            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+            gameManager.OnGameStateChanged -= HandleGameStateChanged;
         }
     }
 }
