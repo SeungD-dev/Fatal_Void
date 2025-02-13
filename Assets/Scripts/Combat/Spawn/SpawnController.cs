@@ -181,14 +181,19 @@ public class SpawnController : MonoBehaviour
         if (enemyObject != null)
         {
             Enemy enemy = enemyObject.GetComponent<Enemy>();
-            if (enemy != null)
+            EnemyAI enemyAI = enemyObject.GetComponent<EnemyAI>();
+
+            if (enemy != null && enemyAI != null)
             {
                 enemy.SetEnemyData(enemyData);
-                enemy.Initialize(playerTransform); // 플레이어 추적을 위한 초기화
+                enemy.Initialize(playerTransform);
+
+                // EnemyAI 초기화
+                enemyAI.Initialize(playerTransform);
             }
             else
             {
-                Debug.LogError($"Enemy component not found on prefab: {enemyData.enemyName}");
+                Debug.LogError($"Required components not found on prefab: {enemyData.enemyName}");
                 ObjectPool.Instance.ReturnToPool(enemyData.enemyName, enemyObject);
             }
         }

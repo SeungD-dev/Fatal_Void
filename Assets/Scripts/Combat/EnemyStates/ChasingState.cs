@@ -26,6 +26,8 @@ public class ChasingState : IState
         enemyStats = enemyAI.GetComponent<Enemy>();
         rb = enemyAI.GetComponent<Rigidbody2D>();
         spriteRenderer = enemyAI.spriteRenderer;
+        gameManager = GameManager.Instance;
+        currentMoveSpeed = enemyStats.MoveSpeed;
     }
 
     private Transform PlayerTransform => enemyAI.PlayerTransform;

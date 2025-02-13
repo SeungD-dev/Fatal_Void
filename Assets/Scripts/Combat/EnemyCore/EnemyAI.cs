@@ -13,19 +13,7 @@ public abstract class EnemyAI : MonoBehaviour
         enemyStats = GetComponent<Enemy>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         stateMachine = new StateMachine();
-        InitializeStates();
-    }
-    public void SetPlayerTransform(Transform target)
-    {
-        playerTransform = target;
-    }
-    protected virtual void Start()
-    {
-        playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
-        // 게임 상태 변경 이벤트 구독
-        GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
-    }
-
+    }  
     protected virtual void OnDestroy()
     {
         // 이벤트 구독 해제
@@ -51,7 +39,20 @@ public abstract class EnemyAI : MonoBehaviour
         stateMachine.AddTransition(idleState, chasingState,
             new FuncPredicate(() => IsPlayerAlive() && IsGamePlaying()));
     }
+    public virtual void Initialize(Transform target)
+    {
+        playerTransform = target;
+        GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
 
+        if (stateMachine == null)
+        {
+            stateMachine = new StateMachine();
+        }
+
+        // 직접 ChasingState로 전환
+        var chasingState = new ChasingState(this);
+        stateMachine.SetState(chasingState);
+    }
     protected virtual void Update()
     {
         // 게임이 플레이 중일 때만 상태 머신 업데이트
