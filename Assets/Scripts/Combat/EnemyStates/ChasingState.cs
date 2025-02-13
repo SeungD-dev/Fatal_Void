@@ -21,12 +21,11 @@ public class ChasingState : IState
 
     public ChasingState(EnemyAI enemyAI)
     {
-        this.enemyAI = enemyAI ?? throw new System.ArgumentNullException(nameof(enemyAI));
+        this.enemyAI = enemyAI;
         enemyTransform = enemyAI.transform;
         enemyStats = enemyAI.GetComponent<Enemy>();
         rb = enemyAI.GetComponent<Rigidbody2D>();
         spriteRenderer = enemyAI.spriteRenderer;
-        gameManager = GameManager.Instance;
     }
 
     private Transform PlayerTransform => enemyAI.PlayerTransform;
@@ -54,11 +53,43 @@ public class ChasingState : IState
 
     public void Update()
     {
-        if (enemyAI == null || !IsValidState()) return;
+        if (enemyStats.IsKnockBack || PlayerTransform == null ||
+            GameManager.Instance.currentGameState != GameState.Playing)
+            return;
 
-        CalculateDirection();
-        UpdateMovement();
-        UpdateVisuals();
+        // 방향 계산
+        Vector2 direction = (PlayerTransform.position - enemyTransform.position);
+        float magnitude = direction.magnitude;
+
+        if (magnitude > 0)
+        {
+            directionVector.Set(
+                direction.x / magnitude,
+                direction.y / magnitude
+            );
+
+            // 스프라이트 방향 설정
+            if (directionVector.x != 0)
+            {
+                spriteRenderer.flipX = directionVector.x < 0;
+            }
+
+            // 이동 처리
+            if (rb != null)
+            {
+                velocityVector.Set(
+                    directionVector.x * enemyStats.MoveSpeed,
+                    directionVector.y * enemyStats.MoveSpeed
+                );
+                rb.linearVelocity = velocityVector;
+            }
+            else
+            {
+                enemyTransform.Translate(directionVector * enemyStats.MoveSpeed * Time.deltaTime);
+            }
+
+            enemyStats.UpdateBounceEffect();
+        }
     }
     private bool IsValidState()
     {
