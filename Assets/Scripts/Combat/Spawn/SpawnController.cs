@@ -188,7 +188,7 @@ public class SpawnController : MonoBehaviour
                 enemy.SetEnemyData(enemyData);
                 enemy.Initialize(playerTransform);
 
-                // EnemyAI 초기화
+                // EnemyAI 초기화도 함께 수행
                 enemyAI.Initialize(playerTransform);
             }
             else

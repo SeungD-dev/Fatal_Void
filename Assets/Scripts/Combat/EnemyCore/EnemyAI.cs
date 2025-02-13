@@ -44,12 +44,7 @@ public abstract class EnemyAI : MonoBehaviour
         playerTransform = target;
         GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
 
-        if (stateMachine == null)
-        {
-            stateMachine = new StateMachine();
-        }
-
-        // 직접 ChasingState로 전환
+        // 바로 추적 상태로 전환
         var chasingState = new ChasingState(this);
         stateMachine.SetState(chasingState);
     }

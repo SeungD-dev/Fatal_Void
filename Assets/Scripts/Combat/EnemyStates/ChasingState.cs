@@ -4,7 +4,7 @@ public class ChasingState : IState
 {
     private readonly EnemyAI enemyAI;
     private readonly Transform enemyTransform;
-    private readonly Transform playerTransform;
+    private Transform playerTransform;
     private readonly Rigidbody2D rb;
     private readonly Enemy enemyStats;
     private readonly SpriteRenderer spriteRenderer;
@@ -26,133 +26,50 @@ public class ChasingState : IState
         enemyStats = enemyAI.GetComponent<Enemy>();
         rb = enemyAI.GetComponent<Rigidbody2D>();
         spriteRenderer = enemyAI.spriteRenderer;
-        gameManager = GameManager.Instance;
-        currentMoveSpeed = enemyStats.MoveSpeed;
+        playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
     }
+
 
     private Transform PlayerTransform => enemyAI.PlayerTransform;
 
     public void OnEnter()
     {
-        
-        if (rb != null)
+        if (playerTransform == null)
         {
-            rb.linearVelocity = Vector2.zero;
+            playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
         }
-        currentMoveSpeed = enemyStats.MoveSpeed;
-        wasFlipped = spriteRenderer.flipX;
     }
 
     public void OnExit()
     {
         enemyStats.ResetBounceEffect();
-        
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
     }
 
     public void Update()
     {
-        if (enemyStats.IsKnockBack || PlayerTransform == null ||
+        if (enemyStats.IsKnockBack || playerTransform == null ||
             GameManager.Instance.currentGameState != GameState.Playing)
             return;
 
-        // 방향 계산
-        Vector2 direction = (PlayerTransform.position - enemyTransform.position);
-        float magnitude = direction.magnitude;
+        Vector2 direction = (playerTransform.position - enemyTransform.position).normalized;
 
-        if (magnitude > 0)
+        if (direction.x != 0)
         {
-            directionVector.Set(
-                direction.x / magnitude,
-                direction.y / magnitude
-            );
-
-            // 스프라이트 방향 설정
-            if (directionVector.x != 0)
-            {
-                spriteRenderer.flipX = directionVector.x < 0;
-            }
-
-            // 이동 처리
-            if (rb != null)
-            {
-                velocityVector.Set(
-                    directionVector.x * enemyStats.MoveSpeed,
-                    directionVector.y * enemyStats.MoveSpeed
-                );
-                rb.linearVelocity = velocityVector;
-            }
-            else
-            {
-                enemyTransform.Translate(directionVector * enemyStats.MoveSpeed * Time.deltaTime);
-            }
-
-            enemyStats.UpdateBounceEffect();
+            spriteRenderer.flipX = direction.x < 0;
         }
-    }
-    private bool IsValidState()
-    {
-        return !enemyStats.IsKnockBack &&
-               enemyAI.PlayerTransform != null &&
-               gameManager.currentGameState == GameState.Playing;
-    }
 
-
-    private void CalculateDirection()
-    {
-        var playerPos = enemyAI.PlayerTransform.position;
-        var enemyPos = enemyTransform.position;
-
-        float dx = playerPos.x - enemyPos.x;
-        float dy = playerPos.y - enemyPos.y;
-
-        directionVector.Set(dx, dy);
-        float magnitude = directionVector.magnitude;
-
-        if (magnitude > 0)
-        {
-            float invMagnitude = 1f / magnitude;
-            directionVector.Set(
-                directionVector.x * invMagnitude,
-                directionVector.y * invMagnitude
-            );
-        }
-    }
-    private void UpdateMovement()
-    {
         if (rb != null)
         {
-            
-            velocityVector.Set(
-                directionVector.x * currentMoveSpeed,
-                directionVector.y * currentMoveSpeed
-            );
-            rb.linearVelocity = velocityVector;
+            rb.linearVelocity = direction * enemyStats.MoveSpeed;
         }
         else
         {
-            
-            Vector3 currentPos = enemyTransform.position;
-            currentPos.x += directionVector.x * currentMoveSpeed * Time.deltaTime;
-            currentPos.y += directionVector.y * currentMoveSpeed * Time.deltaTime;
-            enemyTransform.position = currentPos;
+            enemyTransform.Translate(direction * enemyStats.MoveSpeed * Time.deltaTime);
         }
-    }
 
-    private void UpdateVisuals()
-    {
-        
-        bool shouldFlip = directionVector.x < 0;
-        if (wasFlipped != shouldFlip)
-        {
-            spriteRenderer.flipX = shouldFlip;
-            wasFlipped = shouldFlip;
-        }
         enemyStats.UpdateBounceEffect();
     }
+  
 
     public void FixedUpdate()
     {
