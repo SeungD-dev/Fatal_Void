@@ -5,6 +5,9 @@ public class InventoryHighlight : MonoBehaviour, IPooledObject
     [SerializeField] private RectTransform highlighter;
     private ItemGrid currentGrid; // 현재 활성 그리드 추적
 
+    private static readonly Vector3 defaultScale = Vector3.one;
+    private static readonly Vector2 defaultPosition = Vector2.zero;
+
     private InventoryItem associatedItem;
     private void Awake()
     {
@@ -16,14 +19,11 @@ public class InventoryHighlight : MonoBehaviour, IPooledObject
     }
 
     private void InitializeHighlighter()
-    {     
-        // 스케일을 1로 초기화
+    {
         if (highlighter != null)
         {
-            highlighter.localScale = Vector3.one;
+            highlighter.localScale = defaultScale;
         }
-
-        // 초기에는 비활성화
         Show(false);
     }
 
@@ -45,40 +45,37 @@ public class InventoryHighlight : MonoBehaviour, IPooledObject
 
     public void Show(bool visible)
     {
-        if (highlighter != null)
+        if (highlighter != null && highlighter.gameObject.activeSelf != visible)
         {
             highlighter.gameObject.SetActive(visible);
         }
     }
 
+
     public void SetSize(InventoryItem targetItem)
     {
         if (targetItem == null || highlighter == null) return;
 
-        Vector2 size = new Vector2(
+        highlighter.sizeDelta = new Vector2(
             targetItem.Width * ItemGrid.TILE_SIZE,
             targetItem.Height * ItemGrid.TILE_SIZE
         );
 
-        highlighter.sizeDelta = size;
-
-        // 스케일이 1이 아닐 경우 강제로 1로 설정
-        if (highlighter.localScale != Vector3.one)
+        if (highlighter.localScale != defaultScale)
         {
-            highlighter.localScale = Vector3.one;
-            Debug.LogWarning("Highlighter scale was not 1. Resetting to default.");
+            highlighter.localScale = defaultScale;
         }
     }
     public void SetParent(ItemGrid targetGrid)
     {
-        if (targetGrid == null || highlighter == null) return;
+        if (targetGrid == null || highlighter == null || currentGrid == targetGrid) return;
 
-        RectTransform gridRectTransform = targetGrid.GetComponent<RectTransform>();
+        var gridRectTransform = targetGrid.GetComponent<RectTransform>();
         if (gridRectTransform != null)
         {
             highlighter.SetParent(gridRectTransform, false);
-            // 부모 변경 시 로컬 포지션 초기화 방지
-            highlighter.localPosition = Vector2.zero;
+            highlighter.localPosition = defaultPosition;
+            currentGrid = targetGrid;
         }
     }
 
@@ -86,11 +83,11 @@ public class InventoryHighlight : MonoBehaviour, IPooledObject
     {
         if (targetGrid == null || targetItem == null || highlighter == null) return;
 
-        int x = posX >= 0 ? posX : targetItem.onGridPositionX;
-        int y = posY >= 0 ? posY : targetItem.onGridPositionY;
-
-        Vector2 pos = targetGrid.CalculatePositionOnGrid(targetItem, x, y);
-        highlighter.localPosition = pos;
+        highlighter.localPosition = targetGrid.CalculatePositionOnGrid(
+            targetItem,
+            posX >= 0 ? posX : targetItem.onGridPositionX,
+            posY >= 0 ? posY : targetItem.onGridPositionY
+        );
     }
 
     public InventoryItem GetAssociatedItem() => associatedItem;

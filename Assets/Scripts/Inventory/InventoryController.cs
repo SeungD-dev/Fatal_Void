@@ -34,13 +34,17 @@ public class InventoryController : MonoBehaviour
     private Coroutine currentNoticeCoroutine;
     #endregion
 
-    #region Private Fields
+     #region Private Fields
     private ItemInteractionManager itemInteractionManager;
     private WeaponManager weaponManager;
     private InventoryHighlight inventoryHighlight;
     private TouchActions touchActions;
     private InputAction touchPosition;
-    private InputAction touchPress;   
+    private InputAction touchPress;
+
+    private static readonly Vector2 ITEM_LIFT_OFFSET_VECTOR = Vector2.up * ITEM_LIFT_OFFSET;
+    private static readonly WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
+
     private Vector2 originalSpawnPosition;
     private const float HOLD_THRESHOLD = 0.3f;
     private const float HOLD_MOVE_THRESHOLD = 20f;
@@ -54,10 +58,31 @@ public class InventoryController : MonoBehaviour
     private int lastTouchCount = 0;
     private bool lastPressState = false;
     private float lastTouchTime = 0f;
-    private bool isInventoryInitialized = false;
-    private HashSet<InventoryItem> activeItems = new HashSet<InventoryItem>();
-    private bool isInputSystemInitialized = false;
+    private bool isInventoryInitialized;
+    private readonly HashSet<InventoryItem> activeItems = new HashSet<InventoryItem>(16);
+    private TouchState touchState = new TouchState();
+    private bool isInputSystemInitialized;
     private int lastRotatingTouchId = -1;
+
+    private struct TouchState
+    {
+        public bool isDragging;
+        public bool isHolding;
+        public float lastTouchTime;
+        public int lastTouchCount;
+        public bool lastPressState;
+        public float lastRotationTime;
+        public int lastRotatingTouchId;
+
+        public void Reset()
+        {
+            isDragging = false;
+            isHolding = false;
+            lastTouchCount = 0;
+            lastRotatingTouchId = -1;
+        }
+    }
+
     #endregion
 
     #region Properties
@@ -76,11 +101,52 @@ public class InventoryController : MonoBehaviour
     #region Unity Methods
     private void Awake()
     {
-        InitializeComponents();
+        if (!TryInitializeComponents())
+        {
+            Debug.LogError("Failed to initialize essential components");
+            return;
+        }
+
         SetupInputSystem();
         InitializeGrid();
     }
-  
+    private bool TryInitializeComponents()
+    {
+        try
+        {
+            inventoryHighlight = GetComponentInChildren<InventoryHighlight>();
+            weaponManager = GameObject.FindWithTag("Player")?.GetComponent<WeaponManager>();
+
+            if (mainInventoryGrid == null || weaponInfoUI == null || itemSpawnPoint == null)
+            {
+                return false;
+            }
+
+            itemInteractionManager = new ItemInteractionManager(
+                mainInventoryGrid,
+                weaponInfoUI,
+                itemSpawnPoint,
+                inventoryHighlight
+            );
+
+            SubscribeToGridEvents();
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Component initialization failed: {e.Message}");
+            return false;
+        }
+    }
+
+    private void SubscribeToGridEvents()
+    {
+        if (mainInventoryGrid != null)
+        {
+            mainInventoryGrid.OnItemAdded += OnItemAddedToGrid;
+            mainInventoryGrid.OnItemRemoved += OnItemRemovedFromGrid;
+        }
+    }
     private void Start()
     {
         if (itemSpawnPoint != null)
@@ -99,7 +165,7 @@ public class InventoryController : MonoBehaviour
         if (!inventoryUI.activeSelf || mainInventoryGrid == null) return;
 
         // 드래그 중인 아이템 처리
-        if (isDragging && selectedItem != null && isHolding)
+        if (isDragging && selectedItem != null && isHolding)  // 원래의 상태 체크 사용
         {
             Vector2 currentPos = touchPosition.ReadValue<Vector2>();
 
@@ -286,9 +352,10 @@ public class InventoryController : MonoBehaviour
     }
     private void SaveGridState()
     {
-        activeItems.Clear();
         if (mainInventoryGrid == null) return;
 
+        activeItems.Clear();
+        // 그리드 순회하면서 아이템 저장
         for (int x = 0; x < mainInventoryGrid.Width; x++)
         {
             for (int y = 0; y < mainInventoryGrid.Height; y++)
@@ -397,15 +464,14 @@ public class InventoryController : MonoBehaviour
         if (!inventoryUI.activeSelf) return;
 
         Vector2 touchPos = touchPosition.ReadValue<Vector2>();
-        Vector2Int gridPosition = GetTileGridPosition(touchPos);
+        Vector2Int gridPosition = mainInventoryGrid.GetGridPosition(touchPos);
 
-        if (IsPositionWithinGrid(gridPosition))
+        if (!mainInventoryGrid.IsValidPosition(gridPosition)) return;
+
+        InventoryItem touchedItem = mainInventoryGrid.GetItem(gridPosition.x, gridPosition.y);
+        if (touchedItem != null)
         {
-            InventoryItem touchedItem = mainInventoryGrid.GetItem(gridPosition.x, gridPosition.y);
-            if (touchedItem != null)
-            {
-                StartHoldCheck(touchedItem, touchPos);
-            }
+            StartHoldCheck(touchedItem, touchPos);
         }
     }
 
@@ -417,28 +483,32 @@ public class InventoryController : MonoBehaviour
     private IEnumerator CheckForHold(InventoryItem item, Vector2 position)
     {
         float holdTime = 0f;
-        bool holdComplete = false;
+        Vector2 currentPos;
+        float moveDistance;
 
-        while (!holdComplete && touchPress.IsPressed())
+        while (touchPress.IsPressed())
         {
             holdTime += Time.deltaTime;
-            Vector2 currentPos = touchPosition.ReadValue<Vector2>();
-            float moveDistance = Vector2.Distance(position, currentPos);
+            currentPos = touchPosition.ReadValue<Vector2>();
+            moveDistance = Vector2.Distance(position, currentPos);
 
             if (moveDistance > HOLD_MOVE_THRESHOLD || holdTime >= HOLD_THRESHOLD)
             {
-                selectedItem = item;
-                selectedItemRectTransform = item.GetComponent<RectTransform>();
-                isDragging = true;
-                isHolding = true;
-
-                itemInteractionManager.StartDragging(item, currentPos);
-                holdComplete = true;
-                PlayLiftSound();
+                StartDragging(item, currentPos);
+                break;
             }
 
             yield return null;
         }
+    }
+    private void StartDragging(InventoryItem item, Vector2 position)
+    {
+        selectedItem = item;
+        selectedItemRectTransform = item.GetComponent<RectTransform>();
+        isDragging = true;
+        isHolding = true;
+        itemInteractionManager.StartDragging(item, position);
+        SoundManager.Instance?.PlaySound("ItemLift_sfx", 1f, false);
     }
     private void OnTouchEnded(InputAction.CallbackContext context)
     {
@@ -531,7 +601,6 @@ public class InventoryController : MonoBehaviour
         if (mainInventoryGrid != null)
         {
             mainInventoryGrid.ValidateGridState();
-            LogGridState(); // 디버그용 로그
         }
     }
 
@@ -695,7 +764,6 @@ public class InventoryController : MonoBehaviour
         if (mainInventoryGrid != null && inventoryUI.activeSelf)
         {
             mainInventoryGrid.ValidateGridState();
-            LogGridState();
         }
     }
 
@@ -935,24 +1003,4 @@ public class InventoryController : MonoBehaviour
         touchActions?.Dispose();
     }
     #endregion
-
-    #region Debug
-    private void LogGridState()
-    {
-        if (mainInventoryGrid == null) return;
-
-        string gridState = "Current Grid State:\n";
-        for (int y = 0; y < mainInventoryGrid.Height; y++)
-        {
-            for (int x = 0; x < mainInventoryGrid.Width; x++)
-            {
-                var item = mainInventoryGrid.GetItem(x, y);
-                gridState += item != null ? "X " : "- ";
-            }
-            gridState += "\n";
-        }
-        Debug.Log(gridState);
-    }
-    #endregion
-
 }

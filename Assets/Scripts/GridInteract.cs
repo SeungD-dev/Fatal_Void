@@ -10,18 +10,17 @@ public class GridInteract : MonoBehaviour, IPointerEnterHandler
 
     private void Awake()
     {
-        inventoryController = FindFirstObjectByType(typeof(InventoryController)) as InventoryController;
         itemGrid = GetComponent<ItemGrid>();
-        weaponInfoUI = FindFirstObjectByType<WeaponInfoUI>();
+        inventoryController = FindAnyObjectByType<InventoryController>();
+        weaponInfoUI = FindAnyObjectByType<WeaponInfoUI>();
 
         if (itemGrid != null)
         {
             itemGrid.OnGridChanged += OnGridStateChanged;
-        }
-
-        if (inventoryController != null && itemGrid != null)
-        {
-            inventoryController.SelectedItemGrid = itemGrid;
+            if (inventoryController != null)
+            {
+                inventoryController.SelectedItemGrid = itemGrid;
+            }
         }
     }
 
@@ -33,16 +32,13 @@ public class GridInteract : MonoBehaviour, IPointerEnterHandler
         }
     }
 
-    private void OnGridStateChanged()
+    private void OnGridStateChanged() => weaponInfoUI?.RefreshUpgradeUI();
+    public void OnPointerEnter(PointerEventData eventData)
     {
-        if (weaponInfoUI != null)
+        if (inventoryController != null && itemGrid != null)
         {
-            weaponInfoUI.RefreshUpgradeUI();
+            inventoryController.SelectedItemGrid = itemGrid;
         }
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        inventoryController.SelectedItemGrid = itemGrid;
-    }
 }

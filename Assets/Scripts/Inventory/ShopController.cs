@@ -197,28 +197,23 @@ public class ShopController : MonoBehaviour
         // weaponData 체크
         if (weaponData == null)
         {
-            Debug.LogError("WeaponData is null!");
-            return false;
+         return false;
         }
 
         // mainInventoryGrid 체크
         if (mainInventoryGrid == null)
-        {
-            Debug.LogError("MainInventoryGrid is not assigned!");
+        {            
             return false;
         }
 
         // weaponPrefab 체크
         if (weaponPrefab == null)
         {
-            Debug.LogError("WeaponPrefab is not assigned!");
             return false;
         }
 
         try
-        {
-            Debug.Log($"Creating temp item for weapon: {weaponData.weaponName}");
-
+        { 
             // 임시 InventoryItem 생성
             GameObject tempObj = Instantiate(weaponPrefab);
             if (tempObj == null)
@@ -230,20 +225,12 @@ public class ShopController : MonoBehaviour
             InventoryItem tempItem = tempObj.GetComponent<InventoryItem>();
             if (tempItem == null)
             {
-                Debug.LogError("WeaponPrefab does not have InventoryItem component!");
                 Destroy(tempObj);
                 return false;
             }
-
-            Debug.Log("Initializing temp item...");
             tempItem.Initialize(weaponData);
-
-            Debug.Log("Checking for free space...");
             // 공간 체크
             Vector2Int? freePosition = mainInventoryGrid.FindSpaceForObject(tempItem);
-
-            Debug.Log($"Free position found: {freePosition.HasValue}");
-
             // 임시 오브젝트 제거
             Destroy(tempObj);
 

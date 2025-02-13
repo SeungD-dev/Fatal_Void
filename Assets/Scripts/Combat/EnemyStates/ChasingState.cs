@@ -2,35 +2,38 @@ using UnityEngine;
 
 public class ChasingState : IState
 {
-    // ������Ʈ ĳ��
+    private readonly EnemyAI enemyAI;
     private readonly Transform enemyTransform;
     private readonly Transform playerTransform;
     private readonly Rigidbody2D rb;
     private readonly Enemy enemyStats;
     private readonly SpriteRenderer spriteRenderer;
 
-    // ������ ����
+    
     private readonly Vector2 directionVector = Vector2.zero;
     private readonly Vector2 velocityVector = Vector2.zero;
 
-    // ����ȭ�� ���� ĳ�� ����
+    
     private float currentMoveSpeed;
     private bool wasFlipped;
     private GameManager gameManager;
 
+
     public ChasingState(EnemyAI enemyAI)
     {
+        this.enemyAI = enemyAI ?? throw new System.ArgumentNullException(nameof(enemyAI));
         enemyTransform = enemyAI.transform;
         enemyStats = enemyAI.GetComponent<Enemy>();
         rb = enemyAI.GetComponent<Rigidbody2D>();
         spriteRenderer = enemyAI.spriteRenderer;
-        playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
         gameManager = GameManager.Instance;
     }
 
+    private Transform PlayerTransform => enemyAI.PlayerTransform;
+
     public void OnEnter()
     {
-        // ���� ���� �� �ӵ� �ʱ�ȭ
+        
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
@@ -41,10 +44,8 @@ public class ChasingState : IState
 
     public void OnExit()
     {
-        // ���� ���� �� �ٿ ȿ�� ����
         enemyStats.ResetBounceEffect();
-
-        // ���� �ӵ� �ʱ�ȭ
+        
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
@@ -53,31 +54,33 @@ public class ChasingState : IState
 
     public void Update()
     {
-        if (ShouldSkipUpdate()) return;
+        if (enemyAI == null || !IsValidState()) return;
 
         CalculateDirection();
         UpdateMovement();
         UpdateVisuals();
     }
-
-    private bool ShouldSkipUpdate()
+    private bool IsValidState()
     {
-        return enemyStats.IsKnockBack ||
-               playerTransform == null ||
-               gameManager.currentGameState != GameState.Playing;
+        return !enemyStats.IsKnockBack &&
+               enemyAI.PlayerTransform != null &&
+               gameManager.currentGameState == GameState.Playing;
     }
+
 
     private void CalculateDirection()
     {
-        float dx = playerTransform.position.x - enemyTransform.position.x;
-        float dy = playerTransform.position.y - enemyTransform.position.y;
+        var playerPos = enemyAI.PlayerTransform.position;
+        var enemyPos = enemyTransform.position;
+
+        float dx = playerPos.x - enemyPos.x;
+        float dy = playerPos.y - enemyPos.y;
 
         directionVector.Set(dx, dy);
         float magnitude = directionVector.magnitude;
 
         if (magnitude > 0)
         {
-            // ����ȭ ����ȭ
             float invMagnitude = 1f / magnitude;
             directionVector.Set(
                 directionVector.x * invMagnitude,
@@ -85,12 +88,11 @@ public class ChasingState : IState
             );
         }
     }
-
     private void UpdateMovement()
     {
         if (rb != null)
         {
-            // �ӵ� ���� ����
+            
             velocityVector.Set(
                 directionVector.x * currentMoveSpeed,
                 directionVector.y * currentMoveSpeed
@@ -99,7 +101,7 @@ public class ChasingState : IState
         }
         else
         {
-            // Transform ���� �̵�
+            
             Vector3 currentPos = enemyTransform.position;
             currentPos.x += directionVector.x * currentMoveSpeed * Time.deltaTime;
             currentPos.y += directionVector.y * currentMoveSpeed * Time.deltaTime;
@@ -109,20 +111,18 @@ public class ChasingState : IState
 
     private void UpdateVisuals()
     {
-        // ��������Ʈ �ø� ����ȭ
+        
         bool shouldFlip = directionVector.x < 0;
         if (wasFlipped != shouldFlip)
         {
             spriteRenderer.flipX = shouldFlip;
             wasFlipped = shouldFlip;
         }
-
-        // �ٿ ȿ�� ������Ʈ
         enemyStats.UpdateBounceEffect();
     }
 
     public void FixedUpdate()
     {
-        // FixedUpdate�� ������� ���� - ��� ���� ������Ʈ�� Update���� ó��
+        
     }
 }

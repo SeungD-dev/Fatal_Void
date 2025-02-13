@@ -11,6 +11,9 @@ public class ItemInteractionManager
     private readonly Transform spawnPoint;
     private readonly InventoryHighlight inventoryHighlight;
 
+    private readonly Vector2 itemLiftOffset;
+    private readonly Vector2Int invalidPosition = new(-1,-1);
+
     private InventoryItem selectedItem;
     private RectTransform selectedItemRect;
     private bool isDragging;
@@ -34,6 +37,7 @@ public class ItemInteractionManager
         weaponInfoUI = infoUI;
         spawnPoint = spawn;
         inventoryHighlight = highlight;
+        itemLiftOffset = Vector2.up * ITEM_LIFT_OFFSET;
     }
     #endregion
 
@@ -51,26 +55,28 @@ public class ItemInteractionManager
         selectedItemRect = item.GetComponent<RectTransform>();
         isDragging = true;
 
-        Vector2Int currentPosition = item.GridPosition;
         if (item.OnGrid)
         {
-            targetGrid.RemoveItem(currentPosition);
+            targetGrid.RemoveItem(item.GridPosition);
         }
 
         UpdateWeaponInfo(item);
-        UpdateHighlight(item);  // 하이라이트 업데이트
+        UpdateHighlight(item);
 
-        Vector2 liftedPosition = touchPosition + Vector2.up * ITEM_LIFT_OFFSET;
-        selectedItemRect.position = liftedPosition;
+        // 캐시된 offset 사용
+        selectedItemRect.position = touchPosition + itemLiftOffset;
     }
-    public void EndDragging(Vector2 finalPosition)
+     public void EndDragging(Vector2 finalPosition)
     {
         if (!isDragging || selectedItem == null) return;
 
         Vector2Int gridPosition = targetGrid.GetGridPosition(finalPosition);
-        if (targetGrid.IsValidPosition(gridPosition))
+        
+        // 유효한 위치인 경우에만 배치 시도
+        if (targetGrid.IsValidPosition(gridPosition) && TryPlaceItem(selectedItem, gridPosition))
         {
-            TryPlaceItem(selectedItem, gridPosition);
+            // 아이템이 성공적으로 배치됨
+            inventoryHighlight?.Show(false);
         }
         else
         {
@@ -79,6 +85,7 @@ public class ItemInteractionManager
 
         ClearSelection();
     }
+
 
     public InventoryItem GetSelectedItem() => selectedItem;
 
@@ -92,12 +99,12 @@ public class ItemInteractionManager
     #endregion
 
     #region Private Methods
-    private void TryPlaceItem(InventoryItem item, Vector2Int position)
+    private bool TryPlaceItem(InventoryItem item, Vector2Int position)
     {
-        InventoryItem overlapItem = null;
-        bool placed = targetGrid.PlaceItem(item, position, ref overlapItem);
+        if (item == null) return false;
 
-        if (placed)
+        InventoryItem overlapItem = null;
+        if (targetGrid.PlaceItem(item, position, ref overlapItem))
         {
             Vector2 itemPosition = targetGrid.CalculatePositionOnGrid(
                 item,
@@ -105,15 +112,11 @@ public class ItemInteractionManager
                 position.y
             );
             item.GetComponent<RectTransform>().localPosition = itemPosition;
-        }
-        else
-        {
-            ReturnToOriginalPosition(item);
+            return true;
         }
 
-        UpdateHighlight(item);
+        return false;
     }
-
     private void ReturnToOriginalPosition(InventoryItem item)
     {
         if (item == null) return;
@@ -122,16 +125,14 @@ public class ItemInteractionManager
         {
             Vector2Int originalPosition = item.GridPosition;
             InventoryItem overlapItem = null;
-            targetGrid.PlaceItem(item, originalPosition, ref overlapItem);
 
-            Vector2 position = targetGrid.CalculatePositionOnGrid(
-                item,
-                originalPosition.x,
-                originalPosition.y
-            );
-            item.GetComponent<RectTransform>().localPosition = position;
+            if (targetGrid.PlaceItem(item, originalPosition, ref overlapItem))
+            {
+                item.GetComponent<RectTransform>().localPosition =
+                    targetGrid.CalculatePositionOnGrid(item, originalPosition.x, originalPosition.y);
+            }
         }
-        else
+        else if (spawnPoint != null)
         {
             item.GetComponent<RectTransform>().position = spawnPoint.position;
         }
@@ -148,12 +149,9 @@ public class ItemInteractionManager
     }
     public void UpdateDraggedItemPosition(Vector2 currentPosition)
     {
-        if (selectedItem != null)
-        {
-            // 선택된 아이템의 위치를 실시간으로 업데이트
-            Vector2 liftedPosition = currentPosition + Vector2.up * ITEM_LIFT_OFFSET;
-            selectedItemRect.position = liftedPosition;
-        }
+        if (selectedItem == null || selectedItemRect == null) return;
+
+        selectedItemRect.position = currentPosition + itemLiftOffset;
     }
 
     private void UpdateHighlight(InventoryItem item)
@@ -166,10 +164,7 @@ public class ItemInteractionManager
     }
     private void UpdateHighlight(bool show)
     {
-        if (inventoryHighlight != null)
-        {
-            inventoryHighlight.Show(show);
-        }
+        inventoryHighlight?.Show(show);
     }
     #endregion
 }

@@ -78,6 +78,11 @@ public class Enemy : MonoBehaviour, IPooledObject
     public void Initialize(Transform target)
     {
         targetTransform = target;
+        var enemyAI = GetComponent<EnemyAI>();
+        if (enemyAI != null)
+        {
+            enemyAI.SetPlayerTransform(target);
+        }
     }
 
     public void UpdateBounceEffect()

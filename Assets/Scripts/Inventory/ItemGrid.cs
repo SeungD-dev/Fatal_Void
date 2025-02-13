@@ -1,5 +1,7 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
+using UnityEngine.UI;
 
 /// <summary>
 /// 그리드 기반 인벤토리 시스템을 관리하는 클래스
@@ -9,7 +11,9 @@ public class ItemGrid : MonoBehaviour
 {
     #region Constants
     public const float TILE_SIZE = 32f;
+    private static readonly Vector3[] _cornerCache = new Vector3[4];
     #endregion
+
 
     #region Serialized Fields
     [Header("Grid Settings")]
@@ -31,65 +35,97 @@ public class ItemGrid : MonoBehaviour
 
     #region Private Fields
     private InventoryItem[,] gridItems;
-    private RectTransform rectTransform;
+    private RectTransform _rectTransform;
     private bool isInitialized = false;
+    private Vector2 _cachedGridTopLeft;
+    private Vector2 _cachedScale;
+    private readonly Dictionary<Vector2Int, Vector2> _positionCache = new Dictionary<Vector2Int, Vector2>();
     #endregion
+
 
     #region Unity Methods
     private void Awake()
     {
         InitializeComponents();
         InitializeGrid();
+        OptimizeRaycastTargets();
     }
 
     private void OnEnable()
     {
-        if (!isInitialized)
-        {
-            InitializeGrid();
-        }
-        ValidateGridState();
+        if (!isInitialized) InitializeGrid();
+        UpdateCachedValues();
     }
     #endregion
 
     #region Initialization
     private void InitializeComponents()
     {
-        rectTransform = GetComponent<RectTransform>();
-        if (rectTransform == null)
-        {
-            Debug.LogError("RectTransform component missing!");
-            return;
-        }
+        _rectTransform = GetComponent<RectTransform>();
+        UpdateCachedValues();
     }
+
 
     private void InitializeGrid()
     {
-        try
+        if (gridItems == null || gridItems.GetLength(0) != gridWidth || gridItems.GetLength(1) != gridHeight)
         {
-            // gridItems가 null이거나 크기가 다르면 새로 초기화
-            if (gridItems == null || gridItems.GetLength(0) != gridWidth || gridItems.GetLength(1) != gridHeight)
-            {
-                gridItems = new InventoryItem[gridWidth, gridHeight];
-            }
-            UpdateGridSize();
-            isInitialized = true;
+            gridItems = new InventoryItem[gridWidth, gridHeight];
         }
-        catch (System.Exception e)
+        UpdateGridSize();
+        isInitialized = true;
+    }
+
+    private void OptimizeRaycastTargets()
+    {
+        // 모든 UI 그래픽 요소를 가져옴
+        var graphics = GetComponentsInChildren<Graphic>();
+        foreach (var graphic in graphics)
         {
-            Debug.LogError($"Error initializing grid: {e.Message}");
-            isInitialized = false;
+            // 기본적으로 모든 raycastTarget을 false로 설정
+            graphic.raycastTarget = false;
+        }
+
+        // 드래그 가능한 아이템들의 Image 컴포넌트만 raycastTarget true로 설정
+        var inventoryItems = GetComponentsInChildren<InventoryItem>();
+        foreach (var item in inventoryItems)
+        {
+            var itemImage = item.GetComponent<Image>();
+            if (itemImage != null)
+            {
+                itemImage.raycastTarget = true;
+            }
+        }
+
+        // 추가로 상호작용이 필요한 특정 버튼들
+        var buttons = GetComponentsInChildren<Button>();
+        foreach (var button in buttons)
+        {
+            var buttonImage = button.GetComponent<Image>();
+            if (buttonImage != null)
+            {
+                buttonImage.raycastTarget = true;
+            }
         }
     }
     private void UpdateGridSize()
     {
-        if (rectTransform != null)
+        if (_rectTransform != null)
         {
-            rectTransform.sizeDelta = new Vector2(
+            _rectTransform.sizeDelta = new Vector2(
                 gridWidth * TILE_SIZE,
                 gridHeight * TILE_SIZE
             );
         }
+    }
+    private void UpdateCachedValues()
+    {
+        if (_rectTransform == null) return;
+
+        _rectTransform.GetWorldCorners(_cornerCache);
+        _cachedGridTopLeft = _cornerCache[1];
+        _cachedScale = _rectTransform.lossyScale;
+        _positionCache.Clear();
     }
     #endregion
 
@@ -99,12 +135,8 @@ public class ItemGrid : MonoBehaviour
     /// </summary>
     public Vector2Int GetGridPosition(Vector2 screenPosition)
     {
-        Vector3[] corners = new Vector3[4];
-        rectTransform.GetWorldCorners(corners);
-        Vector2 gridTopLeft = corners[1];
-
-        Vector2 positionInGrid = screenPosition - gridTopLeft;
-        positionInGrid /= rectTransform.lossyScale.x;
+        Vector2 positionInGrid = screenPosition - _cachedGridTopLeft;
+        positionInGrid /= _cachedScale.x;
 
         return new Vector2Int(
             Mathf.FloorToInt(positionInGrid.x / TILE_SIZE),
@@ -119,24 +151,22 @@ public class ItemGrid : MonoBehaviour
     {
         if (!CanPlaceItem(item, position)) return false;
 
-        // 기존 아이템 제거
         CleanupItemReferences(item);
-
-        // 새 위치에 아이템 배치
         for (int x = 0; x < item.Width; x++)
         {
             for (int y = 0; y < item.Height; y++)
             {
-                Vector2Int gridPos = position + new Vector2Int(x, y);
-                gridItems[gridPos.x, gridPos.y] = item;
+                gridItems[position.x + x, position.y + y] = item;
             }
         }
 
         item.SetGridPosition(position);
-        UpdateItemVisualPosition(item, position);
-
-        OnItemAdded?.Invoke(item);
-        OnGridChanged?.Invoke();
+        RectTransform itemRect = item.GetComponent<RectTransform>();
+        if (itemRect != null)
+        {
+            Vector2 itemPosition = CalculatePositionOnGrid(item, position.x, position.y);
+            itemRect.localPosition = itemPosition;
+        }
 
         return true;
     }
@@ -198,55 +228,22 @@ public class ItemGrid : MonoBehaviour
     /// </summary>
     public bool CanPlaceItem(InventoryItem item, Vector2Int position)
     {
-        if (!isInitialized)
-        {
-            Debug.LogError("Grid is not initialized!");
-            return false;
-        }
+        if (!isInitialized || item == null || !IsValidPosition(position)) return false;
 
-        if (item == null)
-        {
-            Debug.LogError("Attempted to check placement for null item!");
-            return false;
-        }
+        int endX = position.x + item.Width;
+        int endY = position.y + item.Height;
 
-        try
+        if (endX > gridWidth || endY > gridHeight) return false;
+
+        for (int x = position.x; x < endX; x++)
         {
-            // 그리드 범위 체크
-            if (position.x < 0 || position.y < 0 ||
-                position.x + item.Width > gridWidth ||
-                position.y + item.Height > gridHeight)
+            for (int y = position.y; y < endY; y++)
             {
-                return false;
+                if (gridItems[x, y] != null) return false;
             }
-
-            // gridItems null 체크
-            if (gridItems == null)
-            {
-                Debug.LogError("gridItems array is null!");
-                return false;
-            }
-
-            // 겹침 체크
-            for (int x = 0; x < item.Width; x++)
-            {
-                for (int y = 0; y < item.Height; y++)
-                {
-                    Vector2Int checkPos = position + new Vector2Int(x, y);
-                    if (gridItems[checkPos.x, checkPos.y] != null)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
         }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Error in CanPlaceItem: {e.Message}\nStackTrace: {e.StackTrace}");
-            return false;
-        }
+
+        return true;
     }
     public bool CanPlaceItem(InventoryItem item, int x, int y)
     {
@@ -300,9 +297,8 @@ public class ItemGrid : MonoBehaviour
     }
     public InventoryItem GetItem(Vector2Int position)
     {
-        return GetItem(position.x, position.y);
+        return IsValidPosition(position) ? gridItems[position.x, position.y] : null;
     }
-
     public InventoryItem GetItem(int x, int y)
     {
         if (!IsValidPosition(new Vector2Int(x, y)))
@@ -328,11 +324,18 @@ public class ItemGrid : MonoBehaviour
     {
         if (item == null) return Vector2.zero;
 
-        return new Vector2(
-            posX * TILE_SIZE + (item.Width * TILE_SIZE / 2),
-            -(posY * TILE_SIZE + (item.Height * TILE_SIZE / 2))
-        );
+        Vector2Int key = new Vector2Int(posX, posY);
+        if (!_positionCache.TryGetValue(key, out Vector2 position))
+        {
+            position = new Vector2(
+                posX * TILE_SIZE + (item.Width * TILE_SIZE / 2),
+                -(posY * TILE_SIZE + (item.Height * TILE_SIZE / 2))
+            );
+            _positionCache[key] = position;
+        }
+        return position;
     }
+
 
     /// <summary>
     /// 그리드 상태 검증
@@ -394,17 +397,7 @@ public class ItemGrid : MonoBehaviour
         }
     }
 
-    private void UpdateItemVisualPosition(InventoryItem item, Vector2Int position)
-    {
-        if (item == null) return;
-
-        RectTransform itemRect = item.GetComponent<RectTransform>();
-        if (itemRect != null)
-        {
-            Vector2 gridPosition = CalculatePositionOnGrid(item, position.x, position.y);
-            itemRect.localPosition = gridPosition;
-        }
-    }
+  
     #endregion
 
 

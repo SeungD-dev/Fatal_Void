@@ -6,7 +6,17 @@ public abstract class EnemyAI : MonoBehaviour
     protected Enemy enemyStats;
     protected Transform playerTransform;
     [HideInInspector] public SpriteRenderer spriteRenderer;
-
+    public Transform PlayerTransform
+    {
+        get
+        {
+            if (playerTransform == null)
+            {
+                playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
+            }
+            return playerTransform;
+        }
+    }
 
     protected virtual void Awake()
     {
@@ -15,7 +25,10 @@ public abstract class EnemyAI : MonoBehaviour
         stateMachine = new StateMachine();
         InitializeStates();
     }
-
+    public void SetPlayerTransform(Transform target)
+    {
+        playerTransform = target;
+    }
     protected virtual void Start()
     {
         playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
