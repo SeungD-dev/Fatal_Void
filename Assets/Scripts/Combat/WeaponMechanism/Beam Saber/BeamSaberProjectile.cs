@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BeamSaberProjectile : BaseProjectile
 {
-    private enum AttackState
+    private enum AttackState : byte
     {
         Ready,
         Attacking,
@@ -14,39 +14,33 @@ public class BeamSaberProjectile : BaseProjectile
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private Transform playerTransform;
-    private AttackState currentState = AttackState.Ready;
-    private bool isAttackActive = false;
-    private bool hasInitialized = false;
-    private static readonly int BaseLayerIndex = 0;
-    private static int instanceCounter = 0;
-    private int instanceId;
+    private AttackState currentState;
+    private bool isAttackActive;
+    private bool hasInitialized;
+    private static readonly int BASE_LAYER_INDEX = 0;
     private Vector3 originalScale;
-    private float baseScaleFactor = 1f;  // 기본 크기 비율 저장
+    private float baseScaleFactor = 1f;
+
+    // 캐싱용 변수들
+    private Vector2 currentPosition;
+    private Transform cachedTransform;
 
     protected override void Awake()
     {
         base.Awake();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        instanceId = ++instanceCounter;
-        originalScale = transform.localScale;
+        cachedTransform = transform;
+        originalScale = cachedTransform.localScale;
     }
 
-    public override void Initialize(
-        float damage,
-        Vector2 direction,
-        float speed,
-        float knockbackPower = 0f,
-        float range = 10f,
-        float projectileSize = 1f,
-        bool canPenetrate = false,
-        int maxPenetrations = 0,
-        float damageDecay = 0.1f)
+    public override void Initialize(float damage, Vector2 direction, float speed,
+         float knockbackPower = 0f, float range = 10f, float projectileSize = 1f,
+         bool canPenetrate = false, int maxPenetrations = 0, float damageDecay = 0.1f)
     {
         base.Initialize(damage, direction, speed, knockbackPower, range, projectileSize,
             canPenetrate, maxPenetrations, damageDecay);
-
-        baseScaleFactor = projectileSize;  // WeaponData에서 설정한 크기 저장
+        baseScaleFactor = projectileSize;
         ResetState();
     }
     public void SetupCircularAttack(float radius, LayerMask enemyMask, Transform player)
@@ -55,22 +49,14 @@ public class BeamSaberProjectile : BaseProjectile
         enemyLayer = enemyMask;
         playerTransform = player;
 
-        // 스프라이트의 원래 크기를 기준으로 계산
         if (spriteRenderer != null && spriteRenderer.sprite != null)
         {
-            // 먼저 scale을 1로 리셋해서 정확한 sprite bounds를 얻음
-            transform.localScale = Vector3.one;
-            float spriteRadius = spriteRenderer.sprite.bounds.extents.x;
-
-            if (spriteRadius > 0)
-            {
-                // baseScaleFactor만 적용
-                transform.localScale = Vector3.one * baseScaleFactor;
-            }
+            cachedTransform.localScale = Vector3.one * baseScaleFactor;
         }
 
         hasInitialized = true;
     }
+
     private void ResetToDefaultScale()
     {
         transform.localScale = Vector3.one * baseScaleFactor;
@@ -85,6 +71,7 @@ public class BeamSaberProjectile : BaseProjectile
     }
 
 
+
     private void ResetState()
     {
         hasInitialized = false;
@@ -95,7 +82,7 @@ public class BeamSaberProjectile : BaseProjectile
         {
             animator.enabled = true;
             animator.Rebind();
-            animator.Play("Beamsaber_Atk", BaseLayerIndex, 0f);
+            animator.Play("Beamsaber_Atk", BASE_LAYER_INDEX, 0f);
         }
     }
 
@@ -109,12 +96,10 @@ public class BeamSaberProjectile : BaseProjectile
     {
         if (!hasInitialized || !gameObject.activeSelf) return;
 
-        // 플레이어 위치 추적
         if (playerTransform != null && playerTransform.gameObject.activeInHierarchy)
         {
-            transform.position = playerTransform.position;
+            cachedTransform.position = playerTransform.position;
 
-            // 공격 상태일 때만 충돌 체크
             if (currentState == AttackState.Attacking && isAttackActive)
             {
                 PerformCircularAttack();
@@ -130,26 +115,21 @@ public class BeamSaberProjectile : BaseProjectile
     {
         if (!isAttackActive || !gameObject.activeSelf) return;
 
-        try
-        {
-            Collider2D[] enemies = Physics2D.OverlapCircleAll(
-                transform.position,
-                attackRadius,
-                enemyLayer
-            );
+        currentPosition.x = cachedTransform.position.x;
+        currentPosition.y = cachedTransform.position.y;
 
-            foreach (Collider2D enemyCollider in enemies)
-            {
-                Enemy enemy = enemyCollider.GetComponent<Enemy>();
-                if (enemy != null && enemy.gameObject.activeSelf)
-                {
-                    ApplyDamageAndEffects(enemy);
-                }
-            }
-        }
-        catch (System.Exception e)
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(
+            currentPosition,
+            attackRadius,
+            enemyLayer
+        );
+
+        for (int i = 0; i < hitColliders.Length; i++)
         {
-            Debug.LogError($"Error in PerformCircularAttack: {e.Message}");
+            if (hitColliders[i].TryGetComponent(out Enemy enemy) && enemy.gameObject.activeSelf)
+            {
+                ApplyDamageAndEffects(enemy);
+            }
         }
     }
 
@@ -159,11 +139,22 @@ public class BeamSaberProjectile : BaseProjectile
 
         if (knockbackPower > 0)
         {
-            Vector2 knockbackDirection = ((Vector2)(enemy.transform.position - transform.position)).normalized;
-            enemy.ApplyKnockback(knockbackDirection * knockbackPower);
+            currentPosition.x = cachedTransform.position.x;
+            currentPosition.y = cachedTransform.position.y;
+            Vector2 enemyPos = enemy.transform.position;
+            
+            float dx = enemyPos.x - currentPosition.x;
+            float dy = enemyPos.y - currentPosition.y;
+            float magnitude = Mathf.Sqrt(dx * dx + dy * dy);
+            
+            if (magnitude > 0)
+            {
+                dx /= magnitude;
+                dy /= magnitude;
+                enemy.ApplyKnockback(new Vector2(dx, dy) * knockbackPower);
+            }
         }
     }
-
     public void OnAttackStart()
     {
         if (!hasInitialized || !gameObject.activeSelf) return;

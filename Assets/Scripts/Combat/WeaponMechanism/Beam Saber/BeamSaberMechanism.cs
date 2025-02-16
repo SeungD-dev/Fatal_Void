@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class BeamSaberMechanism : WeaponMechanism
 {
-    private bool isSecondAttackReady = false;
-    private float secondAttackDelay = 0.25f;
+    private bool isSecondAttackReady;
+    private const float SECOND_ATTACK_DELAY = 0.25f;
     private LayerMask enemyLayer;
     private MonoBehaviour ownerComponent;
     private float attackCooldown = 0f;
@@ -12,22 +12,31 @@ public class BeamSaberMechanism : WeaponMechanism
     private int comboCount = 0;
     private const int MAX_COMBO = 2;
 
+    private GameObject ownerGameObject;
+    private IEnumerator currentComboCoroutine;
+
     public override void Initialize(WeaponData data, Transform player)
     {
         base.Initialize(data, player);
         enemyLayer = LayerMask.GetMask("Enemy");
         ownerComponent = player.GetComponent<MonoBehaviour>();
 
-        if (ownerComponent == null)
+        if (ownerComponent != null)
+        {
+            ownerGameObject = ownerComponent.gameObject;
+            StopComboIfActive();
+        }
+        else
         {
             Debug.LogError("Failed to get MonoBehaviour component from player!");
-            return;
         }
-
-        // 기존 코루틴 정리
-        if (isComboAttack)
+    }
+    private void StopComboIfActive()
+    {
+        if (isComboAttack && currentComboCoroutine != null)
         {
-            ownerComponent.StopCoroutine(ComboAttackSequence());
+            ownerComponent.StopCoroutine(currentComboCoroutine);
+            currentComboCoroutine = null;
             isComboAttack = false;
             comboCount = 0;
         }
@@ -35,6 +44,8 @@ public class BeamSaberMechanism : WeaponMechanism
 
     public override void UpdateMechanism()
     {
+        if (!ownerGameObject.activeInHierarchy) return;
+
         if (attackCooldown > 0)
         {
             attackCooldown -= Time.deltaTime;
@@ -46,100 +57,85 @@ public class BeamSaberMechanism : WeaponMechanism
             Attack(null);
             lastAttackTime = Time.time;
 
-            // 3티어 이상일 때 콤보 공격 활성화
-            if (weaponData.currentTier >= 3)
+            if (weaponData.currentTier >= 3 && !isComboAttack)
             {
-                if (!isComboAttack)
-                {
-                    isComboAttack = true;
-                    comboCount = 1;
-                    ownerComponent.StartCoroutine(ComboAttackSequence());
-                }
+                isComboAttack = true;
+                comboCount = 1;
+                currentComboCoroutine = ComboAttackSequence();
+                ownerComponent.StartCoroutine(currentComboCoroutine);
             }
-            else
+            else if (weaponData.currentTier < 3)
             {
-                attackCooldown = currentAttackDelay * 0.8f; // 기본 쿨다운
+                attackCooldown = currentAttackDelay * 0.8f;
             }
         }
     }
 
     private IEnumerator ComboAttackSequence()
     {
+        WaitForSeconds waitDelay = new WaitForSeconds(SECOND_ATTACK_DELAY);
+
         while (comboCount < MAX_COMBO)
         {
-            yield return new WaitForSeconds(secondAttackDelay);
-            if (ownerComponent == null || !ownerComponent.gameObject.activeInHierarchy) yield break; // 안전 체크
+            yield return waitDelay;
+            if (!ownerGameObject.activeInHierarchy) break;
 
             SpawnCircularAttack();
             comboCount++;
         }
 
-        // 콤보 종료 후 쿨다운 적용
         attackCooldown = currentAttackDelay * 0.8f;
         isComboAttack = false;
         comboCount = 0;
+        currentComboCoroutine = null;
     }
 
     protected override void Attack(Transform target)
     {
-        if (ownerComponent != null && ownerComponent.gameObject.activeInHierarchy)
+        if (ownerGameObject.activeInHierarchy)
         {
             SoundManager.Instance.PlaySound("Slash_sfx", 1f, false);
             SpawnCircularAttack();
         }
         else
         {
-            Debug.LogWarning("Cannot perform attack: owner component is null or inactive");
-            // 공격 실패시 콤보 상태 리셋
             isComboAttack = false;
             comboCount = 0;
         }
     }
 
+
     private void SpawnCircularAttack()
     {
-        if (ObjectPool.Instance == null || ownerComponent == null) return;
+        if (ObjectPool.Instance == null || !ownerGameObject.activeInHierarchy) return;
 
-        try
+        GameObject projectileObj = ObjectPool.Instance.SpawnFromPool(poolTag, playerTransform.position, Quaternion.identity);
+        if (projectileObj == null) return;
+
+        if (projectileObj.TryGetComponent(out BeamSaberProjectile projectile))
         {
-            if (!ownerComponent.gameObject.activeInHierarchy) return;
-
-            Vector3 spawnPosition = playerTransform.position;
-            GameObject projectileObj = ObjectPool.Instance.SpawnFromPool(poolTag, spawnPosition, Quaternion.identity);
-
-            if (projectileObj == null)
-            {
-                Debug.LogWarning("Failed to spawn BeamSaber projectile from pool");
-                return;
-            }
-
-            BeamSaberProjectile projectile = projectileObj.GetComponent<BeamSaberProjectile>();
-            if (projectile == null)
-            {
-                Debug.LogError("BeamSaber projectile is missing BeamSaberProjectile component");
-                return;
-            }
-
             projectile.SetPoolTag(poolTag);
 
-            // 스탯 계산
             float finalDamage = weaponData.CalculateFinalDamage(playerStats);
-            float finalKnockback = weaponData.CalculateFinalKnockback(playerStats);
-            float finalRange = weaponData.CalculateFinalRange(playerStats);
-            float finalSize = weaponData.CalculateFinalProjectileSize(playerStats);  // 무기 데이터의 크기 설정 사용
-
             if (isComboAttack && comboCount > 1)
             {
                 finalDamage *= 1.2f;
             }
 
-            // 프로젝타일 초기화 시 크기 정보도 함께 전달
-            projectile.Initialize(finalDamage, Vector2.zero, 0f, finalKnockback, finalRange, finalSize);
-            projectile.SetupCircularAttack(finalRange, enemyLayer, playerTransform);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Error spawning BeamSaber projectile: {e.Message}");
+            projectile.Initialize(
+                finalDamage,
+                Vector2.zero,
+                0f,
+                weaponData.CalculateFinalKnockback(playerStats),
+                weaponData.CalculateFinalRange(playerStats),
+                weaponData.CalculateFinalProjectileSize(playerStats)
+            );
+
+            projectile.SetupCircularAttack(
+                weaponData.CalculateFinalRange(playerStats),
+                enemyLayer,
+                playerTransform
+            );
         }
     }
     public override void OnPlayerStatsChanged()
