@@ -2,27 +2,20 @@ using UnityEngine;
 
 public class BulletProjectile : BaseProjectile
 {
+    private const string DESTROY_VFX_TAG = "Bullet_DestroyVFX";
+
     protected void SpawnDestroyVFX()
     {
-        GameObject vfx = ObjectPool.Instance.SpawnFromPool("Bullet_DestroyVFX", transform.position, transform.rotation);
-        if (vfx != null)
+        GameObject vfx = ObjectPool.Instance.SpawnFromPool(DESTROY_VFX_TAG, transform.position, transform.rotation);
+        if (vfx != null && vfx.TryGetComponent(out BulletDestroyVFX destroyVFX))
         {
-            BulletDestroyVFX destroyVFX = vfx.GetComponent<BulletDestroyVFX>();
-            if (destroyVFX != null)
+            destroyVFX.SetPoolTag(DESTROY_VFX_TAG);
+            Vector3 currentProjectileScale = transform.localScale;
+            if (baseProjectileSize > 0)
             {
-                destroyVFX.SetPoolTag("Bullet_DestroyVFX");
-
-                // 현재 투사체의 실제 크기를 전달
-                Vector3 currentProjectileScale = transform.localScale;
-
-                // projectileSize가 있다면 그것도 고려 (BaseProjectile에 있다면)
-                if (baseProjectileSize > 0)
-                {
-                    currentProjectileScale *= baseProjectileSize;
-                }
-
-                destroyVFX.SetEffectScale(currentProjectileScale);
+                currentProjectileScale *= baseProjectileSize;
             }
+            destroyVFX.SetEffectScale(currentProjectileScale);
         }
     }
 }

@@ -131,21 +131,50 @@ public class WeaponManager : MonoBehaviour
     }
     private void CleanupWeaponMechanism(WeaponMechanism mechanism)
     {
+        if (mechanism == null) return;
+
         switch (mechanism)
         {
             case ForceFieldMechanism forceField:
                 forceField.Cleanup();
                 break;
             case BeamSaberMechanism beamSaber:
-                // BeamSaber의 특별한 정리가 필요한 경우
+                //StopCoroutinesAndCleanup(beamSaber);
                 break;
             case GrinderMechanism grinder:
-                // Grinder의 특별한 정리가 필요한 경우
+                //grinder.Cleanup();
                 break;
-                // 다른 특별한 정리가 필요한 무기들 추가
+            case ShotgunMechanism shotgun:
+                ObjectPool.Instance?.ReturnAllObjectsToPool(shotgun.GetWeaponData().weaponType + "Projectile");
+                ObjectPool.Instance?.ReturnAllObjectsToPool("Bullet_DestroyVFX");
+                break;
+            default:
+                // 기본 클린업 로직
+                if (mechanism.GetWeaponData() != null)
+                {
+                    string poolTag = mechanism.GetWeaponData().weaponType + "Projectile";
+                    ObjectPool.Instance?.ReturnAllObjectsToPool(poolTag);
+                }
+                break;
         }
     }
 
+    private void StopCoroutinesAndCleanup(MonoBehaviour weaponBehaviour)
+    {
+        if (weaponBehaviour != null)
+        {
+            StopAllCoroutinesForWeapon(weaponBehaviour);
+            // 추가적인 클린업 로직
+        }
+    }
+
+    private void StopAllCoroutinesForWeapon(MonoBehaviour weaponBehaviour)
+    {
+        if (weaponBehaviour != null && weaponBehaviour.gameObject.activeInHierarchy)
+        {
+            weaponBehaviour.StopAllCoroutines();
+        }
+    }
     private bool IsWeaponInGrid(WeaponData weaponData)
     {
         if (mainItemGrid == null || weaponData == null) return false;
@@ -209,14 +238,47 @@ public class WeaponManager : MonoBehaviour
             {
                 RemoveEquipmentEffect(weaponData);
                 activeEquipments.Remove(weaponData);
-                UpdateAllWeaponsStats(); // Equipment 제거 시 모든 무기 스탯 업데이트
+                UpdateAllWeaponsStats();
             }
         }
         else if (activeWeapons.TryGetValue(weaponData, out WeaponMechanism mechanism))
         {
             CleanupWeaponMechanism(mechanism);
             activeWeapons.Remove(weaponData);
+
+            // 추가: 관련된 모든 VFX 정리
+            CleanupRelatedVFX(weaponData.weaponType);
         }
+    }
+    private void CleanupRelatedVFX(WeaponType weaponType)
+    {
+        switch (weaponType)
+        {
+            case WeaponType.Shotgun:
+            case WeaponType.Buster:
+            case WeaponType.Machinegun:
+                ObjectPool.Instance?.ReturnAllObjectsToPool("Bullet_DestroyVFX");
+                break;
+                // 다른 무기 타입에 대한 VFX 클린업 추가
+        }
+    }
+    private void CleanupAllVFXPools()
+    {
+        string[] vfxPools = new[]
+        {
+            "Bullet_DestroyVFX",
+            // 다른 VFX 풀 태그들 추가
+        };
+
+        foreach (string poolTag in vfxPools)
+        {
+            ObjectPool.Instance?.ReturnAllObjectsToPool(poolTag);
+        }
+    }
+
+    private void OnDisable()
+    {
+        ClearAllWeapons();
     }
     private WeaponMechanism CreateWeaponMechanism(WeaponType weaponType)
     {

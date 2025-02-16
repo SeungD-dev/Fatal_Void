@@ -841,7 +841,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27b1b1572d808874eb74d4a855aec165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pools: []
+  pools:
+  - tag: Bullet_DestroyVFX
+    prefab: {fileID: 4589099209072863335, guid: 3bb2ef6c3d329ba4797ad843732056c9, type: 3}
+    initialSize: 8
+    maxSize: 30
+    growSize: 5
 --- !u!4 &1471452497
 Transform:
   m_ObjectHideFlags: 0

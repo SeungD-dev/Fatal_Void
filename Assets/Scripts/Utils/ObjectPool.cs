@@ -184,4 +184,26 @@ public class ObjectPool : MonoBehaviour
         }
         return count;
     }
+
+    public void ReturnAllObjectsToPool(string tag)
+    {
+        if (!poolDictionary.ContainsKey(tag))
+        {
+            Debug.LogWarning($"Pool with tag {tag} doesn't exist.");
+            return;
+        }
+
+        Transform poolContainer = transform.Find($"Pool-{tag}");
+        if (poolContainer == null) return;
+
+        // 모든 자식 오브젝트를 순회하면서 활성화된 오브젝트만 풀로 반환
+        for (int i = poolContainer.childCount - 1; i >= 0; i--)
+        {
+            Transform child = poolContainer.GetChild(i);
+            if (child.gameObject.activeSelf)
+            {
+                ReturnToPool(tag, child.gameObject);
+            }
+        }
+    }
 }

@@ -4,65 +4,104 @@ public class ShotgunMechanism : WeaponMechanism
 {
     private int currentProjectileCount;
     private float currentSpreadAngle;
+    private const string DESTROY_VFX_TAG = "Bullet_DestroyVFX";
+
+    // 캐싱용 변수들
+    private Vector2 targetDirection;
+    private Vector2 projectileDirection;
+    private float baseAngle;
+    private float angleStep;
+    private float startAngle;
+    private float currentAngle;
+    private Vector3 spawnPosition;
+    private Quaternion projectileRotation;
+
+    public override void Initialize(WeaponData data, Transform player)
+    {
+        base.Initialize(data, player);
+
+        // VFX 풀 초기화
+        if (ObjectPool.Instance != null)
+        {
+            GameObject vfxPrefab = Resources.Load<GameObject>("Prefabs/BulletDestroyVFX");
+            if (vfxPrefab != null)
+            {
+                ObjectPool.Instance.CreatePool(DESTROY_VFX_TAG, vfxPrefab, 10);
+            }
+        }
+
+        targetDirection = Vector2.zero;
+        projectileDirection = Vector2.zero;
+        spawnPosition = Vector3.zero;
+        UpdateWeaponStats(); // 초기 스탯 설정 호출
+    }
 
     protected override void UpdateWeaponStats()
     {
         base.UpdateWeaponStats();
-
-        // 현재 티어의 샷건 스탯 업데이트
         currentProjectileCount = weaponData.CurrentTierStats.projectileCount;
         currentSpreadAngle = weaponData.CurrentTierStats.spreadAngle;
+        angleStep = currentSpreadAngle / (currentProjectileCount - 1);
     }
 
     protected override void Attack(Transform target)
     {
-        if (target == null) return;
+        if (target == null || !target.gameObject.activeInHierarchy) return;
 
         SoundManager.Instance.PlaySound("Shotgun_sfx", 1f, false);
 
-        Vector2 direction = (target.position - playerTransform.position).normalized;
-        float baseAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        // 방향 계산 최적화
+        spawnPosition.x = playerTransform.position.x;
+        spawnPosition.y = playerTransform.position.y;
+        targetDirection.x = target.position.x - spawnPosition.x;
+        targetDirection.y = target.position.y - spawnPosition.y;
+
+        float magnitude = Mathf.Sqrt(targetDirection.x * targetDirection.x + targetDirection.y * targetDirection.y);
+        if (magnitude > 0)
+        {
+            targetDirection.x /= magnitude;
+            targetDirection.y /= magnitude;
+        }
+
+        baseAngle = Mathf.Atan2(targetDirection.y, targetDirection.x) * Mathf.Rad2Deg;
+        startAngle = baseAngle - (currentSpreadAngle * 0.5f);
 
         // 부채꼴 형태로 투사체 발사
-        float angleStep = currentSpreadAngle / (currentProjectileCount - 1);
-        float startAngle = baseAngle - (currentSpreadAngle / 2);
-
         for (int i = 0; i < currentProjectileCount; i++)
         {
-            float currentAngle = startAngle + (angleStep * i);
+            currentAngle = startAngle + (angleStep * i);
             FireShotgunProjectile(currentAngle);
         }
     }
 
     private void FireShotgunProjectile(float angle)
     {
-        Vector2 direction = new Vector2(
-            Mathf.Cos(angle * Mathf.Deg2Rad),
-            Mathf.Sin(angle * Mathf.Deg2Rad)
-        );
+        // 방향 계산 최적화
+        float angleRad = angle * Mathf.Deg2Rad;
+        projectileDirection.x = Mathf.Cos(angleRad);
+        projectileDirection.y = Mathf.Sin(angleRad);
+
+        projectileRotation = Quaternion.Euler(0, 0, angle);
 
         GameObject projectileObj = ObjectPool.Instance.SpawnFromPool(
             poolTag,
-            playerTransform.position,
-            Quaternion.Euler(0, 0, angle)
+            spawnPosition,
+            projectileRotation
         );
 
-        BaseProjectile projectile = projectileObj.GetComponent<BaseProjectile>();
-        if (projectile != null)
-        {
-            float damage = weaponData.CalculateFinalDamage(playerStats);
-            float knockbackPower = weaponData.CalculateFinalKnockback(playerStats);
-            float projectileSpeed = weaponData.CurrentTierStats.projectileSpeed;
-            float projectileSize = weaponData.CalculateFinalProjectileSize(playerStats);
+        if (projectileObj == null) return;
 
-            // 샷건은 관통하지 않으므로 관통 관련 매개변수는 false로 설정
+        if (projectileObj.TryGetComponent(out BaseProjectile projectile))
+        {
+            projectile.SetPoolTag(poolTag);
+
             projectile.Initialize(
-                damage,
-                direction,
-                projectileSpeed,
-                knockbackPower,
+                weaponData.CalculateFinalDamage(playerStats),
+                projectileDirection,
+                weaponData.CurrentTierStats.projectileSpeed,
+                weaponData.CalculateFinalKnockback(playerStats),
                 currentRange,
-                projectileSize,
+                weaponData.CalculateFinalProjectileSize(playerStats),
                 false,  // canPenetrate
                 0,      // maxPenetrations
                 0f      // damageDecay
