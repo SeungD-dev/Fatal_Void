@@ -67,7 +67,6 @@ public class SawbladeProjectile : BaseProjectile
         if (bounced)
         {
             bounceCount++;
-            Debug.Log($"Bounce count: {bounceCount}"); // 디버그용
 
             transform.position = position;
             direction = newDirection.normalized;

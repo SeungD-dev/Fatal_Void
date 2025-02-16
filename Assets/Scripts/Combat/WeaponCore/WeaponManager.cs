@@ -197,7 +197,6 @@ public class WeaponManager : MonoBehaviour
         {
             mechanism.Initialize(weaponData, transform);
             activeWeapons[weaponData] = mechanism;
-            Debug.Log($"Equipped weapon: {weaponData.weaponName} - Total active weapons: {activeWeapons.Count}");
         }
     }
     public void UnequipWeapon(WeaponData weaponData)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -7,11 +8,16 @@ public abstract class WeaponMechanism
     protected Transform playerTransform;
     protected PlayerStats playerStats;
     protected string poolTag;
-
     protected float lastAttackTime;
     protected float currentAttackDelay;
     protected float currentRange;
-    protected float detectionRange; // 적 감지 범위
+    protected float detectionRange;
+
+    // 캐시용 변수들
+    private static readonly List<Transform> tempEnemyList = new List<Transform>(20);
+    protected Vector2 tempDirection;
+    protected Vector2 playerPosition;
+    protected Vector2 targetPosition;
 
     public virtual void Initialize(WeaponData data, Transform player)
     {
@@ -19,7 +25,7 @@ public abstract class WeaponMechanism
         playerTransform = player;
         playerStats = player.GetComponent<PlayerStats>();
         lastAttackTime = 0f;
-
+        tempDirection = Vector2.zero;
         UpdateWeaponStats();
         InitializeProjectilePool();
     }
@@ -27,19 +33,15 @@ public abstract class WeaponMechanism
     protected virtual void UpdateWeaponStats()
     {
         if (weaponData == null || playerStats == null) return;
-
-        // PlayerStats를 고려한 실제 공격 딜레이 계산
         currentAttackDelay = weaponData.CalculateFinalAttackDelay(playerStats);
-
-        // 무기 사거리 계산 (AOE의 영향을 받지 않음)
         currentRange = weaponData.CalculateFinalRange(playerStats);
-
-        // 감지 범위는 무기 사거리 + 1
         detectionRange = currentRange + 1f;
     }
 
     protected virtual void InitializeProjectilePool()
     {
+        if (weaponData == null) return;
+
         poolTag = $"{weaponData.weaponType}Projectile";
         if (weaponData.projectilePrefab != null)
         {
@@ -66,13 +68,33 @@ public abstract class WeaponMechanism
 
     protected virtual Transform FindNearestTarget()
     {
+        // 임시 리스트 초기화
+        tempEnemyList.Clear();
+
+        // 이 부분은 Enemy Manager로 대체되어야 합니다
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
-        return enemies
-            .Select(e => e.transform)
-            .Where(t => Vector2.Distance(playerTransform.position, t.position) <= detectionRange)
-            .OrderBy(t => Vector2.Distance(playerTransform.position, t.position))
-            .FirstOrDefault();
+        playerPosition.x = playerTransform.position.x;
+        playerPosition.y = playerTransform.position.y;
+
+        Transform nearestTarget = null;
+        float nearestDistance = detectionRange * detectionRange;
+
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            Transform enemyTransform = enemies[i].transform;
+            targetPosition.x = enemyTransform.position.x;
+            targetPosition.y = enemyTransform.position.y;
+
+            float sqrDistance = (targetPosition - playerPosition).sqrMagnitude;
+            if (sqrDistance <= nearestDistance)
+            {
+                nearestDistance = sqrDistance;
+                nearestTarget = enemyTransform;
+            }
+        }
+
+        return nearestTarget;
     }
 
     protected abstract void Attack(Transform target);
@@ -81,17 +103,28 @@ public abstract class WeaponMechanism
     {
         if (target == null) return;
 
-        Vector2 direction = (target.position - playerTransform.position).normalized;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        playerPosition.x = playerTransform.position.x;
+        playerPosition.y = playerTransform.position.y;
+        targetPosition.x = target.position.x;
+        targetPosition.y = target.position.y;
 
+        tempDirection = targetPosition - playerPosition;
+        float sqrMagnitude = tempDirection.sqrMagnitude;
+        if (sqrMagnitude > 0)
+        {
+            float magnitude = Mathf.Sqrt(sqrMagnitude);
+            tempDirection.x /= magnitude;
+            tempDirection.y /= magnitude;
+        }
+
+        float angle = Mathf.Atan2(tempDirection.y, tempDirection.x) * Mathf.Rad2Deg;
         GameObject projectileObj = ObjectPool.Instance.SpawnFromPool(
             poolTag,
             playerTransform.position,
             Quaternion.Euler(0, 0, angle)
         );
 
-        BaseProjectile projectile = projectileObj.GetComponent<BaseProjectile>();
-        if (projectile != null)
+        if (projectileObj.TryGetComponent(out BaseProjectile projectile))
         {
             float damage = weaponData.CalculateFinalDamage(playerStats);
             float knockbackPower = weaponData.CalculateFinalKnockback(playerStats);
@@ -101,7 +134,7 @@ public abstract class WeaponMechanism
 
             projectile.Initialize(
                 damage,
-                direction,
+                tempDirection,
                 projectileSpeed,
                 knockbackPower,
                 currentRange,
@@ -113,10 +146,7 @@ public abstract class WeaponMechanism
         }
     }
 
-    public WeaponData GetWeaponData()
-    {
-        return weaponData;
-    }
+    public WeaponData GetWeaponData() => weaponData;
 
     public virtual void OnPlayerStatsChanged()
     {
