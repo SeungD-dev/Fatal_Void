@@ -841,52 +841,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27b1b1572d808874eb74d4a855aec165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pools:
-  - tag: Walker
-    prefab: {fileID: 6160214665495999924, guid: e11933bc328f79749a75d9ac67188405, type: 3}
-    initialSize: 0
-    maxSize: 0
-    growSize: 5
-  - tag: Heavy
-    prefab: {fileID: 6160214665495999924, guid: 1dd8c7f87a322a545a10de7371eec818, type: 3}
-    initialSize: 0
-    maxSize: 0
-    growSize: 5
-  - tag: Buster_Projectile
-    prefab: {fileID: 4589099209072863335, guid: c181a405dd35fb348a61458feb1eeb0e, type: 3}
-    initialSize: 20
-    maxSize: 25
-    growSize: 5
-  - tag: Machinegun_Projectile
-    prefab: {fileID: 4589099209072863335, guid: 9b06e1994508f364aa2cba6dcfb807c7, type: 3}
-    initialSize: 50
-    maxSize: 80
-    growSize: 5
-  - tag: Cutter_Projectile
-    prefab: {fileID: 4589099209072863335, guid: d605f2cb8beba3c43a616c2ef753f101, type: 3}
-    initialSize: 50
-    maxSize: 80
-    growSize: 5
-  - tag: Blade_Projectile
-    prefab: {fileID: 4589099209072863335, guid: 495678b785e0b444f92342df2119c894, type: 3}
-    initialSize: 50
-    maxSize: 80
-    growSize: 5
-  - tag: Sawblade_Projectile
-    prefab: {fileID: 4589099209072863335, guid: 23504967686276f4dab72f893324fc74, type: 3}
-    initialSize: 50
-    maxSize: 80
-    growSize: 5
-  - tag: Bullet_DestroyVFX
-    prefab: {fileID: 4589099209072863335, guid: 3bb2ef6c3d329ba4797ad843732056c9, type: 3}
-    initialSize: 25
-    maxSize: 50
-    growSize: 5
-  - tag: Shotgun_Projectile
-    prefab: {fileID: 4589099209072863335, guid: 6817771fa34581a43965c3e49ced5f63, type: 3}
-    initialSize: 25
-    maxSize: 50
-    growSize: 5
+  pools: []
 --- !u!4 &1471452497
 Transform:
   m_ObjectHideFlags: 0

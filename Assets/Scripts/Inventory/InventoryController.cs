@@ -290,7 +290,7 @@ public class InventoryController : MonoBehaviour
         {
             noticeUI.SetActive(false);
         }
-        touchActions?.Disable();
+        touchActions?.Touch.Disable();
         SaveGridState();
     }
 
@@ -300,6 +300,8 @@ public class InventoryController : MonoBehaviour
         {
             touchPress.started -= OnTouchStarted;
             touchPress.canceled -= OnTouchEnded;
+
+            touchActions.Touch.Disable();
             touchActions?.Dispose();
             isInputSystemInitialized = false;
         }

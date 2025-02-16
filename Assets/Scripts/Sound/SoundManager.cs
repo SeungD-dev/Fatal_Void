@@ -111,6 +111,11 @@ public class SoundManager : Singleton<SoundManager>
 
         currentSoundBank = newSoundBank;
 
+        if (activeSFXSources == null)
+        {
+            activeSFXSources = new List<AudioSource>();
+        }
+
         // 볼륨 설정 유지
         if (wasBGMPlaying)
         {
@@ -284,6 +289,8 @@ public class SoundManager : Singleton<SoundManager>
 
     private void UpdateSFXVolume()
     {
+        if(activeSFXSources == null || currentSoundBank == null) return;
+
         foreach (var source in activeSFXSources.Where(s => s != null && s.isPlaying))
         {
             Sound sound = currentSoundBank.sounds.Find(s => s.clip == source.clip);
