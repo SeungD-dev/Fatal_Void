@@ -3,28 +3,39 @@ using UnityEngine;
 
 public class BladeProjectile : BaseProjectile
 {
-    private HashSet<Enemy> hitEnemies = new HashSet<Enemy>();
+    private HashSet<Enemy> hitEnemies = new HashSet<Enemy>(8);
+    private Vector2 currentPosition;
+    private float sqrMaxTravelDistance;
+
+
+    public override void Initialize(float damage, Vector2 direction, float speed,
+        float knockbackPower = 0f, float range = 10f, float projectileSize = 1f,
+        bool canPenetrate = false, int maxPenetrations = 0, float damageDecay = 0.1f)
+    {
+        base.Initialize(damage, direction, speed, knockbackPower, range, projectileSize,
+            canPenetrate, maxPenetrations, damageDecay);
+
+        sqrMaxTravelDistance = maxTravelDistance * maxTravelDistance;
+    }
+
+
     public override void OnObjectSpawn()
     {
         base.OnObjectSpawn();
-        // 스폰될 때마다 시작 위치 업데이트
         startPosition = transform.position;
-        //Debug.Log($"OnObjectSpawn - StartPosition set to: {startPosition}, MaxTravelDistance: {maxTravelDistance}");
+        hitEnemies.Clear();
     }
+
 
     protected override void ApplyDamageAndEffects(Enemy enemy)
     {
-        // 이미 타격한 적은 무시
-        if (hitEnemies.Contains(enemy)) return;
+        if (!hitEnemies.Add(enemy)) return;
 
-        // 새로운 적 타격
-        hitEnemies.Add(enemy);
         enemy.TakeDamage(damage);
 
         if (knockbackPower > 0)
         {
-            Vector2 knockbackForce = direction * knockbackPower;
-            enemy.ApplyKnockback(knockbackForce);
+            enemy.ApplyKnockback(direction * knockbackPower);
         }
 
         HandlePenetration();
@@ -32,19 +43,17 @@ public class BladeProjectile : BaseProjectile
 
     protected override void Update()
     {
-        float distanceFromStart = Vector2.Distance(startPosition, transform.position);
+        currentPosition.x = transform.position.x;
+        currentPosition.y = transform.position.y;
 
-        //// 매 프레임마다 값들을 확인
-        //Debug.Log($"Update - Current Position: {transform.position}, StartPosition: {startPosition}, " +
-        //          $"Distance: {distanceFromStart}, MaxDistance: {maxTravelDistance}, " +
-        //          $"Speed: {speed}, Direction: {direction}");
+        float dx = currentPosition.x - startPosition.x;
+        float dy = currentPosition.y - startPosition.y;
+        float sqrDistance = dx * dx + dy * dy;
 
-        // 투사체 이동
         transform.Translate(direction * speed * Time.deltaTime, Space.World);
 
-        // 최대 사거리 도달 시 풀로 반환
-        if (distanceFromStart >= maxTravelDistance)
-        {  
+        if (sqrDistance >= sqrMaxTravelDistance)
+        {
             ReturnToPool();
         }
     }
