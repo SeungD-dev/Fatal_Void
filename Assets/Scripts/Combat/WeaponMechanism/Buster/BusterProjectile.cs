@@ -2,19 +2,30 @@ using UnityEngine;
 
 public class BusterProjectile : BulletProjectile
 {
+    private Vector2 currentPosition;
+    private float sqrMaxTravelDistance;
+    public override void Initialize(float damage, Vector2 direction, float speed,
+      float knockbackPower = 0f, float range = 10f, float projectileSize = 1f,
+      bool canPenetrate = false, int maxPenetrations = 0, float damageDecay = 0.1f)
+    {
+        base.Initialize(damage, direction, speed, knockbackPower, range, projectileSize,
+            canPenetrate, maxPenetrations, damageDecay);
+
+        sqrMaxTravelDistance = range * range;
+    }
+
     protected override void ApplyDamageAndEffects(Enemy enemy)
     {
         enemy.TakeDamage(damage);
+
         if (knockbackPower > 0)
         {
-            Vector2 knockbackForce = direction * knockbackPower;
-            enemy.ApplyKnockback(knockbackForce);
+            enemy.ApplyKnockback(direction * knockbackPower);
         }
 
-        // 3티어 이상일 경우 관통, 아닐 경우 즉시 제거
         if (!canPenetrate)
         {
-            SpawnDestroyVFX();  // 소멸 효과 추가
+            SpawnDestroyVFX();
             ReturnToPool();
         }
         else
@@ -23,12 +34,18 @@ public class BusterProjectile : BulletProjectile
         }
     }
 
+
     protected override void Update()
     {
-        base.Update();
+        currentPosition.x = transform.position.x;
+        currentPosition.y = transform.position.y;
 
-        // 최대 사거리 도달 시 소멸 효과 추가
-        if (Vector2.Distance(startPosition, transform.position) >= maxTravelDistance)
+        float dx = currentPosition.x - startPosition.x;
+        float dy = currentPosition.y - startPosition.y;
+
+        transform.Translate(direction * speed * Time.deltaTime, Space.World);
+
+        if ((dx * dx + dy * dy) >= sqrMaxTravelDistance)
         {
             SpawnDestroyVFX();
             ReturnToPool();
