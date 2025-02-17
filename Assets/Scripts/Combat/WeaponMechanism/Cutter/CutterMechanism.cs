@@ -2,37 +2,45 @@ using UnityEngine;
 
 public class CutterMechanism : WeaponMechanism
 {
+    private Vector2 targetDirection;
+    private Vector2 spawnPosition;
+
     protected override void Attack(Transform target)
     {
         if (target == null) return;
 
         SoundManager.Instance.PlaySound("Throw_sfx", 1f, false);
 
-        Vector2 direction = (target.position - playerTransform.position).normalized;
+        // 위치와 방향 계산 최적화
+        spawnPosition.x = playerTransform.position.x;
+        spawnPosition.y = playerTransform.position.y;
+        targetDirection.x = target.position.x - spawnPosition.x;
+        targetDirection.y = target.position.y - spawnPosition.y;
+
+        float magnitude = Mathf.Sqrt(targetDirection.x * targetDirection.x + targetDirection.y * targetDirection.y);
+        if (magnitude > 0)
+        {
+            targetDirection.x /= magnitude;
+            targetDirection.y /= magnitude;
+        }
 
         GameObject projectileObj = ObjectPool.Instance.SpawnFromPool(
             poolTag,
-            playerTransform.position,
+            spawnPosition,
             Quaternion.identity
         );
 
-        CutterProjectile projectile = projectileObj.GetComponent<CutterProjectile>();
-        if (projectile != null)
+        if (projectileObj != null && projectileObj.TryGetComponent(out CutterProjectile projectile))
         {
-            float damage = weaponData.CalculateFinalDamage(playerStats);
-            float knockbackPower = weaponData.CalculateFinalKnockback(playerStats);
-            float projectileSpeed = weaponData.CurrentTierStats.projectileSpeed;
-            float projectileSize = weaponData.CalculateFinalProjectileSize(playerStats);
             var penetrationInfo = weaponData.GetPenetrationInfo();
-
             projectile.SetPoolTag(poolTag);
             projectile.Initialize(
-                damage,
-                direction,
-                projectileSpeed,
-                knockbackPower,
+                weaponData.CalculateFinalDamage(playerStats),
+                targetDirection,
+                weaponData.CurrentTierStats.projectileSpeed,
+                weaponData.CalculateFinalKnockback(playerStats),
                 currentRange,
-                projectileSize,
+                weaponData.CalculateFinalProjectileSize(playerStats),
                 penetrationInfo.canPenetrate,
                 penetrationInfo.maxCount,
                 penetrationInfo.damageDecay

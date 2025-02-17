@@ -4,48 +4,68 @@ public class CutterProjectile : BaseProjectile
 {
     private bool isReturning = false;
     [SerializeField] private float rotationSpeed = 720f;
+    private Vector2 currentPosition;
+    private float sqrMaxTravelDistance;
+    private float sqrMinReturnDistance;
+    private readonly Quaternion rotationDelta = Quaternion.identity;
+    private float angleZ;
+    public override void Initialize(float damage, Vector2 direction, float speed,
+       float knockbackPower = 0f, float range = 10f, float projectileSize = 1f,
+       bool canPenetrate = false, int maxPenetrations = 0, float damageDecay = 0.1f)
+    {
+        base.Initialize(damage, direction, speed, knockbackPower, range, projectileSize,
+            canPenetrate, maxPenetrations, damageDecay);
 
+        sqrMaxTravelDistance = range * range;
+        sqrMinReturnDistance = 0.25f; // 0.5f * 0.5f
+        isReturning = false;
+    }
     public override void OnObjectSpawn()
     {
         base.OnObjectSpawn();
-        isReturning = false;  // 스폰될 때마다 상태 리셋
+        isReturning = false;
+        angleZ = 0f;
     }
+
 
     protected override void Update()
     {
-        if (startPosition == null || startPosition == Vector2.zero)
-        {
-            startPosition = transform.position;  // 시작 위치가 없으면 현재 위치로 설정
-        }
+        // 회전 최적화
+        angleZ = (angleZ + rotationSpeed * Time.deltaTime) % 360f;
+        transform.rotation = Quaternion.Euler(0f, 0f, angleZ);
 
-        // 지속적인 회전
-        transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);
+        // 현재 위치 계산
+        currentPosition.x = transform.position.x;
+        currentPosition.y = transform.position.y;
 
-        float distanceFromStart = Vector2.Distance(startPosition, transform.position);
-        float distanceRatio = distanceFromStart / maxTravelDistance;
+        float dx = currentPosition.x - startPosition.x;
+        float dy = currentPosition.y - startPosition.y;
+        float sqrDistance = dx * dx + dy * dy;
+
+        // 진행 방향에 따른 속도 계산
         if (!isReturning)
         {
-            // 진행 방향으로 이동하면서 속도 감소
-            float speedMultiplier = Mathf.Lerp(1f, 0.2f, distanceRatio);
-            transform.Translate(direction * speed * speedMultiplier * Time.deltaTime, Space.World);
-
-            // 최대 거리 도달 시 귀환 시작
-            if (distanceRatio >= 1f)
+            if (sqrDistance >= sqrMaxTravelDistance)
             {
                 isReturning = true;
+            }
+            else
+            {
+                float speedMultiplier = 1f - (sqrDistance / sqrMaxTravelDistance) * 0.8f; // 0.2f까지 감소
+                transform.Translate(direction * speed * speedMultiplier * Time.deltaTime, Space.World);
             }
         }
         else
         {
-            // 돌아오는 방향으로 이동하면서 속도 증가
-            float returnRatio = 1f - (distanceFromStart / maxTravelDistance);
-            float speedMultiplier = Mathf.Lerp(0.5f, 2f, returnRatio);
-            transform.Translate(-direction * speed * speedMultiplier * Time.deltaTime, Space.World);
-
-            // 시작 지점 근처에 도달하면 제거
-            if (distanceFromStart <= 0.5f)
+            if (sqrDistance <= sqrMinReturnDistance)
             {
                 ReturnToPool();
+            }
+            else
+            {
+                float returnRatio = sqrDistance / sqrMaxTravelDistance;
+                float speedMultiplier = 0.5f + (1f - returnRatio) * 1.5f; // 0.5f에서 2f로 증가
+                transform.Translate(-direction * speed * speedMultiplier * Time.deltaTime, Space.World);
             }
         }
     }
@@ -53,6 +73,7 @@ public class CutterProjectile : BaseProjectile
     protected override void OnDisable()
     {
         base.OnDisable();
-        isReturning = false;  // 비활성화될 때도 상태 리셋
+        isReturning = false;
+        angleZ = 0f;
     }
 }
