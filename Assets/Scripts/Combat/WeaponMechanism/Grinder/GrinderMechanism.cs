@@ -3,19 +3,21 @@ using UnityEngine;
 public class GrinderMechanism : WeaponMechanism
 {
     private string groundEffectPoolTag;
+    private Vector2 targetDirection;
+    private Vector3 spawnPosition;
+    private float calculatedAttackRadius;
 
     public override void Initialize(WeaponData data, Transform player)
     {
         base.Initialize(data, player);
-
         groundEffectPoolTag = $"{weaponData.weaponType}GroundEffect";
 
-        GrinderProjectile projectilePrefab = data.projectilePrefab.GetComponent<GrinderProjectile>();
-        if (projectilePrefab != null && projectilePrefab.groundEffectPrefab != null)
+        if (data.projectilePrefab != null &&
+            data.projectilePrefab.TryGetComponent(out GrinderProjectile projectilePrefab) &&
+            projectilePrefab.groundEffectPrefab != null)
         {
             GameObject prefab = projectilePrefab.groundEffectPrefab;
-            prefab.tag = groundEffectPoolTag;  // 프리팹의 태그 설정
-
+            prefab.tag = groundEffectPoolTag;
             ObjectPool.Instance.CreatePool(groundEffectPoolTag, prefab, 5);
         }
         else
@@ -27,33 +29,40 @@ public class GrinderMechanism : WeaponMechanism
     {
         if (target == null) return;
 
-        Vector2 direction = (target.position - playerTransform.position).normalized;
+        spawnPosition.x = playerTransform.position.x;
+        spawnPosition.y = playerTransform.position.y;
+        targetDirection.x = target.position.x - spawnPosition.x;
+        targetDirection.y = target.position.y - spawnPosition.y;
+
+        float magnitude = Mathf.Sqrt(targetDirection.x * targetDirection.x + targetDirection.y * targetDirection.y);
+        if (magnitude > 0)
+        {
+            targetDirection.x /= magnitude;
+            targetDirection.y /= magnitude;
+        }
+
         GameObject projectileObj = ObjectPool.Instance.SpawnFromPool(
             poolTag,
-            playerTransform.position,
+            spawnPosition,
             Quaternion.identity
         );
 
-        GrinderProjectile projectile = projectileObj.GetComponent<GrinderProjectile>();
-        if (projectile != null)
+        if (projectileObj != null && projectileObj.TryGetComponent(out GrinderProjectile projectile))
         {
-            float damage = weaponData.CalculateFinalDamage(playerStats);
-            float projectileSpeed = weaponData.CurrentTierStats.projectileSpeed;
-            float projectileSize = weaponData.CalculateFinalProjectileSize(playerStats);
-            float attackRadius = weaponData.CurrentTierStats.attackRadius *
-                               (1f + playerStats.AreaOfEffect / 100f);
+            calculatedAttackRadius = weaponData.CurrentTierStats.attackRadius *
+                                   (1f + playerStats.AreaOfEffect / 100f);
 
             projectile.SetPoolTag(poolTag);
             projectile.Initialize(
-                damage,
-                direction,
-                projectileSpeed,
+                weaponData.CalculateFinalDamage(playerStats),
+                targetDirection,
+                weaponData.CurrentTierStats.projectileSpeed,
                 target.position,
-                attackRadius,
+                calculatedAttackRadius,
                 weaponData.CurrentTierStats.groundEffectDuration,
                 weaponData.CurrentTierStats.damageTickInterval,
                 groundEffectPoolTag,
-                projectileSize
+                weaponData.CalculateFinalProjectileSize(playerStats)
             );
         }
     }

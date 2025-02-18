@@ -12,9 +12,23 @@ public class GrinderGroundEffect : MonoBehaviour, IPooledObject
 
     private SpriteRenderer spriteRenderer;
 
+    private readonly Collider2D[] hitResults = new Collider2D[20];
+    private ContactFilter2D contactFilter;
+    private Vector2 currentPosition;
+    private int enemyLayer;
+
+
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        enemyLayer = LayerMask.NameToLayer("Enemy");
+
+        contactFilter = new ContactFilter2D
+        {
+            useLayerMask = true,
+            layerMask = LayerMask.GetMask("Enemy"),
+            useTriggers = true
+        };
     }
 
     public void Initialize(float damage, float radius, float duration, float tickInterval)
@@ -29,7 +43,6 @@ public class GrinderGroundEffect : MonoBehaviour, IPooledObject
             transform.localScale = Vector3.one * (radius * 2);
         }
     }
-
 
     public void SetPoolTag(string tag)
     {
@@ -47,17 +60,12 @@ public class GrinderGroundEffect : MonoBehaviour, IPooledObject
     private void Update()
     {
         float elapsedTime = Time.time - spawnTime;
-
         if (elapsedTime >= duration)
         {
-            if (string.IsNullOrEmpty(poolTag))
+            if (!string.IsNullOrEmpty(poolTag))
             {
-                Debug.LogError($"Pool tag is empty or null! Current gameObject tag: {gameObject.tag}");
-                gameObject.SetActive(false);
-                return;
+                ObjectPool.Instance.ReturnToPool(poolTag, gameObject);
             }
-
-            ObjectPool.Instance.ReturnToPool(poolTag, gameObject);
             return;
         }
 
@@ -69,16 +77,17 @@ public class GrinderGroundEffect : MonoBehaviour, IPooledObject
     }
     private void ApplyDamageToEnemiesInRange()
     {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, radius);
-        foreach (Collider2D col in colliders)
+        currentPosition.x = transform.position.x;
+        currentPosition.y = transform.position.y;
+
+        int hitCount = Physics2D.OverlapCircle(currentPosition, radius, contactFilter, hitResults);
+
+        for (int i = 0; i < hitCount; i++)
         {
-            if (col.CompareTag("Enemy"))
+            if (hitResults[i].gameObject.layer == enemyLayer &&
+                hitResults[i].TryGetComponent(out Enemy enemy))
             {
-                Enemy enemy = col.GetComponent<Enemy>();
-                if (enemy != null)
-                {
-                    enemy.TakeDamage(damage);
-                }
+                enemy.TakeDamage(damage);
             }
         }
     }

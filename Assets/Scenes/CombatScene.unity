@@ -847,6 +847,11 @@ MonoBehaviour:
     initialSize: 8
     maxSize: 30
     growSize: 5
+  - tag: ForceFieldProjectile
+    prefab: {fileID: 4589099209072863335, guid: 303cac38330921348b3eb8bec063a20a, type: 3}
+    initialSize: 4
+    maxSize: 8
+    growSize: 4
 --- !u!4 &1471452497
 Transform:
   m_ObjectHideFlags: 0

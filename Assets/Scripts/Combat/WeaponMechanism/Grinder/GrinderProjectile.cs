@@ -12,7 +12,11 @@ public class GrinderProjectile : BaseProjectile
     private float damageTickInterval;
     private string groundEffectPoolTag;
     private float airTime;
-    private float maxHeight = 3f;
+    private const float MAX_HEIGHT = 3f;
+    private float angleZ;
+    private float currentHeight;
+    private Vector2 currentPos;
+
 
     public override void OnObjectSpawn()
     {
@@ -45,6 +49,7 @@ public class GrinderProjectile : BaseProjectile
 
         // 크기 설정
         transform.localScale = Vector3.one * size;
+        angleZ = 0f;
     }
 
 
@@ -55,7 +60,8 @@ public class GrinderProjectile : BaseProjectile
 
     protected override void Update()
     {
-        transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);
+        angleZ = (angleZ + rotationSpeed * Time.deltaTime) % 360f;
+        transform.rotation = Quaternion.Euler(0f, 0f, angleZ);
 
         float progress = (Time.time - spawnTime) / airTime;
         if (progress >= 1f)
@@ -65,18 +71,19 @@ public class GrinderProjectile : BaseProjectile
             return;
         }
 
-        float height = Mathf.Sin(progress * Mathf.PI) * maxHeight;
-        Vector2 currentPos = Vector2.Lerp(startPosition, targetPosition, progress);
-        transform.position = new Vector3(currentPos.x, currentPos.y + height, 0);
+        float progressPI = progress * Mathf.PI;
+        currentHeight = Mathf.Sin(progressPI) * MAX_HEIGHT;
+
+        currentPos.x = Mathf.Lerp(startPosition.x, targetPosition.x, progress);
+        currentPos.y = Mathf.Lerp(startPosition.y, targetPosition.y, progress);
+
+        transform.position = new Vector3(currentPos.x, currentPos.y + currentHeight, 0);
     }
+
 
     private void CreateGroundEffect()
     {
-        if (string.IsNullOrEmpty(groundEffectPoolTag))
-        {
-            Debug.LogError("Ground effect pool tag is not set!");
-            return;
-        }
+        if (string.IsNullOrEmpty(groundEffectPoolTag)) return;
 
         GameObject groundEffect = ObjectPool.Instance.SpawnFromPool(
             groundEffectPoolTag,
@@ -84,15 +91,10 @@ public class GrinderProjectile : BaseProjectile
             Quaternion.identity
         );
 
-        if (groundEffect != null)
+        if (groundEffect != null && groundEffect.TryGetComponent(out GrinderGroundEffect effect))
         {
-            GrinderGroundEffect effect = groundEffect.GetComponent<GrinderGroundEffect>();
-            if (effect != null)
-            {
-                effect.SetPoolTag(groundEffectPoolTag);  // 태그 설정 추가
-                effect.Initialize(damage, attackRadius, groundEffectDuration, damageTickInterval);
-                effect.OnObjectSpawn();
-            }
+            effect.SetPoolTag(groundEffectPoolTag);
+            effect.Initialize(damage, attackRadius, groundEffectDuration, damageTickInterval);
         }
     }
 }
