@@ -1,5 +1,6 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class SpawnController : MonoBehaviour
 {
@@ -7,37 +8,90 @@ public class SpawnController : MonoBehaviour
     [SerializeField] private float spawnRadius = 15f;
     [SerializeField] private float minSpawnDistance = 12f;
     [SerializeField] private SpawnSettingsData spawnSettings;
-
     [SerializeField] private EnemySpawnDatabase enemyDatabase;
+    [SerializeField] private int spawnPositionCacheSize = 100;
 
+    [Header("Spawn Cache")]
+    private Vector2[] cachedSpawnPositions;
+    private int currentCacheIndex;
+
+    // ÏÇ¨Î∂ÑÎ©¥Î≥Ñ Ïä§Ìè∞ Ìè¨Ïù∏Ìä∏
+    private readonly List<Vector2>[] quadrantSpawnPoints = new List<Vector2>[4];
+    private int[] quadrantSpawnIndices = new int[4];
 
     [Header("Time Settings")]
     private float gameTime = 0f;
-    private const float SPAWN_INTERVAL_START = 3f;
-    private const float SPAWN_INTERVAL_MIN = 1f;
-    private const float INTERVAL_UPDATE_TIME = 30f;
-    private const float INTERVAL_DECREASE = 0.1f;
-
-    [Header("Spawn Amount Settings")]
-    private const int INITIAL_SPAWN_AMOUNT = 3;
-    private const float AMOUNT_UPDATE_TIME = 30f;
-
     private float currentSpawnInterval;
     private float nextSpawnTime;
     private int currentSpawnAmount;
+
     private Transform playerTransform;
     private Camera mainCamera;
     private bool isInitialized = false;
-
-    private float lastIntervalUpdateTime = 0f;
-    private float lastAmountUpdateTime = 0f;
 
     private void Start()
     {
         StartCoroutine(InitializeAfterGameStart());
         GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+        InitializeSpawnSystem();
     }
 
+    private void InitializeSpawnSystem()
+    {
+        mainCamera = Camera.main;
+        InitializeSpawnCache();
+        InitializeQuadrants();
+    }
+
+    private void InitializeSpawnCache()
+    {
+        cachedSpawnPositions = new Vector2[spawnPositionCacheSize];
+        for (int i = 0; i < spawnPositionCacheSize; i++)
+        {
+            cachedSpawnPositions[i] = GenerateSpawnPosition();
+        }
+    }
+
+    private void InitializeQuadrants()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            quadrantSpawnPoints[i] = new List<Vector2>();
+        }
+
+        // Í∞Å ÏÇ¨Î∂ÑÎ©¥Î≥Ñ Ïä§Ìè∞ Ìè¨Ïù∏Ìä∏ ÎØ∏Î¶¨ Í≥ÑÏÇ∞
+        for (int i = 0; i < spawnPositionCacheSize / 4; i++)
+        {
+            for (int q = 0; q < 4; q++)
+            {
+                quadrantSpawnPoints[q].Add(GenerateQuadrantSpawnPosition(q));
+            }
+        }
+    }
+
+    private IEnumerator InitializeAfterGameStart()
+    {
+        while (GameManager.Instance.PlayerStats == null)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+
+        // Ï¥àÍ∏∞ Ïä§Ìè∞ ÏÑ§Ï†ï
+        var initialSettings = spawnSettings.GetSettingsAtTime(0);
+        currentSpawnInterval = initialSettings.spawnInterval;
+        currentSpawnAmount = initialSettings.spawnAmount;
+        nextSpawnTime = Time.time;
+
+        // Ï†Å ÌíÄ Ï¥àÍ∏∞Ìôî
+        InitializeEnemyPools();
+
+        // Ïä§Ìè∞ Ïπ¥Ïö¥Ìä∏ Ï¥àÍ∏∞Ìôî
+        enemyDatabase.ResetSpawnCounts();
+
+        isInitialized = true;
+    }
 
     private void InitializeEnemyPools()
     {
@@ -54,49 +108,9 @@ public class SpawnController : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
-    {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
-        }
-    }
-
-    private IEnumerator InitializeAfterGameStart()
-    {
-        while (GameManager.Instance.PlayerStats == null)
-        {
-            yield return new WaitForSeconds(0.1f);
-        }
-
-        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
-
-        // √ ±‚ Ω∫∆˘ º≥¡§
-        var initialSettings = spawnSettings.GetSettingsAtTime(0);
-        currentSpawnInterval = initialSettings.spawnInterval;
-        currentSpawnAmount = initialSettings.spawnAmount;
-        nextSpawnTime = Time.time;
-
-        // ¿˚ «Æ √ ±‚»≠
-        InitializeEnemyPools();
-
-        // Ω∫∆˘ ƒ´øÓ∆Æ √ ±‚»≠
-        enemyDatabase.ResetSpawnCounts();
-
-        isInitialized = true;
-    }
-
-
     private void HandleGameStateChanged(GameState newState)
     {
-        if (newState == GameState.Playing)
-        {
-            enabled = true;
-        }
-        else
-        {
-            enabled = false;
-        }
+        enabled = (newState == GameState.Playing);
     }
 
     private void Update()
@@ -109,7 +123,7 @@ public class SpawnController : MonoBehaviour
 
         gameTime += Time.deltaTime;
 
-        // Ω∫∆˘ º≥¡§ æ˜µ•¿Ã∆Æ
+        // Ïä§Ìè∞ ÏÑ§Ï†ï ÏóÖÎç∞Ïù¥Ìä∏
         var currentSettings = spawnSettings.GetSettingsAtTime(gameTime);
         currentSpawnAmount = currentSettings.spawnAmount;
         currentSpawnInterval = currentSettings.spawnInterval;
@@ -117,46 +131,29 @@ public class SpawnController : MonoBehaviour
         TrySpawnEnemies();
     }
 
-
-    private void UpdateSpawnInterval()
-    {
-        if (gameTime - lastIntervalUpdateTime >= INTERVAL_UPDATE_TIME)
-        {
-            lastIntervalUpdateTime = gameTime;
-
-            if (gameTime <= 600f && currentSpawnInterval > SPAWN_INTERVAL_MIN)
-            {
-                currentSpawnInterval = Mathf.Max(
-                    SPAWN_INTERVAL_MIN,
-                    currentSpawnInterval - INTERVAL_DECREASE
-                );
-                Debug.Log($"[{gameTime:F1}s] Spawn interval updated to: {currentSpawnInterval:F1}s");
-            }
-        }
-    }
-
-    private void UpdateSpawnAmount()
-    {
-        if (gameTime - lastAmountUpdateTime >= AMOUNT_UPDATE_TIME)
-        {
-            lastAmountUpdateTime = gameTime;
-            currentSpawnAmount++;
-            Debug.Log($"[{gameTime:F1}s] Spawn amount updated to: {currentSpawnAmount}");
-        }
-    }
-
     private void TrySpawnEnemies()
     {
         if (Time.time >= nextSpawnTime)
         {
-            for (int i = 0; i < currentSpawnAmount; i++)
-            {
-                SpawnEnemy();
-            }
-
+            StartCoroutine(SpawnEnemyBatch());
             nextSpawnTime = Time.time + currentSpawnInterval;
         }
     }
+
+    private IEnumerator SpawnEnemyBatch()
+    {
+        for (int i = 0; i < currentSpawnAmount; i++)
+        {
+            SpawnEnemy();
+
+            // ÌîÑÎ†àÏûÑ ÎìúÎûç Î∞©ÏßÄÎ•º ÏúÑÌï¥ Ïä§Ìè∞ÏùÑ Î∂ÑÏÇ∞
+            if (i % 3 == 0) // 3Í∞úÏî© Ïä§Ìè∞ ÌõÑ Îã§Ïùå ÌîÑÎ†àÏûÑÏúºÎ°ú
+            {
+                yield return null;
+            }
+        }
+    }
+
     private void SpawnEnemy()
     {
         if (!enabled || GameManager.Instance.currentGameState != GameState.Playing)
@@ -171,7 +168,7 @@ public class SpawnController : MonoBehaviour
             return;
         }
 
-        Vector2 spawnPosition = GetSpawnPosition();
+        Vector2 spawnPosition = GetOptimizedSpawnPosition();
         GameObject enemyObject = ObjectPool.Instance.SpawnFromPool(
             enemyData.enemyName,
             spawnPosition,
@@ -187,8 +184,6 @@ public class SpawnController : MonoBehaviour
             {
                 enemy.SetEnemyData(enemyData);
                 enemy.Initialize(playerTransform);
-
-                // EnemyAI √ ±‚»≠µµ «‘≤≤ ºˆ«‡
                 enemyAI.Initialize(playerTransform);
             }
             else
@@ -199,60 +194,119 @@ public class SpawnController : MonoBehaviour
         }
     }
 
-    private Vector2 GetSpawnPosition()
+    private Vector2 GetOptimizedSpawnPosition()
     {
-        Vector2 viewportPoint = Random.insideUnitCircle.normalized;
+        // ÌîåÎ†àÏù¥Ïñ¥Ïùò ÌòÑÏû¨ ÏúÑÏπò
         Vector2 playerPos = playerTransform.position;
-        float distance = Random.Range(minSpawnDistance, spawnRadius);
 
-        return playerPos + (viewportPoint * distance);
-    }
+        // ÏµúÏ†ÅÏùò Ïä§Ìè∞ ÏÇ¨Î∂ÑÎ©¥ ÏÑ†ÌÉù
+        int quadrant = GetOptimalSpawnQuadrant();
+        Vector2 basePosition = quadrantSpawnPoints[quadrant][quadrantSpawnIndices[quadrant]];
 
-    private EnemyData SelectEnemyType()
-    {
-        if (enemyDatabase == null)
+        // Ïù∏Îç±Ïä§ ÏàúÌôò
+        quadrantSpawnIndices[quadrant] = (quadrantSpawnIndices[quadrant] + 1) % quadrantSpawnPoints[quadrant].Count;
+
+        Vector2 spawnPosition = playerPos + basePosition;
+
+        // ÌôîÎ©¥Ïóê Î≥¥Ïù¥ÎäîÏßÄ ÌôïÏù∏
+        Vector2 viewportPoint = mainCamera.WorldToViewportPoint(spawnPosition);
+        if (IsPositionVisible(viewportPoint))
         {
-            Debug.LogError("EnemySpawnDatabase is not assigned!");
-            return null;
+            // Î≥¥Ïù¥Îäî Í≤ΩÏö∞ Îã§Î•∏ ÏÇ¨Î∂ÑÎ©¥ÏóêÏÑú Ïû¨ÏãúÎèÑ
+            int attempts = 4;
+            while (attempts-- > 0 && IsPositionVisible(viewportPoint))
+            {
+                quadrant = (quadrant + 1) % 4;
+                basePosition = quadrantSpawnPoints[quadrant][quadrantSpawnIndices[quadrant]];
+                spawnPosition = playerPos + basePosition;
+                viewportPoint = mainCamera.WorldToViewportPoint(spawnPosition);
+            }
         }
 
-        return enemyDatabase.GetRandomEnemy(gameTime);
+        return spawnPosition;
     }
 
-    // µπˆ±◊ UI¥¬ ∞‘¿”¿Ã Playing ªÛ≈¬¿œ ∂ß∏∏ «•Ω√
-    //private void OnGUI()
-    //{
-    //    if (!Application.isEditor || !enabled ||
-    //        GameManager.Instance.currentGameState != GameState.Playing)
-    //        return;
+    private int GetOptimalSpawnQuadrant()
+    {
+        if (playerTransform == null) return Random.Range(0, 4);
 
-    //    GUILayout.BeginArea(new Rect(10, 10, 300, 150));
-    //    GUILayout.Label($"Game Time: {(int)(gameTime / 60):D2}:{(gameTime % 60):00.0}");
-    //    GUILayout.Label($"Spawn Interval: {currentSpawnInterval:F1}s");
-    //    GUILayout.Label($"Spawn Amount: {currentSpawnAmount}");
-    //    GUILayout.Label($"Next Spawn: {(nextSpawnTime - Time.time):F1}s");
+        // ÌîåÎ†àÏù¥Ïñ¥Ïùò Ïù¥Îèô Î∞©Ìñ• Í≥†Î†§
+        Rigidbody2D playerRb = playerTransform.GetComponent<Rigidbody2D>();
+        Vector2 playerVelocity = playerRb != null ? playerRb.linearVelocity : Vector2.zero;
 
-    //    // «ˆ¿Á Ω∫∆˘µ» ¿˚µÈ¿« ∫Ò¿≤ «•Ω√
-    //    foreach (var settings in enemyDatabase.enemySettings)
-    //    {
-    //        float ratio = gameTime == 0 ? 0 :
-    //                     (settings.spawnCount * 100f / enemyDatabase.ratioCheckInterval);
-    //        GUILayout.Label($"{settings.enemyData.enemyName}: {ratio:F1}%");
-    //    }
-    //    GUILayout.EndArea();
-    //}
+        if (Mathf.Abs(playerVelocity.x) > Mathf.Abs(playerVelocity.y))
+        {
+            return playerVelocity.x > 0 ? 3 : 1; // Ïò§Î•∏Ï™Ω ÎòêÎäî ÏôºÏ™Ω
+        }
+        else
+        {
+            return playerVelocity.y > 0 ? 0 : 2; // ÏúÑ ÎòêÎäî ÏïÑÎûò
+        }
+    }
 
-    // µπˆ±◊øÎ ±‚¡Ó∏
-    //private void OnDrawGizmos()
-    //{
-    //    if (!Application.isPlaying || playerTransform == null)
-    //        return;
+    private Vector2 GenerateQuadrantSpawnPosition(int quadrant)
+    {
+        float angle = Random.Range(quadrant * 90f, (quadrant + 1) * 90f) * Mathf.Deg2Rad;
+        float distance = Random.Range(minSpawnDistance, spawnRadius);
 
-    //    Gizmos.color = Color.yellow;
-    //    Gizmos.DrawWireSphere(playerTransform.position, spawnRadius);
+        return new Vector2(
+            Mathf.Cos(angle) * distance,
+            Mathf.Sin(angle) * distance
+        );
+    }
 
-    //    Gizmos.color = Color.red;
-    //    Gizmos.DrawWireSphere(playerTransform.position, minSpawnDistance);
-    //}
+    private Vector2 GenerateSpawnPosition()
+    {
+        float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+        float distance = Random.Range(minSpawnDistance, spawnRadius);
+
+        return new Vector2(
+            Mathf.Cos(angle) * distance,
+            Mathf.Sin(angle) * distance
+        );
+    }
+
+    private bool IsPositionVisible(Vector2 viewportPoint)
+    {
+        return viewportPoint.x >= 0 && viewportPoint.x <= 1 &&
+               viewportPoint.y >= 0 && viewportPoint.y <= 1;
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+        }
+    }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        if (!Application.isPlaying) return;
+
+        // Ïä§Ìè∞ ÏòÅÏó≠ ÏãúÍ∞ÅÌôî
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(playerTransform ? playerTransform.position : transform.position, spawnRadius);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(playerTransform ? playerTransform.position : transform.position, minSpawnDistance);
+
+        // Ï∫êÏãúÎêú Ïä§Ìè∞ Ìè¨Ïù∏Ìä∏ ÏãúÍ∞ÅÌôî
+        if (playerTransform)
+        {
+            Gizmos.color = Color.yellow;
+            Vector3 playerPos = playerTransform.position;
+            for (int i = 0; i < 4; i++)
+            {
+                if (quadrantSpawnPoints[i] != null)
+                {
+                    foreach (var point in quadrantSpawnPoints[i])
+                    {
+                        Gizmos.DrawWireSphere(point + (Vector2)playerPos, 0.3f);
+                    }
+                }
+            }
+        }
+    }
+#endif
 }
-

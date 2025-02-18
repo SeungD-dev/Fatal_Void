@@ -568,6 +568,7 @@ MonoBehaviour:
   minSpawnDistance: 12
   spawnSettings: {fileID: 11400000, guid: dbd7cd94294d3944083b9f5ac6156d47, type: 2}
   enemyDatabase: {fileID: 11400000, guid: 86abcebe19497e74baade4150861909c, type: 2}
+  spawnPositionCacheSize: 100
 --- !u!1 &777942076
 GameObject:
   m_ObjectHideFlags: 0
@@ -1063,6 +1064,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highlighter: {fileID: 92931844}
+--- !u!1 &1952542279
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1952542281}
+  - component: {fileID: 1952542280}
+  m_Layer: 0
+  m_Name: EnemyCullingManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1952542280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1952542279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7c098e7030c4724591ae0fcf1e866c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cullingDistance: 30
+  updateInterval: 0.5
+--- !u!4 &1952542281
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1952542279}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &389333318044411463
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1430,3 +1477,4 @@ SceneRoots:
   - {fileID: 815165775}
   - {fileID: 777942078}
   - {fileID: 1008272428}
+  - {fileID: 1952542281}
