@@ -2,72 +2,80 @@ using UnityEngine;
 
 public class MachinegunMechanism : WeaponMechanism
 {
-    private float spreadAngle = 10f; // 탄퍼짐 각도 (양쪽으로 ±30도)
+    private const float SPREAD_ANGLE = 10f;
 
-    protected override void Attack(Transform target)
-    {
-        if (target == null) return;
-
-        SoundManager.Instance.PlaySound("Machinegun_atk", 1f, false);
-
-        // 기본 발사 방향 계산
-        Vector2 baseDirection = (target.position - playerTransform.position).normalized;
-
-        // 랜덤한 탄퍼짐 각도 생성
-        float randomSpread = Random.Range(-spreadAngle, spreadAngle);
-
-        // 탄퍼짐이 적용된 실제 발사 방향 계산
-        float baseAngle = Mathf.Atan2(baseDirection.y, baseDirection.x) * Mathf.Rad2Deg;
-        float finalAngle = baseAngle + randomSpread;
-
-        // 최종 방향을 Vector2로 변환
-        Vector2 spreadDirection = new Vector2(
-            Mathf.Cos(finalAngle * Mathf.Deg2Rad),
-            Mathf.Sin(finalAngle * Mathf.Deg2Rad)
-        ).normalized;
-
-        FireProjectileWithSpread(target, spreadDirection);
-    }
-
-    private void FireProjectileWithSpread(Transform target, Vector2 spreadDirection)
-    {
-        GameObject projectileObj = ObjectPool.Instance.SpawnFromPool(
-            poolTag,
-            playerTransform.position,
-            Quaternion.identity
-        );
-
-        MachinegunProjectile projectile = projectileObj.GetComponent<MachinegunProjectile>();
-        if (projectile != null)
-        {
-            float damage = weaponData.CalculateFinalDamage(playerStats);
-            float knockbackPower = weaponData.CalculateFinalKnockback(playerStats);
-            float projectileSpeed = weaponData.CurrentTierStats.projectileSpeed;
-            float projectileSize = weaponData.CalculateFinalProjectileSize(playerStats);
-
-            projectile.SetPoolTag(poolTag);
-            projectile.Initialize(
-                damage,
-                spreadDirection,
-                projectileSpeed,
-                knockbackPower,
-                currentRange,
-                projectileSize
-            );
-        }
-    }
+    // 캐싱용 변수들
+    private Vector2 baseDirection;
+    private Vector2 spreadDirection;
+    private Vector3 spawnPosition;
+    private float baseAngle;
+    private float finalAngle;
+    private float cosAngle;
+    private float sinAngle;
     protected override void InitializeProjectilePool()
     {
         poolTag = $"{weaponData.weaponType}Projectile";
         if (weaponData.projectilePrefab != null)
         {
-            // 풀 크기를 더 크게 설정
-            ObjectPool.Instance.CreatePool(poolTag, weaponData.projectilePrefab, 20);
-            Debug.Log($"Created projectile pool with tag: {poolTag}");
+            int poolSize = Mathf.Max(20, (int)(1f / currentAttackDelay * 3f)); // 3초 분량
+            ObjectPool.Instance.CreatePool(poolTag, weaponData.projectilePrefab, poolSize);
         }
         else
         {
             Debug.LogError($"Projectile prefab is missing for weapon: {weaponData.weaponName}");
         }
     }
+    protected override void Attack(Transform target)
+    {
+        if (target == null) return;
+
+        SoundManager.Instance.PlaySound("Machinegun_atk", 1f, false);
+
+        spawnPosition.x = playerTransform.position.x;
+        spawnPosition.y = playerTransform.position.y;
+
+        baseDirection.x = target.position.x - spawnPosition.x;
+        baseDirection.y = target.position.y - spawnPosition.y;
+
+        float magnitude = Mathf.Sqrt(baseDirection.x * baseDirection.x + baseDirection.y * baseDirection.y);
+        if (magnitude > 0)
+        {
+            baseDirection.x /= magnitude;
+            baseDirection.y /= magnitude;
+        }
+
+        baseAngle = Mathf.Atan2(baseDirection.y, baseDirection.x) * Mathf.Rad2Deg;
+        finalAngle = (baseAngle + Random.Range(-SPREAD_ANGLE, SPREAD_ANGLE)) * Mathf.Deg2Rad;
+
+        cosAngle = Mathf.Cos(finalAngle);
+        sinAngle = Mathf.Sin(finalAngle);
+
+        spreadDirection.x = cosAngle;
+        spreadDirection.y = sinAngle;
+
+        FireProjectileWithSpread(spreadDirection);
+    }
+
+
+    private void FireProjectileWithSpread(Vector2 direction)
+    {
+        GameObject projectileObj = ObjectPool.Instance.SpawnFromPool(
+            poolTag,
+            spawnPosition,
+            Quaternion.identity
+        );
+
+        if (projectileObj != null && projectileObj.TryGetComponent(out MachinegunProjectile projectile))
+        {
+            projectile.SetPoolTag(poolTag);
+            projectile.Initialize(
+                weaponData.CalculateFinalDamage(playerStats),
+                direction,
+                weaponData.CurrentTierStats.projectileSpeed,
+                weaponData.CalculateFinalKnockback(playerStats),
+                currentRange,
+                weaponData.CalculateFinalProjectileSize(playerStats)
+            );
+        }
+    }  
 }
