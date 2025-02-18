@@ -4,92 +4,110 @@ using UnityEngine;
 public class SawbladeProjectile : BaseProjectile
 {
     [SerializeField] private float rotationSpeed = 720f;
-    private HashSet<Enemy> hitEnemies = new HashSet<Enemy>();
-    private int bounceCount = 0;
+    private readonly HashSet<Enemy> hitEnemies = new HashSet<Enemy>(8); // 초기 용량 지정
+    private int bounceCount;
     private Camera mainCamera;
     private const int MAX_BOUNCES = 2;
+    private float angleZ;
+
+    // 카메라 경계 캐싱
+    private float cameraHeight;
+    private float cameraWidth;
+    private Vector2 cameraPosition;
+    private float leftBound;
+    private float rightBound;
+    private float bottomBound;
+    private float topBound;
+    private Vector2 currentPosition;
+    private Vector2 newDirection;
+    private Vector2 knockbackForce;
 
     protected override void Awake()
     {
         base.Awake();
         mainCamera = Camera.main;
+        UpdateCameraBounds();
     }
 
+    private void UpdateCameraBounds()
+    {
+        if (mainCamera == null) return;
+
+        cameraHeight = 2f * mainCamera.orthographicSize;
+        cameraWidth = cameraHeight * mainCamera.aspect;
+        cameraPosition = mainCamera.transform.position;
+
+        leftBound = cameraPosition.x - cameraWidth * 0.5f;
+        rightBound = cameraPosition.x + cameraWidth * 0.5f;
+        bottomBound = cameraPosition.y - cameraHeight * 0.5f;
+        topBound = cameraPosition.y + cameraHeight * 0.5f;
+    }
     public override void OnObjectSpawn()
     {
         base.OnObjectSpawn();
         bounceCount = 0;
         hitEnemies.Clear();
+        angleZ = 0f;
+        UpdateCameraBounds();
     }
-
     protected override void Update()
     {
-        // 지속적인 회전
-        transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);
+        // 회전 최적화
+        angleZ = (angleZ + rotationSpeed * Time.deltaTime) % 360f;
+        transform.rotation = Quaternion.Euler(0f, 0f, angleZ);
 
-        // 투사체 이동
         transform.Translate(direction * speed * Time.deltaTime, Space.World);
 
-        CheckCameraBounds();
+        if (Time.frameCount % 5 == 0) // 5프레임마다 경계 체크
+        {
+            UpdateCameraBounds();
+            CheckCameraBounds();
+        }
     }
 
     private void CheckCameraBounds()
     {
-        float cameraHeight = 2f * mainCamera.orthographicSize;
-        float cameraWidth = cameraHeight * mainCamera.aspect;
-
-        Vector2 cameraPosition = mainCamera.transform.position;
-        float leftBound = cameraPosition.x - cameraWidth / 2;
-        float rightBound = cameraPosition.x + cameraWidth / 2;
-        float bottomBound = cameraPosition.y - cameraHeight / 2;
-        float topBound = cameraPosition.y + cameraHeight / 2;
-
-        Vector2 position = transform.position;
+        currentPosition = transform.position;
         bool bounced = false;
-        Vector2 newDirection = direction;
+        newDirection = direction;
 
-        // 수평 경계 체크
-        if (position.x <= leftBound || position.x >= rightBound)
+        if (currentPosition.x <= leftBound || currentPosition.x >= rightBound)
         {
             newDirection.x = -direction.x;
             bounced = true;
-            position.x = Mathf.Clamp(position.x, leftBound, rightBound);
+            currentPosition.x = Mathf.Clamp(currentPosition.x, leftBound, rightBound);
         }
 
-        // 수직 경계 체크
-        if (position.y <= bottomBound || position.y >= topBound)
+        if (currentPosition.y <= bottomBound || currentPosition.y >= topBound)
         {
             newDirection.y = -direction.y;
             bounced = true;
-            position.y = Mathf.Clamp(position.y, bottomBound, topBound);
+            currentPosition.y = Mathf.Clamp(currentPosition.y, bottomBound, topBound);
         }
 
         if (bounced)
         {
             bounceCount++;
-
-            transform.position = position;
-            direction = newDirection.normalized;
+            transform.position = currentPosition;
+            direction = newDirection;
             hitEnemies.Clear();
 
-            // 3번째 벽과 충돌할 때 (bounceCount가 2를 초과할 때) 풀로 반환
             if (bounceCount > MAX_BOUNCES)
             {
                 ReturnToPool();
             }
         }
     }
-
     protected override void ApplyDamageAndEffects(Enemy enemy)
     {
-        if (hitEnemies.Contains(enemy)) return;
+        if (!hitEnemies.Add(enemy)) return; // HashSet.Add의 반환값 활용
 
-        hitEnemies.Add(enemy);
         enemy.TakeDamage(damage);
 
         if (knockbackPower > 0)
         {
-            Vector2 knockbackForce = direction * knockbackPower;
+            knockbackForce.x = direction.x * knockbackPower;
+            knockbackForce.y = direction.y * knockbackPower;
             enemy.ApplyKnockback(knockbackForce);
         }
 
@@ -101,5 +119,6 @@ public class SawbladeProjectile : BaseProjectile
         base.OnDisable();
         bounceCount = 0;
         hitEnemies.Clear();
+        angleZ = 0f;
     }
 }
