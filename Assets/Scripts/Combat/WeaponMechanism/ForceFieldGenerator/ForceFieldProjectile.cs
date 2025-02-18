@@ -8,12 +8,35 @@ public class ForceFieldProjectile : BaseProjectile
     private float actualRadius;  // Force Field Radius 값 저장용
     private Transform playerTransform;
 
+    private  Vector2 currentPosition = Vector2.zero;
+    private Vector2 targetPosition = Vector2.zero;
+    private Vector2 knockbackDirection = Vector2.zero;
+
+    // 충돌 검사용 캐싱
+    private readonly Collider2D[] hitResults = new Collider2D[20];
+    private ContactFilter2D contactFilter;
+    private int enemyLayer;
+
     protected override void Awake()
     {
         base.Awake();
-        originalScale = transform.localScale;
-    }
+        enemyLayer = LayerMask.NameToLayer("Enemy");
 
+        contactFilter = new ContactFilter2D
+        {
+            useLayerMask = true,
+            layerMask = LayerMask.GetMask("Enemy"),
+            useTriggers = true
+        };
+    }
+    public void SetupForceField(float interval, Transform player, float radius)
+    {
+        tickInterval = interval;
+        lastTickTime = Time.time;
+        playerTransform = player;
+        actualRadius = radius;
+        UpdateVisualScale();
+    }
     public void SetTickInterval(float interval)
     {
         tickInterval = interval;
@@ -49,7 +72,6 @@ public class ForceFieldProjectile : BaseProjectile
 
     private void UpdateVisualScale()
     {
-        // 시각적 크기를 actualRadius의 2배로 설정 (지름)
         transform.localScale = Vector3.one * (actualRadius * 4);
     }
     protected override void Update()
@@ -67,22 +89,34 @@ public class ForceFieldProjectile : BaseProjectile
 
     private void ApplyDamageInRange()
     {
-        //Debug.Log($"Checking for enemies in radius: {actualRadius}");
-        // Force Field Radius 값으로 범위 체크
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, actualRadius);
-        foreach (Collider2D col in colliders)
-        {
-            if (col.CompareTag("Enemy"))
-            {
-                Enemy enemy = col.GetComponent<Enemy>();
-                if (enemy != null)
-                {
-                    enemy.TakeDamage(damage);
+        currentPosition.x = transform.position.x;
+        currentPosition.y = transform.position.y;
 
-                    if (knockbackPower > 0)
+        int hitCount = Physics2D.OverlapCircle(currentPosition, actualRadius, contactFilter, hitResults);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            if (hitResults[i].gameObject.layer == enemyLayer &&
+                hitResults[i].TryGetComponent(out Enemy enemy))
+            {
+                enemy.TakeDamage(damage);
+
+                if (knockbackPower > 0)
+                {
+                    targetPosition.x = enemy.transform.position.x;
+                    targetPosition.y = enemy.transform.position.y;
+
+                    knockbackDirection.x = targetPosition.x - currentPosition.x;
+                    knockbackDirection.y = targetPosition.y - currentPosition.y;
+
+                    float magnitude = Mathf.Sqrt(knockbackDirection.x * knockbackDirection.x +
+                                               knockbackDirection.y * knockbackDirection.y);
+
+                    if (magnitude > 0)
                     {
-                        Vector2 knockbackDirection = ((Vector2)(enemy.transform.position - transform.position)).normalized;
-                        enemy.ApplyKnockback(knockbackDirection * knockbackPower);
+                        knockbackDirection.x = (knockbackDirection.x / magnitude) * knockbackPower;
+                        knockbackDirection.y = (knockbackDirection.y / magnitude) * knockbackPower;
+                        enemy.ApplyKnockback(knockbackDirection);
                     }
                 }
             }
