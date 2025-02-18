@@ -564,6 +564,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c573bdaa5fee7541988586c670180c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cullingManager: {fileID: 1952542280}
   spawnRadius: 15
   minSpawnDistance: 12
   spawnSettings: {fileID: 11400000, guid: dbd7cd94294d3944083b9f5ac6156d47, type: 2}
@@ -1093,8 +1094,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7c098e7030c4724591ae0fcf1e866c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cullingDistance: 30
+  cullingDistance: 12
   updateInterval: 0.5
+  screenBuffer: 0.2
 --- !u!4 &1952542281
 Transform:
   m_ObjectHideFlags: 0

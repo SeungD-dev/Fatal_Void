@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 public class SpawnController : MonoBehaviour
 {
+    [Header("References")]
+    [SerializeField] private EnemyCullingManager cullingManager;
+
     [Header("Spawn Settings")]
     [SerializeField] private float spawnRadius = 15f;
     [SerializeField] private float minSpawnDistance = 12f;
@@ -35,7 +38,13 @@ public class SpawnController : MonoBehaviour
         GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
         InitializeSpawnSystem();
     }
-
+    private void OnValidate()
+    {
+        if (cullingManager == null)
+        {
+            Debug.LogError("EnemyCullingManager reference is missing in SpawnController!");
+        }
+    }
     private void InitializeSpawnSystem()
     {
         mainCamera = Camera.main;
@@ -99,9 +108,18 @@ public class SpawnController : MonoBehaviour
         {
             if (settings.enemyData != null && settings.enemyData.enemyPrefab != null)
             {
+                GameObject prefabInstance = settings.enemyData.enemyPrefab;
+
+                // 프리팹의 Enemy 컴포넌트에 CullingManager 참조 설정
+                Enemy enemyComponent = prefabInstance.GetComponent<Enemy>();
+                if (enemyComponent != null)
+                {
+                    enemyComponent.SetCullingManager(cullingManager);
+                }
+
                 ObjectPool.Instance.CreatePool(
                     settings.enemyData.enemyName,
-                    settings.enemyData.enemyPrefab,
+                    prefabInstance,
                     settings.enemyData.initialPoolSize
                 );
             }
@@ -185,6 +203,7 @@ public class SpawnController : MonoBehaviour
                 enemy.SetEnemyData(enemyData);
                 enemy.Initialize(playerTransform);
                 enemyAI.Initialize(playerTransform);
+                enemy.SetCullingManager(cullingManager);  // CullingManager 참조 설정
             }
             else
             {
@@ -193,6 +212,7 @@ public class SpawnController : MonoBehaviour
             }
         }
     }
+
 
     private Vector2 GetOptimizedSpawnPosition()
     {

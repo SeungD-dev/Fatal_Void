@@ -34,6 +34,8 @@ public class Enemy : MonoBehaviour, IPooledObject
     private bool isFlashing;
 
     // 캐시된 컴포넌트
+    private EnemyCullingManager cullingManager;
+    private EnemyAI enemyAI;
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
     private Rigidbody2D rb;
@@ -63,6 +65,7 @@ public class Enemy : MonoBehaviour, IPooledObject
 
     private void Awake()
     {
+        enemyAI = GetComponent<EnemyAI>();
         cachedTransform = transform;
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -75,6 +78,42 @@ public class Enemy : MonoBehaviour, IPooledObject
         originalScale = cachedTransform.localScale;
     }
 
+    private void OnEnable()
+    {
+        if(cullingManager != null)
+        {
+            cullingManager.RegisterEnemy(this);
+        }
+    }
+    public void SetCullingManager(EnemyCullingManager manager)
+    {
+        cullingManager = manager;
+        if (gameObject.activeInHierarchy)
+        {
+            cullingManager.RegisterEnemy(this);
+        }
+    }
+
+    public void SetCullingState(bool active)
+    {
+        // AI 비활성화
+        if (enemyAI != null)
+        {
+            enemyAI.enabled = active;
+        }
+
+        // 물리 시뮬레이션 비활성화
+        if (rb != null)
+        {
+            rb.simulated = active;
+        }
+
+        // 렌더링 비활성화
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = active;
+        }
+    }
     public void Initialize(Transform target)
     {
         targetTransform = target;
@@ -356,6 +395,11 @@ public class Enemy : MonoBehaviour, IPooledObject
 
     private void OnDisable()
     {
+        if (cullingManager != null)
+        {
+            cullingManager.UnregisterEnemy(this);
+        }
+
         StopAllCoroutines();
 
         if (spriteRenderer != null)
