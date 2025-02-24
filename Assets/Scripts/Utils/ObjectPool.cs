@@ -18,6 +18,18 @@ public class ObjectPool : MonoBehaviour
     [SerializeField] private List<Pool> pools;
     private Dictionary<string, Queue<GameObject>> poolDictionary;
     private Dictionary<string, Pool> poolConfigs;
+    private Dictionary<GameObject, string> objectToTagMap; // 오브젝트를 태그에 매핑하는 딕셔너리
+
+    // Scene 계층구조를 최적화하기 위한 옵션
+    [Tooltip("true: 풀 오브젝트를 계층 구조에서 분리, false: 기존 방식대로 계층 구조 유지")]
+    [SerializeField] private bool useOptimizedHierarchy = true;
+    [Tooltip("false로 설정시 오브젝트 풀링 디버깅이 어려울 수 있지만 성능은 향상됩니다")]
+
+    // 풀 컨테이너 캐싱 (기존 방식에서만 사용)
+    private Dictionary<string, Transform> poolContainers;
+
+    // 비활성화된 오브젝트의 부모 Transform (최적화 모드에서는 사용하지 않음)
+    private Transform inactiveObjectsParent;
 
     private static ObjectPool instance;
     public static ObjectPool Instance { get { return instance; } }
@@ -39,6 +51,11 @@ public class ObjectPool : MonoBehaviour
     {
         poolDictionary = new Dictionary<string, Queue<GameObject>>();
         poolConfigs = new Dictionary<string, Pool>();
+        objectToTagMap = new Dictionary<GameObject, string>();
+        poolContainers = new Dictionary<string, Transform>();
+
+        // 기존 방식에서는 자기 자신을 부모로 설정
+        inactiveObjectsParent = transform;
 
         foreach (Pool pool in pools)
         {
@@ -49,12 +66,18 @@ public class ObjectPool : MonoBehaviour
     private void CreateNewPool(Pool poolConfig)
     {
         Queue<GameObject> objectPool = new Queue<GameObject>();
-        GameObject poolContainer = new GameObject($"Pool-{poolConfig.tag}");
-        poolContainer.transform.SetParent(transform);
+
+        // 최적화 모드에서는 별도 컨테이너를 생성하지 않음
+        if (!useOptimizedHierarchy)
+        {
+            GameObject poolContainer = new GameObject($"Pool-{poolConfig.tag}");
+            poolContainer.transform.SetParent(transform);
+            poolContainers[poolConfig.tag] = poolContainer.transform;
+        }
 
         for (int i = 0; i < poolConfig.initialSize; i++)
         {
-            GameObject obj = CreateNewPoolObject(poolConfig.prefab, poolContainer.transform);
+            GameObject obj = CreateNewPoolObject(poolConfig.prefab, poolConfig.tag);
             objectPool.Enqueue(obj);
         }
 
@@ -62,9 +85,23 @@ public class ObjectPool : MonoBehaviour
         poolConfigs[poolConfig.tag] = poolConfig;
     }
 
-    private GameObject CreateNewPoolObject(GameObject prefab, Transform parent)
+    private GameObject CreateNewPoolObject(GameObject prefab, string tag)
     {
-        GameObject obj = Instantiate(prefab, parent);
+        GameObject obj = Instantiate(prefab);
+
+        // 최적화 모드에서는 계층 구조에서 완전히 분리
+        if (useOptimizedHierarchy)
+        {
+            // Scene에서 루트 레벨로 설정하여 Transform 연산 최소화
+            obj.transform.SetParent(null);
+        }
+        else
+        {
+            // 기존 방식대로 풀 컨테이너의 자식으로 설정
+            obj.transform.SetParent(poolContainers[tag]);
+        }
+
+        objectToTagMap[obj] = tag; // 오브젝트와 태그 매핑 저장
         obj.SetActive(false);
         return obj;
     }
@@ -86,13 +123,6 @@ public class ObjectPool : MonoBehaviour
         if (pool.Count == 0)
         {
             // 풀 확장
-            GameObject poolContainer = transform.Find($"Pool-{tag}")?.gameObject;
-            if (poolContainer == null)
-            {
-                poolContainer = new GameObject($"Pool-{tag}");
-                poolContainer.transform.SetParent(transform);
-            }
-
             // 최대 크기 체크
             int currentTotalSize = CountActiveAndInactiveObjects(tag);
             int growSize = config.growSize;
@@ -111,25 +141,25 @@ public class ObjectPool : MonoBehaviour
             // 새 오브젝트들 생성
             for (int i = 0; i < growSize - 1; i++) // -1 because we'll create one more below
             {
-                GameObject newObj = CreateNewPoolObject(config.prefab, poolContainer.transform);
+                GameObject newObj = CreateNewPoolObject(config.prefab, tag);
                 pool.Enqueue(newObj);
             }
 
-            objectToSpawn = CreateNewPoolObject(config.prefab, poolContainer.transform);
+            objectToSpawn = CreateNewPoolObject(config.prefab, tag);
         }
         else
         {
             objectToSpawn = pool.Dequeue();
             if (objectToSpawn == null) // 풀에 있는 오브젝트가 파괴된 경우
             {
-                GameObject poolContainer = transform.Find($"Pool-{tag}")?.gameObject;
-                objectToSpawn = CreateNewPoolObject(config.prefab, poolContainer ? poolContainer.transform : transform);
+                objectToSpawn = CreateNewPoolObject(config.prefab, tag);
             }
         }
 
-        objectToSpawn.SetActive(true);
+        // 오브젝트 위치 및 회전 설정 (SetActive 전에 수행하여 불필요한 이벤트 호출 방지)
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
+        objectToSpawn.SetActive(true);
 
         IPooledObject pooledObj = objectToSpawn.GetComponent<IPooledObject>();
         if (pooledObj != null)
@@ -138,6 +168,18 @@ public class ObjectPool : MonoBehaviour
         }
 
         return objectToSpawn;
+    }
+
+    public void ReturnToPool(GameObject objectToReturn)
+    {
+        // 태그 매핑을 통해 오브젝트가 속한 풀 찾기
+        if (!objectToTagMap.TryGetValue(objectToReturn, out string tag))
+        {
+            Debug.LogWarning($"Object not managed by pool: {objectToReturn.name}");
+            return;
+        }
+
+        ReturnToPool(tag, objectToReturn);
     }
 
     public void ReturnToPool(string tag, GameObject objectToReturn)
@@ -149,6 +191,14 @@ public class ObjectPool : MonoBehaviour
         }
 
         objectToReturn.SetActive(false);
+
+        // 최적화 모드: 계층 구조에서 완전히 분리
+        if (!useOptimizedHierarchy)
+        {
+            // 기존 방식에서만 풀 컨테이너의 자식으로 설정
+            objectToReturn.transform.SetParent(poolContainers[tag]);
+        }
+
         poolDictionary[tag].Enqueue(objectToReturn);
     }
 
@@ -176,13 +226,20 @@ public class ObjectPool : MonoBehaviour
     {
         if (!poolDictionary.ContainsKey(tag)) return 0;
 
-        int count = poolDictionary[tag].Count;
-        Transform poolContainer = transform.Find($"Pool-{tag}");
-        if (poolContainer != null)
+        // 비활성화된 오브젝트 수(큐에 있는 오브젝트)
+        int inactiveCount = poolDictionary[tag].Count;
+
+        // 활성화된 오브젝트 수 계산
+        int activeCount = 0;
+        foreach (var pair in objectToTagMap)
         {
-            count += poolContainer.childCount;
+            if (pair.Value == tag && pair.Key.activeSelf)
+            {
+                activeCount++;
+            }
         }
-        return count;
+
+        return activeCount + inactiveCount;
     }
 
     public void ReturnAllObjectsToPool(string tag)
@@ -193,17 +250,44 @@ public class ObjectPool : MonoBehaviour
             return;
         }
 
-        Transform poolContainer = transform.Find($"Pool-{tag}");
-        if (poolContainer == null) return;
+        // 모든 오브젝트 중 해당 태그를 가진 활성화된 오브젝트를 찾아 반환
+        List<GameObject> objectsToReturn = new List<GameObject>();
 
-        // 모든 자식 오브젝트를 순회하면서 활성화된 오브젝트만 풀로 반환
-        for (int i = poolContainer.childCount - 1; i >= 0; i--)
+        foreach (var pair in objectToTagMap)
         {
-            Transform child = poolContainer.GetChild(i);
-            if (child.gameObject.activeSelf)
+            if (pair.Value == tag && pair.Key.activeSelf)
             {
-                ReturnToPool(tag, child.gameObject);
+                objectsToReturn.Add(pair.Key);
             }
         }
+
+        foreach (var obj in objectsToReturn)
+        {
+            ReturnToPool(tag, obj);
+        }
+    }
+
+    // 기존 API와의 호환성을 위한 메서드
+    public void ReturnToPool(string tag, GameObject objectToReturn, bool forceParenting = false)
+    {
+        if (!poolDictionary.ContainsKey(tag))
+        {
+            Debug.LogWarning($"Pool with tag {tag} doesn't exist.");
+            return;
+        }
+
+        objectToReturn.SetActive(false);
+
+        // forceParenting이 true이면 항상 풀 컨테이너의 자식으로 설정 (기존 방식과 호환성 유지)
+        if (forceParenting || !useOptimizedHierarchy)
+        {
+            // 기존 풀 컨테이너가 있는 경우에만 부모로 설정
+            if (poolContainers.TryGetValue(tag, out Transform container))
+            {
+                objectToReturn.transform.SetParent(container);
+            }
+        }
+
+        poolDictionary[tag].Enqueue(objectToReturn);
     }
 }

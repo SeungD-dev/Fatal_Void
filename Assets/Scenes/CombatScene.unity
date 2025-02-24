@@ -854,6 +854,7 @@ MonoBehaviour:
     initialSize: 4
     maxSize: 8
     growSize: 4
+  useOptimizedHierarchy: 1
 --- !u!4 &1471452497
 Transform:
   m_ObjectHideFlags: 0
