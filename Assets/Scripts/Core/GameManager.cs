@@ -326,8 +326,8 @@ public class GameManager : MonoBehaviour
         string[] weaponTypes = { "Buster", "Machinegun", "BeamSaber", "Shotgun", "Cutter", "Sawblade", "Grinder", "ForceField" };
         for (int i = 0; i < weaponTypes.Length; i++)
         {
-            string poolName = $"{weaponTypes[i]}Projectile";
-            GameObject prefab = Resources.Load<GameObject>($"Prefabs/Weapons/{poolName}");
+            string poolName = $"{weaponTypes[i]}_Projectile";
+            GameObject prefab = Resources.Load<GameObject>($"Prefabs/Weapons/Projectile{poolName}");
             if (prefab != null)
             {
                 int poolSize = GetOptimalPoolSize(weaponTypes[i]);
@@ -348,24 +348,24 @@ public class GameManager : MonoBehaviour
         switch (weaponType)
         {
             case "Machinegun": return 50;
-            case "Shotgun": return 30;
+            case "Shotgun": return 20;
             case "Buster": return 15;
-            case "Cutter":
+            case "Cutter": return 20;
             case "Sawblade": return 10;
-            case "BeamSaber": return 5;
-            case "Grinder": return 8;
-            case "ForceField": return 2;
-            default: return 10;
+            case "BeamSaber": return 12;
+            case "Grinder": return 12;
+            case "ForceField": return 4;
+            default: return 15;
         }
     }
 
     private IEnumerator PreloadGameResources()
     {
         // 적 프리팹 로드
-        string[] enemyTypes = { "BasicEnemy", "FastEnemy", "TankEnemy", "RangedEnemy" };
+        string[] enemyTypes = { "Walker", "Hunter", "Heavy"};
         for (int i = 0; i < enemyTypes.Length; i++)
         {
-            GameObject enemyPrefab = Resources.Load<GameObject>($"Prefabs/Enemies/{enemyTypes[i]}");
+            GameObject enemyPrefab = Resources.Load<GameObject>($"Prefabs/Characters/{enemyTypes[i]}");
             if (enemyPrefab != null)
             {
                 ObjectPool.Instance.CreatePool(enemyTypes[i], enemyPrefab, 15);
@@ -379,12 +379,12 @@ public class GameManager : MonoBehaviour
         // 아이템 프리팹 로드
         string[] itemTypes = {
             "ExperienceSmall", "ExperienceMedium", "ExperienceLarge",
-            "Gold", "HealthPotion", "Magnet"
+            "Coin", "Potion", "Magnet"
         };
 
         for (int i = 0; i < itemTypes.Length; i++)
         {
-            GameObject itemPrefab = Resources.Load<GameObject>($"Prefabs/Items/{itemTypes[i]}");
+            GameObject itemPrefab = Resources.Load<GameObject>($"Prefabs/Collectibles/{itemTypes[i]}");
             if (itemPrefab != null)
             {
                 int poolSize = (itemTypes[i].Contains("Experience")) ? 30 : 10;

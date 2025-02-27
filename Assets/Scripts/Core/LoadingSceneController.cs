@@ -6,40 +6,25 @@ using System.Collections.Generic;
 
 public class LoadingSceneController : MonoBehaviour
 {
-    [Header("UI 요소")]
+    [Header("UI Referecenes")]
     [SerializeField] private Slider progressBar;
     [SerializeField] private TextMeshProUGUI progressText;
     [SerializeField] private TextMeshProUGUI tipText;
-    [SerializeField] private Image loadingIcon;
     [SerializeField] private Image backgroundImage;
     [SerializeField] private CanvasGroup fadeCanvasGroup;
 
-    [Header("로딩 애니메이션")]
+    [Header("Loading Animation")]
     [SerializeField] private float rotationSpeed = 180f;
     [SerializeField] private bool clockwise = true;
     [SerializeField] private float fadeInDuration = 0.5f;
     [SerializeField] private float fadeOutDuration = 0.5f;
 
-    [Header("팁 메시지")]
+    [Header("Tip Messages")]
     [SerializeField]
     private List<string> tipMessages = new List<string> {
-        "적들이 드롭하는 경험치 구슬을 모아 레벨업하세요!",
-        "각 무기는 독특한 특성을 가지고 있습니다. 다양한 무기 조합을 시도해보세요.",
-        "Buster는 기본적인 공격력을 가진 투사체를 발사합니다.",
-        "Machinegun은 빠른 연사 속도로 약한 투사체를 발사합니다.",
-        "BeamSaber는 주변의 모든 적에게 데미지를 주는 회전 공격입니다.",
-        "Cutter는 적을 관통하고 다시 돌아오는 투사체를 발사합니다.",
-        "Sawblade는 벽에 부딪히면 튕겨나가는 투사체를 발사합니다.",
-        "Shotgun은 여러 발의 투사체를 부채꼴 형태로 발사합니다.",
-        "Grinder는 땅에 착지하여 지속적으로 데미지를 주는 투사체를 발사합니다.",
-        "ForceField는 플레이어 주변에 데미지를 주는 필드를 생성합니다.",
-        "강력한 적들은 더 많은 코인과 경험치를 드롭합니다.",
-        "쿨다운을 감소시키면 더 자주 공격할 수 있습니다.",
-        "넉백 효과는 적들을 밀어내 안전한 거리를 유지할 수 있게 합니다.",
-        "범위 증가는 무기의 공격 범위를 넓혀줍니다.",
-        "이동 속도는 적들을 피하는 데 중요합니다.",
-        "경험치 획득 범위를 늘리면 멀리있는 경험치도 습득할 수 있습니다.",
-        "체력 회복 효과를 높이면 생존 가능성이 증가합니다."
+        "Tip Messages0",
+        "Tip Messages1",
+        "Tip Messages2"
     };
 
     private int currentTipIndex = -1;
@@ -82,7 +67,7 @@ public class LoadingSceneController : MonoBehaviour
 
         if (GameManager.Instance == null)
         {
-            Debug.LogError("GameManager 인스턴스를 찾을 수 없습니다!");
+            Debug.LogError("GameManager Instance Cannot be found");
             yield break;
         }
 
@@ -142,7 +127,7 @@ public class LoadingSceneController : MonoBehaviour
         }
 
         currentTipIndex = randomIndex;
-        tipText.text = tipMessages[currentTipIndex];
+        tipText.text ="Tip : "+tipMessages[currentTipIndex];
     }
 
     private IEnumerator CycleTips()
@@ -207,13 +192,6 @@ public class LoadingSceneController : MonoBehaviour
             progressBar.value = smoothProgress;
             progressText.text = $"{Mathf.Round(smoothProgress * 100)}%";
             previousProgress = smoothProgress;
-
-            // 로딩 아이콘 회전
-            if (loadingIcon != null)
-            {
-                float rotationAmount = rotationSpeed * Time.deltaTime * (clockwise ? -1 : 1);
-                loadingIcon.transform.Rotate(0, 0, rotationAmount);
-            }
 
             yield return null;
         }
