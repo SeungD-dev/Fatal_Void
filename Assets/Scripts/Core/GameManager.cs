@@ -317,44 +317,115 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(poolObject);
         }
 
-        // 기본 풀 초기화
-        ObjectPool.Instance.CreatePool("BulletDestroyVFX", Resources.Load<GameObject>("Prefabs/VFX/BulletDestroyVFX"), 30);
+        // VFX 풀 초기화
+        InitializeVFXPools();
         LoadingProgress = 0.15f;
         yield return ResourceLoadDelay;
 
+        // 무기 풀 초기화
+        yield return InitializeWeaponPools();
+    }
+    private void InitializeVFXPools()
+    {
+        // 기본 VFX 풀 초기화 (로딩 단계에서 즉시 필요한 VFX)
+        GameObject bulletDestroyVFX = Resources.Load<GameObject>("Prefabs/VFX/BulletDestroyVFX");
+        if (bulletDestroyVFX != null)
+        {
+            ObjectPool.Instance.CreatePool("BulletDestroyVFX", bulletDestroyVFX, 30);
+        }
+        else
+        {
+            Debug.LogWarning("VFX 프리팹을 찾을 수 없습니다: BulletDestroyVFX");
+        }
+
+        // 필요한 경우 여기에 더 많은 기본 VFX를 추가할 수 있습니다
+    }
+
+    private IEnumerator InitializeWeaponPools()
+    {
         // 주요 무기 풀 초기화
         string[] weaponTypes = { "Buster", "Machinegun", "BeamSaber", "Shotgun", "Cutter", "Sawblade", "Grinder", "ForceField" };
+        float progressPerWeapon = 0.1f / weaponTypes.Length;
+        float currentProgress = 0.15f;
+
         for (int i = 0; i < weaponTypes.Length; i++)
         {
-            string poolName = $"{weaponTypes[i]}_Projectile";
+            string weaponType = weaponTypes[i];
+            string poolName = $"{weaponType}_Projectile";
             GameObject prefab = Resources.Load<GameObject>($"Prefabs/Weapons/Projectile{poolName}");
+
             if (prefab != null)
             {
-                int poolSize = GetOptimalPoolSize(weaponTypes[i]);
+                int poolSize = GetOptimalPoolSize(weaponType);
                 ObjectPool.Instance.CreatePool(poolName, prefab, poolSize);
+            }
+            else
+            {
+                Debug.LogWarning($"Weapon Prefab not found: {poolName}");
+            }
+
+            // Grinder에 대한 특수 처리 - Effect 풀도 생성
+            if (weaponType == "Grinder")
+            {
+                string effectPoolName = "Grinder_Effect";
+                GameObject effectPrefab = Resources.Load<GameObject>("Prefabs/Weapons/Grinder_Effect");
+
+                if (effectPrefab != null)
+                {
+                    int effectPoolSize = GetOptimalPoolSize("Grinder_Effect");
+                    ObjectPool.Instance.CreatePool(effectPoolName, effectPrefab, effectPoolSize);
+                }
+                else
+                {
+                    Debug.LogWarning($"Grinder Effect Prefab not found: {effectPoolName}");
+                }
             }
 
             // 진행률 업데이트
-            LoadingProgress = 0.15f + (0.1f * (i + 1) / weaponTypes.Length);
+            currentProgress += progressPerWeapon;
+            LoadingProgress = currentProgress;
             yield return ResourceLoadDelay;
-
             if (isLoadingCancelled) yield break;
         }
     }
 
-    private int GetOptimalPoolSize(string weaponType)
+    private int GetOptimalPoolSize(string objectType)
     {
-        // 무기 타입에 따라 적절한 풀 크기 반환
-        switch (weaponType)
+        // 오브젝트 타입에 따라 적절한 풀 크기 반환
+        switch (objectType)
         {
+            // 무기 타입
             case "Machinegun": return 50;
             case "Shotgun": return 20;
             case "Buster": return 15;
             case "Cutter": return 20;
             case "Sawblade": return 10;
             case "BeamSaber": return 12;
-            case "Grinder": return 12;
+            case "Grinder": return 24;
+            case "Grinder_Effect": return 48; // Grinder Projectile의 2배
             case "ForceField": return 4;
+
+            // 적 타입
+            case "Walker": return 15;
+            case "Hunter": return 15;
+            case "Heavy": return 15;
+
+            // 아이템 타입
+            case "ExperienceSmall": return 30;
+            case "ExperienceMedium": return 30;
+            case "ExperienceLarge": return 30;
+            case "Coin": return 10;
+            case "Potion": return 10;
+            case "Magnet": return 10;
+
+            // VFX 타입
+            case "BulletDestroyVFX": return 30;
+            case "HitVFX": return 10;
+            case "ExplosionVFX": return 10;
+            case "LevelUpVFX": return 5;
+            case "PickupVFX": return 10;
+
+            // 기본값
             default: return 15;
         }
     }
@@ -362,15 +433,21 @@ public class GameManager : MonoBehaviour
     private IEnumerator PreloadGameResources()
     {
         // 적 프리팹 로드
-        string[] enemyTypes = { "Walker", "Hunter", "Heavy"};
+        string[] enemyTypes = { "Walker", "Hunter", "Heavy" };
         for (int i = 0; i < enemyTypes.Length; i++)
         {
             GameObject enemyPrefab = Resources.Load<GameObject>($"Prefabs/Characters/{enemyTypes[i]}");
             if (enemyPrefab != null)
             {
-                ObjectPool.Instance.CreatePool(enemyTypes[i], enemyPrefab, 15);
+                int poolSize = GetOptimalPoolSize(enemyTypes[i]);
+                ObjectPool.Instance.CreatePool(enemyTypes[i], enemyPrefab, poolSize);
+            }
+            else
+            {
+                Debug.LogWarning($"적 프리팹을 찾을 수 없습니다: {enemyTypes[i]}");
             }
             yield return ResourceLoadDelay;
+            if (isLoadingCancelled) yield break;
         }
         LoadingProgress = 0.35f;
 
@@ -378,33 +455,44 @@ public class GameManager : MonoBehaviour
 
         // 아이템 프리팹 로드
         string[] itemTypes = {
-            "ExperienceSmall", "ExperienceMedium", "ExperienceLarge",
-            "Coin", "Potion", "Magnet"
-        };
+        "ExperienceSmall", "ExperienceMedium", "ExperienceLarge",
+        "Coin", "Potion", "Magnet"
+    };
 
         for (int i = 0; i < itemTypes.Length; i++)
         {
             GameObject itemPrefab = Resources.Load<GameObject>($"Prefabs/Collectibles/{itemTypes[i]}");
             if (itemPrefab != null)
             {
-                int poolSize = (itemTypes[i].Contains("Experience")) ? 30 : 10;
+                int poolSize = GetOptimalPoolSize(itemTypes[i]);
                 ObjectPool.Instance.CreatePool(itemTypes[i], itemPrefab, poolSize);
             }
+            else
+            {
+                Debug.LogWarning($"아이템 프리팹을 찾을 수 없습니다: {itemTypes[i]}");
+            }
             yield return ResourceLoadDelay;
+            if (isLoadingCancelled) yield break;
         }
         LoadingProgress = 0.45f;
 
-        // VFX 로드
-        string[] vfxTypes = { "HitVFX", "ExplosionVFX", "LevelUpVFX", "PickupVFX" };
-        for (int i = 0; i < vfxTypes.Length; i++)
-        {
-            GameObject vfxPrefab = Resources.Load<GameObject>($"Prefabs/VFX/{vfxTypes[i]}");
-            if (vfxPrefab != null)
-            {
-                ObjectPool.Instance.CreatePool(vfxTypes[i], vfxPrefab, 10);
-            }
-            yield return ResourceLoadDelay;
-        }
+        // 추가 VFX 로드 (기본 VFX 외에 필요한 VFX)
+        //string[] vfxTypes = { "HitVFX", "ExplosionVFX", "LevelUpVFX", "PickupVFX" };
+        //for (int i = 0; i < vfxTypes.Length; i++)
+        //{
+        //    GameObject vfxPrefab = Resources.Load<GameObject>($"Prefabs/VFX/{vfxTypes[i]}");
+        //    if (vfxPrefab != null)
+        //    {
+        //        int poolSize = GetOptimalPoolSize(vfxTypes[i]);
+        //        ObjectPool.Instance.CreatePool(vfxTypes[i], vfxPrefab, poolSize);
+        //    }
+        //    else
+        //    {
+        //        Debug.LogWarning($"VFX Prefab not found: {vfxTypes[i]}");
+        //    }
+        //    yield return ResourceLoadDelay;
+        //    if (isLoadingCancelled) yield break;
+        //}
         LoadingProgress = 0.5f;
     }
 
