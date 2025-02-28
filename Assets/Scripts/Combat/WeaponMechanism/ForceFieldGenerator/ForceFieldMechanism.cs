@@ -16,7 +16,7 @@ public class ForceFieldMechanism : WeaponMechanism
         if (currentForceField != null && currentForceField.gameObject != null)
         {
             // Destroy 대신 풀링 시스템 사용
-            ObjectPool.Instance?.ReturnToPool("ForceFieldProjectile", currentForceField.gameObject);
+            ObjectPool.Instance?.ReturnToPool("ForceField_Projectile", currentForceField.gameObject);
             currentForceField = null;
         }
     }
@@ -32,7 +32,7 @@ public class ForceFieldMechanism : WeaponMechanism
         spawnPosition.y = playerTransform.position.y;
 
         GameObject forceFieldObj = ObjectPool.Instance.SpawnFromPool(
-            "ForceFieldProjectile",
+            "ForceField_Projectile",
             spawnPosition,
             Quaternion.identity
         );

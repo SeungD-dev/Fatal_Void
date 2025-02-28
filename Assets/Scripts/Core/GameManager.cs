@@ -331,7 +331,7 @@ public class GameManager : MonoBehaviour
         GameObject bulletDestroyVFX = Resources.Load<GameObject>("Prefabs/VFX/BulletDestroyVFX");
         if (bulletDestroyVFX != null)
         {
-            ObjectPool.Instance.CreatePool("BulletDestroyVFX", bulletDestroyVFX, 30);
+            ObjectPool.Instance.CreatePool("Bullet_DestroyVFX", bulletDestroyVFX, 30);
         }
         else
         {

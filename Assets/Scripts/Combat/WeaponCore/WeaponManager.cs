@@ -145,14 +145,14 @@ public class WeaponManager : MonoBehaviour
                 //grinder.Cleanup();
                 break;
             case ShotgunMechanism shotgun:
-                ObjectPool.Instance?.ReturnAllObjectsToPool(shotgun.GetWeaponData().weaponType + "Projectile");
+                ObjectPool.Instance?.ReturnAllObjectsToPool(shotgun.GetWeaponData().weaponType + "_Projectile");
                 ObjectPool.Instance?.ReturnAllObjectsToPool("Bullet_DestroyVFX");
                 break;
             default:
                 // 기본 클린업 로직
                 if (mechanism.GetWeaponData() != null)
                 {
-                    string poolTag = mechanism.GetWeaponData().weaponType + "Projectile";
+                    string poolTag = mechanism.GetWeaponData().weaponType + "_Projectile";
                     ObjectPool.Instance?.ReturnAllObjectsToPool(poolTag);
                 }
                 break;

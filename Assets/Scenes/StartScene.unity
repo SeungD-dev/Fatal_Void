@@ -1037,6 +1037,97 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1120019037}
   m_CullTransparentMesh: 1
+--- !u!1 &1731096397
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1731096398}
+  - component: {fileID: 1731096399}
+  m_Layer: 0
+  m_Name: ObjectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1731096398
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731096397}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1731096399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731096397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27b1b1572d808874eb74d4a855aec165, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pools:
+  - tag: ForceField_Projectile
+    prefab: {fileID: 4589099209072863335, guid: 303cac38330921348b3eb8bec063a20a, type: 3}
+    initialSize: 4
+    maxSize: 8
+    growSize: 1
+  - tag: Bullet_DestroyVFX
+    prefab: {fileID: 4589099209072863335, guid: 3bb2ef6c3d329ba4797ad843732056c9, type: 3}
+    initialSize: 30
+    maxSize: 60
+    growSize: 1
+  - tag: Coin
+    prefab: {fileID: 3297419363890284131, guid: 95f261d8cfc52e745a09522baa401f87, type: 3}
+    initialSize: 30
+    maxSize: 60
+    growSize: 1
+  - tag: ExperienceSmall
+    prefab: {fileID: 3297419363890284131, guid: 2f5f8c5470f0a814fa44630f6d154c41, type: 3}
+    initialSize: 30
+    maxSize: 60
+    growSize: 1
+  - tag: ExperienceMedium
+    prefab: {fileID: 3297419363890284131, guid: 978fa82c3b204f8438d44120299e029c, type: 3}
+    initialSize: 30
+    maxSize: 60
+    growSize: 1
+  - tag: ExperienceLarge
+    prefab: {fileID: 3297419363890284131, guid: 4e8b4cd09b3e4064e9863b00cc4934ad, type: 3}
+    initialSize: 30
+    maxSize: 60
+    growSize: 1
+  - tag: Magnet
+    prefab: {fileID: 3297419363890284131, guid: 85ded1fd98133444d9bbdca581b7834b, type: 3}
+    initialSize: 10
+    maxSize: 20
+    growSize: 1
+  - tag: Potion
+    prefab: {fileID: 3297419363890284131, guid: 90153773ace59c14fa2b83e2c681b4d1, type: 3}
+    initialSize: 10
+    maxSize: 20
+    growSize: 1
+  - tag: Shotgun_Projectile
+    prefab: {fileID: 4589099209072863335, guid: 6817771fa34581a43965c3e49ced5f63, type: 3}
+    initialSize: 30
+    maxSize: 40
+    growSize: 4
+  useOptimizedHierarchy: 0
 --- !u!224 &1804216473 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3613434874164680832, guid: bb0dfb9af5a42c546bb18d598f97dc11, type: 3}
@@ -1383,3 +1474,4 @@ SceneRoots:
   - {fileID: 515693340}
   - {fileID: 5797712515336072014}
   - {fileID: 478340916}
+  - {fileID: 1731096398}

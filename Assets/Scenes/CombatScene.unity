@@ -843,17 +843,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27b1b1572d808874eb74d4a855aec165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pools:
-  - tag: Bullet_DestroyVFX
-    prefab: {fileID: 4589099209072863335, guid: 3bb2ef6c3d329ba4797ad843732056c9, type: 3}
-    initialSize: 8
-    maxSize: 30
-    growSize: 5
-  - tag: ForceFieldProjectile
-    prefab: {fileID: 4589099209072863335, guid: 303cac38330921348b3eb8bec063a20a, type: 3}
-    initialSize: 4
-    maxSize: 8
-    growSize: 4
+  pools: []
   useOptimizedHierarchy: 1
 --- !u!4 &1471452497
 Transform:
@@ -1098,6 +1088,10 @@ MonoBehaviour:
   cullingDistance: 12
   updateInterval: 0.5
   screenBuffer: 0.2
+  useDistanceBasedInterval: 1
+  nearUpdateInterval: 0.1
+  farUpdateInterval: 0.3
+  distanceThreshold: 15
 --- !u!4 &1952542281
 Transform:
   m_ObjectHideFlags: 0
@@ -1245,6 +1239,14 @@ PrefabInstance:
       propertyPath: playerControlUI
       value: 
       objectReference: {fileID: 7947131200979300800}
+    - target: {fileID: 309602412944202592, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: initialRefreshCost
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 309602412944202592, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: refreshCostIncrease
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3830940911592808753, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
       propertyPath: noticeUI
       value: 

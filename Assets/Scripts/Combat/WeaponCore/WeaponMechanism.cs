@@ -42,7 +42,7 @@ public abstract class WeaponMechanism
     {
         if (weaponData == null) return;
 
-        poolTag = $"{weaponData.weaponType}Projectile";
+        poolTag = $"{weaponData.weaponType}_Projectile";
         if (weaponData.projectilePrefab != null)
         {
             ObjectPool.Instance.CreatePool(poolTag, weaponData.projectilePrefab, 10);

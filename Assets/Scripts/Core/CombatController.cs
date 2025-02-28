@@ -268,19 +268,24 @@ public class CombatController : MonoBehaviour
             // 기본 경험치 풀 초기화
             if (table.experienceInfo != null)
             {
-                if (!processedPrefabs.Contains(table.experienceInfo.smallExpPrefab))
+                if (!processedPrefabs.Contains(table.experienceInfo.smallExpPrefab) &&
+                    !ObjectPool.Instance.DoesPoolExist(ItemType.ExperienceSmall.ToString()))
                 {
                     ObjectPool.Instance.CreatePool(ItemType.ExperienceSmall.ToString(),
                         table.experienceInfo.smallExpPrefab, 10);
                     processedPrefabs.Add(table.experienceInfo.smallExpPrefab);
                 }
-                if (!processedPrefabs.Contains(table.experienceInfo.mediumExpPrefab))
+
+                if (!processedPrefabs.Contains(table.experienceInfo.mediumExpPrefab) &&
+                    !ObjectPool.Instance.DoesPoolExist(ItemType.ExperienceMedium.ToString()))
                 {
                     ObjectPool.Instance.CreatePool(ItemType.ExperienceMedium.ToString(),
                         table.experienceInfo.mediumExpPrefab, 10);
                     processedPrefabs.Add(table.experienceInfo.mediumExpPrefab);
                 }
-                if (!processedPrefabs.Contains(table.experienceInfo.largeExpPrefab))
+
+                if (!processedPrefabs.Contains(table.experienceInfo.largeExpPrefab) &&
+                    !ObjectPool.Instance.DoesPoolExist(ItemType.ExperienceLarge.ToString()))
                 {
                     ObjectPool.Instance.CreatePool(ItemType.ExperienceLarge.ToString(),
                         table.experienceInfo.largeExpPrefab, 10);
@@ -289,7 +294,8 @@ public class CombatController : MonoBehaviour
             }
 
             // 골드 풀 초기화
-            if (table.goldInfo != null && !processedPrefabs.Contains(table.goldInfo.goldPrefab))
+            if (table.goldInfo != null && !processedPrefabs.Contains(table.goldInfo.goldPrefab) &&
+                !ObjectPool.Instance.DoesPoolExist(ItemType.Gold.ToString()))
             {
                 ObjectPool.Instance.CreatePool(ItemType.Gold.ToString(),
                     table.goldInfo.goldPrefab, 10);
@@ -301,7 +307,8 @@ public class CombatController : MonoBehaviour
             {
                 foreach (var drop in table.additionalDrops)
                 {
-                    if (drop.itemPrefab != null && !processedPrefabs.Contains(drop.itemPrefab))
+                    if (drop.itemPrefab != null && !processedPrefabs.Contains(drop.itemPrefab) &&
+                        !ObjectPool.Instance.DoesPoolExist(drop.itemType.ToString()))
                     {
                         ObjectPool.Instance.CreatePool(drop.itemType.ToString(), drop.itemPrefab, 10);
                         processedPrefabs.Add(drop.itemPrefab);
