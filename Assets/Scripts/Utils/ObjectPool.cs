@@ -39,10 +39,13 @@ public class ObjectPool : MonoBehaviour
         if (instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(gameObject); // DontDestroyOnLoad 추가
             InitializePools();
         }
-        else
+        else if (instance != this) // 이 체크 추가
         {
+            // 기존에 인스턴스가 존재하면 현재 오브젝트 제거
+            Debug.LogWarning("Multiple ObjectPool instances detected. Destroying duplicate.");
             Destroy(gameObject);
         }
     }
@@ -222,7 +225,7 @@ public class ObjectPool : MonoBehaviour
         CreateNewPool(newPool);
     }
 
-    private int CountActiveAndInactiveObjects(string tag)
+    public int CountActiveAndInactiveObjects(string tag)
     {
         if (!poolDictionary.ContainsKey(tag)) return 0;
 
@@ -244,26 +247,28 @@ public class ObjectPool : MonoBehaviour
 
     public void ReturnAllObjectsToPool(string tag)
     {
-        if (!poolDictionary.ContainsKey(tag))
-        {
-            Debug.LogWarning($"Pool with tag {tag} doesn't exist.");
-            return;
-        }
+        if (!poolDictionary.ContainsKey(tag)) return;
 
-        // 모든 오브젝트 중 해당 태그를 가진 활성화된 오브젝트를 찾아 반환
+        // 정적 리스트 재사용 (GC Alloc 방지)
         List<GameObject> objectsToReturn = new List<GameObject>();
 
+        // 활성화된 오브젝트 찾기
         foreach (var pair in objectToTagMap)
         {
-            if (pair.Value == tag && pair.Key.activeSelf)
+            if (pair.Value == tag && pair.Key != null && pair.Key.activeInHierarchy)
             {
                 objectsToReturn.Add(pair.Key);
             }
         }
 
+        // 모든 오브젝트 반환
         foreach (var obj in objectsToReturn)
         {
-            ReturnToPool(tag, obj);
+            if (obj != null && obj.activeInHierarchy)
+            {
+                obj.SetActive(false);
+                ReturnToPool(tag, obj);
+            }
         }
     }
 
@@ -289,5 +294,58 @@ public class ObjectPool : MonoBehaviour
         }
 
         poolDictionary[tag].Enqueue(objectToReturn);
+    }
+    public bool DoesPoolExist(string tag)
+    {
+        return poolDictionary != null && poolDictionary.ContainsKey(tag);
+    }
+    public void ExpandPool(string tag, int additionalCount)
+    {
+        if (!poolDictionary.ContainsKey(tag) || !poolConfigs.ContainsKey(tag)) return;
+
+        Pool config = poolConfigs[tag];
+        Queue<GameObject> pool = poolDictionary[tag];
+
+        for (int i = 0; i < additionalCount; i++)
+        {
+            GameObject obj = CreateNewPoolObject(config.prefab, tag);
+            pool.Enqueue(obj);
+        }
+
+        Debug.Log($"Expanded pool {tag} to {pool.Count} objects");
+    }
+
+    public int GetAvailableCount(string tag)
+    {
+        if (!poolDictionary.ContainsKey(tag))
+        {
+            return 0;
+        }
+
+        return poolDictionary[tag].Count;
+    }
+    public void EnsurePoolCapacity(string tag, int requiredCount)
+    {
+        if (!poolDictionary.ContainsKey(tag) || !poolConfigs.ContainsKey(tag))
+        {
+            return;
+        }
+
+        Queue<GameObject> pool = poolDictionary[tag];
+        Pool config = poolConfigs[tag];
+
+        // 현재 가용 오브젝트가 충분하면 아무것도 하지 않음
+        if (pool.Count >= requiredCount)
+        {
+            return;
+        }
+
+        // 필요한 만큼만 추가 (정확히)
+        int toAdd = requiredCount - pool.Count;
+        for (int i = 0; i < toAdd; i++)
+        {
+            GameObject obj = CreateNewPoolObject(config.prefab, tag);
+            pool.Enqueue(obj);
+        }
     }
 }
