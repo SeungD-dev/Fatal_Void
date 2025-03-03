@@ -168,6 +168,10 @@ public class ItemGrid : MonoBehaviour
             itemRect.localPosition = itemPosition;
         }
 
+        // 아이템이 성공적으로 배치되었을 때 이벤트 호출
+        OnItemAdded?.Invoke(item);
+        OnGridChanged?.Invoke();
+
         return true;
     }
 
@@ -397,7 +401,11 @@ public class ItemGrid : MonoBehaviour
         }
     }
 
-  
+    
+    public void NotifyGridChanged()
+    {
+        OnGridChanged?.Invoke();
+    }
     #endregion
 
 

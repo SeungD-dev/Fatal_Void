@@ -41,6 +41,12 @@ public class WeaponInfoUI : MonoBehaviour
         ValidateReferences();
         InitializeUI();
         SubscribeToEvents();
+
+        // 초기화가 가능하면 즉시 초기화
+        if (GameManager.Instance != null && GameManager.Instance.IsInitialized)
+        {
+            InitializeReferences();
+        }
     }
 
     private void OnDestroy() => UnsubscribeFromEvents();
@@ -154,6 +160,11 @@ public class WeaponInfoUI : MonoBehaviour
         {
             CheckUpgradePossibility();
         }
+        else
+        {
+            // 선택된 무기가 없을 때는 업그레이드 버튼 숨기기
+            upgradeButton.gameObject.SetActive(false);
+        }
     }
     #endregion
 
@@ -199,11 +210,23 @@ public class WeaponInfoUI : MonoBehaviour
     #region Private Methods - Event Handling
     private void SubscribeToEvents()
     {
-        if (mainItemGrid != null) mainItemGrid.OnGridChanged += RefreshUpgradeUI;
-        if (GameManager.Instance != null) GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
-        if (GameManager.Instance.IsInitialized) InitializeReferences();
-    }
+        if (mainItemGrid != null && !mainItemGrid.IsInitialized)
+        {
+            mainItemGrid.ForceInitialize();
+        }
 
+        if (mainItemGrid != null)
+        {
+            // 이미 구독되어 있지 않은지 확인 (중복 구독 방지)
+            mainItemGrid.OnGridChanged -= RefreshUpgradeUI;
+            mainItemGrid.OnGridChanged += RefreshUpgradeUI;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
+        }
+    }
     private void UnsubscribeFromEvents()
     {
         if (upgradeButton != null) upgradeButton.onClick.RemoveListener(OnUpgradeButtonClick);

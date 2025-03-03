@@ -595,8 +595,61 @@ public class InventoryController : MonoBehaviour
 
         // 아이템 생성 후 그리드 상태 검증
         StartCoroutine(ValidateGridStateAfterPurchase());
-    }
 
+        // 추가: 새로 구매한 무기를 선택하고 업그레이드 가능성 체크
+        yield return new WaitForEndOfFrame();
+        SelectNewlyPurchasedItem(weaponData);
+    }
+    private void SelectNewlyPurchasedItem(WeaponData weaponData)
+    {
+        if (weaponInfoUI == null || mainInventoryGrid == null) return;
+
+        // 그리드 내에서 같은 종류와 같은 티어의 무기 찾기
+        for (int x = 0; x < mainInventoryGrid.Width; x++)
+        {
+            for (int y = 0; y < mainInventoryGrid.Height; y++)
+            {
+                InventoryItem item = mainInventoryGrid.GetItem(x, y);
+                if (item != null && item.GetWeaponData() != null)
+                {
+                    WeaponData itemData = item.GetWeaponData();
+
+                    if (itemData.weaponType == weaponData.weaponType &&
+                        itemData.currentTier == weaponData.currentTier &&
+                        (weaponData.weaponType != WeaponType.Equipment ||
+                         itemData.equipmentType == weaponData.equipmentType))
+                    {
+                        weaponInfoUI.UpdateWeaponInfo(itemData);
+                        // 이벤트 직접 호출 대신 메서드 호출
+                        mainInventoryGrid.NotifyGridChanged();
+                        return;
+                    }
+                }
+            }
+        }
+
+        // 같은 티어를 못 찾았으면 일반 검색으로 돌아감
+        for (int x = 0; x < mainInventoryGrid.Width; x++)
+        {
+            for (int y = 0; y < mainInventoryGrid.Height; y++)
+            {
+                InventoryItem item = mainInventoryGrid.GetItem(x, y);
+                if (item != null && item.GetWeaponData() != null)
+                {
+                    WeaponData itemData = item.GetWeaponData();
+                    if (itemData.weaponType == weaponData.weaponType &&
+                        (weaponData.weaponType != WeaponType.Equipment ||
+                         itemData.equipmentType == weaponData.equipmentType))
+                    {
+                        weaponInfoUI.UpdateWeaponInfo(itemData);
+                        // 이벤트 직접 호출 대신 메서드 호출
+                        mainInventoryGrid.NotifyGridChanged();
+                        return;
+                    }
+                }
+            }
+        }
+    }
     private IEnumerator ValidateGridStateAfterPurchase()
     {
         yield return new WaitForEndOfFrame();
@@ -737,6 +790,12 @@ public class InventoryController : MonoBehaviour
                 if (mainInventoryGrid != null && mainInventoryGrid.IsInitialized)
                 {
                     StartCoroutine(ValidateGridStateDelayed());
+
+                    // 추가: 인벤토리 열릴 때 WeaponInfoUI UI 초기화
+                    if (weaponInfoUI != null)
+                    {
+                        weaponInfoUI.RefreshUpgradeUI();
+                    }
                 }
             }
 
