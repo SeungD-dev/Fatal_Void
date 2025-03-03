@@ -116,6 +116,8 @@ public class Enemy : MonoBehaviour, IPooledObject
     }
     public void Initialize(Transform target)
     {
+        if (target == null) return;
+
         targetTransform = target;
         var enemyAI = GetComponent<EnemyAI>();
         if (enemyAI != null)
@@ -183,6 +185,12 @@ public class Enemy : MonoBehaviour, IPooledObject
         else
         {
             Debug.LogWarning("Enemy spawned without EnemyData!");
+        }
+
+        // 플레이어 참조가 없는 경우 GameManager에서 가져오기
+        if (targetTransform == null && GameManager.Instance != null && GameManager.Instance.PlayerTransform != null)
+        {
+            Initialize(GameManager.Instance.PlayerTransform);
         }
 
         if (spriteRenderer != null)

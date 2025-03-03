@@ -39,7 +39,17 @@ public class EnemyCullingManager : MonoBehaviour
     private void Start()
     {
         mainCamera = Camera.main;
-        playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+        // GameManager에서 플레이어 참조 가져오기
+        if (GameManager.Instance != null && GameManager.Instance.PlayerTransform != null)
+        {
+            playerTransform = GameManager.Instance.PlayerTransform;
+        }
+        else
+        {
+            // 폴백으로 Find 사용 (초기화 시 한 번만)
+            playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
+        }
 
         if (mainCamera == null)
         {
@@ -60,7 +70,6 @@ public class EnemyCullingManager : MonoBehaviour
         nextNearUpdateTime = Time.time + nearUpdateInterval;
         nextFarUpdateTime = Time.time + farUpdateInterval;
     }
-
     private void CalculateScreenBounds()
     {
         if (mainCamera == null) return;
@@ -204,6 +213,15 @@ public class EnemyCullingManager : MonoBehaviour
         {
             activeEnemies.Add(enemy);
 
+            // 컬링 매니저 참조 설정
+            enemy.SetCullingManager(this);
+
+            // 플레이어 참조 전달
+            if (playerTransform != null)
+            {
+                enemy.Initialize(playerTransform);
+            }
+
             // 거리 기반 분류
             if (useDistanceBasedInterval && playerTransform != null)
             {
@@ -310,6 +328,23 @@ public class EnemyCullingManager : MonoBehaviour
             }
         }
     }
+    public void SetPlayerReference(Transform player)
+    {
+        if (player != null)
+        {
+            playerTransform = player;
+
+            // 이미 등록된 모든 적에게 플레이어 참조 전달
+            foreach (var enemy in activeEnemies)
+            {
+                if (enemy != null)
+                {
+                    enemy.Initialize(playerTransform);
+                }
+            }
+        }
+    }
+
 }
 //#if UNITY_EDITOR
 //    private void OnDrawGizmos() 

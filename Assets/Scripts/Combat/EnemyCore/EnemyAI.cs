@@ -86,11 +86,10 @@ public abstract class EnemyAI : MonoBehaviour
 
     public virtual void Initialize(Transform target)
     {
+        if (target == null) return;
+
         playerTransform = target;
-        if (playerTransform != null)
-        {
-            lastKnownPlayerPosition = playerTransform.position;
-        }
+        lastKnownPlayerPosition = playerTransform.position;
 
         if (GameManager.Instance != null)
         {

@@ -33,6 +33,14 @@ public class ChasingState : IState
 
         // 플레이어 찾기
         playerTransform = enemyAI.PlayerTransform;
+
+        // 플레이어 참조가 없는 경우에만 GameManager에서 가져오기
+        if (playerTransform == null && GameManager.Instance != null)
+        {
+            playerTransform = GameManager.Instance.PlayerTransform;
+        }
+
+        // 위의 방법으로도 플레이어를 찾지 못한 경우에만 마지막 수단으로 Find 사용
         if (playerTransform == null)
         {
             playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;

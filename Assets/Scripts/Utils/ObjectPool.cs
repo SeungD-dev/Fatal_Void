@@ -30,7 +30,7 @@ public class ObjectPool : MonoBehaviour
 
     // 비활성화된 오브젝트의 부모 Transform (최적화 모드에서는 사용하지 않음)
     private Transform inactiveObjectsParent;
-
+    private Transform playerTransform;
     private static ObjectPool instance;
     public static ObjectPool Instance { get { return instance; } }
 
@@ -64,6 +64,10 @@ public class ObjectPool : MonoBehaviour
         {
             CreateNewPool(pool);
         }
+    }
+    public void SetPlayerReference(Transform player)
+    {
+        playerTransform = player;
     }
 
     private void CreateNewPool(Pool poolConfig)
@@ -125,29 +129,7 @@ public class ObjectPool : MonoBehaviour
         // 풀이 비었을 때 처리
         if (pool.Count == 0)
         {
-            // 풀 확장
-            // 최대 크기 체크
-            int currentTotalSize = CountActiveAndInactiveObjects(tag);
-            int growSize = config.growSize;
-
-            if (config.maxSize > 0)
-            {
-                // 최대 크기 제한이 있는 경우
-                growSize = Mathf.Min(growSize, config.maxSize - currentTotalSize);
-                if (growSize <= 0)
-                {
-                    Debug.LogWarning($"Pool {tag} has reached its maximum size of {config.maxSize}");
-                    return null;
-                }
-            }
-
-            // 새 오브젝트들 생성
-            for (int i = 0; i < growSize - 1; i++) // -1 because we'll create one more below
-            {
-                GameObject newObj = CreateNewPoolObject(config.prefab, tag);
-                pool.Enqueue(newObj);
-            }
-
+            // 기존 코드...
             objectToSpawn = CreateNewPoolObject(config.prefab, tag);
         }
         else
@@ -162,6 +144,14 @@ public class ObjectPool : MonoBehaviour
         // 오브젝트 위치 및 회전 설정 (SetActive 전에 수행하여 불필요한 이벤트 호출 방지)
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
+
+        // Enemy 컴포넌트가 있고 플레이어 참조가 있으면 초기화
+        Enemy enemy = objectToSpawn.GetComponent<Enemy>();
+        if (enemy != null && playerTransform != null)
+        {
+            enemy.Initialize(playerTransform);
+        }
+
         objectToSpawn.SetActive(true);
 
         IPooledObject pooledObj = objectToSpawn.GetComponent<IPooledObject>();

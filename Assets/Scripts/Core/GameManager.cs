@@ -34,6 +34,7 @@ public class GameManager : MonoBehaviour
     #region Properties
     public GameState currentGameState { get; private set; }
     public Dictionary<GameState, int> gameScene { get; private set; }
+    public Transform PlayerTransform { get; private set; }
 
     private PlayerStats playerStats;
     private ShopController shopController;
@@ -137,6 +138,25 @@ public class GameManager : MonoBehaviour
         shopController = shop;
         combatController = combat;
         gameOverController = gameOver;
+
+        // 플레이어 Transform 캐싱
+        if (stats != null)
+        {
+            PlayerTransform = stats.transform;
+
+            // 오브젝트 풀에 플레이어 참조 설정
+            if (ObjectPool.Instance != null)
+            {
+                ObjectPool.Instance.SetPlayerReference(PlayerTransform);
+            }
+
+            // 컬링 매니저 찾아서 플레이어 참조 설정
+            EnemyCullingManager cullingManager = FindAnyObjectByType<EnemyCullingManager>();
+            if (cullingManager != null)
+            {
+                cullingManager.SetPlayerReference(PlayerTransform);
+            }
+        }
 
         if (shouldInitialize)
         {
