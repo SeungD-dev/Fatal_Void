@@ -464,7 +464,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"적 프리팹을 찾을 수 없습니다: {enemyTypes[i]}");
+                Debug.LogWarning($"Enemy Prefab not found: {enemyTypes[i]}");
             }
             yield return ResourceLoadDelay;
             if (isLoadingCancelled) yield break;
@@ -489,7 +489,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"아이템 프리팹을 찾을 수 없습니다: {itemTypes[i]}");
+                Debug.LogWarning($"Item Prefab not found: {itemTypes[i]}");
             }
             yield return ResourceLoadDelay;
             if (isLoadingCancelled) yield break;

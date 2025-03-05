@@ -851,19 +851,7 @@ public class InventoryController : MonoBehaviour
         EquipAllGridItems();
         TransitionToGameplay();
     }
-    private string GetStartGameErrorMessage()
-    {
-        if (!isInventoryInitialized)
-            return "Inventory not initialized";
-        if (mainInventoryGrid == null)
-            return "Grid reference missing";
-        if (!mainInventoryGrid.IsInitialized)
-            return "Grid not initialized";
-        if (!HasAnyItemInGrid())
-            return "No items in grid";
-        return "Unknown error";
-    }
-
+   
     private bool ValidateGameStart()
     {
         if (!isInventoryInitialized)
