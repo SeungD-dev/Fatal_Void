@@ -195,7 +195,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: c04abf1ab40dac248b59056d6cb0ed25, type: 2}
-  m_CullingMode: 0
+  m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -219,8 +219,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 0}
+  distanceUpdateThreshold: 15
   auraTransform: {fileID: 926148260005315942}
   rotationSpeed: 100
+  auraRotationInterval: 0.033
+  auraOptimizationDistance: 20
 --- !u!1 &7979708096305327106
 GameObject:
   m_ObjectHideFlags: 0

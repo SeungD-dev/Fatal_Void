@@ -345,38 +345,38 @@ public class EnemyCullingManager : MonoBehaviour
         }
     }
 
+
+#if UNITY_EDITOR
+private void OnDrawGizmos()
+{
+    if (!Application.isPlaying || playerTransform == null) return;
+
+    // 컬링 범위 시각화
+    Gizmos.color = Color.red;
+    Gizmos.DrawWireSphere(playerTransform.position, cullingDistance);
+
+    // 화면 범위 시각화
+    Gizmos.color = Color.yellow;
+    Vector3 center = playerTransform.position;
+    Vector3 size = new Vector3(screenBounds.x * 2, screenBounds.y * 2, 0);
+    Gizmos.DrawWireCube(center, size);
+
+    // 버퍼 영역 시각화
+    Gizmos.color = Color.green;
+    float bufferSize = screenBuffer * 2;
+    Vector3 bufferSizeVec = new Vector3(
+        size.x * (1 + bufferSize),
+        size.y * (1 + bufferSize),
+        0
+    );
+    Gizmos.DrawWireCube(center, bufferSizeVec);
+
+    // 거리 기반 업데이트 임계값 시각화
+    if (useDistanceBasedInterval)
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(playerTransform.position, distanceThreshold);
+    }
 }
-//#if UNITY_EDITOR
-//    private void OnDrawGizmos() 
-//    {
-//        if (!Application.isPlaying || playerTransform == null) return;
-
-//        // 컬링 범위 시각화
-//        Gizmos.color = Color.red;
-//        Gizmos.DrawWireSphere(playerTransform.position, cullingDistance);
-
-//        // 화면 범위 시각화
-//        Gizmos.color = Color.yellow;
-//        Vector3 center = playerTransform.position;
-//        Vector3 size = new Vector3(screenBounds.x * 2, screenBounds.y * 2, 0);
-//        Gizmos.DrawWireCube(center, size);
-
-//        // 버퍼 영역 시각화
-//        Gizmos.color = Color.green;
-//        float bufferSize = screenBuffer * 2;
-//        Vector3 bufferSizeVec = new Vector3(
-//            size.x * (1 + bufferSize),
-//            size.y * (1 + bufferSize),
-//            0
-//        );
-//        Gizmos.DrawWireCube(center, bufferSizeVec);
-
-//        // 거리 기반 업데이트 임계값 시각화
-//        if (useDistanceBasedInterval)
-//        {
-//            Gizmos.color = Color.blue;
-//            Gizmos.DrawWireSphere(playerTransform.position, distanceThreshold);
-//        }
-//    }
-//}
-//#endif
+}
+#endif
