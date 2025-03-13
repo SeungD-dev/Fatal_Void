@@ -541,7 +541,7 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
---- !u!1 &672964541
+--- !u!1 &588672267
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -549,22 +549,21 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 672964542}
-  - component: {fileID: 672964543}
+  - component: {fileID: 588672268}
   m_Layer: 0
-  m_Name: SpawnController
+  m_Name: WaveManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &672964542
+--- !u!4 &588672268
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 672964541}
+  m_GameObject: {fileID: 588672267}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -573,24 +572,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &672964543
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 672964541}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c573bdaa5fee7541988586c670180c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cullingManager: {fileID: 1952542280}
-  spawnRadius: 15
-  minSpawnDistance: 12
-  spawnSettings: {fileID: 11400000, guid: dbd7cd94294d3944083b9f5ac6156d47, type: 2}
-  enemyDatabase: {fileID: 11400000, guid: 86abcebe19497e74baade4150861909c, type: 2}
-  spawnPositionCacheSize: 100
 --- !u!1 &777942076
 GameObject:
   m_ObjectHideFlags: 0
@@ -1543,10 +1524,10 @@ SceneRoots:
   - {fileID: 3302047816804777907}
   - {fileID: 202861241}
   - {fileID: 1291325811}
-  - {fileID: 672964542}
   - {fileID: 1471452497}
   - {fileID: 815165775}
   - {fileID: 777942078}
   - {fileID: 1952542281}
   - {fileID: 1923037731}
   - {fileID: 1546273310}
+  - {fileID: 588672268}

@@ -26,6 +26,7 @@ public class PlayerUIController : MonoBehaviour
     private float gameTime;
     private bool isInitialized;
     private float nextUpdateTime;
+    private bool useExternalTimer = false;
 
     // 캐시된 시간 변수
     private int cachedMinutes;
@@ -67,7 +68,14 @@ public class PlayerUIController : MonoBehaviour
 
         InitializeUI();
     }
-
+    public void SetExternalTimer(string timerDisplay)
+    {
+        if (timeTxt != null)
+        {
+            useExternalTimer = true;
+            timeTxt.text = timerDisplay;
+        }
+    }
     private void InitializeUI()
     {
         playerStats = gameManager.PlayerStats;
@@ -96,12 +104,16 @@ public class PlayerUIController : MonoBehaviour
     {
         if (!isInitialized || !gameManager.IsPlaying()) return;
 
-        gameTime += Time.deltaTime;
-
-        if (Time.time >= nextUpdateTime)
+        // 외부 타이머를 사용하지 않을 때만 시간 업데이트
+        if (!useExternalTimer)
         {
-            UpdateTimeDisplay();
-            nextUpdateTime = Time.time + uiUpdateInterval;
+            gameTime += Time.deltaTime;
+
+            if (Time.time >= nextUpdateTime)
+            {
+                UpdateTimeDisplay();
+                nextUpdateTime = Time.time + uiUpdateInterval;
+            }
         }
     }
 

@@ -838,6 +838,14 @@ public class InventoryController : MonoBehaviour
     #endregion
 
     #region Game Flow
+
+    public System.Action OnProgressButtonClicked;
+
+    public void OnProgressButtonClick()
+    {
+        StartGame();
+    }
+
     public void StartGame()
     {
         if (!ValidateGameStart())
@@ -849,9 +857,12 @@ public class InventoryController : MonoBehaviour
 
         PlayButtonSound();
         EquipAllGridItems();
+
+        // 웨이브 매니저에 진행 알림
+        OnProgressButtonClicked?.Invoke();
+
         TransitionToGameplay();
     }
-   
     private bool ValidateGameStart()
     {
         if (!isInventoryInitialized)

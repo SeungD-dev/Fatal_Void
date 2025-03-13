@@ -20,7 +20,6 @@ public class EnemySpawnDatabase : ScriptableObject
     private float cachedTotalWeight;
     private float lastCacheTime = -1f;
     private const float CACHE_DURATION = 0.5f; // 0.5초마다 갱신
-
     private int totalSpawnCount;
 
     public void ResetSpawnCounts()
