@@ -23,10 +23,35 @@ public class GameMap : MonoBehaviour
     public Tilemap FloorTilemap => floorTilemap;
     public Tilemap WallTilemap => wallTilemap;
 
+    private Dictionary<Vector2Int, bool> collisionCache = new Dictionary<Vector2Int, bool>();
+    private bool useCachedCollisions = true;
+
     private void Awake()
     {
         InitializeMapBounds();
+
+        // 자주 확인하는 충돌 위치 미리 캐싱
+        if (wallTilemap != null && useCachedCollisions)
+        {
+            PrecomputeCollisions();
+        }
     }
+    private void PrecomputeCollisions()
+    {
+        BoundsInt bounds = wallTilemap.cellBounds;
+        collisionCache = new Dictionary<Vector2Int, bool>(bounds.size.x * bounds.size.y);
+
+        for (int x = bounds.xMin; x < bounds.xMax; x++)
+        {
+            for (int y = bounds.yMin; y < bounds.yMax; y++)
+            {
+                Vector3Int cellPos = new Vector3Int(x, y, 0);
+                Vector2Int key = new Vector2Int(x, y);
+                collisionCache[key] = wallTilemap.HasTile(cellPos);
+            }
+        }
+    }
+
 
     private void InitializeMapBounds()
     {
@@ -180,9 +205,15 @@ public class GameMap : MonoBehaviour
         if (wallTilemap == null) return false;
 
         Vector3Int cellPosition = wallTilemap.WorldToCell(worldPosition);
+        Vector2Int key = new Vector2Int(cellPosition.x, cellPosition.y);
+
+        if (useCachedCollisions && collisionCache.TryGetValue(key, out bool hasCollision))
+        {
+            return hasCollision;
+        }
+
         return wallTilemap.HasTile(cellPosition);
     }
-
     // 위치가 맵 내부에 있는지 확인
     public bool IsPositionInMap(Vector2 position)
     {
@@ -193,6 +224,7 @@ public class GameMap : MonoBehaviour
                position.y >= -halfHeight && position.y <= halfHeight;
     }
 
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         // 맵 경계 그리기
@@ -215,4 +247,5 @@ public class GameMap : MonoBehaviour
             }
         }
     }
+#endif
 }

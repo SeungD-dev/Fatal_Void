@@ -6,6 +6,7 @@ public class MapManager : MonoBehaviour
     public static MapManager Instance => instance;
 
     [Header("Map Settings")]
+    [SerializeField] private GameObject mapPrefabReference;
     [SerializeField] private string mapResourcePath = "Prefabs/Map";
 
     private GameMap currentMap;
@@ -34,20 +35,27 @@ public class MapManager : MonoBehaviour
             currentMap = null;
         }
 
-        // 맵 경로 설정
-        string path = string.IsNullOrEmpty(mapPath) ? mapResourcePath : mapPath;
+        GameObject mapInstance;
 
-        // Resources에서 맵 프리팹 로드
-        GameObject mapPrefab = Resources.Load<GameObject>(path);
-
-        if (mapPrefab == null)
+        // 미리 참조된 맵 프리팹 사용 (더 효율적)
+        if (mapPrefabReference != null)
         {
-            Debug.LogError($"Failed to load map from path: {path}");
-            return null;
+            mapInstance = Instantiate(mapPrefabReference, Vector3.zero, Quaternion.identity);
         }
+        else
+        {
+            // 폴백: Resources에서 맵 프리팹 로드
+            string path = string.IsNullOrEmpty(mapPath) ? mapResourcePath : mapPath;
+            GameObject mapPrefab = Resources.Load<GameObject>(path);
 
-        // 맵 인스턴스화
-        GameObject mapInstance = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+            if (mapPrefab == null)
+            {
+                Debug.LogError($"Failed to load map from path: {path}");
+                return null;
+            }
+
+            mapInstance = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+        }
 
         // GameMap 컴포넌트 가져오기
         currentMap = mapInstance.GetComponent<GameMap>();
