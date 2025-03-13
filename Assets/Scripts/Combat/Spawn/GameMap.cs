@@ -224,28 +224,28 @@ public class GameMap : MonoBehaviour
                position.y >= -halfHeight && position.y <= halfHeight;
     }
 
-#if UNITY_EDITOR
-    private void OnDrawGizmos()
+   #if UNITY_EDITOR
+private void OnDrawGizmos()
+{
+    // 맵 경계 그리기
+    if (Application.isPlaying && mapSize != Vector2.zero)
     {
-        // 맵 경계 그리기
-        if (Application.isPlaying && mapSize != Vector2.zero)
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(mapSize.x, mapSize.y, 0f));
+    }
+    
+    // 스폰 포인트 그리기
+    Gizmos.color = Color.red;
+    if (spawnPoints != null)
+    {
+        foreach (var point in spawnPoints)
         {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(Vector3.zero, new Vector3(mapSize.x, mapSize.y, 0f));
-        }
-
-        // 스폰 포인트 그리기
-        Gizmos.color = Color.red;
-        if (spawnPoints != null)
-        {
-            foreach (var point in spawnPoints)
+            if (point != null)
             {
-                if (point != null)
-                {
-                    Gizmos.DrawSphere(point.position, 0.5f);
-                }
+                Gizmos.DrawSphere(point.position, 0.5f);
             }
         }
     }
+}
 #endif
 }
