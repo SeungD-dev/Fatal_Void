@@ -1,6 +1,6 @@
 using UnityEditor;
 using UnityEngine;
-
+//사용안함
 [System.Serializable]
 public class TimeBasedSpawnSettings
 {

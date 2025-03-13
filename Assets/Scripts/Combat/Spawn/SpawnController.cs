@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+//사용안함
 public class SpawnController : MonoBehaviour
 {
     [Header("References")]

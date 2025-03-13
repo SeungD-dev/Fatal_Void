@@ -1,5 +1,5 @@
 using UnityEngine;
-
+//사용안함
 [System.Serializable]
 public class EnemySpawnSettings
 {

@@ -327,11 +327,11 @@ public class PlayerStats : MonoBehaviour
             lastStatUpdateTime = Time.time;
         }
 
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.SetGameState(GameState.Paused);
-            ShowShopUI();
-        }
+        //if (GameManager.Instance != null)
+        //{
+        //    GameManager.Instance.SetGameState(GameState.Paused);
+        //    ShowShopUI();
+        //}
 
         isLevelingUp = false;
     }

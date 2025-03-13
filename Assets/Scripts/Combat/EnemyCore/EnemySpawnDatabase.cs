@@ -2,7 +2,7 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
+//사용안함
 [CreateAssetMenu(fileName = "EnemySpawnDatabase", menuName = "Scriptable Objects/EnemySpawnDatabase")]
 public class EnemySpawnDatabase : ScriptableObject
 {

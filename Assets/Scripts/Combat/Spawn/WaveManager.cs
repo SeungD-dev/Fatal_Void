@@ -270,13 +270,23 @@ public class WaveManager : MonoBehaviour
 
     public void StartNextWave()
     {
-        // 다음 웨이브 번호 가져오기
-        int nextWaveNumber = waveData.GetNextWaveNumber(currentWaveNumber);
+        // First time this is called, it should start wave 1
+        // Next times, it will get the next wave number
 
-        // 다음 웨이브가 있으면 시작
+        int nextWaveNumber;
+        if (currentWaveNumber == 0) // First time
+        {
+            nextWaveNumber = 1;
+        }
+        else
+        {
+            nextWaveNumber = waveData.GetNextWaveNumber(currentWaveNumber);
+        }
+
+        // Start the appropriate wave
         if (nextWaveNumber > 0)
         {
-            // 웨이브 완료 배너 숨기기
+            // Hide wave complete banner
             if (waveCompleteBanner != null)
             {
                 waveCompleteBanner.SetActive(false);
@@ -286,7 +296,7 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
-            // 모든 웨이브 완료 - 게임 클리어 처리
+            // All waves completed - game victory
             Debug.Log("All waves completed!");
             GameManager.Instance.SetGameState(GameState.GameOver);
         }
@@ -357,51 +367,41 @@ public class WaveManager : MonoBehaviour
 
     private void SpawnEnemyBatch(int count)
     {
+        List<Vector2> spawnPositions = new List<Vector2>(count);
+
+        // Generate all positions first
         for (int i = 0; i < count; i++)
         {
-            Vector2 spawnPosition = GetOptimizedSpawnPosition();
-
-            // 스폰 경고 표시 (비동기로 처리)
-            if (warningController != null)
-            {
-                StartCoroutine(warningController.ShowWarningAtPosition(spawnPosition));
-            }
-            else
-            {
-                // 내장 경고 표시 사용
-                StartCoroutine(ShowWarningAndSpawn(spawnPosition));
-            }
+            spawnPositions.Add(GetOptimizedSpawnPosition());
         }
-    }
 
-    private IEnumerator ShowWarningAndSpawn(Vector2 position)
+        // Show warnings and spawn enemies in a single coroutine
+        StartCoroutine(ShowWarningsAndSpawnBatch(spawnPositions));
+    }
+    private IEnumerator ShowWarningsAndSpawnBatch(List<Vector2> positions)
     {
-        // 경고 표시
-        GameObject warningObj = null;
-
-        if (ObjectPool.Instance.DoesPoolExist("SpawnWarning"))
+       
+        List<GameObject> warnings = new List<GameObject>();
+        foreach (Vector2 pos in positions)
         {
-            warningObj = ObjectPool.Instance.SpawnFromPool("SpawnWarning", position, Quaternion.identity);
-
-            if (warningObj != null)
-            {
-                // 1초 동안 경고 애니메이션
-                yield return new WaitForSeconds(1f);
-
-                // 경고 오브젝트 반환
-                ObjectPool.Instance.ReturnToPool("SpawnWarning", warningObj);
-            }
-        }
-        else
-        {
-            // 경고 없이 짧은 대기 시간
-            yield return new WaitForSeconds(0.5f);
+            GameObject warning = ObjectPool.Instance.SpawnFromPool("SpawnWarning", pos, Quaternion.identity);
+            warnings.Add(warning);
         }
 
-        // 적 스폰
-        SpawnEnemy(position);
-    }
+        
+        yield return new WaitForSeconds(1f);
 
+        
+        foreach (GameObject warning in warnings)
+        {
+            ObjectPool.Instance.ReturnToPool("SpawnWarning", warning);
+        }
+
+        foreach (Vector2 pos in positions)
+        {
+            SpawnEnemy(pos);
+        }
+    }  
     private void SpawnEnemy(Vector2 position)
     {
         if (!isWaveActive || isInSurvivalPhase) return;
@@ -532,16 +532,20 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        // 상점 열기
-        if (shopController != null)
+        if (AreAllWavesCompleted())
         {
-            shopController.OpenShop();
+            Debug.Log("Game Clear");
+            //GameManager.Instance.HandleGameVictory();
         }
         else
         {
-            // 상점이 없는 경우 게임 일시정지
-            GameManager.Instance.SetGameState(GameState.Paused);
+            // Show shop as usual
+            shopController.OpenShop();
         }
+    }
+    public bool AreAllWavesCompleted()
+    {
+        return waveData.GetNextWaveNumber(currentWaveNumber) < 0;
     }
 
     private void UpdateWaveUI()
