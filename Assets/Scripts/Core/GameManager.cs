@@ -274,6 +274,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
     /// <summary>
     /// 로딩을 취소합니다.
     /// </summary>
@@ -329,6 +330,14 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator InitializeObjectPools()
     {
+        // MapManager 초기화
+        if (FindFirstObjectByType<MapManager>() == null)
+        {
+            GameObject mapManagerObj = new GameObject("MapManager");
+            mapManagerObj.AddComponent<MapManager>();
+            DontDestroyOnLoad(mapManagerObj);
+        }
+
         // ObjectPool이 이미 존재하는지 확인
         if (ObjectPool.Instance == null)
         {
@@ -521,7 +530,19 @@ public class GameManager : MonoBehaviour
         // SpawnSettings 로드
         var spawnSettings = Resources.Load<ScriptableObject>("Data/SpawnSettings");
         yield return ResourceLoadDelay;
+        LoadingProgress = 0.55f;
+
+        // 맵 매니저 생성 및 맵 로드
+        if (FindFirstObjectByType<MapManager>() == null)
+        {
+            GameObject mapManagerObj = new GameObject("MapManager");
+            mapManagerObj.AddComponent<MapManager>();
+            DontDestroyOnLoad(mapManagerObj);
+        }
+
+        // 맵 로드
         LoadingProgress = 0.6f;
+        yield return ResourceLoadDelay;
 
         // 데이터베이스 로드
         var weaponDatabase = Resources.Load<ScriptableObject>("Data/WeaponDatabase");
