@@ -68,29 +68,10 @@ public class WaveManager : MonoBehaviour
 
     private void Start()
     {
-        // 필요한 참조 초기화
-        playerStats = GameManager.Instance?.PlayerStats;
-        if (playerStats != null)
-        {
-            playerStats.OnPlayerDeath += HandlePlayerDeath;
-        }
+        // 필수 의존성이 모두 준비될 때까지 기다리는 코루틴 실행
+        StartCoroutine(WaitForDependencies());
 
-        // MapManager로부터 GameMap 참조 가져오기
-        if (MapManager.Instance != null && MapManager.Instance.CurrentMap != null)
-        {
-            gameMap = MapManager.Instance.CurrentMap;
-            InitializeSystem();
-        }
-        else
-        {
-            // MapManager가 맵을 아직 로드하지 않았다면 다음 프레임에 다시 시도
-            StartCoroutine(WaitForMapLoad());
-        }
-
-        // 나머지 이벤트 구독 등은 그대로 유지
-        GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
-
-        // 경고 프리팹 풀 초기화
+        // 독립적으로 초기화할 수 있는 작업 먼저 실행
         InitializeWarningPool();
 
         // 인벤토리 컨트롤러의 진행 버튼 이벤트 연결
@@ -98,30 +79,88 @@ public class WaveManager : MonoBehaviour
         {
             inventoryController.OnProgressButtonClicked += StartNextWave;
         }
-
-        playerUIController = FindAnyObjectByType<PlayerUIController>();
     }
-
-    private IEnumerator WaitForMapLoad()
+    private IEnumerator WaitForDependencies()
     {
         float timeOut = 5f;
         float elapsed = 0f;
 
-        while (elapsed < timeOut)
+        // GameManager 의존성 확인
+        while (GameManager.Instance == null && elapsed < timeOut)
         {
-            // MapManager를 통해 맵 체크
-            if (MapManager.Instance != null && MapManager.Instance.CurrentMap != null)
-            {
-                gameMap = MapManager.Instance.CurrentMap;
-                InitializeSystem();
-                yield break;
-            }
-
             elapsed += 0.1f;
             yield return new WaitForSeconds(0.1f);
         }
 
-        Debug.LogError("GameMap not found after timeout! Wave system will not function properly.");
+        if (GameManager.Instance == null)
+        {
+            Debug.LogError("GameManager not found after timeout!");
+            yield break;
+        }
+
+        // PlayerStats 의존성 초기화
+        while (GameManager.Instance.PlayerStats == null && elapsed < timeOut)
+        {
+            elapsed += 0.1f;
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        if (GameManager.Instance.PlayerStats == null)
+        {
+            Debug.LogError("PlayerStats not found after timeout!");
+            yield break;
+        }
+
+        playerStats = GameManager.Instance.PlayerStats;
+        playerStats.OnPlayerDeath += HandlePlayerDeath;
+
+        // MapManager 의존성 확인
+        while (MapManager.Instance == null && elapsed < timeOut)
+        {
+            elapsed += 0.1f;
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        if (MapManager.Instance == null)
+        {
+            Debug.LogError("MapManager not found after timeout!");
+            yield break;
+        }
+
+        // 맵 로드 대기
+        yield return StartCoroutine(WaitForMapLoad());
+
+        // 나머지 이벤트 구독
+        GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+
+        playerUIController = FindAnyObjectByType<PlayerUIController>();
+    }
+    private IEnumerator WaitForMapLoad()
+    {
+        float timeOut = 2f; // 더 짧은 타임아웃 (5초→2초)
+        float elapsed = 0f;
+
+        // MapManager에 현재 맵이 로드될 때까지 기다림
+        while (MapManager.Instance.CurrentMap == null && elapsed < timeOut)
+        {
+            elapsed += 0.05f; // 더 짧은 간격으로 체크 (0.1초→0.05초)
+            yield return new WaitForSeconds(0.05f);
+        }
+
+        // 맵 참조 가져오기
+        gameMap = MapManager.Instance.CurrentMap;
+
+        if (gameMap == null)
+        {
+            Debug.LogError("GameMap not found after timeout!");
+            yield break;
+        }
+
+        // 맵이 로드된 후에 실행되어야 하는 초기화 로직
+        InitializeEnemyPools();
+        SetupFirstWave();
+
+        Debug.Log("WaveManager fully initialized with map reference");
     }
 
     private void InitializeSystem()
@@ -600,7 +639,14 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
-
+    public void EnsureInitialized(GameMap map)
+    {
+        if (map != null && gameMap == null)
+        {
+            gameMap = map;
+            InitializeSystem();
+        }
+    }
     private void OnDestroy()
     {
         // 이벤트 구독 해제

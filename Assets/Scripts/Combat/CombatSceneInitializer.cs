@@ -9,6 +9,7 @@ public class CombatSceneInitializer : MonoBehaviour
     [SerializeField] private GameOverController gameOverController;
     [SerializeField] private WaveManager waveManager;
 
+    // CombatSceneInitializer.cs
     private void Start()
     {
         // Load map and place player
@@ -32,10 +33,16 @@ public class CombatSceneInitializer : MonoBehaviour
                 gameOverController
             );
 
+            // WaveManager 초기화 확인
+            if (waveManager != null)
+            {
+                waveManager.EnsureInitialized(MapManager.Instance.CurrentMap);
+            }
+
             // Initial pause
             GameManager.Instance.SetGameState(GameState.Paused);
 
-            // Open shop for first time
+            // Open shop for first time (이미 초기화된 WaveManager에게 알림)
             OpenInitialShopPhase();
         }
     }
