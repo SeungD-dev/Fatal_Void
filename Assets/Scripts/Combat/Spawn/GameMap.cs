@@ -31,7 +31,7 @@ public class GameMap : MonoBehaviour
     private void Awake()
     {
         InitializeMapBounds();
-        CenterMapToOrigin(); // 맵을 원점에 중심 배치
+        //CenterMapToOrigin(); // 맵을 원점에 중심 배치
         // 자주 확인하는 충돌 위치 미리 캐싱
         if (wallTilemap != null && useCachedCollisions)
         {

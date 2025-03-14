@@ -891,6 +891,7 @@ MonoBehaviour:
   combatController: {fileID: 1291325810}
   gameOverController: {fileID: 7947131200979300811}
   waveManager: {fileID: 588672269}
+  cameraBoundObject: {fileID: 1923037730}
 --- !u!4 &1546273310
 Transform:
   m_ObjectHideFlags: 0
