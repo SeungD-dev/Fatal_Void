@@ -7,7 +7,7 @@ public class MapManager : MonoBehaviour
 
     [Header("Map Settings")]
     [SerializeField] private GameObject mapPrefabReference;
-    [SerializeField] private string mapResourcePath = "Prefabs/Map";
+    [SerializeField] private string mapResourcePath = "Prefabs/Map/Map";
 
     private GameMap currentMap;
     public GameMap CurrentMap => currentMap;

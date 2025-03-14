@@ -9,7 +9,7 @@ public class GameMap : MonoBehaviour
     [SerializeField] private Tilemap wallTilemap;
 
     [Header("Map Properties")]
-    [SerializeField] private string mapName = "Default Map";
+    [SerializeField] private string mapName = "Map";
 
     [Header("Spawn Settings")]
     [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
@@ -22,6 +22,8 @@ public class GameMap : MonoBehaviour
     public Vector2 MapSize => mapSize;
     public Tilemap FloorTilemap => floorTilemap;
     public Tilemap WallTilemap => wallTilemap;
+    private Vector2 mapCenter;
+    public Vector2 MapCenter => mapCenter;
 
     private Dictionary<Vector2Int, bool> collisionCache = new Dictionary<Vector2Int, bool>();
     private bool useCachedCollisions = true;
@@ -29,7 +31,7 @@ public class GameMap : MonoBehaviour
     private void Awake()
     {
         InitializeMapBounds();
-
+        CenterMapToOrigin(); // 맵을 원점에 중심 배치
         // 자주 확인하는 충돌 위치 미리 캐싱
         if (wallTilemap != null && useCachedCollisions)
         {
@@ -81,10 +83,38 @@ public class GameMap : MonoBehaviour
             mapBounds.size.z);
 
         // 타일 크기를 고려하여 맵 크기 계산
+        Tilemap tilemap = floorTilemap != null ? floorTilemap : wallTilemap;
         mapSize = new Vector2(
-            size.x * floorTilemap.layoutGrid.cellSize.x,
-            size.y * floorTilemap.layoutGrid.cellSize.y);
+            size.x * tilemap.layoutGrid.cellSize.x,
+            size.y * tilemap.layoutGrid.cellSize.y);
+
+        // 맵 중심점 계산
+        // 타일맵의 경계 중앙이 맵의 중심이 되어야 함
+        Vector3Int min = mapBounds.min;
+        Vector3Int max = mapBounds.max;
+        Vector3 worldMin = tilemap.CellToWorld(min);
+        Vector3 worldMax = tilemap.CellToWorld(max);
+
+        // 셀 크기를 고려하여 실제 월드 공간의 맵 중심 계산
+        Vector3 cellSize = tilemap.layoutGrid.cellSize;
+        worldMax += new Vector3(cellSize.x, cellSize.y, 0); // 마지막 셀의 크기 고려
+
+        mapCenter = new Vector2(
+            (worldMin.x + worldMax.x) * 0.5f,
+            (worldMin.y + worldMax.y) * 0.5f
+        );
+
+        Debug.Log($"Map size: {mapSize}, Map center: {mapCenter}");
     }
+    private void CenterMapToOrigin()
+    {
+        // 맵의 중심을 원점으로 이동시킴
+        Vector3 offset = new Vector3(-mapCenter.x, -mapCenter.y, 0);
+        transform.position = offset;
+
+        Debug.Log($"Centering map to origin. Applied offset: {offset}");
+    }
+
 
     private void OnEnable()
     {
@@ -138,7 +168,7 @@ public class GameMap : MonoBehaviour
     // 맵 가장자리에서 랜덤 위치 반환
     public Vector2 GetRandomEdgePosition()
     {
-        // 타일맵 기반 맵 경계 계산
+        // 맵 중심은 이제 (0,0)에 있으므로, 가장자리 계산도 그에 맞게 조정
         float halfWidth = mapSize.x / 2f;
         float halfHeight = mapSize.y / 2f;
 

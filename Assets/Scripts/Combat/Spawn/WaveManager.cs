@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
 
 public class WaveManager : MonoBehaviour
 {
@@ -561,16 +559,32 @@ public class WaveManager : MonoBehaviour
             playerStats.AddCoins(currentWave.coinReward);
         }
 
-        // 웨이브 완료 배너 표시
+        // 웨이브 완료 배너 표시 및 지연 후 상점 열기
+        StartCoroutine(ShowCompletionBannerThenOpenShop());
+    }
+
+    private IEnumerator ShowCompletionBannerThenOpenShop()
+    {
+        // 배너 활성화
         if (waveCompleteBanner != null)
         {
-            waveCompleteBanner.SetActive(true);
+            // 텍스트 설정
             if (waveCompleteText != null)
             {
                 waveCompleteText.text = $"Wave {currentWaveNumber} Complete!";
             }
+
+            // 배너 애니메이션 시작
+            waveCompleteBanner.SetActive(true);
+
+            // 배너가 표시될 시간 대기
+            yield return new WaitForSeconds(2.0f);
+
+            // 배너 숨기기
+            waveCompleteBanner.SetActive(false);
         }
 
+        // 게임 종료 체크
         if (AreAllWavesCompleted())
         {
             Debug.Log("Game Clear");
@@ -578,7 +592,7 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
-            // Show shop as usual
+            // 상점 열기
             shopController.OpenShop();
         }
     }
