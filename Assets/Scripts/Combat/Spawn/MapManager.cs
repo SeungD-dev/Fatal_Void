@@ -1,5 +1,6 @@
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class MapManager : MonoBehaviour
 {
@@ -10,7 +11,11 @@ public class MapManager : MonoBehaviour
     [SerializeField] private GameObject mapPrefabReference;
     [SerializeField] private string mapResourcePath = "Prefabs/Map/Map";
 
+    [Header("Camera Settings")]
+    [SerializeField] private CinemachineCamera cinemachineCamera; // Inspector에서 할당
+
     private GameMap currentMap;
+    private GameObject cameraBoundObj;
     public GameMap CurrentMap => currentMap;
 
     private void Awake()
@@ -19,6 +24,10 @@ public class MapManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // 필요한 참조 초기화
+            if (cinemachineCamera == null)
+                cinemachineCamera = FindAnyObjectByType<CinemachineCamera>();
         }
         else
         {
@@ -77,6 +86,7 @@ public class MapManager : MonoBehaviour
 
         return currentMap;
     }
+
     private void CenterMapToOrigin(GameMap map)
     {
         // 타일맵 바운드 및 중심 계산
@@ -117,130 +127,158 @@ public class MapManager : MonoBehaviour
         );
     }
 
-   private void UpdateCameraBounds(GameMap map)
-{
-    Debug.Log("타일맵 경계에 정확히 맞추어 카메라 경계 업데이트 시도...");
-
-    // 먼저 타일맵을 가져옵니다
-    var wallTilemap = map.WallTilemap;
-    if (wallTilemap == null)
+    private void UpdateCameraBounds(GameMap map)
     {
-        Debug.LogError("Wall 타일맵을 찾을 수 없습니다!");
-        return;
-    }
-
-        // 모든 CameraBound 객체 찾기 및 제거
-        GameObject[] allObjects = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
-        foreach (GameObject obj in allObjects)
-    {
-        if (obj.name.Contains("CameraBound"))
+        var wallTilemap = map.WallTilemap;
+        if (wallTilemap == null)
         {
-            Debug.Log($"기존 '{obj.name}' 오브젝트를 제거합니다.");
-            Object.DestroyImmediate(obj);
+            Debug.LogError("Wall 타일맵을 찾을 수 없습니다!");
+            return;
         }
+
+        // 기존 CameraBound 제거
+        if (cameraBoundObj != null)
+        {
+            Destroy(cameraBoundObj);
+        }
+
+        // 새 카메라 바운드 생성
+        cameraBoundObj = new GameObject("CameraBound");
+
+        // 타일맵 바운드 계산 - 더 효율적인 방법으로
+        CalculateAndApplyBounds(wallTilemap, cameraBoundObj);
     }
 
-    // 새 CameraBound 객체 생성
-    GameObject cameraBoundObj = new GameObject("CameraBound");
-    Debug.Log("새 CameraBound 오브젝트를 생성했습니다");
-
-    // 타일맵을 순회하여 실제 사용된 타일의 경계 계산
-    BoundsInt cellBounds = wallTilemap.cellBounds;
-    Vector3 cellSize = wallTilemap.layoutGrid.cellSize;
-    
-    // 외곽 타일의 좌표를 저장할 변수
-    float minX = float.MaxValue;
-    float minY = float.MaxValue;
-    float maxX = float.MinValue;
-    float maxY = float.MinValue;
-    
-    bool foundTiles = false;
-    
-    // 모든 타일을 순회하며 월드 좌표 계산
-    for (int x = cellBounds.xMin; x < cellBounds.xMax; x++)
+    private void CalculateAndApplyBounds(Tilemap tilemap, GameObject boundObj)
     {
-        for (int y = cellBounds.yMin; y < cellBounds.yMax; y++)
+        BoundsInt cellBounds = tilemap.cellBounds;
+        Vector3 cellSize = tilemap.layoutGrid.cellSize;
+
+        // 가장자리만 체크해서 효율성 향상
+        float minX = float.MaxValue, minY = float.MaxValue;
+        float maxX = float.MinValue, maxY = float.MinValue;
+
+        bool foundTiles = false;
+
+        // 타일맵 크기
+        int xMin = cellBounds.xMin, xMax = cellBounds.xMax;
+        int yMin = cellBounds.yMin, yMax = cellBounds.yMax;
+
+        // 상단 가장자리만 체크
+        for (int x = xMin; x < xMax; x++)
         {
-            Vector3Int cellPos = new Vector3Int(x, y, 0);
-            
-            if (wallTilemap.HasTile(cellPos))
+            Vector3Int cellPos = new Vector3Int(x, yMax - 1, 0);
+            if (tilemap.HasTile(cellPos))
             {
                 foundTiles = true;
-                
-                // 타일의 월드 좌표 계산 - 맵 중심 이동 고려
-                Vector3 worldPos = wallTilemap.CellToWorld(cellPos);
-                
-                // 타일맵이 맵의 자식이라면 맵의 위치도 고려
-                worldPos = wallTilemap.transform.TransformPoint(wallTilemap.CellToLocal(cellPos));
-                
-                // 좌표 업데이트
+                Vector3 worldPos = tilemap.transform.TransformPoint(tilemap.CellToLocal(cellPos));
                 minX = Mathf.Min(minX, worldPos.x);
-                minY = Mathf.Min(minY, worldPos.y);
                 maxX = Mathf.Max(maxX, worldPos.x + cellSize.x);
                 maxY = Mathf.Max(maxY, worldPos.y + cellSize.y);
             }
         }
-    }
-    
-    if (!foundTiles)
-    {
-        Debug.LogError("타일맵에서 타일을 찾을 수 없습니다!");
-        Object.DestroyImmediate(cameraBoundObj);
-        return;
-    }
-    
-    // 여백 추가 (필요에 따라 조정)
-    float paddingX = 0.1f;
-    float paddingY = 0.1f;
-    minX -= paddingX;
-    minY -= paddingY;
-    maxX += paddingX;
-    maxY += paddingY;
-    
-    Debug.Log($"계산된 타일 경계: min=({minX}, {minY}), max=({maxX}, {maxY})");
-    
-    // 월드 경계를 사각형 콜라이더로 변환
-    PolygonCollider2D collider = cameraBoundObj.AddComponent<PolygonCollider2D>();
-    
-    Vector2[] points = new Vector2[4];
-    points[0] = new Vector2(minX, minY); // 좌하단
-    points[1] = new Vector2(maxX, minY); // 우하단
-    points[2] = new Vector2(maxX, maxY); // 우상단
-    points[3] = new Vector2(minX, maxY); // 좌상단
-    
-    collider.points = points;
-    
-    Debug.Log($"경계 포인트 설정: " +
-              $"좌하단({points[0].x}, {points[0].y}), " +
-              $"우하단({points[1].x}, {points[1].y}), " +
-              $"우상단({points[2].x}, {points[2].y}), " +
-              $"좌상단({points[3].x}, {points[3].y})");
-    
-    // Cinemachine Confiner2D 참조 업데이트
-    var cinemachineCamera = GameObject.FindFirstObjectByType<CinemachineCamera>();
-    if (cinemachineCamera != null)
-    {
-        // 기존 컨파이너 제거
-        var existingConfiner = cinemachineCamera.GetComponent<CinemachineConfiner2D>();
-        if (existingConfiner != null)
+
+        // 하단 가장자리만 체크
+        for (int x = xMin; x < xMax; x++)
         {
-            Object.DestroyImmediate(existingConfiner);
+            Vector3Int cellPos = new Vector3Int(x, yMin, 0);
+            if (tilemap.HasTile(cellPos))
+            {
+                foundTiles = true;
+                Vector3 worldPos = tilemap.transform.TransformPoint(tilemap.CellToLocal(cellPos));
+                minX = Mathf.Min(minX, worldPos.x);
+                maxX = Mathf.Max(maxX, worldPos.x + cellSize.x);
+                minY = Mathf.Min(minY, worldPos.y);
+            }
         }
-        
-        // 새 컨파이너 추가
-        var confiner = cinemachineCamera.gameObject.AddComponent<CinemachineConfiner2D>();
-        confiner.BoundingShape2D = collider;
+
+        // 좌측 가장자리만 체크
+        for (int y = yMin; y < yMax; y++)
+        {
+            Vector3Int cellPos = new Vector3Int(xMin, y, 0);
+            if (tilemap.HasTile(cellPos))
+            {
+                foundTiles = true;
+                Vector3 worldPos = tilemap.transform.TransformPoint(tilemap.CellToLocal(cellPos));
+                minX = Mathf.Min(minX, worldPos.x);
+                minY = Mathf.Min(minY, worldPos.y);
+                maxY = Mathf.Max(maxY, worldPos.y + cellSize.y);
+            }
+        }
+
+        // 우측 가장자리만 체크
+        for (int y = yMin; y < yMax; y++)
+        {
+            Vector3Int cellPos = new Vector3Int(xMax - 1, y, 0);
+            if (tilemap.HasTile(cellPos))
+            {
+                foundTiles = true;
+                Vector3 worldPos = tilemap.transform.TransformPoint(tilemap.CellToLocal(cellPos));
+                maxX = Mathf.Max(maxX, worldPos.x + cellSize.x);
+                minY = Mathf.Min(minY, worldPos.y);
+                maxY = Mathf.Max(maxY, worldPos.y + cellSize.y);
+            }
+        }
+
+        // 타일을 찾지 못한 경우 맵 크기로 대체
+        if (!foundTiles)
+        {
+            // 맵 크기 사용
+            float halfWidth = currentMap.MapSize.x / 2f;
+            float halfHeight = currentMap.MapSize.y / 2f;
+
+            minX = -halfWidth;
+            minY = -halfHeight;
+            maxX = halfWidth;
+            maxY = halfHeight;
+        }
+
+        // 여백 추가
+        float padding = 0.1f;
+        minX -= padding;
+        minY -= padding;
+        maxX += padding;
+        maxY += padding;
+
+        // 콜라이더 생성
+        PolygonCollider2D collider = boundObj.AddComponent<PolygonCollider2D>();
+        Vector2[] points = new Vector2[4];
+        points[0] = new Vector2(minX, minY);
+        points[1] = new Vector2(maxX, minY);
+        points[2] = new Vector2(maxX, maxY);
+        points[3] = new Vector2(minX, maxY);
+
+        collider.points = points;
+
+        // Cinemachine Confiner 업데이트
+        UpdateCameraConfiner(collider);
+    }
+
+    // 카메라 컨파이너 업데이트 분리
+    private void UpdateCameraConfiner(Collider2D boundingCollider)
+    {
+        if (cinemachineCamera == null)
+        {
+            cinemachineCamera = FindAnyObjectByType<CinemachineCamera>();
+            if (cinemachineCamera == null)
+            {
+                Debug.LogError("CinemachineCamera를 찾을 수 없습니다!");
+                return;
+            }
+        }
+
+        var confiner = cinemachineCamera.GetComponent<CinemachineConfiner2D>();
+        if (confiner == null)
+        {
+            confiner = cinemachineCamera.gameObject.AddComponent<CinemachineConfiner2D>();
+        }
+
+        confiner.BoundingShape2D = boundingCollider;
         confiner.Damping = 0.5f;
         confiner.SlowingDistance = 1.0f;
         confiner.InvalidateBoundingShapeCache();
     }
-    else
-    {
-        Debug.LogError("CinemachineCamera를 찾을 수 없습니다!");
-    }
-    
-    Debug.Log("카메라 경계 업데이트 완료");
-}
+
     public Vector2 GetPlayerStartPosition()
     {
         if (currentMap == null)
