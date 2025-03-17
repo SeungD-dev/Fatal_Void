@@ -26,7 +26,7 @@ public class CombatSceneInitializer : MonoBehaviour
                 playerStats.transform.position = startPosition;
 
                 // 카메라 바운드 업데이트
-                UpdateCameraBounds(map);
+                //UpdateCameraBounds(map);
 
                 // 디버그 정보 출력
                 Debug.Log($"Map position: {map.transform.position}");

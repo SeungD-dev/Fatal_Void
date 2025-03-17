@@ -1028,10 +1028,16 @@ MonoBehaviour:
   wallTilemap: {fileID: 3471173222879785126}
   mapName: Default Map
   spawnPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 3855497196408056623}
+  - {fileID: 1121606021703794722}
+  - {fileID: 2478359633343494913}
+  - {fileID: 7314039987370152680}
+  - {fileID: 3249181593341123665}
+  - {fileID: 3389388370955441854}
+  - {fileID: 4118041086794676310}
+  - {fileID: 2044011160876160610}
+  - {fileID: 2227353071527026084}
+  - {fileID: 180115101979357620}
   spawnEdgeOffset: 1
 --- !u!1 &4561492377666224464
 GameObject:
