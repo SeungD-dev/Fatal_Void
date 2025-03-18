@@ -5,7 +5,7 @@ using System.Collections;
 using TMPro;
 using System.Linq;
 using System.Collections.Generic;
-using UnityEngine.InputSystem.LowLevel;
+using DG.Tweening;
 
 /// <summary>
 /// 인벤토리 시스템의 메인 컨트롤러
@@ -31,6 +31,9 @@ public class InventoryController : MonoBehaviour
     [SerializeField] private GameObject noticeUI;
     [SerializeField] private TMPro.TextMeshProUGUI noticeText;
     [SerializeField] private float noticeDisplayTime = 2f;
+    [Header("Transition Effect")]
+    [SerializeField] private ScreenTransitionEffect transitionEffect;
+
     private Coroutine currentNoticeCoroutine;
     #endregion
 
@@ -856,6 +859,23 @@ public class InventoryController : MonoBehaviour
         }
 
         PlayButtonSound();
+
+        if (transitionEffect != null)
+        {
+            // 바깥에서 안으로 효과 (reverseEffect = false)
+            transitionEffect.reverseEffect = false;
+            transitionEffect.PlayTransition(() => {
+                CompleteGameStart();
+            });
+        }
+        else
+        {
+            CompleteGameStart();
+        }
+    }
+
+    private void CompleteGameStart()
+    {
         EquipAllGridItems();
 
         // 웨이브 매니저에 진행 알림

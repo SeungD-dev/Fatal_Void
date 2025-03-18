@@ -592,7 +592,9 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
+            // 게임 상태를 일시정지로 변경 - 중요!
             GameManager.Instance.SetGameState(GameState.Paused);
+
             // 상점 열기
             shopController.OpenShop();
         }

@@ -28,6 +28,8 @@ public class ShopController : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI playerCoinsText;
     [SerializeField] private TMPro.TextMeshProUGUI noticeText;
     [SerializeField] private float noticeDisplayTime = 2f;
+    [Header("Transition Effect")]
+    [SerializeField] private ScreenTransitionEffect transitionEffect;
     public bool isFirstShop = true;
     private bool hasFirstPurchase = false;
     private bool isNoticeClosed = true;
@@ -118,10 +120,33 @@ public class ShopController : MonoBehaviour
 
     public void OpenShop()
     {
+        // 상점 UI 준비 (아직 표시 안 함)
+        PrepareShop(false);
+
+        if (transitionEffect != null)
+        {
+            // 안에서 바깥으로 효과 (reverseEffect = true)
+            transitionEffect.reverseEffect = true;
+            transitionEffect.PlayTransition(() => {
+                ShowShopUI();
+            });
+        }
+        else
+        {
+            ShowShopUI();
+        }
+    }
+
+    private void PrepareShop(bool showUI)
+    {
         playerControlUI.SetActive(false);
         playerStatsUI.SetActive(false);
-        shopUI.SetActive(true);
-        inventoryUI.SetActive(false);
+
+        if (showUI)
+        {
+            shopUI.SetActive(true);
+            inventoryUI.SetActive(false);
+        }
 
         // 첫 상점이 아닐 경우에만 새로운 무기 옵션을 생성
         if (!isFirstShop)
@@ -146,6 +171,18 @@ public class ShopController : MonoBehaviour
         }
 
         UpdateRefreshCostText();
+    }
+
+    private void ShowShopUI()
+    {
+        shopUI.SetActive(true);
+        inventoryUI.SetActive(false);
+
+        // 게임 상태가 일시정지 상태가 아니라면 일시정지로 변경
+        if (GameManager.Instance.currentGameState != GameState.Paused)
+        {
+            GameManager.Instance.SetGameState(GameState.Paused);
+        }
     }
     private void InitializeNewWeapons()
     {

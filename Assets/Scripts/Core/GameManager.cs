@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 
 /// <summary>
 /// 게임의 전반적인 상태와 시스템을 관리하는 매니저 클래스
@@ -74,6 +75,8 @@ public class GameManager : MonoBehaviour
     {
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 30;
+
+        DOTween.SetTweensCapacity(200, 50);
 
         if (instance == null)
         {
