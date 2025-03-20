@@ -17,7 +17,15 @@ MonoBehaviour:
     waveDuration: 15
     survivalDuration: 5
     spawnInterval: 3
-    spawnAmount: 3
+    spawnAmount: 10
+    spawnSettings:
+      formation: 3
+      surroundDistance: 3
+      angleOffset: 360
+      lineStart: {x: -10, y: 0}
+      lineEnd: {x: 10, y: 0}
+      enemiesPerSpawnPoint: 1
+      fixedSpawnPoints: 
     enemies:
     - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
       spawnChance: 10
@@ -27,10 +35,60 @@ MonoBehaviour:
       spawnChance: 60
     coinReward: 100
   - waveNumber: 2
-    waveDuration: 15
+    waveDuration: 20
     survivalDuration: 5
-    spawnInterval: 3
-    spawnAmount: 3
+    spawnInterval: 4
+    spawnAmount: 4
+    spawnSettings:
+      formation: 0
+      surroundDistance: 0
+      angleOffset: 0
+      lineStart: {x: -10, y: 0}
+      lineEnd: {x: 10, y: 0}
+      enemiesPerSpawnPoint: 1
+      fixedSpawnPoints: 
+    enemies:
+    - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
+      spawnChance: 30
+    - enemyData: {fileID: 11400000, guid: 7d97d9cb3a3d98646bbe1a7b19565dda, type: 2}
+      spawnChance: 30
+    - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
+      spawnChance: 40
+    coinReward: 200
+  - waveNumber: 3
+    waveDuration: 20
+    survivalDuration: 5
+    spawnInterval: 4
+    spawnAmount: 12
+    spawnSettings:
+      formation: 2
+      surroundDistance: 5
+      angleOffset: 360
+      lineStart: {x: -20, y: 0}
+      lineEnd: {x: 10, y: 0}
+      enemiesPerSpawnPoint: 1
+      fixedSpawnPoints: 
+    enemies:
+    - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
+      spawnChance: 30
+    - enemyData: {fileID: 11400000, guid: 7d97d9cb3a3d98646bbe1a7b19565dda, type: 2}
+      spawnChance: 30
+    - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
+      spawnChance: 40
+    coinReward: 200
+  - waveNumber: 4
+    waveDuration: 20
+    survivalDuration: 5
+    spawnInterval: 4
+    spawnAmount: 12
+    spawnSettings:
+      formation: 2
+      surroundDistance: 5
+      angleOffset: 360
+      lineStart: {x: -20, y: 0}
+      lineEnd: {x: 10, y: 0}
+      enemiesPerSpawnPoint: 1
+      fixedSpawnPoints: 
     enemies:
     - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
       spawnChance: 30

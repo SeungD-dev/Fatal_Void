@@ -600,7 +600,7 @@ MonoBehaviour:
   waveNumberText: {fileID: 7947131200979300803}
   waveCompleteBanner: {fileID: 7947131200979300802}
   waveCompleteText: {fileID: 7947131200979300801}
-  minDistanceFromPlayer: 3
+  minDistanceFromPlayer: 0.5
 --- !u!1 &632933799
 GameObject:
   m_ObjectHideFlags: 0
@@ -805,9 +805,9 @@ MonoBehaviour:
   magnetForce: 20
   deathEffectPoolTag: DeathParticle
   particlesPerEffect: 5
-  explosionRadius: 1
+  explosionRadius: 0.3
   explosionDuration: 0.5
-  particleSizeRange: {x: 0.1, y: 0.3}
+  particleSizeRange: {x: 0.05, y: 0.1}
   deathParticleColors:
   - {r: 1, g: 0, b: 0, a: 1}
   - {r: 0, g: 0, b: 0, a: 1}

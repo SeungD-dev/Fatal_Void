@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using static WaveData;
 
 public class WaveManager : MonoBehaviour
 {
@@ -404,41 +405,89 @@ public class WaveManager : MonoBehaviour
 
     private void SpawnEnemyBatch(int count)
     {
+        if (currentWave == null) return;
+
         List<Vector2> spawnPositions = new List<Vector2>(count);
 
-        // Generate all positions first
-        for (int i = 0; i < count; i++)
+        // 현재 웨이브의 스폰 설정 가져오기
+        SpawnSettings settings = currentWave.spawnSettings;
+
+        // 적 스폰 위치 생성
+        switch (settings.formation)
         {
-            spawnPositions.Add(GetOptimizedSpawnPosition());
+            case SpawnFormation.Surround:
+                spawnPositions = GenerateSurroundPositions(count, settings.surroundDistance, settings.angleOffset);
+                break;
+            case SpawnFormation.Rectangle:
+                spawnPositions = GenerateRectanglePositions(count, settings.surroundDistance);
+                break;
+            case SpawnFormation.Line:
+                spawnPositions = GenerateLinePositions(count, settings.lineStart, settings.lineEnd);
+                break;
+            case SpawnFormation.Fixed:
+                spawnPositions = GetFixedSpawnPositions(count, settings.fixedSpawnPoints);
+                break;
+            case SpawnFormation.Random:
+                spawnPositions = GenerateRandomPositions(count);
+                break;
+            case SpawnFormation.EdgeRandom:
+            default:
+                // 기존 방식 - 가장자리 랜덤
+                for (int i = 0; i < count; i++)
+                {
+                    spawnPositions.Add(GetOptimizedSpawnPosition());
+                }
+                break;
         }
 
-        // Show warnings and spawn enemies in a single coroutine
+        // 경고 및 스폰 코루틴 시작
         StartCoroutine(ShowWarningsAndSpawnBatch(spawnPositions));
     }
     private IEnumerator ShowWarningsAndSpawnBatch(List<Vector2> positions)
     {
-       
+        // 스폰 설정에서 스폰 포인트당 적 수 가져오기
+        int enemiesPerPoint = currentWave.spawnSettings.enemiesPerSpawnPoint;
+        if (enemiesPerPoint <= 0) enemiesPerPoint = positions.Count; // 0이면 모든 적을 같은 위치에 스폰
+
         List<GameObject> warnings = new List<GameObject>();
+
+        // 경고 표시 생성
         foreach (Vector2 pos in positions)
         {
             GameObject warning = ObjectPool.Instance.SpawnFromPool("SpawnWarning", pos, Quaternion.identity);
             warnings.Add(warning);
         }
 
-        
+        // 경고 표시 대기 시간
         yield return new WaitForSeconds(1f);
 
-        
+        // 경고 표시 비활성화
         foreach (GameObject warning in warnings)
         {
             ObjectPool.Instance.ReturnToPool("SpawnWarning", warning);
         }
 
+        // 적 스폰
+        int totalEnemies = positions.Count;
+        int spawnedCount = 0;
+
         foreach (Vector2 pos in positions)
         {
-            SpawnEnemy(pos);
+            // 현재 위치에 스폰할 적 수 계산
+            int enemiesToSpawn = Mathf.Min(enemiesPerPoint, totalEnemies - spawnedCount);
+
+            // 이 위치에 적 스폰
+            for (int i = 0; i < enemiesToSpawn; i++)
+            {
+                SpawnEnemy(pos);
+                spawnedCount++;
+            }
+
+            // 모든 적을 스폰했으면 종료
+            if (spawnedCount >= totalEnemies)
+                break;
         }
-    }  
+    }
     private void SpawnEnemy(Vector2 position)
     {
         if (!isWaveActive || isInSurvivalPhase) return;
@@ -529,6 +578,155 @@ public class WaveManager : MonoBehaviour
                viewportPoint.y >= 0 && viewportPoint.y <= 1;
     }
 
+    #region Spawn Formations
+    // 원형 포위 위치 생성
+    private List<Vector2> GenerateSurroundPositions(int count, float radius, float angleOffset)
+    {
+        List<Vector2> positions = new List<Vector2>(count);
+        Vector2 playerPos = playerStats.transform.position;
+        float angleStep = 360f / count;
+
+        for (int i = 0; i < count; i++)
+        {
+            float angle = i * angleStep + angleOffset;
+            float radians = angle * Mathf.Deg2Rad;
+            Vector2 position = playerPos + new Vector2(Mathf.Cos(radians), Mathf.Sin(radians)) * radius;
+
+            // 맵 경계 내에 있는지 확인하고 조정
+            if (gameMap != null && !gameMap.IsPositionInMap(position))
+            {
+                position = gameMap.GetRandomEdgePosition();
+            }
+
+            positions.Add(position);
+        }
+
+        return positions;
+    }
+    // 사각형 포위 위치 생성
+    private List<Vector2> GenerateRectanglePositions(int count, float distance)
+    {
+        List<Vector2> positions = new List<Vector2>(count);
+        Vector2 playerPos = playerStats.transform.position;
+
+        // 사각형의 네 변에 적들을 균등하게 배치
+        int enemiesPerSide = Mathf.CeilToInt(count / 4f);
+        int remainingEnemies = count;
+
+        // 상단 변
+        int topCount = Mathf.Min(enemiesPerSide, remainingEnemies);
+        for (int i = 0; i < topCount; i++)
+        {
+            float t = (topCount == 1) ? 0.5f : (float)i / (topCount - 1);
+            float xPos = playerPos.x - distance + distance * 2 * t;
+            float yPos = playerPos.y + distance;
+            positions.Add(new Vector2(xPos, yPos));
+        }
+        remainingEnemies -= topCount;
+
+        // 우측 변
+        int rightCount = Mathf.Min(enemiesPerSide, remainingEnemies);
+        for (int i = 0; i < rightCount; i++)
+        {
+            float t = (rightCount == 1) ? 0.5f : (float)i / (rightCount - 1);
+            float xPos = playerPos.x + distance;
+            float yPos = playerPos.y + distance - distance * 2 * t;
+            positions.Add(new Vector2(xPos, yPos));
+        }
+        remainingEnemies -= rightCount;
+
+        // 하단 변
+        int bottomCount = Mathf.Min(enemiesPerSide, remainingEnemies);
+        for (int i = 0; i < bottomCount; i++)
+        {
+            float t = (bottomCount == 1) ? 0.5f : (float)i / (bottomCount - 1);
+            float xPos = playerPos.x + distance - distance * 2 * t;
+            float yPos = playerPos.y - distance;
+            positions.Add(new Vector2(xPos, yPos));
+        }
+        remainingEnemies -= bottomCount;
+
+        // 좌측 변
+        int leftCount = Mathf.Min(enemiesPerSide, remainingEnemies);
+        for (int i = 0; i < leftCount; i++)
+        {
+            float t = (leftCount == 1) ? 0.5f : (float)i / (leftCount - 1);
+            float xPos = playerPos.x - distance;
+            float yPos = playerPos.y - distance + distance * 2 * t;
+            positions.Add(new Vector2(xPos, yPos));
+        }
+
+        // 맵 경계 확인 및 조정
+        for (int i = 0; i < positions.Count; i++)
+        {
+            if (gameMap != null && !gameMap.IsPositionInMap(positions[i]))
+            {
+                positions[i] = gameMap.GetRandomEdgePosition();
+            }
+        }
+
+        return positions;
+    }
+    // 직선 위치 생성
+    private List<Vector2> GenerateLinePositions(int count, Vector2 start, Vector2 end)
+    {
+        List<Vector2> positions = new List<Vector2>(count);
+
+        for (int i = 0; i < count; i++)
+        {
+            float t = count > 1 ? (float)i / (count - 1) : 0.5f;
+            Vector2 position = Vector2.Lerp(start, end, t);
+
+            // 맵 내부 위치 조정
+            if (gameMap != null && !gameMap.IsPositionInMap(position))
+            {
+                position = gameMap.GetRandomEdgePosition();
+            }
+
+            positions.Add(position);
+        }
+
+        return positions;
+    }
+
+    // 고정 스폰 포인트 사용
+    private List<Vector2> GetFixedSpawnPositions(int count, List<int> fixedPoints)
+    {
+        List<Vector2> positions = new List<Vector2>(count);
+
+        // 지정된 스폰 포인트가 없거나 맵이 없으면 랜덤 생성
+        if (fixedPoints == null || fixedPoints.Count == 0 || gameMap == null)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                positions.Add(gameMap.GetRandomEdgePosition());
+            }
+            return positions;
+        }
+
+        // 지정된 스폰 포인트 사용
+        for (int i = 0; i < count; i++)
+        {
+            int pointIndex = fixedPoints[i % fixedPoints.Count];
+            positions.Add(gameMap.GetSpawnPosition(pointIndex));
+        }
+
+        return positions;
+    }
+    // 맵 내부 랜덤 위치 생성
+    private List<Vector2> GenerateRandomPositions(int count)
+    {
+        List<Vector2> positions = new List<Vector2>(count);
+
+        for (int i = 0; i < count; i++)
+        {
+            positions.Add(gameMap.GetRandomPositionInMap());
+        }
+
+        return positions;
+    }
+    #endregion
+
     private void HandlePlayerDeath()
     {
         isWaveActive = false;
@@ -592,7 +790,7 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
-            // 게임 상태를 일시정지로 변경 - 중요!
+            
             GameManager.Instance.SetGameState(GameState.Paused);
 
             // 상점 열기
