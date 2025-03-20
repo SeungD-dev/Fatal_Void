@@ -860,20 +860,26 @@ public class InventoryController : MonoBehaviour
 
         PlayButtonSound();
 
+        // 먼저 인벤토리 UI를 비활성화
+        inventoryUI.SetActive(false);
+
+        // 그 다음 트랜지션 이펙트 실행
         if (transitionEffect != null)
         {
             // 바깥에서 안으로 효과 (reverseEffect = false)
             transitionEffect.reverseEffect = false;
+            transitionEffect.gameObject.SetActive(true);
             transitionEffect.PlayTransition(() => {
+                // 트랜지션이 완료된 후 게임 시작
                 CompleteGameStart();
             });
         }
         else
         {
+            // 트랜지션 이펙트가 없으면 바로 게임 시작
             CompleteGameStart();
         }
     }
-
     private void CompleteGameStart()
     {
         EquipAllGridItems();

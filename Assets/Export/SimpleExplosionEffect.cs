@@ -207,15 +207,6 @@ public class SimpleExplosionEffect : MonoBehaviour
         PlayExplosion();
     }
 
-    // S키 입력 확인
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            PlayExplosionAtOrigin();
-        }
-    }
-
     // (0, 0) 좌표에 폭발 이펙트 생성
     public void PlayExplosionAtOrigin()
     {
