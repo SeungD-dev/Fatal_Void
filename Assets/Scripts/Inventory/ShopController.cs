@@ -120,6 +120,11 @@ public class ShopController : MonoBehaviour
 
     public void OpenShop()
     {
+        if (hasFirstPurchase)
+        {
+            isFirstShop = false;
+        }
+
         // 상점 UI 준비 (아직 표시 안 함)
         PrepareShop(false);
 
@@ -148,17 +153,18 @@ public class ShopController : MonoBehaviour
             inventoryUI.SetActive(false);
         }
 
-        // 첫 상점이 아닐 경우에만 새로운 무기 옵션을 생성
+        // 첫 상점이 아닐 경우 새로운 무기 옵션을 생성
         if (!isFirstShop)
         {
             InitializeNewWeapons();
         }
-        // 첫 상점이면서 아직 구매하지 않은 경우
-        else if (!hasFirstPurchase)
+        // 첫 상점이면서 아직 구매하지 않은 경우 무료 무기 표시
+        else if (isFirstShop && !hasFirstPurchase)
         {
             InitializeFreeWeapons();
         }
-        // 첫 상점에서 이미 구매한 경우
+        // 첫 상점에서 이미 구매했지만 아직 첫 상점인 경우
+        // 다음 웨이브로 진행하지 않고 상점으로 돌아온 경우에 해당
         else if (isFirstShop && hasFirstPurchase)
         {
             foreach (var option in weaponOptions)
@@ -172,7 +178,6 @@ public class ShopController : MonoBehaviour
 
         UpdateRefreshCostText();
     }
-
     private void ShowShopUI()
     {
         shopUI.SetActive(true);
@@ -322,6 +327,7 @@ public class ShopController : MonoBehaviour
         {
             if (i < randomWeapons.Count && weaponOptions[i] != null)
             {
+                WeaponData weaponCopy = ScriptableObject.Instantiate(randomWeapons[i]);
                 randomWeapons[i].price = 0;
                 weaponOptions[i].Initialize(randomWeapons[i], this);
             }

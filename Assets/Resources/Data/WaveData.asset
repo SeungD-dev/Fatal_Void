@@ -82,7 +82,7 @@ MonoBehaviour:
     spawnInterval: 4
     spawnAmount: 12
     spawnSettings:
-      formation: 2
+      formation: 1
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}

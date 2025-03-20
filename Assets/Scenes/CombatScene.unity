@@ -1249,13 +1249,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7c098e7030c4724591ae0fcf1e866c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cullingDistance: 12
+  cullingDistance: 10
   updateInterval: 0.5
-  screenBuffer: 0.2
+  screenBuffer: 0.9
   useDistanceBasedInterval: 1
   nearUpdateInterval: 0.1
-  farUpdateInterval: 0.3
-  distanceThreshold: 15
+  farUpdateInterval: 0.5
+  distanceThreshold: 6
 --- !u!4 &1952542281
 Transform:
   m_ObjectHideFlags: 0

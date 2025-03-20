@@ -33,7 +33,7 @@ public class WaveManager : MonoBehaviour
     // 캐싱
     private PlayerStats playerStats;
     private PlayerUIController playerUIController;
-    private List<GameObject> spawnedEnemies = new List<GameObject>();
+    private List<Enemy> spawnedEnemies = new List<Enemy>();
     private Camera mainCamera;
     private GameMap gameMap;
 
@@ -524,8 +524,8 @@ public class WaveManager : MonoBehaviour
                     enemy.SetCullingManager(cullingManager);
                 }
 
-                // 활성화된 적 목록에 추가
-                spawnedEnemies.Add(enemyObject);
+                // 활성화된 적 목록에 추가 (Enemy 컴포넌트 직접 저장)
+                spawnedEnemies.Add(enemy);
             }
             else
             {
@@ -534,7 +534,6 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
-
     private Vector2 GetOptimizedSpawnPosition()
     {
         // 맵에서 가장자리 위치 가져오기
@@ -751,6 +750,9 @@ public class WaveManager : MonoBehaviour
             spawnCoroutine = null;
         }
 
+        // 남아있는 모든 적에게 9999 데미지 주기
+        KillAllRemainingEnemies();
+
         // 웨이브 보상 지급
         if (playerStats != null && currentWave != null)
         {
@@ -792,7 +794,10 @@ public class WaveManager : MonoBehaviour
         {
             
             GameManager.Instance.SetGameState(GameState.Paused);
-
+            if (currentWaveNumber >= 1 && shopController != null)
+            {
+                shopController.isFirstShop = false;
+            }
             // 상점 열기
             shopController.OpenShop();
         }
@@ -809,7 +814,26 @@ public class WaveManager : MonoBehaviour
             waveNumberText.text = $"Wave {currentWaveNumber}";
         }
     }
+    private void KillAllRemainingEnemies()
+    {
+        // 살아있는 모든 적 한번에 데미지 주기
+        const float massDeathDamage = 9999f;
 
+        // 모든 Enemy 컴포넌트에 직접 접근 (GetComponent 호출 없음)
+        for (int i = spawnedEnemies.Count - 1; i >= 0; i--)
+        {
+            Enemy enemy = spawnedEnemies[i];
+            if (enemy != null && enemy.gameObject.activeInHierarchy)
+            {
+                enemy.TakeDamage(massDeathDamage);
+            }
+            else
+            {
+                // 이미 파괴된 적 제거
+                spawnedEnemies.RemoveAt(i);
+            }
+        }
+    }
     private void UpdateTimerUI()
     {
         // 문자열 생성
@@ -848,7 +872,8 @@ public class WaveManager : MonoBehaviour
         // 비활성화된 적 오브젝트 정리
         for (int i = spawnedEnemies.Count - 1; i >= 0; i--)
         {
-            if (spawnedEnemies[i] == null || !spawnedEnemies[i].activeInHierarchy)
+            Enemy enemy = spawnedEnemies[i];
+            if (enemy == null || !enemy.gameObject.activeInHierarchy)
             {
                 spawnedEnemies.RemoveAt(i);
             }
