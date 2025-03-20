@@ -452,10 +452,7 @@ public class GameManager : MonoBehaviour
 
             // VFX 타입
             case "BulletDestroyVFX": return 30;
-            case "HitVFX": return 10;
-            case "ExplosionVFX": return 10;
-            case "LevelUpVFX": return 5;
-            case "PickupVFX": return 10;
+            case "DeathParticle": return 15 * 5;
 
             // 기본값
             default: return 15;
@@ -508,23 +505,19 @@ public class GameManager : MonoBehaviour
         }
         LoadingProgress = 0.45f;
 
-        // 추가 VFX 로드 (기본 VFX 외에 필요한 VFX)
-        //string[] vfxTypes = { "HitVFX", "ExplosionVFX", "LevelUpVFX", "PickupVFX" };
-        //for (int i = 0; i < vfxTypes.Length; i++)
-        //{
-        //    GameObject vfxPrefab = Resources.Load<GameObject>($"Prefabs/VFX/{vfxTypes[i]}");
-        //    if (vfxPrefab != null)
-        //    {
-        //        int poolSize = GetOptimalPoolSize(vfxTypes[i]);
-        //        ObjectPool.Instance.CreatePool(vfxTypes[i], vfxPrefab, poolSize);
-        //    }
-        //    else
-        //    {
-        //        Debug.LogWarning($"VFX Prefab not found: {vfxTypes[i]}");
-        //    }
-        //    yield return ResourceLoadDelay;
-        //    if (isLoadingCancelled) yield break;
-        //}
+        GameObject deathParticlePrefab = Resources.Load<GameObject>("Prefabs/VFX/DeathParticle");
+        if (deathParticlePrefab != null)
+        {
+            // 최대 동시 이펙트 * 이펙트 당 파티클 수 = 총 파티클 수
+            int poolSize = 5 * 5; // 5개 동시 이펙트, 각 5개 파티클
+            ObjectPool.Instance.CreatePool("DeathParticle", deathParticlePrefab, poolSize);
+            Debug.Log("Death particle pool initialized");
+        }
+        else
+        {
+            Debug.LogWarning("Death particle prefab not found!");
+        }
+        yield return ResourceLoadDelay;
         LoadingProgress = 0.5f;
     }
 

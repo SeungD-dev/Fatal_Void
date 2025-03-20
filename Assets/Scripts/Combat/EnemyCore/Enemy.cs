@@ -315,8 +315,14 @@ public class Enemy : MonoBehaviour, IPooledObject
         if (combatController == null) return;
 
         var position = cachedTransform.position;
-        var dropTable = enemyData?.dropTable;
 
+        float enemyScale = cachedTransform.localScale.x;
+
+        // 사망 이펙트 재생 - 직접 CombatController 참조
+        combatController.PlayEnemyDeathEffect(position,null,enemyScale);
+
+        // 드롭 생성 (기존 코드)
+        var dropTable = enemyData?.dropTable;
         if (dropTable != null)
         {
             combatController.SpawnDrops(position, dropTable);

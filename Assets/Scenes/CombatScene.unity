@@ -803,6 +803,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthPotionAmount: 20
   magnetForce: 20
+  deathEffectPoolTag: DeathParticle
+  particlesPerEffect: 5
+  explosionRadius: 1
+  explosionDuration: 0.5
+  particleSizeRange: {x: 0.1, y: 0.3}
+  deathParticleColors:
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 0, g: 0, b: 0, a: 1}
+  - {r: 0.25490198, g: 0.25490198, b: 0.25490198, a: 1}
 --- !u!4 &1291325811
 Transform:
   m_ObjectHideFlags: 0
@@ -1469,6 +1478,10 @@ PrefabInstance:
     - target: {fileID: 7985767351105080305, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
       propertyPath: m_Name
       value: CombatUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 7985767351105080305, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
