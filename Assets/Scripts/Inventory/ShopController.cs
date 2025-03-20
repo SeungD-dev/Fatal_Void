@@ -327,7 +327,6 @@ public class ShopController : MonoBehaviour
         {
             if (i < randomWeapons.Count && weaponOptions[i] != null)
             {
-                WeaponData weaponCopy = ScriptableObject.Instantiate(randomWeapons[i]);
                 randomWeapons[i].price = 0;
                 weaponOptions[i].Initialize(randomWeapons[i], this);
             }
