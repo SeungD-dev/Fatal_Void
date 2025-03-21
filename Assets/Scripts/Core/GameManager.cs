@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     private ShopController shopController;
     private CombatController combatController;
     private GameOverController gameOverController;
+    private PhysicsInventoryManager physicsInventoryManager; // 추가: 물리 인벤토리 시스템 참조
 
     // 자주 사용되는 속성들을 캐싱
     private bool isInitialized;
@@ -49,6 +50,7 @@ public class GameManager : MonoBehaviour
     public ShopController ShopController => shopController;
     public CombatController CombatController => combatController;
     public GameOverController GameOverController => gameOverController;
+    public PhysicsInventoryManager PhysicsInventoryManager => physicsInventoryManager; // 추가: 물리 인벤토리 매니저 프로퍼티
 
     public event System.Action<GameState> OnGameStateChanged;
 
@@ -161,6 +163,22 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        // 물리 인벤토리 매니저 참조 설정 (추가)
+        if (shop != null)
+        {
+            var inventoryController = shop.GetComponentInChildren<InventoryController>();
+            if (inventoryController != null)
+            {
+                physicsInventoryManager = inventoryController.GetComponent<PhysicsInventoryManager>();
+                if (physicsInventoryManager == null)
+                {
+                    // PhysicsInventoryManager가 없으면 생성
+                    physicsInventoryManager = inventoryController.gameObject.AddComponent<PhysicsInventoryManager>();
+                    Debug.Log("PhysicsInventoryManager component added to InventoryController");
+                }
+            }
+        }
+
         if (shouldInitialize)
         {
             playerStats.InitializeStats();
@@ -177,6 +195,7 @@ public class GameManager : MonoBehaviour
         shopController = null;
         combatController = null;
         gameOverController = null;
+        physicsInventoryManager = null; // 물리 인벤토리 매니저 참조 제거
         isInitialized = false;
     }
 
@@ -320,13 +339,19 @@ public class GameManager : MonoBehaviour
 
         if (isLoadingCancelled) yield break;
 
-        // 4. 전투 시스템 준비 (50% -> 75%)
+        // 4. 전투 시스템 준비 (50% -> 65%)
         yield return PrepareCombatSystem();
+        LoadingProgress = 0.65f;
+
+        if (isLoadingCancelled) yield break;
+
+        // 5. 물리 인벤토리 시스템 초기화 (65% -> 75%) - 추가됨
+        yield return InitializePhysicsInventorySystem();
         LoadingProgress = 0.75f;
 
         if (isLoadingCancelled) yield break;
 
-        // 5. 최종 준비 (75% -> 90%)
+        // 6. 최종 준비 (75% -> 90%)
         yield return FinalizeInitialization();
         LoadingProgress = 0.9f;
     }
@@ -454,6 +479,9 @@ public class GameManager : MonoBehaviour
             case "BulletDestroyVFX": return 30;
             case "DeathParticle": return 15 * 5;
 
+            // 물리 인벤토리 아이템 타입 (추가)
+            case "PhysicsInventoryItem": return 20;
+
             // 기본값
             default: return 15;
         }
@@ -544,11 +572,57 @@ public class GameManager : MonoBehaviour
         var weaponDatabase = Resources.Load<ScriptableObject>("Data/WeaponDatabase");
         var enemySpawnDatabase = Resources.Load<ScriptableObject>("Data/EnemySpawnDatabase");
         yield return ResourceLoadDelay;
-        LoadingProgress = 0.7f;
+        LoadingProgress = 0.65f;
+    }
 
-        // 기타 필요한 데이터 로드
+    /// <summary>
+    /// 물리 기반 인벤토리 시스템 초기화
+    /// </summary>
+    private IEnumerator InitializePhysicsInventorySystem()
+    {
+        Debug.Log("Initializing Physics Inventory System...");
+
+        // 1. 물리 인벤토리 관련 설정 리소스 로드
+        LoadingProgress = 0.68f;
         yield return ResourceLoadDelay;
+
+        // 2. 필요한 프리팹 로드 및 풀 초기화
+        GameObject weaponPrefab = Resources.Load<GameObject>("Prefabs/UI/WeaponItem");
+        if (weaponPrefab != null)
+        {
+            // 물리 아이템을 위한 오브젝트 풀 생성
+            string poolTag = "PhysicsInventoryItem";
+            if (ObjectPool.Instance != null && !ObjectPool.Instance.DoesPoolExist(poolTag))
+            {
+                // 풀 초기화 (초기 크기 20, 필요시 확장 가능)
+                ObjectPool.Instance.CreatePool(poolTag, weaponPrefab, 20);
+                Debug.Log("Physics inventory item pool created with 20 items");
+            }
+            Debug.Log("Physics inventory item prefab loaded");
+        }
+        else
+        {
+            Debug.LogWarning("Physics inventory item prefab not found!");
+        }
+
+        LoadingProgress = 0.71f;
+        yield return ResourceLoadDelay;
+
+        // 3. PhysicsInventoryInitializer를 통한 추가 초기화
+        PhysicsInventoryInitializer initializer = PhysicsInventoryInitializer.Instance;
+        if (initializer != null)
+        {
+            // 로딩 화면에서 물리 인벤토리 시스템 미리 초기화
+            yield return initializer.PreloadPhysicsAssets();
+
+            // 풀 시스템을 통한 초기화
+            yield return PhysicsInventoryInitializer.InitializeInLoadingScreen();
+        }
+
         LoadingProgress = 0.75f;
+        yield return ResourceLoadDelay;
+
+        Debug.Log("Physics Inventory System initialized");
     }
 
     private IEnumerator FinalizeInitialization()
