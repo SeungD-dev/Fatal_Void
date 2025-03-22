@@ -233,26 +233,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             if (parentCanvas == null)
             {
                 parentCanvas = GetComponentInParent<Canvas>();
-                if (parentCanvas == null)
-                {
-                    Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
-                    if (canvases.Length > 0)
-                    {
-                        // Get the main canvas
-                        foreach (var canvas in canvases)
-                        {
-                            if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
-                            {
-                                parentCanvas = canvas;
-                                break;
-                            }
-                        }
-
-                        // If still null, take any canvas
-                        if (parentCanvas == null && canvases.Length > 0)
-                            parentCanvas = canvases[0];
-                    }
-                }
+                // ... 기존 코드 ...
             }
 
             if (parentCanvas != null)
@@ -265,9 +246,32 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                 Debug.LogWarning("No canvas found for physics item!");
             }
 
-            // Original state
-            originalScale = rectTransform.localScale;
+            // Grid의 Scale 확인 및 저장
+            ItemGrid grid = FindAnyObjectByType<ItemGrid>();
+            if (grid != null)
+            {
+                RectTransform gridRectTransform = grid.GetComponent<RectTransform>();
+                if (gridRectTransform != null)
+                {
+                    // Grid의 Scale 값을 저장
+                    originalScale = gridRectTransform.localScale;
+                    Debug.Log($"Saved grid scale: {originalScale}");
+                }
+            }
+            else if (rectTransform != null && rectTransform.localScale != Vector3.zero)
+            {
+                // Grid를 찾지 못했다면 현재 스케일 저장
+                originalScale = rectTransform.localScale;
+            }
+            else
+            {
+                // 기본값으로 설정
+                originalScale = new Vector3(6, 6, 1); // Grid의 Scale이 6인 경우
+            }
+
+            // 원래 회전값 저장
             originalRotation = rectTransform.localRotation;
+
             if (inventoryItem != null)
             {
                 originalGridPosition = inventoryItem.GridPosition;
@@ -308,11 +312,12 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             // 위치가 지정된 경우 명시적으로 설정
             if (position.HasValue && rectTransform != null)
             {
-                // 중요: 화면 경계 안에 있는지 확인하고 필요시 조정
                 Vector2 safePosisiton = EnsurePositionWithinScreen(position.Value);
                 rectTransform.position = new Vector3(safePosisiton.x, safePosisiton.y, rectTransform.position.z);
-                Debug.Log($"Explicitly set physics item position to: {rectTransform.position}");
             }
+
+            // Grid 밖에 있을 때는 Scale을 6,6,1로 설정
+            rectTransform.localScale = new Vector3(6, 6, 1);
 
             // 아이템 이미지 컴포넌트 상태 확인
             EnsureItemVisibility();
@@ -324,17 +329,13 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             // 자동 보호 설정 - 10초 동안 보호
             SetProtected(false, 10f);
 
-            // 시각적 피드백
-            StartCoroutine(ShowActivationFeedback());
-
-            Debug.Log($"Physics activated on {gameObject.name}, frame: {ActivationFrame}, position: {rectTransform.position}");
+            Debug.Log($"Physics activated on {gameObject.name}, frame: {ActivationFrame}, position: {rectTransform.position}, scale: {rectTransform.localScale}");
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Error in ActivatePhysics: {e.Message}");
         }
     }
-
     // 위치가 화면 안에 있는지 확인하고 필요시 조정하는 메서드
     private Vector2 EnsurePositionWithinScreen(Vector2 position)
     {
@@ -370,37 +371,6 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
 
         return new Vector2(safeX, safeY);
     }
-    // 물리 활성화 시 시각적 피드백 제공
-    private IEnumerator ShowActivationFeedback()
-    {
-        if (rectTransform == null) yield break;
-
-        // 원래 크기와 색상 저장
-        Vector3 originalScale = rectTransform.localScale;
-        Color originalColor = itemImage != null ? itemImage.color : Color.white;
-
-        // 약간 커지는 효과
-        float punchScale = 1.2f;
-        rectTransform.localScale = originalScale * punchScale;
-
-        // 색상 변화 (약간 밝게)
-        if (itemImage != null)
-        {
-            Color highlightColor = originalColor * 1.2f;
-            highlightColor.a = originalColor.a; // 알파값 유지
-            itemImage.color = highlightColor;
-        }
-
-        yield return new WaitForSeconds(visualFeedbackDuration);
-
-        // 원래 상태로 복원
-        rectTransform.localScale = originalScale;
-        if (itemImage != null)
-        {
-            itemImage.color = originalColor;
-        }
-    }
-
     private void EnsureCanvasReference()
     {
         if (parentCanvas != null) return;
@@ -785,9 +755,9 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             isBeingDragged = true;
             lastTouchPosition = touchPosition;
 
-            // 원래 크기와 회전으로 복원
-            rectTransform.localScale = originalScale;
-            rectTransform.localRotation = originalRotation;
+            // 물리 아이템을 드래그할 때는 Scale을 6,6,1로 유지
+            rectTransform.localScale = new Vector3(6, 6, 1);
+            rectTransform.rotation = originalRotation;
 
             // 물리 효과 비활성화
             DeactivatePhysics();
@@ -795,21 +765,13 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             // 터치 위치 + 오프셋으로 이동 (위로 살짝 띄움)
             Vector2 liftedPosition = touchPosition + Vector2.up * itemLiftOffset;
             rectTransform.position = liftedPosition;
-
-            // 약간 투명하게 처리
-            if (itemImage != null)
-            {
-                Color tempColor = itemImage.color;
-                tempColor.a = 0.8f;
-                itemImage.color = tempColor;
-            }
+            Debug.Log($"Started dragging physics item: {gameObject.name}, scale: {rectTransform.localScale}");
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Error in StartDrag: {e.Message}");
         }
     }
-
     /// <summary>
     /// 아이템 드래그 중 위치 업데이트
     /// </summary>
@@ -840,21 +802,20 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
         {
             isBeingDragged = false;
 
-            // 불투명도 원복
-            if (itemImage != null)
-            {
-                itemImage.color = originalColor;
-            }
-
+            // 그리드 배치 시도
             if (targetGrid != null)
             {
                 // 그리드 위치 확인
                 Vector2Int gridPosition = targetGrid.GetGridPosition(finalPosition);
+                Debug.Log($"Grid position: {gridPosition}, can place: {targetGrid.IsValidPosition(gridPosition) && targetGrid.CanPlaceItem(inventoryItem, gridPosition)}");
 
                 // 유효한 그리드 위치이고 배치 가능하면 그리드에 배치
                 if (targetGrid.IsValidPosition(gridPosition) &&
                     targetGrid.CanPlaceItem(inventoryItem, gridPosition))
                 {
+                    // 그리드에 배치하기 전에 Scale을 1,1,1로 변경
+                    rectTransform.localScale = Vector3.one;
+
                     // 그리드에 배치
                     rectTransform.SetParent(targetGrid.transform, false);
                     targetGrid.PlaceItem(inventoryItem, gridPosition);
@@ -863,8 +824,8 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                 }
             }
 
-            // 유효하지 않은 위치면 물리 활성화
-            Vector2 dragVelocity = (finalPosition - lastTouchPosition) * 5f; // 드래그 방향으로 약간의 초기 속도
+            // 유효하지 않은 위치면 물리 활성화 (Scale은 ActivatePhysics에서 처리)
+            Vector2 dragVelocity = (finalPosition - lastTouchPosition) * 5f;
             ActivatePhysics(dragVelocity);
         }
         catch (System.Exception e)
@@ -874,7 +835,6 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             ActivatePhysics();
         }
     }
-
     /// <summary>
     /// 아이템 회전
     /// </summary>

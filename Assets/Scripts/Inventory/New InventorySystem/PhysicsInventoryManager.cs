@@ -18,7 +18,7 @@ public class PhysicsInventoryManager : MonoBehaviour
     [SerializeField] private Transform itemSpawnPoint;
     [SerializeField] private Canvas parentCanvas;
     [SerializeField] private GameObject weaponPrefab;
-
+    [SerializeField] private InventoryHighlight inventoryHighlight;
     [Header("Physics Settings")]
     [SerializeField] private float dragThreshold = 0.3f;
     [SerializeField] private float holdDelay = 0.3f;
@@ -162,6 +162,25 @@ public class PhysicsInventoryManager : MonoBehaviour
         {
             Vector2 currentTouchPos = touchPosition.ReadValue<Vector2>();
             selectedPhysicsItem.UpdateDragPosition(currentTouchPos);
+
+            // Update highlighter position
+            if (inventoryHighlight != null && mainGrid != null)
+            {
+                InventoryItem inventoryItem = selectedPhysicsItem.GetComponent<InventoryItem>();
+                if (inventoryItem != null)
+                {
+                    Vector2Int gridPosition = mainGrid.GetGridPosition(currentTouchPos);
+                    bool canPlace = mainGrid.IsValidPosition(gridPosition) &&
+                                   mainGrid.CanPlaceItem(inventoryItem, gridPosition);
+
+                    inventoryHighlight.Show(canPlace);
+
+                    if (canPlace)
+                    {
+                        inventoryHighlight.SetPosition(mainGrid, inventoryItem, gridPosition.x, gridPosition.y);
+                    }
+                }
+            }
         }
 
         // 성능 최적화: 활성 물리 아이템 업데이트
@@ -423,7 +442,10 @@ public class PhysicsInventoryManager : MonoBehaviour
                 itemSpawnPoint = spawnObj.transform;
             }
         }
-
+        if (inventoryHighlight == null)
+        {
+            inventoryHighlight = FindAnyObjectByType<InventoryHighlight>();
+        }
         if (weaponPrefab == null && inventoryController != null)
         {
             // InventoryController의 weaponPrefab 필드 가져오기
@@ -615,11 +637,14 @@ public class PhysicsInventoryManager : MonoBehaviour
         Vector2 touchPos = touchPosition.ReadValue<Vector2>();
         touchStartPosition = touchPos;
 
+        Debug.Log($"Touch started at {touchPos}");
+
         // 그리드 내 아이템 먼저 체크
         Vector2Int gridPosition = mainGrid?.GetGridPosition(touchPos) ?? new Vector2Int(-1, -1);
         if (mainGrid != null && mainGrid.IsValidPosition(gridPosition))
         {
             // 그리드 내 아이템 터치 처리는 InventoryController가 담당
+            Debug.Log("Touch is inside grid area, skipping physics item check");
             return;
         }
 
@@ -627,6 +652,8 @@ public class PhysicsInventoryManager : MonoBehaviour
         PhysicsInventoryItem touchedItem = GetPhysicsItemAtPosition(touchPos);
         if (touchedItem != null)
         {
+            Debug.Log($"Found physics item to drag: {touchedItem.name}");
+
             // 물리 아이템 선택
             selectedPhysicsItem = touchedItem;
 
@@ -637,7 +664,12 @@ public class PhysicsInventoryManager : MonoBehaviour
             }
             holdCoroutine = StartCoroutine(CheckForHold(touchedItem, touchPos));
         }
+        else
+        {
+            Debug.Log("No physics item found at touch position");
+        }
     }
+
 
     private IEnumerator CheckForHold(PhysicsInventoryItem item, Vector2 startPosition)
     {
@@ -674,6 +706,27 @@ public class PhysicsInventoryManager : MonoBehaviour
         isDragging = true;
         selectedPhysicsItem = item;
 
+        // Get the InventoryItem component
+        InventoryItem inventoryItem = item.GetComponent<InventoryItem>();
+
+        // Update the highlighter if we have one
+        if (inventoryHighlight != null && inventoryItem != null)
+        {
+            inventoryHighlight.Show(true);
+            inventoryHighlight.SetSize(inventoryItem);
+
+            // We need to set a reasonable position for the highlighter
+            if (mainGrid != null)
+            {
+                Vector2Int gridPosition = mainGrid.GetGridPosition(position);
+                if (mainGrid.IsValidPosition(gridPosition) &&
+                    mainGrid.CanPlaceItem(inventoryItem, gridPosition))
+                {
+                    inventoryHighlight.SetPosition(mainGrid, inventoryItem, gridPosition.x, gridPosition.y);
+                }
+            }
+        }
+
         // 물리 비활성화하고 드래그 시작
         item.StartDrag(position);
 
@@ -683,7 +736,6 @@ public class PhysicsInventoryManager : MonoBehaviour
             SoundManager.Instance.PlaySound("ItemLift_sfx", 1f, false);
         }
     }
-
     private void OnTouchEnded(InputAction.CallbackContext context)
     {
         if (selectedPhysicsItem != null && isDragging)
@@ -692,6 +744,12 @@ public class PhysicsInventoryManager : MonoBehaviour
 
             // 드래그 종료 처리
             selectedPhysicsItem.EndDrag(mainGrid, finalPosition);
+
+            
+            if (inventoryHighlight != null)
+            {
+                inventoryHighlight.Show(false);
+            }
 
             // 상태 초기화
             ResetDragState();
@@ -814,7 +872,10 @@ public class PhysicsInventoryManager : MonoBehaviour
             // 3. 아이템을 캔버스의 자식으로 설정
             if (parentCanvas != null)
             {
-                item.transform.SetParent(parentCanvas.transform, true);
+                item.transform.SetParent(parentCanvas.transform, false);
+
+                // 물리 아이템은 Grid의 자식이 아니므로 Scale을 명시적으로 설정
+                item.transform.localScale = new Vector3(6, 6, 1);
             }
             else
             {
@@ -1223,6 +1284,13 @@ public class PhysicsInventoryManager : MonoBehaviour
 
                 if (freePosition.HasValue)
                 {
+                    // 그리드에 들어갈 때 Scale을 1,1,1로 변경
+                    RectTransform rt = inventoryItem.GetComponent<RectTransform>();
+                    if (rt != null)
+                    {
+                        rt.localScale = Vector3.one;
+                    }
+
                     // 그리드 부모로 설정
                     inventoryItem.transform.SetParent(mainGrid.transform, false);
 
@@ -1310,6 +1378,9 @@ public class PhysicsInventoryManager : MonoBehaviour
             Debug.LogError($"Error removing physics item: {e.Message}");
         }
     }
-
+    public PhysicsInventoryItem GetDraggedPhysicsItem()
+    {
+        return isDragging ? selectedPhysicsItem : null;
+    }
     #endregion
 }
