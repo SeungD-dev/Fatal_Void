@@ -1334,20 +1334,7 @@ public class PhysicsInventoryManager : MonoBehaviour
 
             // 물리 비활성화
             item.DeactivatePhysics();
-
-            // 이미지 컴포넌트 정상화
-            Image image = item.GetComponent<Image>();
-            if (image != null)
-            {
-                // 이미지 컴포넌트 활성화 (풀에 반환할 때도 제대로 된 상태로)
-                image.enabled = true;
-
-                // 투명도 복원
-                Color color = image.color;
-                color.a = 1.0f;
-                image.color = color;
-            }
-
+          
             // 장비 효과 제거 (필요한 경우)
             InventoryItem inventoryItem = item.GetComponent<InventoryItem>();
             if (inventoryItem != null && inventoryItem.GetWeaponData() != null)

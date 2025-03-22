@@ -596,6 +596,8 @@ public class InventoryController : MonoBehaviour
             itemInteractionManager.EndDragging(finalPosition);
             ResetDragState();
         }
+
+
     }
     private void ResetDragState()
     {
