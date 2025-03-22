@@ -255,7 +255,7 @@ public class PhysicsInventoryInitializer : MonoBehaviour
     public IEnumerator PreloadPhysicsAssets()
     {
         // 필요한 프리팹 미리 로드
-        GameObject physicsItemPrefab = Resources.Load<GameObject>("Prefabs/UI/PhysicsInventoryItem");
+        GameObject physicsItemPrefab = Resources.Load<GameObject>("Prefabs/Weapons/Item");
         if (physicsItemPrefab != null)
         {
             // 프리팹 로드 성공
@@ -264,7 +264,7 @@ public class PhysicsInventoryInitializer : MonoBehaviour
         else
         {
             // 대체 프리팹 로드 시도
-            physicsItemPrefab = Resources.Load<GameObject>("Prefabs/UI/WeaponItem");
+            physicsItemPrefab = Resources.Load<GameObject>("Prefabs/Weapons/Item");
             if (physicsItemPrefab != null)
             {
                 Debug.Log("Using default weapon item as physics item prefab");
@@ -282,4 +282,5 @@ public class PhysicsInventoryInitializer : MonoBehaviour
 
         yield return null;
     }
+
 }

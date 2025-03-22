@@ -66,12 +66,12 @@ public class ItemInteractionManager
         // 캐시된 offset 사용
         selectedItemRect.position = touchPosition + itemLiftOffset;
     }
-     public void EndDragging(Vector2 finalPosition)
+    public void EndDragging(Vector2 finalPosition)
     {
         if (!isDragging || selectedItem == null) return;
 
         Vector2Int gridPosition = targetGrid.GetGridPosition(finalPosition);
-        
+
         // 유효한 위치인 경우에만 배치 시도
         if (targetGrid.IsValidPosition(gridPosition) && TryPlaceItem(selectedItem, gridPosition))
         {
@@ -80,12 +80,13 @@ public class ItemInteractionManager
         }
         else
         {
-            ReturnToOriginalPosition(selectedItem);
+            // 여기서 아무것도 하지 않도록 변경 (원래 코드는 ReturnToOriginalPosition 호출)
+            // 물리 시스템이 처리하도록 함
+            Debug.Log("Item not placed in grid - will be handled by physics system");
         }
 
         ClearSelection();
     }
-
 
     public InventoryItem GetSelectedItem() => selectedItem;
 

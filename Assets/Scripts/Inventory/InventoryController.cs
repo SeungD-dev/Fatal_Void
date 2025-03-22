@@ -27,6 +27,7 @@ public class InventoryController : MonoBehaviour
     [SerializeField] private GameObject playerStatsUI;
     [SerializeField] private GameObject weaponPrefab;
     [SerializeField] private Transform canvasTransform;
+    [SerializeField] private PhysicsInventoryManager physicsManager;
     [Header("Notice UI")]
     [SerializeField] private GameObject noticeUI;
     [SerializeField] private TMPro.TextMeshProUGUI noticeText;
@@ -44,6 +45,7 @@ public class InventoryController : MonoBehaviour
     private TouchActions touchActions;
     private InputAction touchPosition;
     private InputAction touchPress;
+    private PlayerStats playerStats;
 
     private static readonly Vector2 ITEM_LIFT_OFFSET_VECTOR = Vector2.up * ITEM_LIFT_OFFSET;
     private static readonly WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
@@ -152,6 +154,12 @@ public class InventoryController : MonoBehaviour
     }
     private void Start()
     {
+        // PlayerStats 참조 가져오기
+        if (playerStats == null && GameManager.Instance != null)
+        {
+            playerStats = GameManager.Instance.PlayerStats;
+        }
+
         if (itemSpawnPoint != null)
         {
             originalSpawnPosition = itemSpawnPoint.position;
@@ -161,6 +169,9 @@ public class InventoryController : MonoBehaviour
         {
             progressButton.onClick.AddListener(StartGame);
         }
+
+        // 필요한 초기화 수행
+        InitializeInventory();
     }
 
     private void Update()
@@ -278,6 +289,12 @@ public class InventoryController : MonoBehaviour
     private void OnEnable()
     {
         touchActions?.Enable();
+
+        // PlayerStats 참조가 없는 경우 다시 가져오기 시도
+        if (playerStats == null && GameManager.Instance != null)
+        {
+            playerStats = GameManager.Instance.PlayerStats;
+        }
     }
 
     private void OnDisable()
@@ -321,10 +338,15 @@ public class InventoryController : MonoBehaviour
 
         try
         {
+            if (playerStats == null && GameManager.Instance != null)
+            {
+                playerStats = GameManager.Instance.PlayerStats;
+            }
+
             InitializeComponents();
-            InitializeInputSystem();  // 입력 시스템 초기화 추가
+            InitializeInputSystem();
             InitializeGrid();
-            isInventoryInitialized = true;           
+            isInventoryInitialized = true;
         }
         catch (System.Exception e)
         {
@@ -515,18 +537,66 @@ public class InventoryController : MonoBehaviour
         itemInteractionManager.StartDragging(item, position);
         SoundManager.Instance?.PlaySound("ItemLift_sfx", 1f, false);
     }
+
     private void OnTouchEnded(InputAction.CallbackContext context)
     {
         if (!inventoryUI.activeSelf) return;
 
+        // 이벤트 발생 시 로그 추가 (디버깅용)
+        Debug.Log("Touch ended. Checking for physics interactions...");
+
         Vector2 finalPosition = touchPosition.ReadValue<Vector2>();
-        itemInteractionManager.EndDragging(finalPosition);
 
-        // 상태 초기화시 lastTouchCount도 초기화
-        ResetDragState();
-        lastTouchCount = 0;
+        // 선택된 아이템이 있는지 확인
+        if (selectedItem != null)
+        {
+            try
+            {
+                // 터치 위치가 그리드 밖인지 확인
+                Vector2Int gridPosition = GetTileGridPosition(finalPosition);
+                bool isOutsideGrid = !IsPositionWithinGrid(gridPosition) || !IsValidItemPlacement(gridPosition);
+
+                Debug.Log($"Selected item: {selectedItem.name}, Outside grid: {isOutsideGrid}");
+
+                // 그리드 밖이거나 해당 위치에 놓을 수 없으면 물리 아이템으로 변환
+                if (isOutsideGrid && physicsManager != null)
+                {
+                    Debug.Log("Converting to physics item...");
+                    // 물리 아이템으로 변환 (명시적으로 try-catch로 감싸기)
+                    physicsManager.ConvertToPhysicsItem(selectedItem, finalPosition);
+                    Debug.Log("Successfully converted to physics item");
+
+                    // 하이라이터 숨기기
+                    inventoryHighlight?.Show(false);
+
+                    // 효과음 재생
+                    SoundManager.Instance?.PlaySound("ItemDrop_sfx", 0.7f, false);
+                }
+                else
+                {
+                    // 그리드 내부라면 기존 방식으로 처리
+                    Debug.Log("Using normal placement logic");
+                    itemInteractionManager.EndDragging(finalPosition);
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error handling item placement: {e.Message}\n{e.StackTrace}");
+
+                // 에러 발생 시 안전하게 상태 초기화
+                inventoryHighlight?.Show(false);
+            }
+
+            // 상태 초기화
+            ResetDragState();
+        }
+        else
+        {
+            // 선택된 아이템이 없으면 기존 드래그 종료 로직만 실행
+            itemInteractionManager.EndDragging(finalPosition);
+            ResetDragState();
+        }
     }
-
     private void ResetDragState()
     {
         selectedItem = null;
@@ -860,6 +930,12 @@ public class InventoryController : MonoBehaviour
 
         PlayButtonSound();
 
+        // 물리 아이템 처리 - 판매 로직 추가
+        if (physicsManager != null)
+        {
+            SellAllPhysicsItems();
+        }
+
         // 먼저 인벤토리 UI를 비활성화
         inventoryUI.SetActive(false);
 
@@ -878,6 +954,75 @@ public class InventoryController : MonoBehaviour
         {
             // 트랜지션 이펙트가 없으면 바로 게임 시작
             CompleteGameStart();
+        }
+    }
+
+    private void SellAllPhysicsItems()
+    {
+        if (physicsManager == null) return;
+
+        // PlayerStats 참조 확인 및 얻기
+        if (playerStats == null && GameManager.Instance != null)
+        {
+            playerStats = GameManager.Instance.PlayerStats;
+        }
+
+        // PlayerStats가 없으면 판매 불가
+        if (playerStats == null)
+        {
+            Debug.LogError("Cannot sell items: PlayerStats reference is missing");
+            return;
+        }
+
+        try
+        {
+            List<PhysicsInventoryItem> itemsToSell = new List<PhysicsInventoryItem>();
+
+            // 판매할 아이템 목록 수집
+            foreach (var physicsItem in physicsManager.GetAllPhysicsItems())
+            {
+                if (physicsItem != null && !physicsItem.IsBeingDragged)
+                {
+                    itemsToSell.Add(physicsItem);
+                }
+            }
+
+            if (itemsToSell.Count == 0) return;
+
+            // 아이템 판매 처리
+            int totalCoins = 0;
+
+            foreach (var item in itemsToSell)
+            {
+                InventoryItem inventoryItem = item.GetComponent<InventoryItem>();
+                if (inventoryItem != null)
+                {
+                    WeaponData weaponData = inventoryItem.GetWeaponData();
+                    if (weaponData != null)
+                    {
+                        totalCoins += weaponData.SellPrice;
+                    }
+                }
+
+                // 물리 아이템 제거
+                physicsManager.RemovePhysicsItem(item);
+            }
+
+            // 코인 지급
+            if (totalCoins > 0)
+            {
+                playerStats.AddCoins(totalCoins);
+
+                // 판매 효과음
+                SoundManager.Instance?.PlaySound("Coin_sfx", 1f, false);
+
+                // 판매 알림 표시
+                ShowNotice($"Sold all items for {totalCoins} coins!");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error selling physics items: {e.Message}");
         }
     }
     private void CompleteGameStart()

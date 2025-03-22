@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5922005821206592808}
   - component: {fileID: 1957389259785566312}
   - component: {fileID: 1706089644342716830}
+  - component: {fileID: -6754594210455352635}
   m_Layer: 5
   m_Name: Item
   m_TagString: Untagged
@@ -60,7 +61,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -91,3 +92,26 @@ MonoBehaviour:
   itemImage: {fileID: 1957389259785566312}
   rectTransform: {fileID: 7119460784307497847}
   itemData: {fileID: 0}
+--- !u!114 &-6754594210455352635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3724523762829760750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a05106275c4534a9595c851536ad81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gravityScale: 980
+  dragDamping: 0.92
+  bounceMultiplier: 0.4
+  groundFriction: 0.8
+  minimumVelocity: 20
+  initialImpulse: {x: 0, y: 150}
+  visualFeedbackDuration: 0.1
+  rectTransform: {fileID: 7119460784307497847}
+  itemImage: {fileID: 1957389259785566312}
+  useObjectPool: 1
+  poolTag: PhysicsInventoryItem

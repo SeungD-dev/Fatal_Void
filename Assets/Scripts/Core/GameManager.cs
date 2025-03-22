@@ -587,7 +587,7 @@ public class GameManager : MonoBehaviour
         yield return ResourceLoadDelay;
 
         // 2. 필요한 프리팹 로드 및 풀 초기화
-        GameObject weaponPrefab = Resources.Load<GameObject>("Prefabs/UI/WeaponItem");
+        GameObject weaponPrefab = Resources.Load<GameObject>("Prefabs/Weapons/Item");
         if (weaponPrefab != null)
         {
             // 물리 아이템을 위한 오브젝트 풀 생성

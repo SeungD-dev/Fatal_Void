@@ -1,8 +1,8 @@
-using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine;
 
 public class ShopController : MonoBehaviour
 {
@@ -23,6 +23,7 @@ public class ShopController : MonoBehaviour
     [SerializeField] private GameObject noticeUI;
     [SerializeField] private ItemGrid mainInventoryGrid;
     [SerializeField] private GameObject weaponPrefab;
+    [SerializeField] private PhysicsInventoryManager physicsManager;
     [Header("UI Texts")]
     [SerializeField] private TMPro.TextMeshProUGUI refreshCostText;
     [SerializeField] private TMPro.TextMeshProUGUI playerCoinsText;
@@ -209,25 +210,53 @@ public class ShopController : MonoBehaviour
             }
         }
     }
+    // ShopController.cs - OnPurchaseClicked 메서드 전체 교체
     public void OnPurchaseClicked(WeaponOptionUI weaponOption)
     {
         if (weaponOption == null || weaponOption.WeaponData == null || playerStats == null) return;
 
         WeaponData weaponData = weaponOption.WeaponData;
 
-        // 인벤토리 공간 체크
-        if (!HasEnoughSpaceForItem(weaponData))
+        // 전체 메서드를 새 로직으로 교체
+        // 인벤토리 공간 체크 (physicsManager 사용)
+        if (physicsManager != null)
         {
-            ShowNotice("Not enough space in inventory!");
-            return;
-        }
+            bool hasSpace = physicsManager.HasSpaceForItem(weaponData);
 
-        // 구매 진행
-        if (weaponData.price == 0 || playerStats.SpendCoins(weaponData.price))
+            // 구매 진행 (공간 여부와 상관없이)
+            if (weaponData.price == 0 || playerStats.SpendCoins(weaponData.price))
+            {
+                SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
+                weaponOption.SetPurchased(true);
+
+                if (hasSpace)
+                {
+                    // 그리드에 빈 공간이 있으면 일반적인 방법으로 구매
+                    PurchaseWeapon(weaponData);
+                }
+                else
+                {
+                    // 빈 공간이 없으면 물리 아이템으로 생성
+                    physicsManager.HandleFullInventory(weaponData);
+                }
+            }
+        }
+        else
         {
-            SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
-            weaponOption.SetPurchased(true);
-            PurchaseWeapon(weaponData);
+            // physicsManager가 없는 경우 기존 로직 사용
+            if (!HasEnoughSpaceForItem(weaponData))
+            {
+                ShowNotice("Not enough space in inventory!");
+                return;
+            }
+
+            // 구매 진행
+            if (weaponData.price == 0 || playerStats.SpendCoins(weaponData.price))
+            {
+                SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
+                weaponOption.SetPurchased(true);
+                PurchaseWeapon(weaponData);
+            }
         }
     }
     private bool HasEnoughSpaceForItem(WeaponData weaponData)

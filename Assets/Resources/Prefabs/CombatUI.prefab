@@ -547,6 +547,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 9071634002739400339}
     - target: {fileID: 1547551036664522786, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      propertyPath: physicsManager
+      value: 
+      objectReference: {fileID: 3530368944404533151}
+    - target: {fileID: 1547551036664522786, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
       propertyPath: canvasTransform
       value: 
       objectReference: {fileID: 6464645092155054551}
@@ -724,7 +728,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6483983476471729671, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1643324045167922002}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9109477056942973091, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3530368944404533151}
   m_SourcePrefab: {fileID: 100100000, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
 --- !u!114 &3383715443513618733 stripped
 MonoBehaviour:
@@ -748,11 +755,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2fbc33aca14a0e4abfc8168021157b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!223 &4678841057335257272 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 6971194159308087723, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+  m_PrefabInstance: {fileID: 2328428085263534355}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6790126550785534384 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9109477056942973091, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
   m_PrefabInstance: {fileID: 2328428085263534355}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3530368944404533151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6790126550785534384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c8d6299e08ccf04a8836f7e1f03ab8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventoryController: {fileID: 3830940911592808753}
+  mainGrid: {fileID: 8683447882067856108}
+  itemSpawnPoint: {fileID: 7255481895797689956}
+  parentCanvas: {fileID: 4678841057335257272}
+  weaponPrefab: {fileID: 3724523762829760750, guid: b9dc01a30dc68004ba7b1af7d9269a94, type: 3}
+  dragThreshold: 0.3
+  holdDelay: 0.3
+  physicsSpawnOffset: 50
+  physicsRandomVariance: 30
+  useObjectPool: 1
+  poolTag: PhysicsInventoryItem
+  initialPoolSize: 20
+  ensurePoolSize: 10
 --- !u!114 &7084645838915677016 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4756235356681642571, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
@@ -764,6 +801,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &7255481895797689956 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4963137583474378615, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+  m_PrefabInstance: {fileID: 2328428085263534355}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &8683447882067856108 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6400161348716119039, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
@@ -1344,6 +1386,7 @@ MonoBehaviour:
   noticeUI: {fileID: 5933980856827980034}
   mainInventoryGrid: {fileID: 8683447882067856108}
   weaponPrefab: {fileID: 3724523762829760750, guid: b9dc01a30dc68004ba7b1af7d9269a94, type: 3}
+  physicsManager: {fileID: 3530368944404533151}
   refreshCostText: {fileID: 5516809050227040944}
   playerCoinsText: {fileID: 4859501933903467334}
   noticeText: {fileID: 2610912844511049228}

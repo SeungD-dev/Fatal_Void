@@ -85,13 +85,23 @@ public class WeaponInfoUI : MonoBehaviour
             }
         }
     }
-
     private bool CanSellCurrentItem()
     {
+        // 기본 로직: 인벤토리에 2개 이상의 아이템이 있을 때만 판매 가능
         int itemCount = CountItemsInGrid();
-        return itemCount > 1; // 그리드에 아이템이 2개 이상일 때만 판매 가능
-    }
 
+        // 예외: 선택된 아이템이 물리 아이템인 경우에는 항상 판매 가능
+        if (selectedWeapon != null)
+        {
+            Vector2Int? itemPosition = FindSelectedItemPosition();
+            if (!itemPosition.HasValue) // 그리드 위치가 없으면 물리 아이템일 가능성 높음
+            {
+                return true;
+            }
+        }
+
+        return itemCount > 1; // 기본 로직: 그리드에 아이템이 2개 이상일 때만 판매 가능
+    }
     private int CountItemsInGrid()
     {
         int count = 0;
