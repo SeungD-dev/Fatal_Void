@@ -849,6 +849,14 @@ public class InventoryController : MonoBehaviour
                 {
                     InitializeInputSystem();
                 }
+                if (mainInventoryGrid != null)
+                {
+                    // 강제 업데이트를 위한 메서드 호출
+                    mainInventoryGrid.ForceUpdateGrid();
+
+                    // 아이템 위치도 함께 업데이트
+                    UpdateItemPositionsInGrid(mainInventoryGrid);
+                }
             }
 
             // 2. UI 상태 변경
@@ -885,7 +893,28 @@ public class InventoryController : MonoBehaviour
             Debug.LogError($"Error in ToggleInventoryUI: {e.Message}\nStackTrace: {e.StackTrace}");
         }
     }
+    private void UpdateItemPositionsInGrid(ItemGrid grid)
+    {
+        if (grid == null) return;
 
+        for (int x = 0; x < grid.Width; x++)
+        {
+            for (int y = 0; y < grid.Height; y++)
+            {
+                InventoryItem item = grid.GetItem(x, y);
+                if (item != null)
+                {
+                    Vector2Int gridPos = item.GridPosition;
+                    RectTransform rt = item.GetComponent<RectTransform>();
+                    if (rt != null)
+                    {
+                        // 아이템 위치 다시 계산하여 설정
+                        rt.localPosition = grid.CalculatePositionOnGrid(item, gridPos.x, gridPos.y);
+                    }
+                }
+            }
+        }
+    }
     private void ValidateGridStateImmediate()
     {
         if (mainInventoryGrid != null)

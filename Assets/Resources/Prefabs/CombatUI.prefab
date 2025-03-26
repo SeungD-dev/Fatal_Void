@@ -589,6 +589,22 @@ PrefabInstance:
       propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4605637947226462127, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 550
+      objectReference: {fileID: 0}
+    - target: {fileID: 4605637947226462127, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 250
+      objectReference: {fileID: 0}
+    - target: {fileID: 4605637947226462127, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4605637947226462127, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5449182419593584746, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -685,6 +701,22 @@ PrefabInstance:
       propertyPath: sellPriceText
       value: 
       objectReference: {fileID: 3383715443513618733}
+    - target: {fileID: 7314674448963137728, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 550
+      objectReference: {fileID: 0}
+    - target: {fileID: 7314674448963137728, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 250
+      objectReference: {fileID: 0}
+    - target: {fileID: 7314674448963137728, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7314674448963137728, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8242957867973954321, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -782,6 +814,7 @@ MonoBehaviour:
   itemSpawnPoint: {fileID: 7255481895797689956}
   parentCanvas: {fileID: 4678841057335257272}
   weaponPrefab: {fileID: 3724523762829760750, guid: b9dc01a30dc68004ba7b1af7d9269a94, type: 3}
+  inventoryHighlight: {fileID: 0}
   dragThreshold: 0.3
   holdDelay: 0.3
   physicsSpawnOffset: 50

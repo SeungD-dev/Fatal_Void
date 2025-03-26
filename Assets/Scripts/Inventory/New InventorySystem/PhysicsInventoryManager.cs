@@ -24,6 +24,10 @@ public class PhysicsInventoryManager : MonoBehaviour
     [SerializeField] private float holdDelay = 0.3f;
     [SerializeField] private float physicsSpawnOffset = 50f;
     [SerializeField] private float physicsRandomVariance = 30f;
+    [Header("Floor Boundary Settings")]
+    [SerializeField] private RectTransform shopButtonRect;
+    [SerializeField] private RectTransform progressButtonRect;
+    [SerializeField] private float floorOffsetFromButtons = 10f;
 
     [Header("Pool Settings")]
     [SerializeField] private bool useObjectPool = true;
@@ -49,6 +53,9 @@ public class PhysicsInventoryManager : MonoBehaviour
     private float lastPerformanceCheck = 0f;
     private bool hasPerformanceWarning = false;
     private RectTransform canvasRectTransform;
+    private float cachedFloorY = 0f;
+    private bool isFloorPositionCached = false;
+    private int lastFloorUpdateFrame = -1;
     #endregion
 
     #region Unity Methods
@@ -59,6 +66,7 @@ public class PhysicsInventoryManager : MonoBehaviour
         InitializeComponents();
         InitializeCanvasReference();
         InitializePhysicsItemPool();
+        CacheFloorPosition();
 
         if (enableDebugLogs)
         {
@@ -190,8 +198,67 @@ public class PhysicsInventoryManager : MonoBehaviour
         {
             UpdateActivePhysicsItems();
         }
+
+        // 60프레임마다 (약 1초에 한 번) 바닥 위치 업데이트
+        if (Time.frameCount % 60 == 0 && physicsItems.Count > 0)
+        {
+            CacheFloorPosition();
+
+            // 캐싱된 값 사용
+            foreach (var item in physicsItems)
+            {
+                if (item != null)
+                {
+                    item.FloorY = cachedFloorY;
+                }
+            }
+        }
     }
 
+    // 바닥 위치를 캐싱 (한 번만 계산하고 저장)
+    private void CacheFloorPosition()
+    {
+        if (isFloorPositionCached && Time.frameCount - lastFloorUpdateFrame < 60) return;
+
+        float buttonTopY = 0f;
+
+        // 미리 Inspector에서 할당된 참조 사용
+        if (shopButtonRect != null)
+        {
+            Vector3[] corners = new Vector3[4];
+            shopButtonRect.GetWorldCorners(corners);
+            buttonTopY = Mathf.Max(buttonTopY, corners[1].y);
+        }
+
+        if (progressButtonRect != null)
+        {
+            Vector3[] corners = new Vector3[4];
+            progressButtonRect.GetWorldCorners(corners);
+            buttonTopY = Mathf.Max(buttonTopY, corners[1].y);
+        }
+
+        // 참조가 없을 경우 fallback 방법으로 화면 하단 20% 위치 사용
+        if (buttonTopY <= 0f && parentCanvas != null)
+        {
+            RectTransform canvasRect = parentCanvas.GetComponent<RectTransform>();
+            if (canvasRect != null)
+            {
+                Vector3[] canvasCorners = new Vector3[4];
+                canvasRect.GetWorldCorners(canvasCorners);
+                float canvasBottom = canvasCorners[0].y;
+                float canvasHeight = canvasCorners[1].y - canvasBottom;
+
+                buttonTopY = canvasBottom + (canvasHeight * 0.2f);
+            }
+        }
+
+        cachedFloorY = buttonTopY + floorOffsetFromButtons;
+        isFloorPositionCached = true;
+        lastFloorUpdateFrame = Time.frameCount;
+
+        // 디버그 로그 (개발 중에만 사용)
+        if (enableDebugLogs) Debug.Log($"Floor Y position cached: {cachedFloorY}");
+    }
     private void MonitorPerformance()
     {
         int itemCount = physicsItems.Count;
@@ -904,6 +971,9 @@ public class PhysicsInventoryManager : MonoBehaviour
                 physicsItem.ForceInitialize();
                 if (enableDebugLogs) Debug.Log("Added new PhysicsInventoryItem component");
             }
+            // 캐싱된 바닥 정보 전달
+            if (!isFloorPositionCached) CacheFloorPosition();
+            physicsItem.FloorY = cachedFloorY;
 
             // 7. 아이템 위치 설정 및 물리 활성화
             Vector2 initialVelocity = Vector2.up * 100f + new Vector2(Random.Range(-50f, 50f), 0f);

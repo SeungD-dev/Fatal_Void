@@ -58,6 +58,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     public int ActivationFrame { get; private set; }
     public float ActivationTime { get; private set; }
     public bool IsRecentlyActivated => Time.frameCount - ActivationFrame < 30;
+    public float FloorY { get; set; } = 0f;
 
     public void SetProtected(bool state, float duration = 0f)
     {
@@ -639,6 +640,12 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             float maxX = corners[2].x;
             float minY = corners[0].y;
             float maxY = corners[2].y;
+            
+            // 설정된 바닥 위치 사용 (Manager에서 전달받은 값)
+            if (FloorY > 0)
+            {
+                minY = FloorY; // 버튼 위로 바닥 설정
+            }
 
             // RectTransform의 크기 절반 (충돌 감지용)
             Vector2 halfSize = rectTransform.sizeDelta * rectTransform.localScale / 2f;
