@@ -122,10 +122,14 @@ public class ItemGrid : MonoBehaviour
     {
         if (_rectTransform == null) return;
 
+        // 매번 fresh한 값으로 업데이트
         _rectTransform.GetWorldCorners(_cornerCache);
-        _cachedGridTopLeft = _cornerCache[1];
+        _cachedGridTopLeft = _cornerCache[1]; // 좌상단 코너
         _cachedScale = _rectTransform.lossyScale;
         _positionCache.Clear();
+
+        // 디버그용 (개발 중에만)
+        Debug.Log($"Grid corners updated: TopLeft={_cachedGridTopLeft}, Scale={_cachedScale}");
     }
     #endregion
 
@@ -135,6 +139,9 @@ public class ItemGrid : MonoBehaviour
     /// </summary>
     public Vector2Int GetGridPosition(Vector2 screenPosition)
     {
+        // 캐싱된 값 강제 업데이트
+        UpdateCachedValues();
+
         Vector2 positionInGrid = screenPosition - _cachedGridTopLeft;
         positionInGrid /= _cachedScale.x;
 
@@ -143,7 +150,13 @@ public class ItemGrid : MonoBehaviour
             Mathf.FloorToInt(-positionInGrid.y / TILE_SIZE)
         );
     }
-
+    // 그리드 강제 업데이트 메서드
+    public void ForceUpdateGrid()
+    {
+        _rectTransform = GetComponent<RectTransform>();
+        UpdateCachedValues();
+        UpdateGridSize();
+    }
     /// <summary>
     /// 아이템을 지정된 위치에 배치
     /// </summary>
