@@ -23,14 +23,13 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     [Header("References")]
     [SerializeField] private RectTransform rectTransform;
     [SerializeField] private Image itemImage;
-
+    public InventoryItem inventoryItem;
     [Header("Pool Settings")]
     [SerializeField] private bool useObjectPool = true;
     [SerializeField] private string poolTag = "PhysicsInventoryItem";
     #endregion
 
-    #region Private Fields
-    private InventoryItem inventoryItem;
+    #region Private Fields    
     private Canvas parentCanvas;
     private RectTransform canvasRectTransform;
     private Vector2 velocity;
@@ -223,7 +222,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
             if (itemImage == null) itemImage = GetComponent<Image>();
             if (inventoryItem == null) inventoryItem = GetComponent<InventoryItem>();
-
+            if (inventoryItem == null) inventoryItem = GetComponent<InventoryItem>();
             // 색상 저장
             if (itemImage != null)
             {
@@ -861,7 +860,10 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
         spawnPosition = position;
         rectTransform.position = position;
     }
-
+    public WeaponData GetWeaponData()
+    {
+        return inventoryItem?.GetWeaponData();
+    }
     /// <summary>
     /// 오브젝트 풀로 아이템 반환
     /// </summary>
@@ -876,4 +878,6 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
         ObjectPool.Instance.ReturnToPool(poolTag, gameObject);
     }
 }
+
+
     #endregion

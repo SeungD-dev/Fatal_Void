@@ -117,6 +117,51 @@ public class WeaponInfoUI : MonoBehaviour
         }
         return count;
     }
+    private void SellPhysicsItem()
+    {
+        SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
+        playerStats.AddCoins(selectedWeapon.SellPrice);
+
+        // 아이템이 Equipment인 경우 효과 제거
+        if (selectedWeapon.weaponType == WeaponType.Equipment)
+        {
+            var weaponManager = GameObject.FindWithTag("Player")?.GetComponent<WeaponManager>();
+            if (weaponManager != null)
+            {
+                weaponManager.UnequipWeapon(selectedWeapon);
+            }
+        }
+
+        // PhysicsInventoryManager 참조 가져오기 (캐싱된 참조 사용)
+        PhysicsInventoryManager physicsManager = FindAnyObjectByType<PhysicsInventoryManager>();
+        if (physicsManager != null)
+        {
+            // 현재 드래그 중인 아이템 또는 선택된 무기 데이터와 일치하는 아이템 찾기
+            PhysicsInventoryItem physicsItem = physicsManager.GetDraggedPhysicsItem();
+
+            if (physicsItem != null)
+            {
+                physicsManager.RemovePhysicsItem(physicsItem);
+            }
+            else
+            {
+                // 선택된 무기 데이터와 일치하는 아이템 찾기
+                var physicsItems = physicsManager.GetAllPhysicsItems();
+                foreach (var item in physicsItems)
+                {
+                    if (item != null && item.GetWeaponData() == selectedWeapon)
+                    {
+                        physicsManager.RemovePhysicsItem(item);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // UI 상태 초기화
+        selectedWeapon = null;
+        gameObject.SetActive(false);
+    }
 
     private void OnSellButtonClick()
     {
@@ -124,7 +169,13 @@ public class WeaponInfoUI : MonoBehaviour
 
         // 현재 선택된 아이템의 위치 찾기
         Vector2Int? itemPosition = FindSelectedItemPosition();
-        if (!itemPosition.HasValue) return;
+        
+        //물리법칙 아이템 판매
+        if (!itemPosition.HasValue)
+        {
+            SellPhysicsItem();
+            return;
+        }
 
         // 판매 처리
         SoundManager.Instance.PlaySound("Button_sfx", 1f, false);

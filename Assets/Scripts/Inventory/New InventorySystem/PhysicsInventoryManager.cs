@@ -19,6 +19,7 @@ public class PhysicsInventoryManager : MonoBehaviour
     [SerializeField] private Canvas parentCanvas;
     [SerializeField] private GameObject weaponPrefab;
     [SerializeField] private InventoryHighlight inventoryHighlight;
+    [SerializeField] private WeaponInfoUI weaponInfoUI;
     [Header("Physics Settings")]
     [SerializeField] private float dragThreshold = 0.3f;
     [SerializeField] private float holdDelay = 0.3f;
@@ -724,6 +725,15 @@ public class PhysicsInventoryManager : MonoBehaviour
             // 물리 아이템 선택
             selectedPhysicsItem = touchedItem;
 
+            // 무기 정보 UI 업데이트 
+            if (weaponInfoUI != null)
+            {
+                WeaponData weaponData = touchedItem.GetWeaponData();
+                if (weaponData != null)
+                {
+                    weaponInfoUI.UpdateWeaponInfo(weaponData);
+                }
+            }
             // 홀드 체크 시작
             if (holdCoroutine != null)
             {
@@ -737,7 +747,15 @@ public class PhysicsInventoryManager : MonoBehaviour
         }
     }
 
+    public PhysicsInventoryItem GetDraggedPhysicsItem()
+    {
+        return isDragging ? selectedPhysicsItem : null;
+    }
 
+    public List<PhysicsInventoryItem> GetAllPhysicsItems()
+    {
+        return new List<PhysicsInventoryItem>(physicsItems);
+    }
     private IEnumerator CheckForHold(PhysicsInventoryItem item, Vector2 startPosition)
     {
         if (item == null) yield break;
@@ -1387,12 +1405,7 @@ public class PhysicsInventoryManager : MonoBehaviour
             physicsItem.ActivatePhysics();
         }
     }
-
-    public List<PhysicsInventoryItem> GetAllPhysicsItems()
-    {
-        // 리스트를 복사하여 반환 (원본 목록 변경 방지)
-        return new List<PhysicsInventoryItem>(physicsItems);
-    }
+   
     public void RemovePhysicsItem(PhysicsInventoryItem item)
     {
         if (item == null) return;
@@ -1434,10 +1447,12 @@ public class PhysicsInventoryManager : MonoBehaviour
         {
             Debug.LogError($"Error removing physics item: {e.Message}");
         }
-    }
-    public PhysicsInventoryItem GetDraggedPhysicsItem()
-    {
-        return isDragging ? selectedPhysicsItem : null;
-    }
+        // WeaponInfoUI 업데이트 (선택된 아이템이 제거된 경우)
+        if (weaponInfoUI != null && selectedPhysicsItem == item)
+        {
+            selectedPhysicsItem = null;
+            weaponInfoUI.gameObject.SetActive(false);
+        }
+    }  
     #endregion
 }
