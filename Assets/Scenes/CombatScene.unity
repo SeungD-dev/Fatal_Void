@@ -1210,6 +1210,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 241962554791671646, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 309602412944202592, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
       propertyPath: playerStatsUI
       value: 
@@ -1429,6 +1433,22 @@ PrefabInstance:
     - target: {fileID: 2650436711329200, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224819409610701981, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 224819409610701981, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 224819409610701981, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 224819409610701981, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -10
       objectReference: {fileID: 0}
     - target: {fileID: 1607438738086639999, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
       propertyPath: healthBar
