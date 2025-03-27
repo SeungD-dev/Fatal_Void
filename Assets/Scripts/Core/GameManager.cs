@@ -42,6 +42,8 @@ public class GameManager : MonoBehaviour
     private CombatController combatController;
     private GameOverController gameOverController;
     private PhysicsInventoryManager physicsInventoryManager; // 추가: 물리 인벤토리 시스템 참조
+    
+  
 
     // 자주 사용되는 속성들을 캐싱
     private bool isInitialized;
@@ -63,6 +65,9 @@ public class GameManager : MonoBehaviour
     private static readonly WaitForSeconds ResourceLoadDelay = new WaitForSeconds(0.02f);
     #endregion
 
+    [Header("UI References")]
+    [SerializeField] private GameObject optionPanel;
+    public GameObject OptionPanel => optionPanel;
     // 로딩 시스템 관련 속성
     [Header("로딩 설정")]
     [SerializeField] private float minimumLoadingTime = 1.5f;
@@ -135,7 +140,7 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// CombatScene의 주요 컴포넌트들을 설정합니다.
     /// </summary>
-    public void SetCombatSceneReferences(PlayerStats stats, ShopController shop, CombatController combat, GameOverController gameOver)
+    public void SetCombatSceneReferences(PlayerStats stats, ShopController shop, CombatController combat, GameOverController gameOver,GameObject optionPanelRef)
     {
         bool shouldInitialize = !isInitialized && stats != null;
 
@@ -143,7 +148,7 @@ public class GameManager : MonoBehaviour
         shopController = shop;
         combatController = combat;
         gameOverController = gameOver;
-
+        optionPanel = optionPanelRef;
         // 플레이어 Transform 캐싱
         if (stats != null)
         {
@@ -704,7 +709,36 @@ public class GameManager : MonoBehaviour
             Debug.LogError("GameOverController reference is missing!");
         }
     }
+    public void SetOptionPanelReference(GameObject optionPanelRef)
+    {
+        optionPanel = optionPanelRef;
+    }
+    public void SetStartSceneReferences(GameObject optionPanelRef)
+    {
+        optionPanel = optionPanelRef;
+    }
+    public void ToggleOptionPanel()
+    {
+        if (optionPanel == null)
+        {
+            
+            optionPanel = GameObject.FindWithTag("OptionPanel");
+            if (optionPanel == null)
+            {
+                Debug.LogError("OptionPanel not found - make sure it's tagged properly");
+                return;
+            }
+        }
 
+        bool isActive = !optionPanel.activeSelf;
+        optionPanel.SetActive(isActive);
+
+        
+        SoundManager.Instance?.PlaySound("Button_sfx", 0f, false);
+
+        
+        SetGameState(isActive ? GameState.Paused : GameState.Playing);
+    }
     public bool IsPlaying() => currentGameState == GameState.Playing;
 
     private void OnApplicationQuit()

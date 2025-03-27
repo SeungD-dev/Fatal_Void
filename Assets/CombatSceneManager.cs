@@ -7,13 +7,14 @@ public class CombatSceneManager : MonoBehaviour
     [SerializeField] private ShopController shopController;
     [SerializeField] private CombatController combatController;
     [SerializeField] private GameOverController gameOverController;
+    [SerializeField] private GameObject optionPanel;
 
     private void Start()
     {
         // GameManager에 참조 전달
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.SetCombatSceneReferences(playerStats, shopController, combatController,gameOverController);
+            GameManager.Instance.SetCombatSceneReferences(playerStats, shopController, combatController,gameOverController,optionPanel);
         }
     }
 }

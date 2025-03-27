@@ -76,17 +76,16 @@ public class OptionController : MonoBehaviour
     /// <summary>
     /// 옵션 패널을 토글하고 게임 상태를 관리
     /// </summary>
-    public void ToggleOptionPanel()
+    public void CloseOptionPanel()
     {
-        SoundManager.Instance.PlaySound("Button_sfx",0f,false);
-
-        optionPanel.SetActive(!optionPanel.activeSelf);
-
-        if (optionPanel.activeSelf)
+        if (soundManager.currentSoundBank != null)
         {
-            GameManager.Instance.SetGameState(GameState.Paused);
+            soundManager.PlaySound("Button_sfx", 0f, false);
         }
-        else if (GameManager.Instance.currentGameState == GameState.Paused)
+
+        optionPanel.SetActive(false);
+
+        if (GameManager.Instance.currentGameState == GameState.Paused)
         {
             GameManager.Instance.SetGameState(GameState.Playing);
         }

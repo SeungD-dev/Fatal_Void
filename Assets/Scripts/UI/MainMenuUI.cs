@@ -11,6 +11,10 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private float walkFrameRate = 10f;
     [SerializeField] private float walkSpeed = 300f;
 
+    [Header("UI References")]
+    [SerializeField] private GameObject optionPanel;
+    [SerializeField] private Button optionButton;
+
     private bool isWalking = false;
     private float frameTimer;
     private int currentFrame;
@@ -18,8 +22,28 @@ public class MainMenuUI : MonoBehaviour
 
     private void Start()
     {
-        // 시작시 Idle 애니메이션 시작
+        // Set option panel reference in GameManager
+        if (GameManager.Instance != null && optionPanel != null)
+        {
+            GameManager.Instance.SetStartSceneReferences(optionPanel);
+        }
+
+        
+        if (optionButton != null)
+        {
+            optionButton.onClick.AddListener(OnOptionButtonClick);
+        }
+
+        // Start Idle animation
         idleCoroutine = StartCoroutine(PlayIdleAnimation());
+    }
+
+    private void OnOptionButtonClick()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ToggleOptionPanel();
+        }
     }
 
     private IEnumerator PlayIdleAnimation()
@@ -39,14 +63,13 @@ public class MainMenuUI : MonoBehaviour
 
     public void OnStartButtonClick()
     {
-        if(SoundManager.Instance.currentSoundBank == null)
+        if (SoundManager.Instance.currentSoundBank == null)
         {
             SoundManager.Instance.LoadSoundBank("IntroSoundBank");
         }
-        if(SoundManager.Instance.currentSoundBank != null)
+        if (SoundManager.Instance.currentSoundBank != null)
         {
-        SoundManager.Instance.PlaySound("Button_sfx",1f,false);
-
+            SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
         }
         if (!isWalking)
         {
@@ -65,7 +88,6 @@ public class MainMenuUI : MonoBehaviour
         currentFrame = 0;
         frameTimer = 0f;
         float targetX = 460f;
-
         // 현재 위치가 목표 위치에 도달할 때까지만 이동
         while (rectTransform.anchoredPosition.x < targetX)
         {
@@ -75,7 +97,6 @@ public class MainMenuUI : MonoBehaviour
             // 목표 위치를 넘어가지 않도록 제한
             position.x = Mathf.Min(position.x, targetX);
             rectTransform.anchoredPosition = position;
-
             // 걷기 애니메이션 프레임 업데이트
             frameTimer += Time.deltaTime;
             if (frameTimer >= 1f / walkFrameRate)
@@ -84,11 +105,18 @@ public class MainMenuUI : MonoBehaviour
                 currentFrame = (currentFrame + 1) % walkSprites.Length;
                 characterImage.sprite = walkSprites[currentFrame];
             }
-
             yield return null;
         }
-
         // 목표 위치에 도달하면 게임 시작
         GameManager.Instance.StartGame();
+    }
+
+    private void OnDestroy()
+    {
+        // Clean up event listeners
+        if (optionButton != null)
+        {
+            optionButton.onClick.RemoveListener(OnOptionButtonClick);
+        }
     }
 }

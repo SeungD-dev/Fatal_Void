@@ -13,6 +13,8 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI lvlTxt;
     [SerializeField] private Slider expBar;
     [SerializeField] private Slider healthBar;
+    [SerializeField] private GameObject optionPanel;
+
 
     [Header("UI Update Settings")]
     [SerializeField] private float uiUpdateInterval = 0.1f;
@@ -46,9 +48,18 @@ public class PlayerUIController : MonoBehaviour
 
     private void Start()
     {
+        if (GameManager.Instance != null && optionPanel != null)
+        {
+            GameManager.Instance.SetOptionPanelReference(optionPanel);
+        }
         StartCoroutine(WaitForInitialization());
     }
 
+
+    public GameObject GetOptionPanel()
+    {
+        return optionPanel;
+    }
     private IEnumerator WaitForInitialization()
     {
         float timeout = 5f;
@@ -149,7 +160,28 @@ public class PlayerUIController : MonoBehaviour
             cachedSeconds = seconds;
         }
     }
+    public void ToggleOptionPanel()
+    {
+        if (optionPanel == null)
+        {
 
+            optionPanel = GameObject.FindWithTag("OptionPanel");
+            if (optionPanel == null)
+            {
+                Debug.LogError("OptionPanel not found - make sure it's tagged properly");
+                return;
+            }
+        }
+
+        bool isActive = !optionPanel.activeSelf;
+        optionPanel.SetActive(isActive);
+
+
+        SoundManager.Instance?.PlaySound("Button_sfx", 0f, false);
+
+
+        GameManager.Instance.SetGameState(isActive ? GameState.Paused : GameState.Playing);
+    }
     private void UpdateKillCount(int count)
     {
         if (killCountTxt == null) return;

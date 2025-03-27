@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - GrinderGroundEffect
+  - OptionPanel
   layers:
   - Default
   - TransparentFX
@@ -19,7 +20,7 @@ TagManager:
   - GrinderGroundEffect
   - Collectibles
   - Map
-  - 
+  - OptionPanel
   - 
   - 
   - 

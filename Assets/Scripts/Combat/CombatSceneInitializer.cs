@@ -8,7 +8,9 @@ public class CombatSceneInitializer : MonoBehaviour
     [SerializeField] private ShopController shopController;
     [SerializeField] private CombatController combatController;
     [SerializeField] private GameOverController gameOverController;
+    [SerializeField] private OptionController optionController;
     [SerializeField] private WaveManager waveManager;
+    [SerializeField] private PlayerUIController playerUIController;
     private void Start()
     {
         // 맵 로드 및 플레이어 위치 설정
@@ -22,6 +24,12 @@ public class CombatSceneInitializer : MonoBehaviour
                 playerStats.transform.position = startPosition;            
             }
         }
+        
+        GameObject optionPanel = null;
+        if (playerUIController != null)
+        {
+            optionPanel = playerUIController.GetOptionPanel();
+        }
 
         // 게임 매니저 참조 설정
         if (GameManager.Instance != null)
@@ -30,7 +38,8 @@ public class CombatSceneInitializer : MonoBehaviour
                 playerStats,
                 shopController,
                 combatController,
-                gameOverController
+                gameOverController,
+                optionPanel
             );
 
             // WaveManager 초기화
