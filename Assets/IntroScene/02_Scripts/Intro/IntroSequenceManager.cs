@@ -413,22 +413,44 @@ public class IntroSequenceManager : MonoBehaviour
 
         Debug.Log("DirectCompleteIntro 실행 중");
 
-        // BGM 페이드 아웃
+        // 인트로 BGM 페이드 아웃 (0.5초 동안)
         if (SoundManager.Instance != null && SoundManager.Instance.IsBGMPlaying("BGM_Intro"))
         {
-            Debug.Log("BGM 볼륨 0으로 설정");
-            SoundManager.Instance.SetBGMVolume(0f);
+            Debug.Log("인트로 BGM 페이드 아웃");
+            SoundManager.Instance.FadeOutBGM(0.5f);
         }
+
+        // 페이드 아웃이 완료될 때까지 약간 대기 (선택사항)
+        yield return new WaitForSecondsRealtime(0.2f);  // 페이드 아웃의 일부만 기다리고 씬 전환
 
         try
         {
-            // GameManager 사용하지 않고 직접 씬 전환
-            Debug.Log("타이틀씬으로 직접 전환");
-            SceneManager.LoadScene(1); // TitleScene 인덱스
+            // GameManager를 통한 씬 전환으로 수정
+            if (GameManager.Instance != null)
+            {
+                Debug.Log("GameManager.CompleteIntro() 호출");
+                GameManager.Instance.CompleteIntro();
+            }
+            else
+            {
+                // GameManager가 없는 경우에만 직접 씬 전환
+                Debug.Log("GameManager 없음, 직접 타이틀씬으로 전환");
+                SceneManager.LoadScene(1);
+            }
         }
         catch (System.Exception e)
         {
             Debug.LogError($"씬 전환 중 예외 발생: {e.Message}\n{e.StackTrace}");
+
+            // 마지막 시도로 직접 씬 로드
+            try
+            {
+                SceneManager.LoadScene(1);
+            }
+            catch (System.Exception e2)
+            {
+                Debug.LogError($"최종 씬 로드 시도 중 예외 발생: {e2.Message}");
+            }
         }
     }
 

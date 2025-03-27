@@ -142,7 +142,50 @@ public class SoundManager : Singleton<SoundManager>
             PlaySFX(sound, loop);
         }
     }
+    // SoundManager 클래스에 추가할 메서드
+    public void FadeOutBGM(float fadeTime = 0.5f)
+    {
+        if (!BGMSource.isPlaying && !BGMSource2.isPlaying) return;
 
+        StartCoroutine(FadeOutBGMCoroutine(fadeTime));
+    }
+
+    private IEnumerator FadeOutBGMCoroutine(float fadeTime)
+    {
+        // 현재 재생 중인 소스 찾기
+        AudioSource activeSource = BGMSource.isPlaying ? BGMSource : BGMSource2;
+
+        // 현재 볼륨 저장
+        float startVolume = activeSource.volume;
+
+        // 페이드 아웃
+        float t = 0;
+        while (t < fadeTime)
+        {
+            t += Time.unscaledDeltaTime; // Time.unscaledDeltaTime을 사용하여 타임스케일에 영향받지 않게 함
+            activeSource.volume = Mathf.Lerp(startVolume, 0, t / fadeTime);
+            yield return null;
+        }
+
+        // 완전히 페이드 아웃된 후 중지
+        activeSource.Stop();
+
+        // BGM 상태 초기화
+        currentBGM = null;
+        currentBGMName = null;
+    }
+
+    public void StopBGM()
+    {
+        if (BGMSource.isPlaying)
+            BGMSource.Stop();
+
+        if (BGMSource2.isPlaying)
+            BGMSource2.Stop();
+
+        currentBGM = null;
+        currentBGMName = null;
+    }
     private IEnumerator CrossfadeBGM(Sound newBGM, float fadeTime, bool loop)
     {
         if (fadeTime <= 0f) fadeTime = 0.01f;
