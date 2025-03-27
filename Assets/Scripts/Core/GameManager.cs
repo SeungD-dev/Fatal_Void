@@ -105,14 +105,51 @@ public class GameManager : MonoBehaviour
     {
         gameScene = new Dictionary<GameState, int>(5) // 초기 용량 지정으로 재할당 방지
         {
-            { GameState.MainMenu, 0 },    // StartScene
-            { GameState.Loading, 1 },     // LoadingScene
-            { GameState.Playing, 2 },     // CombatScene
-            { GameState.Paused, 2 },      // 같은 CombatScene에서 Pause
-            { GameState.GameOver, 2 }     // 같은 CombatScene에서 GameOver
+            {GameState.Intro, 0 },
+            { GameState.MainMenu, 1 },    // TitleScene
+            { GameState.Loading, 2 },     // LoadingScene
+            { GameState.Playing, 3 },     // CombatScene
+            { GameState.Paused, 3 },      // 같은 CombatScene에서 Pause
+            { GameState.GameOver, 3 }     // 같은 CombatScene에서 GameOver
         };
     }
+    public void StartApplication()
+    {
+        // 첫 실행 확인 없이 항상 인트로씬으로 이동
+        SetGameState(GameState.Intro);
+        LoadIntroScene();
+    }
 
+    private void LoadIntroScene()
+    {
+        int introSceneIndex;
+        if (gameScene.TryGetValue(GameState.Intro, out introSceneIndex))
+        {
+            SceneManager.LoadScene(introSceneIndex);
+        }
+        else
+        {
+            Debug.LogError("인트로씬 인덱스를 찾을 수 없습니다!");
+            // 폴백: 메인 메뉴로 이동
+            SetGameState(GameState.MainMenu);
+            LoadMainMenuScene();
+        }
+    }
+
+    public void CompleteIntro()
+    {
+        LoadMainMenuScene();
+    }
+
+    private void LoadMainMenuScene()
+    {
+        int mainMenuSceneIndex;
+        if (gameScene.TryGetValue(GameState.MainMenu, out mainMenuSceneIndex))
+        {
+            SetGameState(GameState.MainMenu);
+            SceneManager.LoadScene(mainMenuSceneIndex);
+        }
+    }
     /// <summary>
     /// 사운드 시스템을 초기화합니다.
     /// </summary>
@@ -738,7 +775,7 @@ public class GameManager : MonoBehaviour
 
         
         SetGameState(isActive ? GameState.Paused : GameState.Playing);
-    }
+    } 
     public bool IsPlaying() => currentGameState == GameState.Playing;
 
     private void OnApplicationQuit()

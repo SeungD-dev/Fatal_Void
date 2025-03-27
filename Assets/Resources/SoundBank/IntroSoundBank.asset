@@ -19,3 +19,9 @@ MonoBehaviour:
     priority: 0
     volume: 0.5
     pitchVariance: 0
+  - name: BGM_Intro
+    clip: {fileID: 8300000, guid: f119acf2428b825458ef2fe20dd12ec1, type: 3}
+    type: 0
+    priority: 2
+    volume: 0.5
+    pitchVariance: 0

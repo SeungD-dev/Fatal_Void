@@ -23,12 +23,17 @@ public class MainMenuUI : MonoBehaviour
     private void Start()
     {
         
+
         if (GameManager.Instance != null && optionPanel != null)
         {
             GameManager.Instance.SetStartSceneReferences(optionPanel);
         }
+        //추후 사운드 추가시 해제
+        //if (SoundManager.Instance != null && !SoundManager.Instance.IsBGMPlaying("BGM_Title"))
+        //{
+        //    SoundManager.Instance.PlaySound("BGM_Title", 1f, true);
+        //}
 
-        
         if (optionButton != null)
         {
             optionButton.onClick.AddListener(OnOptionButtonClick);

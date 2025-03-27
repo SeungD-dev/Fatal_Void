@@ -1,69 +1,124 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 public class SkipButton : MonoBehaviour
 {
     [SerializeField] private Button skipButton;
     [SerializeField] private float skipButtonActiveTime = 3.0f;
-    public string nextSceneName; // 스킵 버튼 터치 시 전환될 씬 이름
+
     private Coroutine hideButtonCoroutine;
+    private TouchActions touchActions;
+    private bool skipProcessed = false;  // 중복 호출 방지용 플래그
 
-    void Start()
+    private void Awake()
     {
-        skipButton.gameObject.SetActive(false);
-        skipButton.onClick.AddListener(OnClickSkipButton);
-    }
+        // TouchActions 초기화
+        touchActions = new TouchActions();
 
-    void Update()
-    {
-        // 화면 아무 곳이나 터치 시 스킵 버튼 활성화
-        if (Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
+        // 버튼 설정
+        if (skipButton == null)
         {
-            ActivateSkipButton();
+            skipButton = GetComponent<Button>();
+        }
+
+        if (skipButton != null)
+        {
+            skipButton.gameObject.SetActive(false);
+            skipButton.onClick.AddListener(OnSkipButtonClick);
         }
     }
 
     private void OnEnable()
     {
-        // 활성화된 뒤 일정 시간(skipButtonActiveTime) 후 스킵 버튼 비활성화(코루틴)
-        if (skipButton.gameObject.activeSelf)
+        // Input Actions 활성화
+        touchActions.Enable();
+        touchActions.Touch.Press.started += OnTouchStarted;
+        skipProcessed = false;  // 초기화
+    }
+
+    private void OnDisable()
+    {
+        // Input Actions 비활성화
+        touchActions.Touch.Press.started -= OnTouchStarted;
+        touchActions.Disable();
+
+        // 코루틴 정리
+        if (hideButtonCoroutine != null)
         {
-            if (hideButtonCoroutine != null)
-            {
-                StopCoroutine(hideButtonCoroutine);
-            }
-            hideButtonCoroutine = StartCoroutine(HideButtonAfterDelay());
+            StopCoroutine(hideButtonCoroutine);
+            hideButtonCoroutine = null;
         }
+    }
+
+    private void OnTouchStarted(InputAction.CallbackContext context)
+    {
+        ActivateSkipButton();
     }
 
     private void ActivateSkipButton()
     {
+        if (skipButton == null) return;
+
         skipButton.gameObject.SetActive(true);
 
         if (hideButtonCoroutine != null)
         {
             StopCoroutine(hideButtonCoroutine);
         }
+
         hideButtonCoroutine = StartCoroutine(HideButtonAfterDelay());
     }
 
     private IEnumerator HideButtonAfterDelay()
     {
         yield return new WaitForSeconds(skipButtonActiveTime);
-        skipButton.gameObject.SetActive(false);
+
+        if (skipButton != null)
+        {
+            skipButton.gameObject.SetActive(false);
+        }
+
         hideButtonCoroutine = null;
     }
 
-    /// <summary>
-    /// 다음 씬으로 이동
-    /// </summary>
-    void OnClickSkipButton()
+    private void OnSkipButtonClick()
     {
-        if (!string.IsNullOrEmpty(nextSceneName))
+        // 중복 실행 방지
+        if (skipProcessed) return;
+        skipProcessed = true;
+
+        Debug.Log("스킵 버튼 클릭됨 - 인트로 스킵 시도");
+
+        // 효과음 재생
+        if (SoundManager.Instance != null)
         {
-            SceneManager.LoadScene(nextSceneName);
+            SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
+        }
+
+        // 직접 IntroSequenceManager 찾아서 호출 - 가장 신뢰성 있는 방법
+        IntroSequenceManager introManager = FindAnyObjectByType<IntroSequenceManager>();
+        if (introManager != null)
+        {
+            Debug.Log("IntroSequenceManager.SkipIntro() 호출");
+            introManager.SkipIntro();
+        }
+        else
+        {
+            Debug.LogError("IntroSequenceManager를 찾을 수 없음");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // 이벤트 정리
+        touchActions.Touch.Press.started -= OnTouchStarted;
+        touchActions.Disable();
+
+        if (skipButton != null)
+        {
+            skipButton.onClick.RemoveListener(OnSkipButtonClick);
         }
     }
 }
