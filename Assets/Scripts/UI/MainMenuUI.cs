@@ -2,20 +2,25 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class MainMenuUI : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private GameObject optionPanel;
     [SerializeField] private Button optionButton;
+    [SerializeField] private Button closeOptionButton; 
     [SerializeField] private TextBlinkEffect touchToEngageText;
 
     [Header("Touch Detection")]
-    [SerializeField] private float touchDelay = 0.5f; // 실수로 터치하는 것을 방지하기 위한 지연 시간
+    [SerializeField] private float touchDelay = 0.5f; // 초기 지연 시간
+    [SerializeField] private float touchCooldown = 0.5f; // 옵션 패널 닫은 후 쿨다운 시간
 
     private TouchActions touchActions;
     private bool canStartGame = false;
     private bool isTransitioning = false;
+    private float lastOptionPanelCloseTime = 0f;
 
     private void Awake()
     {
@@ -53,7 +58,13 @@ public class MainMenuUI : MonoBehaviour
             optionButton.onClick.AddListener(OnOptionButtonClick);
         }
 
-        // 약간의 지연 후 터치 활성화 (씬 전환 직후 우발적 터치 방지)
+        // 옵션 닫기 버튼 리스너 등록
+        if (closeOptionButton != null)
+        {
+            closeOptionButton.onClick.AddListener(OnCloseOptionButtonClick);
+        }
+
+        // 약간의 지연 후 터치 활성화
         StartCoroutine(EnableTouchAfterDelay());
     }
 
@@ -71,16 +82,59 @@ public class MainMenuUI : MonoBehaviour
         }
     }
 
+    private void OnCloseOptionButtonClick()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ToggleOptionPanel();
+            // 옵션 패널 닫은 시간 기록
+            lastOptionPanelCloseTime = Time.time;
+        }
+    }
+
     private void OnTouchStarted(InputAction.CallbackContext context)
     {
-        // 게임 시작 가능한 상태이고 전환 중이 아닐 때만 처리
-        if (canStartGame && !isTransitioning)
-        {
-            // UI 요소 위에서 터치한 경우는 처리하지 않음
-            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
+        // 1. 게임 시작 가능한 상태인지 확인
+        if (!canStartGame || isTransitioning) return;
 
-            OnScreenTouch();
+        // 2. 옵션 패널이 활성화된 상태인지 확인
+        if (optionPanel != null && optionPanel.activeSelf) return;
+
+        // 3. 옵션 패널 닫은 직후인지 확인 (쿨다운 적용)
+        if (Time.time - lastOptionPanelCloseTime < touchCooldown) return;
+
+        // 4. UI 요소 위에서 터치한 경우인지 확인
+        if (IsPointerOverUI()) return;
+
+        // 모든 조건을 통과하면 게임 시작
+        OnScreenTouch();
+    }
+
+    private bool IsPointerOverUI()
+    {
+        // 터치/클릭 위치 가져오기
+        Vector2 position;
+        if (Touchscreen.current != null && Touchscreen.current.touches.Count > 0)
+        {
+            position = Touchscreen.current.touches[0].position.ReadValue();
         }
+        else if (Mouse.current != null)
+        {
+            position = Mouse.current.position.ReadValue();
+        }
+        else
+        {
+            return false; // 입력이 없으면 UI 위가 아님
+        }
+
+        // EventSystem으로 해당 위치에 UI 요소가 있는지 확인
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = position;
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        return results.Count > 0;
     }
 
     private void OnScreenTouch()
@@ -99,19 +153,19 @@ public class MainMenuUI : MonoBehaviour
             SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
         }
 
-        // 텍스트 깜빡임 효과 중지 (있는 경우)
+        // 텍스트 깜빡임 효과 중지
         if (touchToEngageText != null)
         {
             touchToEngageText.StopBlink();
         }
 
-        // 화면 페이드 아웃 효과와 함께 게임 시작
+        // 게임 시작 전환
         StartCoroutine(TransitionToGameStart());
     }
 
     private IEnumerator TransitionToGameStart()
     {
-        // 짧은 지연 시간 (효과음, 시각 효과 등을 위한 시간)
+        // 짧은 지연 시간
         yield return new WaitForSeconds(0.3f);
 
         // 게임 시작
@@ -128,13 +182,17 @@ public class MainMenuUI : MonoBehaviour
         {
             touchActions.Touch.Press.started -= OnTouchStarted;
             touchActions.Disable();
-            touchActions = null;
         }
 
         // 이벤트 리스너 정리
         if (optionButton != null)
         {
             optionButton.onClick.RemoveListener(OnOptionButtonClick);
+        }
+
+        if (closeOptionButton != null)
+        {
+            closeOptionButton.onClick.RemoveListener(OnCloseOptionButtonClick);
         }
     }
 }
