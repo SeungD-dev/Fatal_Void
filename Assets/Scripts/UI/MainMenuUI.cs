@@ -22,7 +22,7 @@ public class MainMenuUI : MonoBehaviour
 
     private void Start()
     {
-        // Set option panel reference in GameManager
+        
         if (GameManager.Instance != null && optionPanel != null)
         {
             GameManager.Instance.SetStartSceneReferences(optionPanel);
@@ -34,7 +34,6 @@ public class MainMenuUI : MonoBehaviour
             optionButton.onClick.AddListener(OnOptionButtonClick);
         }
 
-        // Start Idle animation
         idleCoroutine = StartCoroutine(PlayIdleAnimation());
     }
 
