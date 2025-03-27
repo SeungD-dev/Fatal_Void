@@ -458,6 +458,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 243728857183104589, guid: a902e1ce69f0d7c4b9a11e763618dfcf, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: b98b2bc3a5c750748a5f7cd2c5325a44, type: 2}
+    - target: {fileID: 243728857183104589, guid: a902e1ce69f0d7c4b9a11e763618dfcf, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -7805996207853680129, guid: b98b2bc3a5c750748a5f7cd2c5325a44, type: 2}
+    - target: {fileID: 243728857183104589, guid: a902e1ce69f0d7c4b9a11e763618dfcf, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2779583078938888765, guid: a902e1ce69f0d7c4b9a11e763618dfcf, type: 3}
       propertyPath: m_Name
       value: TitleSequenceCanvas
