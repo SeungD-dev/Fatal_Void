@@ -498,6 +498,23 @@ public class InventoryController : MonoBehaviour
         InventoryItem touchedItem = mainInventoryGrid.GetItem(gridPosition.x, gridPosition.y);
         if (touchedItem != null)
         {
+            // 그리드 아이템 터치 시 즉시 WeaponInfoUI 업데이트
+            if (weaponInfoUI != null)
+            {
+                WeaponData weaponData = touchedItem.GetWeaponData();
+                if (weaponData != null)
+                {
+                    weaponInfoUI.UpdateWeaponInfo(weaponData);
+
+                    // 필요시 UI 표시 전환
+                    if (!weaponInfoUI.gameObject.activeSelf)
+                    {
+                        weaponInfoUI.gameObject.SetActive(true);
+                    }
+                }
+            }
+
+            // 기존 홀드 체크 시작
             StartHoldCheck(touchedItem, touchPos);
         }
     }

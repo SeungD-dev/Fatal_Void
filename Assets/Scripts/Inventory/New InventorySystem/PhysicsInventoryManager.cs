@@ -694,6 +694,12 @@ public class PhysicsInventoryManager : MonoBehaviour
     /// </summary>
     public void HandleFullInventory(WeaponData weaponData)
     {
+        if(inventoryController != null)
+        {
+            inventoryController.ToggleShopUI(false);
+            inventoryController.ToggleInventoryUI(true);
+        }
+
         CreatePhysicsItem(weaponData);
 
         // 효과음 재생 (있는 경우)
