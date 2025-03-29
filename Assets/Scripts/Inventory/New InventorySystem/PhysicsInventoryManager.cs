@@ -633,6 +633,12 @@ public class PhysicsInventoryManager : MonoBehaviour
 
             // 풀에서 오브젝트 가져오기
             itemObj = ObjectPool.Instance.SpawnFromPool(poolTag, spawnPosition, Quaternion.identity);
+
+            // 중요: 풀에서 가져온 후 즉시 캔버스의 자식으로 설정
+            if (itemObj != null && parentCanvas != null)
+            {
+                itemObj.transform.SetParent(parentCanvas.transform, false);
+            }
         }
         else
         {
