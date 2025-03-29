@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2240b99e1776e514181aed90eb4ac985, type: 3}
+  m_Name: Crawler
+  m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 6160214665495999924, guid: 0c457a3777d52f548a037cce53bfa295, type: 3}
+  enemyName: Crawler
+  enemySprite: {fileID: -2082868649429166980, guid: ec5a133488f47454d957ab8d19ce8ba5, type: 3}
+  enemyType: 3
+  baseHealth: 45
+  maxPossibleHealth: 1750
+  baseDamage: 4
+  moveSpeed: 1.5
+  initialPoolSize: 10
+  dropTable: {fileID: 11400000, guid: cf0e961c75dce2d4b85d9dc10b1625ed, type: 2}
+  additionalDropRate: 15

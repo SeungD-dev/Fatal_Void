@@ -4,7 +4,10 @@ public enum EnemyType
 {
     Hunter,
     Walker,
-    Heavy
+    Heavy,
+    Crawler,
+    Brute,
+    Wisp
 }
 
 [CreateAssetMenu(fileName = "EnemyData", menuName = "Scriptable Objects/EnemyData")]

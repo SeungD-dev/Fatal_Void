@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4987308129401850051}
   - component: {fileID: 3740720014358607045}
   - component: {fileID: 6529084657759916071}
-  m_Layer: 11
+  m_Layer: 13
   m_Name: Floor (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1140,7 +1140,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3855497196408056623}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SpawnPoint1
   m_TagString: Untagged
   m_Icon: {fileID: 7250588514170254948, guid: 0000000000000000d000000000000000, type: 0}
@@ -1171,7 +1171,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 180115101979357620}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SpawnPoint10
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1202,7 +1202,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1121606021703794722}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SpawnPoint2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1233,7 +1233,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2227353071527026084}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SpawnPoint9
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1264,7 +1264,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4118041086794676310}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SpawnPoint7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1383,7 +1383,7 @@ GameObject:
   - component: {fileID: 8119470195835640426}
   - component: {fileID: 94920517876535502}
   - component: {fileID: 4934275805109888924}
-  m_Layer: 11
+  m_Layer: 13
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2342,7 +2342,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3249181593341123665}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SpawnPoint5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2373,7 +2373,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2044011160876160610}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SpawnPoint8
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2404,7 +2404,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2478359633343494913}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SpawnPoint3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2435,7 +2435,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7314039987370152680}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SpawnPoint4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2466,7 +2466,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3389388370955441854}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SpawnPoint6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2499,7 +2499,7 @@ GameObject:
   - component: {fileID: 2871391080133783623}
   - component: {fileID: 526095830422370779}
   - component: {fileID: 4378448354834451203}
-  m_Layer: 11
+  m_Layer: 13
   m_Name: Floor (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
