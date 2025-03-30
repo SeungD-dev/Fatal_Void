@@ -16,10 +16,10 @@ MonoBehaviour:
   enemyName: Wisp
   enemySprite: {fileID: 1982536562111367304, guid: 48ea81f7909342b4698d46ef51edf51b, type: 3}
   enemyType: 5
-  baseHealth: 65
-  maxPossibleHealth: 1500
-  baseDamage: 6
-  moveSpeed: 1.2
+  baseHealth: 200
+  maxPossibleHealth: 4000
+  baseDamage: 10
+  moveSpeed: 0.5
   initialPoolSize: 10
   dropTable: {fileID: 11400000, guid: cf0e961c75dce2d4b85d9dc10b1625ed, type: 2}
   additionalDropRate: 8

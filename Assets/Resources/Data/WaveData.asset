@@ -17,9 +17,9 @@ MonoBehaviour:
     waveDuration: 15
     survivalDuration: 5
     spawnInterval: 3
-    spawnAmount: 10
+    spawnAmount: 3
     spawnSettings:
-      formation: 2
+      formation: 0
       surroundDistance: 3
       angleOffset: 360
       lineStart: {x: -10, y: 0}
@@ -27,18 +27,14 @@ MonoBehaviour:
       enemiesPerSpawnPoint: 1
       fixedSpawnPoints: 
     enemies:
-    - enemyData: {fileID: 11400000, guid: e89403d96310f314eab713dc3092db69, type: 2}
-      spawnChance: 10
-    - enemyData: {fileID: 11400000, guid: 735020ccc0f73e244bcedb6af1a9f579, type: 2}
-      spawnChance: 20
-    - enemyData: {fileID: 11400000, guid: 75405678ef40b7042b68592a3f277425, type: 2}
-      spawnChance: 60
-    coinReward: 100
+    - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
+      spawnChance: 100
+    coinReward: 20
   - waveNumber: 2
     waveDuration: 20
     survivalDuration: 5
-    spawnInterval: 4
-    spawnAmount: 4
+    spawnInterval: 2.5
+    spawnAmount: 5
     spawnSettings:
       formation: 0
       surroundDistance: 0
@@ -48,20 +44,16 @@ MonoBehaviour:
       enemiesPerSpawnPoint: 1
       fixedSpawnPoints: 
     enemies:
-    - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
-      spawnChance: 30
-    - enemyData: {fileID: 11400000, guid: 7d97d9cb3a3d98646bbe1a7b19565dda, type: 2}
-      spawnChance: 30
     - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
-      spawnChance: 40
-    coinReward: 200
+      spawnChance: 100
+    coinReward: 30
   - waveNumber: 3
-    waveDuration: 20
+    waveDuration: 25
     survivalDuration: 5
-    spawnInterval: 4
-    spawnAmount: 12
+    spawnInterval: 2.5
+    spawnAmount: 7
     spawnSettings:
-      formation: 2
+      formation: 0
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -69,20 +61,37 @@ MonoBehaviour:
       enemiesPerSpawnPoint: 1
       fixedSpawnPoints: 
     enemies:
-    - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
-      spawnChance: 30
-    - enemyData: {fileID: 11400000, guid: 7d97d9cb3a3d98646bbe1a7b19565dda, type: 2}
-      spawnChance: 30
     - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
-      spawnChance: 40
-    coinReward: 200
+      spawnChance: 90
+    - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
+      spawnChance: 10
+    coinReward: 40
   - waveNumber: 4
-    waveDuration: 20
+    waveDuration: 30
     survivalDuration: 5
-    spawnInterval: 4
+    spawnInterval: 2.5
+    spawnAmount: 9
+    spawnSettings:
+      formation: 0
+      surroundDistance: 5
+      angleOffset: 360
+      lineStart: {x: -20, y: 0}
+      lineEnd: {x: 10, y: 0}
+      enemiesPerSpawnPoint: 1
+      fixedSpawnPoints: 
+    enemies:
+    - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
+      spawnChance: 85
+    - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
+      spawnChance: 15
+    coinReward: 50
+  - waveNumber: 5
+    waveDuration: 35
+    survivalDuration: 5
+    spawnInterval: 2.5
     spawnAmount: 12
     spawnSettings:
-      formation: 1
+      formation: 0
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -91,9 +100,91 @@ MonoBehaviour:
       fixedSpawnPoints: 
     enemies:
     - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
-      spawnChance: 30
+      spawnChance: 10
+    - enemyData: {fileID: 11400000, guid: 7d97d9cb3a3d98646bbe1a7b19565dda, type: 2}
+      spawnChance: 20
+    - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
+      spawnChance: 70
+    coinReward: 60
+  - waveNumber: 6
+    waveDuration: 40
+    survivalDuration: 5
+    spawnInterval: 2
+    spawnAmount: 10
+    spawnSettings:
+      formation: 0
+      surroundDistance: 5
+      angleOffset: 360
+      lineStart: {x: -20, y: 0}
+      lineEnd: {x: 10, y: 0}
+      enemiesPerSpawnPoint: 1
+      fixedSpawnPoints: 
+    enemies:
+    - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
+      spawnChance: 10
+    - enemyData: {fileID: 11400000, guid: 7d97d9cb3a3d98646bbe1a7b19565dda, type: 2}
+      spawnChance: 20
+    - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
+      spawnChance: 70
+    coinReward: 70
+  - waveNumber: 7
+    waveDuration: 45
+    survivalDuration: 5
+    spawnInterval: 2
+    spawnAmount: 12
+    spawnSettings:
+      formation: 0
+      surroundDistance: 5
+      angleOffset: 360
+      lineStart: {x: -20, y: 0}
+      lineEnd: {x: 10, y: 0}
+      enemiesPerSpawnPoint: 1
+      fixedSpawnPoints: 
+    enemies:
+    - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
+      spawnChance: 10
+    - enemyData: {fileID: 11400000, guid: 7d97d9cb3a3d98646bbe1a7b19565dda, type: 2}
+      spawnChance: 20
+    - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
+      spawnChance: 70
+    coinReward: 80
+  - waveNumber: 8
+    waveDuration: 45
+    survivalDuration: 5
+    spawnInterval: 2
+    spawnAmount: 14
+    spawnSettings:
+      formation: 0
+      surroundDistance: 5
+      angleOffset: 360
+      lineStart: {x: -20, y: 0}
+      lineEnd: {x: 10, y: 0}
+      enemiesPerSpawnPoint: 1
+      fixedSpawnPoints: 
+    enemies:
+    - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
+      spawnChance: 20
+    - enemyData: {fileID: 11400000, guid: 7d97d9cb3a3d98646bbe1a7b19565dda, type: 2}
+      spawnChance: 20
+    - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
+      spawnChance: 60
+    coinReward: 90
+  - waveNumber: 9
+    waveDuration: 45
+    survivalDuration: 5
+    spawnInterval: 2
+    spawnAmount: 5
+    spawnSettings:
+      formation: 0
+      surroundDistance: 5
+      angleOffset: 360
+      lineStart: {x: -20, y: 0}
+      lineEnd: {x: 10, y: 0}
+      enemiesPerSpawnPoint: 1
+      fixedSpawnPoints: 
+    enemies:
+    - enemyData: {fileID: 11400000, guid: c4144e0a1b6aec046956910e4daee10a, type: 2}
+      spawnChance: 70
     - enemyData: {fileID: 11400000, guid: 7d97d9cb3a3d98646bbe1a7b19565dda, type: 2}
       spawnChance: 30
-    - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
-      spawnChance: 40
-    coinReward: 200
+    coinReward: 90

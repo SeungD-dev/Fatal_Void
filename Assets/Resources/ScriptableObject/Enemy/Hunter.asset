@@ -16,8 +16,8 @@ MonoBehaviour:
   enemyName: Hunter
   enemySprite: {fileID: -4981905265807446599, guid: a8643f6c64f89bc41bf3f7c21049ab53, type: 3}
   enemyType: 0
-  baseHealth: 10
-  maxPossibleHealth: 200
+  baseHealth: 20
+  maxPossibleHealth: 400
   baseDamage: 4
   moveSpeed: 1.5
   initialPoolSize: 10
