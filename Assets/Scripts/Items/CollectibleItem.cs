@@ -7,7 +7,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
     [SerializeField] private float basemagnetDistance = 5f;
     [SerializeField] private float magnetSpeed = 10f;
     [SerializeField] private ItemType itemType;
-
+    public ItemType GetItemType() => itemType;
     // Cached components
     private Rigidbody2D rb;
     private Transform playerTransform;
@@ -47,6 +47,12 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         // Initialize values
         currentMagnetSpeed = magnetSpeed;
         currentMagnetDistance = basemagnetDistance;
+
+        // Set default magnetability based on item type
+        isMagnetable = (itemType == ItemType.ExperienceSmall ||
+                        itemType == ItemType.ExperienceMedium ||
+                        itemType == ItemType.ExperienceLarge ||
+                        itemType == ItemType.Gold);
     }
 
     private void OnEnable()
@@ -154,7 +160,14 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
     public void Initialize(AdditionalDrop dropInfo)
     {
         itemType = dropInfo.itemType;
-        isMagnetable = dropInfo.isMagnetable;
+
+        // Only experience and gold items should be magnetable
+        isMagnetable = dropInfo.isMagnetable &&
+            (itemType == ItemType.ExperienceSmall ||
+             itemType == ItemType.ExperienceMedium ||
+             itemType == ItemType.ExperienceLarge ||
+             itemType == ItemType.Gold);
+
         isCollected = false;
 
         if (!isInitialized)
@@ -297,13 +310,13 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         ItemType itemTypeToApply = itemType;
         int goldAmountToApply = goldAmount;
 
-        
+        // Stop movement
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
         }
 
-        
+        // Only disable colliders for non-magnet items
         if (itemType != ItemType.Magnet)
         {
             Collider2D[] colliders = GetComponents<Collider2D>();
@@ -313,7 +326,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             }
         }
 
-        
+        // Play appropriate sound
         if (itemType == ItemType.Gold)
         {
             SoundManager.Instance?.PlaySound("Coin_sfx", 1f, false);
@@ -323,14 +336,14 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             SoundManager.Instance?.PlaySound("Exp_sfx", 1f, false);
         }
 
-        
+        // Unregister from combat controller
         combatController.UnregisterCollectible(this);
         isRegistered = false;
 
-        
+        // Return to pool
         ObjectPool.Instance?.ReturnToPool(itemTypeToApply.ToString(), gameObject);
 
-        
+        // Apply effect
         combatController.ApplyItemEffect(itemTypeToApply, goldAmountToApply);
     }
 
@@ -356,27 +369,29 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     private void OnDisable()
     {
-        
+        // Skip if already collected
         if (isCollected) return;
 
-        
+        // Unregister and unsubscribe
         if (isRegistered && combatController != null)
         {
             combatController.UnregisterCollectible(this);
             isRegistered = false;
         }
 
+        // Don't reset isInitialized here - we want to maintain our initialization state
+        // when the object is re-enabled from the pool
     }
 
     private void OnDestroy()
     {
-        
+        // Clean up event subscription
         if (playerStats != null)
         {
             playerStats.OnMagnetEffectChanged -= HandleMagnetEffectChanged;
         }
 
-        
+        // Final unregister attempt in case OnDisable wasn't called
         if (isRegistered)
         {
             GameManager.Instance?.CombatController?.UnregisterCollectible(this);
