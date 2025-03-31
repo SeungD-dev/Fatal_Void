@@ -93,6 +93,7 @@ public class PlayerStats : MonoBehaviour
     private static readonly WaitForSeconds MagnetEffectCooldown = new WaitForSeconds(27f);
     private const float StatUpdateThreshold = 0.1f;
     private float lastStatUpdateTime;
+    public bool IsMagnetActive { get; private set; }
     #endregion
 
     #region Properties
@@ -548,6 +549,14 @@ public class PlayerStats : MonoBehaviour
             OnMagnetEffectChanged?.Invoke(false);
 
             yield return MagnetEffectCooldown;  // 캐시된 WaitForSeconds 사용
+        }
+    }
+    public void SetMagnetEffect(bool isActive)
+    {
+        if (IsMagnetActive != isActive)
+        {
+            IsMagnetActive = isActive;
+            OnMagnetEffectChanged?.Invoke(isActive);
         }
     }
 

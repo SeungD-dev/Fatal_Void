@@ -353,41 +353,37 @@ public class IntroSequenceManager : MonoBehaviour
     /// </summary>
     public void SkipIntro()
     {
-        Debug.Log("IntroSequenceManager.SkipIntro() 시작");
-
         try
         {
             if (isTransitioning)
             {
-                Debug.Log("이미 전환 중이므로 SkipIntro 무시됨");
                 return;
             }
 
             isTransitioning = true;
-            Debug.Log("isTransitioning = true로 설정됨");
 
             // 효과음 재생
             if (SoundManager.Instance != null)
             {
                 SoundManager.Instance.PlaySound("Button_sfx", 0.5f, false);
-                Debug.Log("효과음 재생됨");
+                
             }
 
             // 진행 중인 코루틴 중단
-            Debug.Log("모든 코루틴 중단");
+            
             StopAllCoroutines();
 
             // 즉시 검은 화면으로 전환
             if (blackOverlay != null)
             {
-                Debug.Log("검은 화면으로 전환");
+                
                 Color color = blackOverlay.color;
                 color.a = initialPanelAlpha;
                 blackOverlay.color = color;
             }
 
             // 다음 씬으로 전환 - 안전하게 코루틴으로 분리
-            Debug.Log("DirectCompleteIntro 코루틴 시작");
+            
             StartCoroutine(DirectCompleteIntro());
         }
         catch (System.Exception e)
@@ -397,7 +393,7 @@ public class IntroSequenceManager : MonoBehaviour
             // 마지막 시도로 직접 씬 로드
             try
             {
-                Debug.Log("예외 발생 후 직접 타이틀씬 로드 시도");
+                
                 SceneManager.LoadScene(1);
             }
             catch (System.Exception e2)

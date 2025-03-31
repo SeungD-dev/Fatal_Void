@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using DG.Tweening;
 
 public class CombatController : MonoBehaviour
@@ -11,6 +10,7 @@ public class CombatController : MonoBehaviour
 
     [Header("Magnet Effect Setting")]
     [SerializeField] private float magnetForce = 20f;
+    [SerializeField] private float magnetEffectDuration = 5f;  // Duration of magnet power-up
 
     [Header("Death Effect Settings")]
     [SerializeField] private string deathEffectPoolTag = "DeathParticle";
@@ -21,21 +21,31 @@ public class CombatController : MonoBehaviour
     [SerializeField]
     private Color[] deathParticleColors = new Color[]
     {
-        new Color(1f, 0f, 0f),      // 빨강
-        new Color(0f, 0f, 0f),      // 검정
-        new Color(65/255f, 65/255f, 65/255f)  // 회색
+        new Color(1f, 0f, 0f),      // Red
+        new Color(0f, 0f, 0f),      // Black
+        new Color(65/255f, 65/255f, 65/255f)  // Gray
     };
 
-    // 파티클 최적화를 위한 설정
+    // Optimization settings
     private int maxConcurrentDeathEffects = 5;
     private int activeDeathEffectsCount = 0;
+    private const int COLLECTIBLES_INITIAL_CAPACITY = 100;  // Reserve capacity to avoid resizing
 
-    // 캐싱
+    // Cached WaitForSeconds objects
     private static readonly WaitForSeconds particleDelay = new WaitForSeconds(0.02f);
+    private static readonly WaitForSeconds magnetDuration = new WaitForSeconds(5f);
 
-    private List<CollectibleItem> activeCollectibles = new List<CollectibleItem>();
+    // Using HashSet for faster lookup operations
+    private HashSet<CollectibleItem> activeCollectibles;
     private PlayerStats playerStats;
     private bool isInitialized = false;
+    private Coroutine magnetEffectCoroutine;
+
+    private void Awake()
+    {
+        // Initialize collections with capacity to avoid resizing
+        activeCollectibles = new HashSet<CollectibleItem>(COLLECTIBLES_INITIAL_CAPACITY);
+    }
 
     private void Start()
     {
@@ -74,32 +84,30 @@ public class CombatController : MonoBehaviour
         }
     }
 
-    public void PlayEnemyDeathEffect(Vector3 position, Color? customColor = null,float enemyScale = 1f)
+    public void PlayEnemyDeathEffect(Vector3 position, Color? customColor = null, float enemyScale = 1f)
     {
         if (!isInitialized || ObjectPool.Instance == null)
             return;
 
-        // 최대 동시 이펙트 수 제한
+        // Limit concurrent effects for performance
         if (activeDeathEffectsCount >= maxConcurrentDeathEffects)
             return;
 
-        // 이펙트 풀 확인
         if (!ObjectPool.Instance.DoesPoolExist(deathEffectPoolTag))
         {
             Debug.LogWarning($"Death effect pool '{deathEffectPoolTag}' not found!");
             return;
         }
 
-        StartCoroutine(CreateDeathEffect(position, customColor,enemyScale));
+        StartCoroutine(CreateDeathEffect(position, customColor, enemyScale));
     }
 
-    private IEnumerator CreateDeathEffect(Vector3 position, Color? customColor,float enemyScale)
+    private IEnumerator CreateDeathEffect(Vector3 position, Color? customColor, float enemyScale)
     {
         activeDeathEffectsCount++;
 
         for (int i = 0; i < particlesPerEffect; i++)
         {
-            // 오브젝트 풀에서 파티클 가져오기
             GameObject particle = ObjectPool.Instance.SpawnFromPool(
                 deathEffectPoolTag,
                 position,
@@ -108,101 +116,85 @@ public class CombatController : MonoBehaviour
 
             if (particle != null)
             {
-                // 파티클 설정 및 애니메이션
-                AnimateDeathParticle(particle, position, customColor,enemyScale);
+                AnimateDeathParticle(particle, position, customColor, enemyScale);
             }
 
-            // 약간의 시간차를 두고 파티클 생성
             yield return particleDelay;
         }
 
-        // 이펙트가 끝날 때까지 대기
         yield return new WaitForSeconds(explosionDuration);
-
         activeDeathEffectsCount--;
     }
 
-    private void AnimateDeathParticle(GameObject particle, Vector3 position, Color? customColor,float enemyScale)
+    private void AnimateDeathParticle(GameObject particle, Vector3 position, Color? customColor, float enemyScale)
     {
         SpriteRenderer renderer = particle.GetComponent<SpriteRenderer>();
         if (renderer == null) return;
 
-        // 적 크기에 맞게 파티클 크기 조정
+        // Scale particle based on enemy size
         float baseSize = Random.Range(particleSizeRange.x, particleSizeRange.y);
-        float scaledSize = baseSize * enemyScale; // 적 크기에 비례하여 조정
-
-        // 폭발 범위도 적 크기에 비례하여 조정
+        float scaledSize = baseSize * enemyScale;
         float adjustedRadius = explosionRadius * enemyScale;
 
-        // 나머지 설정
+        // Configure appearance
         Color color = customColor ?? deathParticleColors[Random.Range(0, deathParticleColors.Length)];
         float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
         float distance = adjustedRadius * Random.Range(0.5f, 1f);
 
-        // 목표 위치 계산
+        // Calculate target position
         Vector3 targetPos = position + new Vector3(
             Mathf.Cos(angle) * distance,
             Mathf.Sin(angle) * distance,
             0f
         );
 
-        // 기존 트윈 정리
+        // Clean up any existing tweens
         DOTween.Kill(particle.transform);
         DOTween.Kill(renderer);
 
-        // 초기 설정
+        // Set initial state
         particle.transform.localScale = Vector3.zero;
         renderer.color = new Color(color.r, color.g, color.b, 1f);
 
-        // 애니메이션 시퀀스 생성
+        // Create animation sequence
         Sequence seq = DOTween.Sequence();
 
-        // 크기 애니메이션
+        // Scale animation
         seq.Append(particle.transform.DOScale(new Vector3(scaledSize, scaledSize, 1f), explosionDuration * 0.2f));
 
-        // 이동 애니메이션
+        // Movement animation
         seq.Join(particle.transform.DOMove(targetPos, explosionDuration)
             .SetEase(Ease.OutQuad));
 
-        // 회전 애니메이션
+        // Rotation animation
         seq.Join(particle.transform.DORotate(
             new Vector3(0, 0, Random.Range(-180f, 180f)),
             explosionDuration,
             RotateMode.FastBeyond360
         ).SetEase(Ease.OutQuad));
 
-        // 페이드 아웃
+        // Fade out
         seq.Join(renderer.DOFade(0f, explosionDuration)
             .SetEase(Ease.InQuad));
 
-        // 완료 후 풀로 반환
+        // Return to pool when complete
         seq.OnComplete(() => {
             ObjectPool.Instance.ReturnToPool(deathEffectPoolTag, particle);
         });
 
-        // 타임스케일에 영향받지 않도록 설정
+        // Make animation independent of time scale
         seq.SetUpdate(true);
     }
 
     public void SpawnDrops(Vector3 position, EnemyDropTable dropTable)
     {
-        if (!isInitialized)
-        {
-            Debug.LogError("CombatController is not initialized!");
-            return;
-        }
-
-        if (dropTable == null)
-        {
-            Debug.LogError("DropTable is null!");
-            return;
-        }
+        if (!isInitialized || dropTable == null) return;
 
         bool essentialDropSpawned = false;
-        int maxAttempts = 3;  // 최대 시도 횟수
+        int maxAttempts = 3;
         int attempts = 0;
 
-        // Essential Drop (Experience or Gold) - 성공할 때까지 시도
+        // Try to spawn essential drop (experience or gold)
         while (!essentialDropSpawned && attempts < maxAttempts)
         {
             float randomValue = Random.Range(0f, 100f);
@@ -221,24 +213,18 @@ public class CombatController : MonoBehaviour
 
         if (!essentialDropSpawned)
         {
-            Debug.LogError("Failed to spawn essential drop after multiple attempts!");
+            Debug.LogWarning("Failed to spawn essential drop after multiple attempts!");
         }
-
-        // Additional Drop - Enemy의 Die()에서 처리하도록 제거
     }
-
 
     private GameObject SpawnExperienceDrop(Vector3 position, ExperienceDropInfo expInfo)
     {
-        if (expInfo == null)
-        {
-            Debug.LogError("ExperienceDropInfo is null!");
-            return null;
-        }
+        if (expInfo == null) return null;
 
         float randomValue = Random.Range(0f, 100f);
         ItemType selectedType;
 
+        // Determine experience size based on drop rates
         if (randomValue <= expInfo.smallExpRate)
         {
             selectedType = ItemType.ExperienceSmall;
@@ -252,31 +238,23 @@ public class CombatController : MonoBehaviour
             selectedType = ItemType.ExperienceLarge;
         }
 
+        // Add random offset to prevent items from stacking
         Vector2 randomOffset = Random.insideUnitCircle * 0.5f;
         Vector3 spawnPos = position + new Vector3(randomOffset.x, randomOffset.y, 0);
 
+        // Spawn from pool
         GameObject spawnedObj = ObjectPool.Instance.SpawnFromPool(
             selectedType.ToString(),
             spawnPos,
             Quaternion.identity
         );
 
-        if (spawnedObj == null)
-        {
-            Debug.LogError($"Failed to spawn experience item of type: {selectedType}");
-        }
-
         return spawnedObj;
     }
 
-
     private GameObject SpawnGoldDrop(Vector3 position, GoldDropInfo goldInfo)
     {
-        if (goldInfo == null)
-        {
-            Debug.LogError("GoldDropInfo is null!");
-            return null;
-        }
+        if (goldInfo == null) return null;
 
         Vector2 randomOffset = Random.insideUnitCircle * 0.5f;
         Vector3 spawnPos = position + new Vector3(randomOffset.x, randomOffset.y, 0);
@@ -295,10 +273,6 @@ public class CombatController : MonoBehaviour
                 collectible.SetGoldAmount(goldAmount);
             }
         }
-        else
-        {
-            Debug.LogError("Failed to spawn gold item");
-        }
 
         return goldObj;
     }
@@ -306,7 +280,7 @@ public class CombatController : MonoBehaviour
     public void SpawnAdditionalDrop(Vector3 position, AdditionalDrop dropInfo)
     {
         GameObject item = SpawnItem(position, dropInfo.itemType);
-        if (item.TryGetComponent<CollectibleItem>(out var collectible))
+        if (item != null && item.TryGetComponent<CollectibleItem>(out var collectible))
         {
             collectible.Initialize(dropInfo);
         }
@@ -326,11 +300,7 @@ public class CombatController : MonoBehaviour
 
     public void ApplyItemEffect(ItemType itemType, int goldAmount = 0)
     {
-        if (GameManager.Instance?.PlayerStats == null)
-        {
-            Debug.LogError("PlayerStats is null when trying to apply item effect!");
-            return;
-        }
+        if (GameManager.Instance?.PlayerStats == null) return;
 
         var playerStats = GameManager.Instance.PlayerStats;
 
@@ -352,7 +322,7 @@ public class CombatController : MonoBehaviour
                 playerStats.Heal(healthPotionAmount);
                 break;
             case ItemType.Magnet:
-                ApplyMagnetEffect();
+                StartMagnetEffect();
                 break;
             default:
                 Debug.LogWarning($"Unknown item type: {itemType}");
@@ -360,32 +330,90 @@ public class CombatController : MonoBehaviour
         }
     }
 
+    private void StartMagnetEffect()
+    {
+        // Apply immediate effect
+        ApplyMagnetEffect();
+
+        // Activate magnet effect on player
+        if (playerStats != null)
+        {
+            playerStats.SetMagnetEffect(true);
+        }
+
+        // Stop any existing coroutine
+        if (magnetEffectCoroutine != null)
+        {
+            StopCoroutine(magnetEffectCoroutine);
+        }
+
+        // Start new coroutine for timed effect
+        magnetEffectCoroutine = StartCoroutine(MagnetEffectRoutine());
+    }
+
+    private IEnumerator MagnetEffectRoutine()
+    {
+        yield return new WaitForSeconds(magnetEffectDuration);
+
+        // Turn off magnet effect when duration expires
+        if (playerStats != null)
+        {
+            playerStats.SetMagnetEffect(false);
+        }
+
+        magnetEffectCoroutine = null;
+    }
+
     private void ApplyMagnetEffect()
     {
-        foreach (var item in activeCollectibles.ToList())
+        // Use a temporary list to prevent errors if collection changes during iteration
+        if (activeCollectibles.Count > 0)
         {
-            if (item != null)
+            // Avoid foreach to prevent potential allocations
+            CollectibleItem[] items = new CollectibleItem[activeCollectibles.Count];
+            activeCollectibles.CopyTo(items);
+
+            for (int i = 0; i < items.Length; i++)
             {
-                item.PullToPlayer(magnetForce);
+                CollectibleItem item = items[i];
+                if (item != null && item.gameObject.activeInHierarchy)
+                {
+                    item.PullToPlayer(magnetForce);
+                }
             }
         }
     }
 
     public void RegisterCollectible(CollectibleItem item)
     {
-        if (!activeCollectibles.Contains(item))
+        if (item != null && !activeCollectibles.Contains(item))
         {
             activeCollectibles.Add(item);
+
+            // If magnet effect is active, immediately apply to newly registered items
+            if (playerStats != null && playerStats.IsMagnetActive)
+            {
+                item.PullToPlayer(magnetForce);
+            }
         }
     }
 
     public void UnregisterCollectible(CollectibleItem item)
     {
-        activeCollectibles.Remove(item);
+        if (item != null)
+        {
+            activeCollectibles.Remove(item);
+        }
     }
 
     private void HandlePlayerDeath()
     {
+        if (magnetEffectCoroutine != null)
+        {
+            StopCoroutine(magnetEffectCoroutine);
+            magnetEffectCoroutine = null;
+        }
+
         isInitialized = false;
         GameManager.Instance.SetGameState(GameState.GameOver);
     }
@@ -397,68 +425,45 @@ public class CombatController : MonoBehaviour
 
         foreach (var table in dropTables)
         {
-            // 기본 경험치 풀 초기화
+            // Initialize experience pools
             if (table.experienceInfo != null)
             {
-                if (!processedPrefabs.Contains(table.experienceInfo.smallExpPrefab) &&
-                    !ObjectPool.Instance.DoesPoolExist(ItemType.ExperienceSmall.ToString()))
-                {
-                    ObjectPool.Instance.CreatePool(ItemType.ExperienceSmall.ToString(),
-                        table.experienceInfo.smallExpPrefab, 10);
-                    processedPrefabs.Add(table.experienceInfo.smallExpPrefab);
-                }
+                TryCreatePool(ItemType.ExperienceSmall.ToString(),
+                    table.experienceInfo.smallExpPrefab, 20, processedPrefabs);
 
-                if (!processedPrefabs.Contains(table.experienceInfo.mediumExpPrefab) &&
-                    !ObjectPool.Instance.DoesPoolExist(ItemType.ExperienceMedium.ToString()))
-                {
-                    ObjectPool.Instance.CreatePool(ItemType.ExperienceMedium.ToString(),
-                        table.experienceInfo.mediumExpPrefab, 10);
-                    processedPrefabs.Add(table.experienceInfo.mediumExpPrefab);
-                }
+                TryCreatePool(ItemType.ExperienceMedium.ToString(),
+                    table.experienceInfo.mediumExpPrefab, 15, processedPrefabs);
 
-                if (!processedPrefabs.Contains(table.experienceInfo.largeExpPrefab) &&
-                    !ObjectPool.Instance.DoesPoolExist(ItemType.ExperienceLarge.ToString()))
-                {
-                    ObjectPool.Instance.CreatePool(ItemType.ExperienceLarge.ToString(),
-                        table.experienceInfo.largeExpPrefab, 10);
-                    processedPrefabs.Add(table.experienceInfo.largeExpPrefab);
-                }
+                TryCreatePool(ItemType.ExperienceLarge.ToString(),
+                    table.experienceInfo.largeExpPrefab, 10, processedPrefabs);
             }
 
-            // 골드 풀 초기화
-            if (table.goldInfo != null && !processedPrefabs.Contains(table.goldInfo.goldPrefab) &&
-                !ObjectPool.Instance.DoesPoolExist(ItemType.Gold.ToString()))
+            // Initialize gold pool
+            if (table.goldInfo != null)
             {
-                ObjectPool.Instance.CreatePool(ItemType.Gold.ToString(),
-                    table.goldInfo.goldPrefab, 10);
-                processedPrefabs.Add(table.goldInfo.goldPrefab);
+                TryCreatePool(ItemType.Gold.ToString(),
+                    table.goldInfo.goldPrefab, 20, processedPrefabs);
             }
 
-            // 추가 아이템 풀 초기화
+            // Initialize additional item pools
             if (table.additionalDrops != null)
             {
                 foreach (var drop in table.additionalDrops)
                 {
-                    if (drop.itemPrefab != null && !processedPrefabs.Contains(drop.itemPrefab) &&
-                        !ObjectPool.Instance.DoesPoolExist(drop.itemType.ToString()))
-                    {
-                        ObjectPool.Instance.CreatePool(drop.itemType.ToString(), drop.itemPrefab, 10);
-                        processedPrefabs.Add(drop.itemPrefab);
-                    }
+                    TryCreatePool(drop.itemType.ToString(),
+                        drop.itemPrefab, 5, processedPrefabs);
                 }
             }
         }
 
-        // 사망 이펙트 풀 초기화 (기존 풀이 없는 경우)
+        // Initialize death effect pool
         if (!ObjectPool.Instance.DoesPoolExist(deathEffectPoolTag))
         {
             GameObject particlePrefab = Resources.Load<GameObject>($"Prefabs/VFX/{deathEffectPoolTag}");
             if (particlePrefab != null)
             {
-                // 적당한 풀 크기 계산: 동시 이펙트 수 * 파티클 수
                 int poolSize = maxConcurrentDeathEffects * particlesPerEffect;
                 ObjectPool.Instance.CreatePool(deathEffectPoolTag, particlePrefab, poolSize);
-                Debug.Log($"Death effect pool initialized with {poolSize} particles");
             }
             else
             {
@@ -466,6 +471,17 @@ public class CombatController : MonoBehaviour
             }
         }
     }
+
+    private void TryCreatePool(string poolName, GameObject prefab, int size, HashSet<GameObject> processedPrefabs)
+    {
+        if (prefab != null && !processedPrefabs.Contains(prefab) &&
+            !ObjectPool.Instance.DoesPoolExist(poolName))
+        {
+            ObjectPool.Instance.CreatePool(poolName, prefab, size);
+            processedPrefabs.Add(prefab);
+        }
+    }
+
     private void OnDestroy()
     {
         if (playerStats != null)
@@ -473,6 +489,15 @@ public class CombatController : MonoBehaviour
             playerStats.OnPlayerDeath -= HandlePlayerDeath;
         }
 
+        // Clean up all active tweens
         DOTween.Kill(transform);
+
+        if (magnetEffectCoroutine != null)
+        {
+            StopCoroutine(magnetEffectCoroutine);
+        }
+
+        // Clear collectibles
+        activeCollectibles.Clear();
     }
 }
