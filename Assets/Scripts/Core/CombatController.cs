@@ -378,7 +378,15 @@ public class CombatController : MonoBehaviour
                 CollectibleItem item = items[i];
                 if (item != null && item.gameObject.activeInHierarchy)
                 {
-                    item.PullToPlayer(magnetForce);
+                    // Check item type before pulling
+                    ItemType itemType = item.GetItemType();
+                    if (itemType == ItemType.ExperienceSmall ||
+                        itemType == ItemType.ExperienceMedium ||
+                        itemType == ItemType.ExperienceLarge ||
+                        itemType == ItemType.Gold)
+                    {
+                        item.PullToPlayer(magnetForce);
+                    }
                 }
             }
         }

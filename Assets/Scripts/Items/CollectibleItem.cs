@@ -8,29 +8,24 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
     [SerializeField] private float magnetSpeed = 10f;
     [SerializeField] private ItemType itemType;
     public ItemType GetItemType() => itemType;
-    // Cached components
     private Rigidbody2D rb;
     private Transform playerTransform;
     private PlayerStats playerStats;
     private CombatController combatController;
 
-    // Movement state
     private float currentMagnetSpeed;
     private float currentMagnetDistance;
     private bool isBeingMagneted;
     private bool isPulledByMagnet;
     private bool isAutoMagneted;
 
-    // Item properties
     private bool isMagnetable = true;
     private int goldAmount;
 
-    // State tracking
     private bool isInitialized;
     private bool isRegistered;
     private bool isCollected;
 
-    // Cached vectors for optimization
     private Vector2 movementDirection = Vector2.zero;
     private Vector2 tempVelocity = Vector2.zero;
 
