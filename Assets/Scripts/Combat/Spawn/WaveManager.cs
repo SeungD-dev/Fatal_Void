@@ -1,6 +1,6 @@
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
 using static WaveData;
 
@@ -22,13 +22,16 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private float minDistanceFromPlayer = 8f; // 플레이어로부터 최소 스폰 거리
 
     // 웨이브 상태
-    private int currentWaveNumber = 0;
+    [SerializeField] private int _currentWaveNumber = 0;  // Serialized for inspector visibility
     private bool isWaveActive = false;
     private bool isInSurvivalPhase = false;
     private float waveTimer = 0f;
     private float spawnTimer = 0f;
     private WaveData.Wave currentWave;
     private Coroutine spawnCoroutine;
+
+    // Public access to current wave number
+    public int currentWaveNumber => _currentWaveNumber;
 
     // 캐싱
     private PlayerStats playerStats;
@@ -52,6 +55,47 @@ public class WaveManager : MonoBehaviour
         }
 
         mainCamera = Camera.main;
+
+        
+        ConnectWithShopController();
+    }
+
+    private void ConnectWithShopController()
+    {
+        
+        if (shopController != null)
+        {
+            
+            var waveManagerField = shopController.GetType().GetField("waveManager",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.Public |
+                System.Reflection.BindingFlags.NonPublic);
+
+            if (waveManagerField != null)
+            {
+                waveManagerField.SetValue(shopController, this);
+                Debug.Log("Connected WaveManager to ShopController");
+            }
+        }
+        else
+        {
+            
+            shopController = FindAnyObjectByType<ShopController>();
+            if (shopController != null)
+            {
+                
+                var waveManagerField = shopController.GetType().GetField("waveManager",
+                    System.Reflection.BindingFlags.Instance |
+                    System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.NonPublic);
+
+                if (waveManagerField != null)
+                {
+                    waveManagerField.SetValue(shopController, this);
+                    Debug.Log("Connected WaveManager to found ShopController");
+                }
+            }
+        }
     }
 
     private void ValidateReferences()
@@ -79,6 +123,7 @@ public class WaveManager : MonoBehaviour
             inventoryController.OnProgressButtonClicked += StartNextWave;
         }
     }
+
     private IEnumerator WaitForDependencies()
     {
         float timeOut = 5f;
@@ -133,7 +178,19 @@ public class WaveManager : MonoBehaviour
         GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
 
         playerUIController = FindAnyObjectByType<PlayerUIController>();
+
+        
+        if (GameManager.Instance != null)
+        {
+            
+            var currentWaveProperty = GameManager.Instance.GetType().GetProperty("CurrentWave");
+            if (currentWaveProperty != null)
+            {
+                currentWaveProperty.SetValue(GameManager.Instance, _currentWaveNumber);
+            }
+        }
     }
+
     private IEnumerator WaitForMapLoad()
     {
         float timeOut = 2f; // 더 짧은 타임아웃 (5초→2초)
@@ -168,6 +225,7 @@ public class WaveManager : MonoBehaviour
         InitializeEnemyPools();
         SetupFirstWave();
     }
+
     private void InitializeWarningPool()
     {
         if (warningPrefab != null && ObjectPool.Instance != null)
@@ -178,6 +236,7 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
+
     private void InitializeEnemyPools()
     {
         // 모든 웨이브에서 사용되는 적 유형 수집
@@ -229,15 +288,32 @@ public class WaveManager : MonoBehaviour
 
     private void SetupFirstWave()
     {
-        currentWaveNumber = 1;
-        currentWave = waveData.GetWave(currentWaveNumber);
+        _currentWaveNumber = 1;
+        currentWave = waveData.GetWave(_currentWaveNumber);
         if (currentWave != null)
         {
             UpdateWaveUI();
+
+            
+            UpdateGameManagerWaveNumber();
         }
         else
         {
             Debug.LogError("Failed to get first wave data!");
+        }
+    }
+
+    
+    private void UpdateGameManagerWaveNumber()
+    {
+        if (GameManager.Instance != null)
+        {
+            
+            var currentWaveProperty = GameManager.Instance.GetType().GetProperty("CurrentWave");
+            if (currentWaveProperty != null && currentWaveProperty.CanWrite)
+            {
+                currentWaveProperty.SetValue(GameManager.Instance, _currentWaveNumber);
+            }
         }
     }
 
@@ -247,9 +323,9 @@ public class WaveManager : MonoBehaviour
         if (newState == GameState.Playing)
         {
             // 게임이 시작되면 첫 웨이브 시작
-            if (!isWaveActive && currentWaveNumber == 1 && waveTimer == 0f)
+            if (!isWaveActive && _currentWaveNumber == 1 && waveTimer == 0f)
             {
-                StartWave(currentWaveNumber);
+                StartWave(_currentWaveNumber);
             }
             else if (isWaveActive && spawnCoroutine == null)
             {
@@ -308,23 +384,20 @@ public class WaveManager : MonoBehaviour
 
     public void StartNextWave()
     {
-        // First time this is called, it should start wave 1
-        // Next times, it will get the next wave number
-
         int nextWaveNumber;
-        if (currentWaveNumber == 0) // First time
+        if (_currentWaveNumber == 0) 
         {
             nextWaveNumber = 1;
         }
         else
         {
-            nextWaveNumber = waveData.GetNextWaveNumber(currentWaveNumber);
+            nextWaveNumber = waveData.GetNextWaveNumber(_currentWaveNumber);
         }
 
-        // Start the appropriate wave
+        
         if (nextWaveNumber > 0)
         {
-            // Hide wave complete banner
+            
             if (waveCompleteBanner != null)
             {
                 waveCompleteBanner.SetActive(false);
@@ -350,10 +423,13 @@ public class WaveManager : MonoBehaviour
         }
 
         // 웨이브 정보 설정
-        currentWaveNumber = waveNumber;
+        _currentWaveNumber = waveNumber;
         waveTimer = 0f;
         isWaveActive = true;
         isInSurvivalPhase = false;
+
+        
+        UpdateGameManagerWaveNumber();
 
         // UI 업데이트
         UpdateWaveUI();
@@ -443,6 +519,7 @@ public class WaveManager : MonoBehaviour
         // 경고 및 스폰 코루틴 시작
         StartCoroutine(ShowWarningsAndSpawnBatch(spawnPositions));
     }
+
     private IEnumerator ShowWarningsAndSpawnBatch(List<Vector2> positions)
     {
         // 스폰 설정에서 스폰 포인트당 적 수 가져오기
@@ -488,6 +565,7 @@ public class WaveManager : MonoBehaviour
                 break;
         }
     }
+
     private void SpawnEnemy(Vector2 position)
     {
         if (!isWaveActive || isInSurvivalPhase) return;
@@ -534,6 +612,7 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
+
     private Vector2 GetOptimizedSpawnPosition()
     {
         // 맵에서 가장자리 위치 가져오기
@@ -602,6 +681,7 @@ public class WaveManager : MonoBehaviour
 
         return positions;
     }
+
     // 사각형 포위 위치 생성
     private List<Vector2> GenerateRectanglePositions(int count, float distance)
     {
@@ -666,6 +746,7 @@ public class WaveManager : MonoBehaviour
 
         return positions;
     }
+
     // 직선 위치 생성
     private List<Vector2> GenerateLinePositions(int count, Vector2 start, Vector2 end)
     {
@@ -712,6 +793,7 @@ public class WaveManager : MonoBehaviour
 
         return positions;
     }
+
     // 맵 내부 랜덤 위치 생성
     private List<Vector2> GenerateRandomPositions(int count)
     {
@@ -759,6 +841,9 @@ public class WaveManager : MonoBehaviour
             playerStats.AddCoins(currentWave.coinReward);
         }
 
+        // Update GameManager's wave number
+        UpdateGameManagerWaveNumber();
+
         // 웨이브 완료 배너 표시 및 지연 후 상점 열기
         StartCoroutine(ShowCompletionBannerThenOpenShop());
     }
@@ -771,7 +856,7 @@ public class WaveManager : MonoBehaviour
             // 텍스트 설정
             if (waveCompleteText != null)
             {
-                waveCompleteText.text = $"Wave {currentWaveNumber} Complete!";
+                waveCompleteText.text = $"Wave {_currentWaveNumber} Complete!";
             }
 
             // 배너 애니메이션 시작
@@ -792,9 +877,8 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
-            
             GameManager.Instance.SetGameState(GameState.Paused);
-            if (currentWaveNumber >= 1 && shopController != null)
+            if (_currentWaveNumber >= 1 && shopController != null)
             {
                 shopController.isFirstShop = false;
             }
@@ -802,18 +886,20 @@ public class WaveManager : MonoBehaviour
             shopController.OpenShop();
         }
     }
+
     public bool AreAllWavesCompleted()
     {
-        return waveData.GetNextWaveNumber(currentWaveNumber) < 0;
+        return waveData.GetNextWaveNumber(_currentWaveNumber) < 0;
     }
 
     private void UpdateWaveUI()
     {
         if (waveNumberText != null)
         {
-            waveNumberText.text = $"Wave {currentWaveNumber}";
+            waveNumberText.text = $"Wave {_currentWaveNumber}";
         }
     }
+
     private void KillAllRemainingEnemies()
     {
         // 살아있는 모든 적 한번에 데미지 주기
@@ -834,6 +920,7 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
+
     private void UpdateTimerUI()
     {
         // 문자열 생성
@@ -879,6 +966,7 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
+
     public void EnsureInitialized(GameMap map)
     {
         if (map != null && gameMap == null)
@@ -887,6 +975,7 @@ public class WaveManager : MonoBehaviour
             InitializeSystem();
         }
     }
+
     private void OnDestroy()
     {
         // 이벤트 구독 해제

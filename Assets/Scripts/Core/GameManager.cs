@@ -42,8 +42,13 @@ public class GameManager : MonoBehaviour
     private CombatController combatController;
     private GameOverController gameOverController;
     private PhysicsInventoryManager physicsInventoryManager; // 추가: 물리 인벤토리 시스템 참조
-    
-  
+    [SerializeField] private int _currentWave = 0;
+    public int CurrentWave
+    {
+        get { return _currentWave; }
+        set { _currentWave = value; }
+    }
+
 
     // 자주 사용되는 속성들을 캐싱
     private bool isInitialized;
@@ -745,6 +750,29 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("GameOverController reference is missing!");
         }
+    }
+
+    /// <summary>
+    /// 주어진 웨이브 범위 내에 현재 웨이브가 포함되어 있는지 확인합니다.
+    /// </summary>
+    /// <param name="minWave">최소 웨이브 번호 (포함)</param>
+    /// <param name="maxWave">최대 웨이브 번호 (포함)</param>
+    /// <returns>포함되어 있으면 true, 아니면 false</returns>
+    public bool IsWaveInRange(int minWave, int maxWave)
+    {
+        return _currentWave >= minWave && _currentWave <= maxWave;
+    }
+    public void ResetWave()
+    {
+        _currentWave = 0;
+    }
+    /// <summary>
+    /// 웨이브 매니저와 연결하여 웨이브 정보를 업데이트합니다.
+    /// </summary>
+    /// <param name="waveNumber">현재 웨이브 번호</param>
+    public void UpdateWaveInfo(int waveNumber)
+    {
+        _currentWave = waveNumber;
     }
     public void SetOptionPanelReference(GameObject optionPanelRef)
     {

@@ -24,6 +24,7 @@ public class ShopController : MonoBehaviour
     [SerializeField] private ItemGrid mainInventoryGrid;
     [SerializeField] private GameObject weaponPrefab;
     [SerializeField] private PhysicsInventoryManager physicsManager;
+    [SerializeField] private WaveManager waveManager;
     [Header("UI Texts")]
     [SerializeField] private TMPro.TextMeshProUGUI refreshCostText;
     [SerializeField] private TMPro.TextMeshProUGUI playerCoinsText;
@@ -55,6 +56,22 @@ public class ShopController : MonoBehaviour
         if (mainInventoryGrid != null)
         {
             mainInventoryGrid.ForceInitialize();
+        }
+        FindWaveManager();
+    }
+    private void FindWaveManager()
+    {
+        if (waveManager == null)
+        {
+            waveManager = FindAnyObjectByType<WaveManager>();
+            if (waveManager == null)
+            {
+                Debug.LogWarning("WaveManager not found. Shop will use default wave number.");
+            }
+            else
+            {
+                Debug.Log("WaveManager reference established in ShopController");
+            }
         }
     }
     private void OnDisable()
@@ -367,6 +384,10 @@ public class ShopController : MonoBehaviour
     }
     public void InitializeShop()
     {
+        if (waveManager == null)
+        {
+            FindWaveManager();
+        }
         if (GameManager.Instance.currentGameState != GameState.Paused)
         {
             GameManager.Instance.SetGameState(GameState.Paused);
@@ -427,7 +448,7 @@ public class ShopController : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            WeaponData weapon = GetRandomWeaponByTierProbability();
+            WeaponData weapon = GetRandomWeaponByWave();
             if (weapon != null)
             {
                 randomWeapons.Add(weapon);
@@ -436,10 +457,13 @@ public class ShopController : MonoBehaviour
 
         return randomWeapons;
     }
-
-    private WeaponData GetRandomWeaponByTierProbability()
+    // 웨이브 번호를 기반으로 무기 가져오기
+    private WeaponData GetRandomWeaponByWave()
     {
-        float[] tierProbs = weaponDatabase.tierProbability.GetTierProbabilities(playerStats.Level);
+        int currentWave = GetCurrentWave();
+
+        // 현재 웨이브 번호와 함께 tierProbability 사용
+        float[] tierProbs = weaponDatabase.tierProbability.GetTierProbabilities(currentWave);
         float random = Random.value * 100f;
         float cumulative = 0f;
         int selectedTier = 1;
@@ -467,6 +491,7 @@ public class ShopController : MonoBehaviour
 
         return ScriptableObject.Instantiate(tierWeapons[Random.Range(0, tierWeapons.Count)]);
     }
+   
     private void GenerateNewWeaponOptions()
     {
         List<WeaponData> randomWeapons = GetRandomWeapons(weaponOptions.Length);
@@ -525,5 +550,25 @@ public class ShopController : MonoBehaviour
 
         // 효과음 재생
         SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
+    }
+
+    // 현재 웨이브 번호를 가져오는 메소드
+    private int GetCurrentWave()
+    {
+        // WaveManager 참조가 있으면 사용
+        if (waveManager != null)
+        {
+            return waveManager.currentWaveNumber;
+        }
+
+        // 대안: GameManager에서 확인 (웨이브 번호를 추적한다면)
+        if (GameManager.Instance != null && GameManager.Instance.CurrentWave > 0)
+        {
+            return GameManager.Instance.CurrentWave;
+        }
+
+        // 기본값으로 1 반환
+        Debug.LogWarning("Unable to get current wave number, using default value of 1");
+        return 1;
     }
 }

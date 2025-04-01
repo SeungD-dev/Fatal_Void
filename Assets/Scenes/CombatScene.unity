@@ -523,6 +523,7 @@ MonoBehaviour:
   waveCompleteBanner: {fileID: 7947131200979300802}
   waveCompleteText: {fileID: 7947131200979300801}
   minDistanceFromPlayer: 0.5
+  _currentWaveNumber: 0
 --- !u!1 &632933799
 GameObject:
   m_ObjectHideFlags: 0
@@ -737,6 +738,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthPotionAmount: 20
   magnetForce: 20
+  magnetEffectDuration: 5
   deathEffectPoolTag: DeathParticle
   particlesPerEffect: 5
   explosionRadius: 0.3
@@ -1244,6 +1246,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 309602412944202592, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: waveManager
+      value: 
+      objectReference: {fileID: 588672269}
     - target: {fileID: 309602412944202592, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
       propertyPath: playerStatsUI
       value: 
