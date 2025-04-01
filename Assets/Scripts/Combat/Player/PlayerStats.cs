@@ -297,7 +297,7 @@ public class PlayerStats : MonoBehaviour
         while (currentExp >= requiredExp && !isLevelingUp)
         {
             int overflow = currentExp - requiredExp;
-            LevelUp();
+            //LevelUp();
             currentExp = overflow;
         }
 

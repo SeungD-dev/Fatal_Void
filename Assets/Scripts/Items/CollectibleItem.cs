@@ -75,7 +75,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     private void FindReferences()
     {
-        // Get references through GameManager when possible to avoid expensive FindGameObjectWithTag
+        
         if (GameManager.Instance != null)
         {
             if (playerTransform == null && GameManager.Instance.PlayerTransform != null)
@@ -93,7 +93,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             }
         }
 
-        // Fallback to Find operation if needed (should happen rarely)
+        
         if (playerTransform == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -118,20 +118,20 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             }
             else
             {
-                // If we still don't have a reference, try again later
+                
                 StartCoroutine(TryRegisterLater());
                 return;
             }
         }
 
-        // Register with combat controller
+        
         combatController.RegisterCollectible(this);
         isRegistered = true;
     }
 
     private IEnumerator TryRegisterLater()
     {
-        // Delay and try again to find CombatController
+        
         yield return new WaitForSeconds(0.5f);
 
         if (!isRegistered && gameObject.activeInHierarchy && !isCollected)
@@ -156,7 +156,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
     {
         itemType = dropInfo.itemType;
 
-        // Only experience and gold items should be magnetable
+        
         isMagnetable = dropInfo.isMagnetable &&
             (itemType == ItemType.ExperienceSmall ||
              itemType == ItemType.ExperienceMedium ||
@@ -178,13 +178,13 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     public void OnObjectSpawn()
     {
-        // Reset state
+        
         isCollected = false;
         isBeingMagneted = false;
         isPulledByMagnet = false;
         isRegistered = false;
 
-        // Reset physics
+        
         currentMagnetSpeed = magnetSpeed;
         currentMagnetDistance = basemagnetDistance;
 
@@ -195,21 +195,21 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             rb.angularVelocity = 0f;
         }
 
-        // Enable colliders
+        
         Collider2D[] colliders = GetComponents<Collider2D>();
         for (int i = 0; i < colliders.Length; i++)
         {
             colliders[i].enabled = true;
         }
 
-        // Re-initialize if needed
+        
         if (!isInitialized)
         {
             Initialize();
         }
         else
         {
-            // Just register to combat controller
+            
             RegisterToCombatController();
         }
     }
@@ -242,15 +242,15 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         {
             isBeingMagneted = true;
 
-            // Optimize: Reuse vector2 instance instead of creating new one
+            
             movementDirection.x = playerTransform.position.x - transform.position.x;
             movementDirection.y = playerTransform.position.y - transform.position.y;
             float magnitude = Mathf.Sqrt(movementDirection.x * movementDirection.x + movementDirection.y * movementDirection.y);
 
-            // Avoid division by zero
+            
             if (magnitude > 0.001f)
             {
-                // Normalize and scale by speed
+                
                 float speed = isAutoMagneted ? magnetSpeed * 2f : currentMagnetSpeed;
                 float invMagnitude = 1f / magnitude;
 
@@ -274,7 +274,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         isPulledByMagnet = true;
         currentMagnetSpeed = magnetForce;
 
-        // Force an immediate movement to prevent items from appearing stuck
+        
         if (rb != null && playerTransform != null)
         {
             movementDirection.x = playerTransform.position.x - transform.position.x;
@@ -293,25 +293,25 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Early return checks for performance
+        
         if (isCollected) return;
         if (!other.CompareTag("Player")) return;
         if (combatController == null) return;
 
-        // Mark as collected immediately to prevent double collection
+        
         isCollected = true;
 
-        // Store references for use after pool return
+        
         ItemType itemTypeToApply = itemType;
         int goldAmountToApply = goldAmount;
 
-        // Stop movement
+        
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
         }
 
-        // Only disable colliders for non-magnet items
+        
         if (itemType != ItemType.Magnet)
         {
             Collider2D[] colliders = GetComponents<Collider2D>();
@@ -321,7 +321,7 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             }
         }
 
-        // Play appropriate sound
+        
         if (itemType == ItemType.Gold)
         {
             SoundManager.Instance?.PlaySound("Coin_sfx", 1f, false);
@@ -331,14 +331,14 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
             SoundManager.Instance?.PlaySound("Exp_sfx", 1f, false);
         }
 
-        // Unregister from combat controller
+        
         combatController.UnregisterCollectible(this);
         isRegistered = false;
 
-        // Return to pool
+        
         ObjectPool.Instance?.ReturnToPool(itemTypeToApply.ToString(), gameObject);
 
-        // Apply effect
+        
         combatController.ApplyItemEffect(itemTypeToApply, goldAmountToApply);
     }
 
@@ -364,10 +364,10 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     private void OnDisable()
     {
-        // Skip if already collected
+        
         if (isCollected) return;
 
-        // Unregister and unsubscribe
+        
         if (isRegistered && combatController != null)
         {
             combatController.UnregisterCollectible(this);
@@ -380,13 +380,13 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
 
     private void OnDestroy()
     {
-        // Clean up event subscription
+        
         if (playerStats != null)
         {
             playerStats.OnMagnetEffectChanged -= HandleMagnetEffectChanged;
         }
 
-        // Final unregister attempt in case OnDisable wasn't called
+        
         if (isRegistered)
         {
             GameManager.Instance?.CombatController?.UnregisterCollectible(this);
