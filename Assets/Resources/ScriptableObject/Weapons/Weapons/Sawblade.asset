@@ -70,10 +70,10 @@ MonoBehaviour:
     regenValue: 0
     regenHasteIncrease: 0
   currentTier: 1
-  tier1Price: 0
-  tier2Price: 0
-  tier3Price: 0
-  tier4Price: 0
+  tier1Price: 45
+  tier2Price: 90
+  tier3Price: 180
+  tier4Price: 360
   sellPriceRatio: 0.5
   tierStats:
   - damage: 30
