@@ -25,6 +25,7 @@ public class Enemy : MonoBehaviour, IPooledObject
 
     private bool isKnockedBack;
     private Coroutine knockbackCoroutine;
+    private bool isKnockbackImmune = false;
 
     private float currentHealth;
     private float calculatedMaxHealth;
@@ -54,6 +55,7 @@ public class Enemy : MonoBehaviour, IPooledObject
     public float MaxHealth => calculatedMaxHealth;
     public float Damage => enemyData?.baseDamage ?? 0f;
     public float MoveSpeed => enemyData?.moveSpeed ?? 0f;
+    public bool IsKnockbackImmune => isKnockbackImmune;
     public string EnemyName => enemyData?.enemyName ?? "Unknown Enemy";
     #endregion
 
@@ -264,6 +266,9 @@ public class Enemy : MonoBehaviour, IPooledObject
 
     public void ApplyKnockback(Vector2 force)
     {
+        // 넉백 면역 상태면 넉백을 적용하지 않음
+        if (isKnockbackImmune) return;
+
         if (!gameObject.activeInHierarchy || currentHealth <= 0 || rb == null)
             return;
 
@@ -294,7 +299,10 @@ public class Enemy : MonoBehaviour, IPooledObject
         isKnockedBack = false;
         knockbackCoroutine = null;
     }
-
+    public void SetKnockbackImmunity(bool immune)
+    {
+        isKnockbackImmune = immune;
+    }
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (!gameObject.activeSelf) return;

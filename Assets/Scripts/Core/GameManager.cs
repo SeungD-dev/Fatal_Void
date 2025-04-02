@@ -491,6 +491,19 @@ public class GameManager : MonoBehaviour
             yield return ResourceLoadDelay;
             if (isLoadingCancelled) yield break;
         }
+
+        // Wisp 투사체 풀 초기화 (적 투사체)
+        GameObject wispProjectilePrefab = Resources.Load<GameObject>("Prefabs/Projectiles/Wisp_Projectile");
+        if (wispProjectilePrefab != null)
+        {
+            int poolSize = GetOptimalPoolSize("Wisp_Projectile");
+            ObjectPool.Instance.CreatePool("Wisp_Projectile", wispProjectilePrefab, poolSize);
+            Debug.Log("Wisp 투사체 풀 초기화됨: " + poolSize + "개 생성");
+        }
+        else
+        {
+            Debug.LogWarning("Wisp 투사체 프리팹을 찾을 수 없습니다!");
+        }
     }
 
     private int GetOptimalPoolSize(string objectType)
@@ -513,6 +526,9 @@ public class GameManager : MonoBehaviour
             case "Walker": return 15;
             case "Hunter": return 15;
             case "Heavy": return 15;
+
+            //적 투사체
+            case "Wisp_Projectile": return 30;
 
             // 아이템 타입
             case "ExperienceSmall": return 30;
