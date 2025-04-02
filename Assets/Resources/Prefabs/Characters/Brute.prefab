@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 524992502564931438}
   - component: {fileID: 3112688302616460114}
   - component: {fileID: 3934438935927196752}
-  - component: {fileID: 2827390768131384232}
   - component: {fileID: 1951955184431397305}
   - component: {fileID: 5014021423508427363}
+  - component: {fileID: 1734536401226249304}
   m_Layer: 7
   m_Name: Brute
   m_TagString: Enemy
@@ -137,20 +137,6 @@ MonoBehaviour:
   bounceAmount: 0.1
   knockbackRecoveryTime: 0.1
   enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
---- !u!114 &2827390768131384232
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6160214665495999924}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b55e66f79e3a91941b0a82102cb0a826, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  spriteRenderer: {fileID: 0}
-  distanceUpdateThreshold: 15
 --- !u!61 &1951955184431397305
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -219,3 +205,23 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1734536401226249304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6160214665495999924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9f085fba8a1365429f630b085fb64d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 0}
+  distanceUpdateThreshold: 15
+  chargeDetectionRange: 8
+  chargePrepareTime: 1.2
+  chargeSpeed: 15
+  chargeDuration: 0.8
+  chargeCooldown: 5
+  chargeColor: {r: 0.56, g: 0, b: 0, a: 1}
