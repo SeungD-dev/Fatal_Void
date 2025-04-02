@@ -30,36 +30,36 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b494474fcbb93204a8e0bb630ace5d7f, type: 2}
   - {fileID: 11400000, guid: 2e1187eeafd366f4f9aff392bb321caa, type: 2}
   tierProbability:
-    levelRanges:
-    - minLevel: 1
-      maxLevel: 5
-      tier1Probability: 85
-      tier2Probability: 15
+    waveRanges:
+    - minWave: 1
+      maxWave: 3
+      tier1Probability: 100
+      tier2Probability: 0
       tier3Probability: 0
       tier4Probability: 0
-    - minLevel: 5
-      maxLevel: 10
-      tier1Probability: 70
-      tier2Probability: 25
+    - minWave: 4
+      maxWave: 6
+      tier1Probability: 80
+      tier2Probability: 20
+      tier3Probability: 0
+      tier4Probability: 0
+    - minWave: 7
+      maxWave: 9
+      tier1Probability: 75
+      tier2Probability: 20
       tier3Probability: 5
       tier4Probability: 0
-    - minLevel: 10
-      maxLevel: 15
-      tier1Probability: 60
+    - minWave: 10
+      maxWave: 15
+      tier1Probability: 65
+      tier2Probability: 25
+      tier3Probability: 9
+      tier4Probability: 1
+    - minWave: 16
+      maxWave: 99
+      tier1Probability: 50
       tier2Probability: 30
-      tier3Probability: 8
-      tier4Probability: 2
-    - minLevel: 15
-      maxLevel: 25
-      tier1Probability: 45
-      tier2Probability: 35
       tier3Probability: 15
       tier4Probability: 5
-    - minLevel: 25
-      maxLevel: 99
-      tier1Probability: 30
-      tier2Probability: 40
-      tier3Probability: 20
-      tier4Probability: 10
     weaponTypeModifiers:
       keys: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a000000
