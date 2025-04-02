@@ -27,7 +27,7 @@ MonoBehaviour:
       enemiesPerSpawnPoint: 1
       fixedSpawnPoints: 
     enemies:
-    - enemyData: {fileID: 11400000, guid: 735020ccc0f73e244bcedb6af1a9f579, type: 2}
+    - enemyData: {fileID: 11400000, guid: bd35672c1077663489d83eaa8da91026, type: 2}
       spawnChance: 100
     coinReward: 20
   - waveNumber: 2
