@@ -35,6 +35,8 @@ public class WispProjectile : MonoBehaviour, IPooledObject
 
     // 시각적 효과
     private Sequence colorSequence;
+    private Color redColor = new Color(0.56f, 0f, 0f); // #8f0000 
+    private Color whiteColor = Color.white;
     private Vector3 originalScale;
 
     // 이동 최적화를 위한 변수
@@ -80,28 +82,28 @@ public class WispProjectile : MonoBehaviour, IPooledObject
     }
     private void Update()
     {
-        // 투사체가 활성화된 상태에서만 깜빡임 처리
-        if (Time.time > nextBlinkTime)
+        // 투사체가 활성화된 상태이고 발사 상태인 경우에만 처리
+        if (gameObject.activeInHierarchy && currentState == ProjectileState.Launched)
         {
-            // 스프라이트 인덱스 전환 (0 -> 1, 1 -> 0)
-            currentSpriteIndex = 1 - currentSpriteIndex;
-
-            if (spriteRenderer != null && projectileSprites != null && projectileSprites.Length > 1)
+            // 스프라이트 깜빡임 처리
+            if (Time.time > nextBlinkTime)
             {
-                spriteRenderer.sprite = projectileSprites[currentSpriteIndex];
-            }
+                // 스프라이트 인덱스 전환만 처리 - 색상은 DOTween에서 관리
+                currentSpriteIndex = 1 - currentSpriteIndex;
+                if (spriteRenderer != null && projectileSprites != null && projectileSprites.Length > 1)
+                {
+                    spriteRenderer.sprite = projectileSprites[currentSpriteIndex];
+                }
 
-            // 다음 깜빡임 시간 설정
-            nextBlinkTime = Time.time + blinkInterval;
+                nextBlinkTime = Time.time + blinkInterval;
+            }
         }
 
-        // 준비 상태일 때만 소유자 체크
+        // 준비 상태일 때 소유자 체크는 유지
         if (currentState == ProjectileState.Preparing && ownerTransform != null)
         {
-            // 소유자(Wisp)가 비활성화되었는지 확인
             if (!ownerTransform.gameObject.activeInHierarchy)
             {
-                // 소유자가 사라졌으므로 투사체도 풀로 반환
                 ReturnToPool();
             }
         }
@@ -132,38 +134,46 @@ public class WispProjectile : MonoBehaviour, IPooledObject
     // 투사체 발사 메서드
     public void Launch(Vector2 direction, float speed)
     {
+        // 상태 초기화 및 방향 설정
         this.direction = direction.normalized;
         this.speed = speed;
 
-        // 상태 변경
+        // 항상 Launched로 상태 설정
         currentState = ProjectileState.Launched;
         isActive = true;
 
-        // 발사 방향으로 회전 (선택적)
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-
-        // 물리 기반 이동 적용
+        // 캐싱된 rb 변수 사용
         if (rb != null)
         {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
             rb.linearVelocity = direction * speed;
+
+            Debug.Log($"투사체 발사 - ID: {GetInstanceID()}, 속도: {rb.linearVelocity}, 방향: {direction}");
         }
 
-        // 발사 시 약간의 스케일 효과
-        transform.DOScale(originalScale * 1.2f, 0.2f).SetEase(Ease.OutBack).OnComplete(() => {
-            transform.DOScale(originalScale, 0.2f);
-        });
+        // 중요: Lifetime 코루틴을 명시적으로 재시작
+        RestartLifetimeCountdown();
 
-        // 색상 깜빡임 효과가 없으면 기본 설정
-        if (colorSequence == null && spriteRenderer != null)
-        {
-            Color startColor = spriteRenderer.color;
-            Color targetColor = new Color(0.56f, 0f, 0f); // #8f0000
-
-            colorSequence = DOTween.Sequence();
-            colorSequence.Append(spriteRenderer.DOColor(targetColor, 0.3f).SetLoops(-1, LoopType.Yoyo));
-        }
+        // 색상 깜빡임 효과 시작
+        StartColorBlink(blinkInterval);
     }
+    private void RestartLifetimeCountdown()
+    {
+        // 기존 코루틴 중지
+        if (lifetimeCoroutine != null)
+        {
+            StopCoroutine(lifetimeCoroutine);
+            lifetimeCoroutine = null;
+        }
+
+        // 새 코루틴 시작
+        lifetimeCoroutine = StartCoroutine(LifetimeCountdown());
+
+        // 디버그 로그 추가
+        Debug.Log($"투사체 {GetInstanceID()} 수명 타이머 시작: {lifetime}초");
+    }
+
     public void ProjectileLaunched()
     {
         // 아직 Preparing 상태일 때만 상태 변경
@@ -192,6 +202,13 @@ public class WispProjectile : MonoBehaviour, IPooledObject
         if (spriteRenderer != null)
         {
             spriteRenderer.color = color;
+
+            // 중요: 색상 설정 후 DOTween 시퀀스 제거 (색상이 덮어씌워지지 않도록)
+            if (colorSequence != null)
+            {
+                colorSequence.Kill();
+                colorSequence = null;
+            }
         }
     }
 
@@ -202,21 +219,56 @@ public class WispProjectile : MonoBehaviour, IPooledObject
         if (colorSequence != null)
         {
             colorSequence.Kill();
+            colorSequence = null;
         }
 
         if (spriteRenderer != null)
         {
+            // 색상 초기화 (보장)
+            spriteRenderer.color = redColor;
+
+            // 새 시퀀스 생성 (명확한 루프 설정)
             colorSequence = DOTween.Sequence();
-            colorSequence.Append(spriteRenderer.DOColor(Color.white, interval).SetLoops(-1, LoopType.Yoyo));
+            colorSequence.Append(spriteRenderer.DOColor(whiteColor, interval / 2))
+                         .Append(spriteRenderer.DOColor(redColor, interval / 2))
+                         .SetLoops(-1, LoopType.Restart);
         }
     }
 
+
+    private float ColorDistance(Color a, Color b)
+    {
+        return Mathf.Sqrt(
+            Mathf.Pow(a.r - b.r, 2) +
+            Mathf.Pow(a.g - b.g, 2) +
+            Mathf.Pow(a.b - b.b, 2)
+        );
+    }
     // 수명 카운트다운 코루틴
     private IEnumerator LifetimeCountdown()
     {
-        yield return lifetimeWait;
+        float timeElapsed = 0f;
+        float checkInterval = 0.5f; // 주기적 확인 간격
 
-        // 수명이 다하면 풀로 반환
+        while (timeElapsed < lifetime)
+        {
+            yield return new WaitForSeconds(checkInterval);
+            timeElapsed += checkInterval;
+
+            // 안전 확인: 만약 객체가 비활성화되었다면 코루틴 종료
+            if (!gameObject.activeInHierarchy)
+            {
+                yield break;
+            }
+
+            // 디버그 용도로 주기적으로 남은 시간 로깅 (선택적)
+            if (timeElapsed % 1f < checkInterval)
+            {
+                Debug.Log($"투사체 {GetInstanceID()} 남은 수명: {lifetime - timeElapsed}초");
+            }
+        }
+
+        Debug.Log($"투사체 {GetInstanceID()} 수명 종료, 풀로 반환");
         ReturnToPool();
     }
 
@@ -311,12 +363,38 @@ public class WispProjectile : MonoBehaviour, IPooledObject
         {
             StopCoroutine(lifetimeCoroutine);
             lifetimeCoroutine = null;
+            Debug.Log($"투사체 {GetInstanceID()} 비활성화로 코루틴 중지");
         }
 
         // 활성 상태 끄기
         isActive = false;
     }
+    private void OnEnable()
+    {
+        // 활성화될 때마다 상태 초기화 (추가 보장)
+        currentState = ProjectileState.Preparing;
+        isActive = false;
 
+        // 색상 초기화
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = Color.white;
+        }
+
+        // 기존 시퀀스 정리
+        if (colorSequence != null)
+        {
+            colorSequence.Kill();
+            colorSequence = null;
+        }
+
+        // 리지드바디 초기화
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+    }
     // 객체 파괴 시 정리
     private void OnDestroy()
     {

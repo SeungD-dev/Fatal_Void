@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 30;
 
-        DOTween.SetTweensCapacity(200, 50);
+        DOTween.SetTweensCapacity(500, 125);
 
         if (instance == null)
         {

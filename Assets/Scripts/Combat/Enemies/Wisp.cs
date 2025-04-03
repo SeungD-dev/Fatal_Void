@@ -88,6 +88,10 @@ public class Wisp : EnemyAI
         // 발사 -> 추적: 발사가 완료되었을 때
         stateMachine.AddTransition(firingState, chasingState,
             new FuncPredicate(() => !isFiring));
+
+        // 중요: 모든 상태에서 유효하지 않은 상태로의 전환 방지
+        stateMachine.AddAnyTransition(idleState,
+            new FuncPredicate(() => !isActive || playerTransform == null || !IsPlayerAlive()));
     }
 
     protected override void Update()
@@ -124,7 +128,23 @@ public class Wisp : EnemyAI
                Time.time > lastFireTime + projectileCooldown &&
                (playerTransform.position - transform.position).sqrMagnitude <= sqrProjectileDetectionRange;
     }
+    private void CheckProjectilePoolStatus()
+    {
+        if (ObjectPool.Instance != null)
+        {
+            bool poolExists = ObjectPool.Instance.DoesPoolExist(PROJECTILE_POOL_TAG);
+            int availableCount = poolExists ? ObjectPool.Instance.GetAvailableCount(PROJECTILE_POOL_TAG) : 0;
 
+            Debug.Log($"투사체 풀 상태: 존재={poolExists}, 가용 투사체={availableCount}");
+
+            // 필요시 풀 크기 확보
+            if (poolExists && availableCount < projectileCount)
+            {
+                Debug.Log($"투사체 풀 확장: {projectileCount - availableCount}개 추가");
+                ObjectPool.Instance.ExpandPool(PROJECTILE_POOL_TAG, projectileCount - availableCount);
+            }
+        }
+    }
     public IEnumerator PrepareProjectile()
     {
         if (isPreparingProjectile || isFiring) yield break;
@@ -132,23 +152,114 @@ public class Wisp : EnemyAI
         isPreparingProjectile = true;
         GameObject projectile = null;
 
-        try
+        // 넉백 면역 설정
+        if (enemyComponent != null && isImmuneToKnockbackWhilePreparing)
         {
-            // 캐싱된 Enemy 컴포넌트를 사용하여 넉백 면역 설정
+            enemyComponent.SetKnockbackImmunity(true);
+        }
+
+        // 투사체 스폰
+        projectile = ObjectPool.Instance.SpawnFromPool(PROJECTILE_POOL_TAG, transform.position, Quaternion.identity);
+        if (projectile == null)
+        {
+            Debug.LogError("투사체 생성 실패");
+            isPreparingProjectile = false;
+
+            // 면역 해제
             if (enemyComponent != null && isImmuneToKnockbackWhilePreparing)
             {
-                enemyComponent.SetKnockbackImmunity(true);
+                enemyComponent.SetKnockbackImmunity(false);
             }
 
-            // 안구(Wisp의 피봇)에서 생성할 투사체 준비
-            projectile = ObjectPool.Instance.SpawnFromPool(PROJECTILE_POOL_TAG, transform.position, Quaternion.identity);
+            yield break;
+        }
 
-            if (projectile == null)
+        // 태그 설정
+        projectile.tag = "Projectile";
+
+        // 항상 직접 컴포넌트 참조를 가져오는 방식으로 변경
+        WispProjectile wispProjectile = projectile.GetComponent<WispProjectile>();
+        SpriteRenderer projectileSpriteRenderer = projectile.GetComponent<SpriteRenderer>();
+
+        // 캐시 업데이트
+        if (projectileComponents.Length > 0)
+        {
+            projectileComponents[0] = wispProjectile;
+        }
+
+        if (wispProjectile != null)
+        {
+            wispProjectile.SetOwner(transform);
+        }
+
+        // 투사체 초기화
+        projectile.SetActive(false);
+        projectile.transform.position = transform.position;
+
+        if (projectileSpriteRenderer != null)
+        {
+            projectileSpriteRenderer.color = Color.white;
+        }
+        projectile.SetActive(true);
+
+        // Wisp 색상 변경 애니메이션
+        if (spriteRenderer != null)
+        {
+            if (colorChangeSequence != null)
             {
-                Debug.LogError($"Wisp_Projectile 풀에서 투사체를 생성할 수 없습니다. 풀이 초기화되었는지 확인하세요.");
+                colorChangeSequence.Kill();
+            }
+
+            colorChangeSequence = DOTween.Sequence();
+            colorChangeSequence.Append(
+                DOTween.To(() => spriteRenderer.color, x => spriteRenderer.color = x, chargeColor, projectilePrepareTime)
+                .SetEase(Ease.InQuad)
+            );
+        }
+
+        // 투사체 상승 애니메이션
+        Vector3 targetPosition = transform.position + Vector3.up * floatHeight;
+        projectile.transform.DOMove(targetPosition, projectilePrepareTime).SetEase(Ease.OutQuad);
+
+        // 투사체 색상 변경 애니메이션
+        if (projectileSpriteRenderer != null)
+        {
+            Sequence projectileColorSequence = DOTween.Sequence();
+            projectileColorSequence.Append(
+                DOTween.To(() => projectileSpriteRenderer.color,
+                            x => projectileSpriteRenderer.color = x,
+                            chargeColor, projectilePrepareTime)
+                .SetEase(Ease.InQuad)
+            );
+
+            // 색상 깜빡임 효과
+            for (int i = 0; i < 3; i++)
+            {
+                float startTime = projectilePrepareTime * 0.6f + (i * 0.3f);
+                float duration = 0.15f;
+
+                projectileColorSequence.Insert(startTime,
+                    projectileSpriteRenderer.DOColor(Color.white, duration)
+                    .SetLoops(2, LoopType.Yoyo));
+            }
+        }
+
+        // 안전한 대기 구현 - try/catch 밖에서 yield 사용
+        float elapsed = 0f;
+        float checkInterval = 0.1f;
+
+        while (elapsed < projectilePrepareTime)
+        {
+            // 대기 중 객체가 비활성화되면 투사체 정리
+            if (!gameObject.activeInHierarchy)
+            {
+                if (projectile != null && projectile.activeInHierarchy)
+                {
+                    ObjectPool.Instance.ReturnToPool(PROJECTILE_POOL_TAG, projectile);
+                }
+
                 isPreparingProjectile = false;
 
-                // 넉백 면역 해제
                 if (enemyComponent != null && isImmuneToKnockbackWhilePreparing)
                 {
                     enemyComponent.SetKnockbackImmunity(false);
@@ -157,101 +268,9 @@ public class Wisp : EnemyAI
                 yield break;
             }
 
-            // 중요: 태그 설정 - 투사체 정리 시 필요
-            projectile.tag = "Projectile";
-
-            // 투사체 컴포넌트 캐싱 (성능 최적화)
-            SpriteRenderer projectileSpriteRenderer = null;
-            WispProjectile wispProjectile = null;
-
-            // 처음 생성된 투사체라면 컴포넌트 참조 캐싱
-            if (projectileComponents[0] == null)
-            {
-                wispProjectile = projectile.GetComponent<WispProjectile>();
-                projectileComponents[0] = wispProjectile;
-                projectileSpriteRenderer = projectile.GetComponent<SpriteRenderer>();
-            }
-            else
-            {
-                // 이미 캐싱된 참조가 있다면 재사용
-                wispProjectile = projectileComponents[0];
-                projectileSpriteRenderer = wispProjectile != null ?
-                    wispProjectile.GetSpriteRenderer() : projectile.GetComponent<SpriteRenderer>();
-            }
-
-            // 투사체에 소유자 설정 (투사체가 Wisp 비활성화를 감지할 수 있도록)
-            if (wispProjectile != null)
-            {
-                wispProjectile.SetOwner(transform);
-            }
-
-            // 투사체 초기화 및 비활성화
-            projectile.SetActive(false);
-
-            // 투사체 위치 초기화 (Wisp의 피봇 위치)
-            projectile.transform.position = transform.position;
-
-            // 투사체 색상 설정 및 활성화
-            if (projectileSpriteRenderer != null)
-            {
-                projectileSpriteRenderer.color = Color.white;
-            }
-            projectile.SetActive(true);
-
-            // Wisp 색상 변경 애니메이션
-            if (spriteRenderer != null)
-            {
-                if (colorChangeSequence != null)
-                {
-                    colorChangeSequence.Kill();
-                }
-
-                colorChangeSequence = DOTween.Sequence();
-                colorChangeSequence.Append(
-                    DOTween.To(() => spriteRenderer.color, x => spriteRenderer.color = x, chargeColor, projectilePrepareTime)
-                    .SetEase(Ease.InQuad)
-                );
-            }
-
-            // 투사체를 머리 위로 천천히 띄우는 애니메이션
-            Vector3 targetPosition = transform.position + Vector3.up * floatHeight;
-            projectile.transform.DOMove(targetPosition, projectilePrepareTime).SetEase(Ease.OutQuad);
-
-            // 투사체 색상 변경 애니메이션
-            if (projectileSpriteRenderer != null)
-            {
-                Sequence projectileColorSequence = DOTween.Sequence();
-                projectileColorSequence.Append(
-                    DOTween.To(() => projectileSpriteRenderer.color, x => projectileSpriteRenderer.color = x, chargeColor, projectilePrepareTime)
-                    .SetEase(Ease.InQuad)
-                );
-
-                // 색상 깜빡임 효과 추가
-                for (int i = 0; i < 3; i++)
-                {
-                    float startTime = projectilePrepareTime * 0.6f + (i * 0.3f);
-                    float duration = 0.15f;
-
-                    projectileColorSequence.Insert(startTime,
-                        projectileSpriteRenderer.DOColor(Color.white, duration).SetLoops(2, LoopType.Yoyo));
-                }
-            }
+            yield return new WaitForSeconds(checkInterval);
+            elapsed += checkInterval;
         }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Error during projectile preparation: {e.Message}");
-            // 오류 발생 시 투사체 정리
-            if (projectile != null && projectile.activeInHierarchy)
-            {
-                ObjectPool.Instance.ReturnToPool(PROJECTILE_POOL_TAG, projectile);
-            }
-
-            isPreparingProjectile = false;
-            yield break;
-        }
-
-        // try-catch 블록 밖에서 yield return 사용
-        yield return projectilePreparationWait;
 
         // 준비 완료 후 확인
         if (!gameObject.activeInHierarchy)
@@ -266,9 +285,10 @@ public class Wisp : EnemyAI
         {
             // 준비된 투사체를 활성화 리스트에 추가
             activeProjectiles.Add(projectile);
+            Debug.Log($"투사체가 준비 완료되었습니다: {projectile.GetInstanceID()}");
         }
 
-        // 준비 완료
+        // 준비 상태 종료 (발사 대기 상태로)
         isPreparingProjectile = false;
     }
     // 투사체 발사 코루틴
@@ -278,130 +298,118 @@ public class Wisp : EnemyAI
 
         isFiring = true;
         lastFireTime = Time.time;
-
-        // 모든 투사체가 발사되었는지 추적하는 플래그
         bool allProjectilesLaunched = false;
-
-        // 발사된 투사체 목록 추적 (발사 후 정리를 위해)
         List<GameObject> launchedProjectiles = new List<GameObject>();
 
         try
         {
-            // 이미 준비된 투사체가 있는지 확인
+            // 투사체 발사 위치 결정
+            Vector3 spawnPosition = transform.position + Vector3.up * floatHeight;
+
+            // 첫 번째 투사체 처리
+            GameObject firstProjectile = null;
+
+            // 준비된 투사체가 있으면 사용
             if (activeProjectiles.Count > 0)
             {
-                // 첫 번째 투사체를 사용하여 추가 투사체 생성 및 발사
-                GameObject firstProjectile = activeProjectiles[0];
-                Vector3 startPosition = firstProjectile.transform.position;
-
-                // 첫 번째 투사체 발사
-                LaunchProjectile(firstProjectile, 0);
-                launchedProjectiles.Add(firstProjectile);
-
-                // 추가 투사체 생성 및 발사
-                for (int i = 1; i < projectileCount; i++)
-                {
-                    yield return betweenProjectilesWait;
-
-                    // 발사 중에 비활성화되었는지 확인
-                    if (!gameObject.activeInHierarchy)
-                    {
-                        Debug.Log("Wisp was deactivated during projectile firing");
-                        break;
-                    }
-
-                    GameObject projectile = ObjectPool.Instance.SpawnFromPool(PROJECTILE_POOL_TAG, startPosition, Quaternion.identity);
-                    if (projectile != null)
-                    {
-                        // 투사체 컴포넌트 캐싱 및 색상 설정
-                        if (i < projectileComponents.Length && projectileComponents[i] == null)
-                        {
-                            projectileComponents[i] = projectile.GetComponent<WispProjectile>();
-                        }
-
-                        // 캐싱된 컴포넌트 사용
-                        WispProjectile wispProjectile = i < projectileComponents.Length ?
-                            projectileComponents[i] : projectile.GetComponent<WispProjectile>();
-
-                        if (wispProjectile != null)
-                        {
-                            wispProjectile.SetInitialColor(chargeColor);
-                            // 투사체에 소유자 설정
-                            wispProjectile.SetOwner(transform);
-                        }
-
-                        // 투사체 발사
-                        LaunchProjectile(projectile, i);
-                        launchedProjectiles.Add(projectile);
-                    }
-                }
-
-                // 모든 투사체 발사 완료
-                allProjectilesLaunched = true;
+                firstProjectile = activeProjectiles[0];
+                spawnPosition = firstProjectile.transform.position; // 준비된 위치 사용
             }
             else
             {
-                // 준비된 투사체가 없으면 바로 투사체 생성 및 발사
-                for (int i = 0; i < projectileCount; i++)
+                // 없으면 새로 생성
+                firstProjectile = ObjectPool.Instance.SpawnFromPool(PROJECTILE_POOL_TAG, spawnPosition, Quaternion.identity);
+                if (firstProjectile == null)
                 {
-                    if (i > 0) yield return betweenProjectilesWait;
-
-                    // 발사 중에 비활성화되었는지 확인
-                    if (!gameObject.activeInHierarchy)
-                    {
-                        Debug.Log("Wisp was deactivated during projectile firing");
-                        break;
-                    }
-
-                    GameObject projectile = ObjectPool.Instance.SpawnFromPool(PROJECTILE_POOL_TAG, transform.position, Quaternion.identity);
-                    if (projectile != null)
-                    {
-                        // 태그 설정 (정리 목적)
-                        projectile.tag = "Projectile";
-
-                        // 투사체 컴포넌트 캐싱
-                        if (i < projectileComponents.Length && projectileComponents[i] == null)
-                        {
-                            projectileComponents[i] = projectile.GetComponent<WispProjectile>();
-                        }
-
-                        WispProjectile wispProjectile = i < projectileComponents.Length ?
-                            projectileComponents[i] : projectile.GetComponent<WispProjectile>();
-
-                        if (wispProjectile != null)
-                        {
-                            // 캐싱된 컴포넌트 사용하여 색상 설정 및 깜빡임 효과 추가
-                            wispProjectile.SetInitialColor(chargeColor);
-                            wispProjectile.StartColorBlink(0.3f);
-                            // 투사체에 소유자 설정
-                            wispProjectile.SetOwner(transform);
-                        }
-
-                        // 투사체 발사
-                        LaunchProjectile(projectile, i);
-                        launchedProjectiles.Add(projectile);
-                    }
+                    Debug.LogError("첫 번째 투사체 생성 실패");
+                    isFiring = false;
+                    yield break;
                 }
 
-                // 모든 투사체 발사 완료
-                allProjectilesLaunched = true;
+                // 태그 설정
+                firstProjectile.tag = "Projectile";
             }
 
-            // 중요: 투사체 발사 후 약간의 지연 추가
-            // 이렇게 하면 투사체가 확실히 움직이기 시작했음을 보장함
-            yield return new WaitForSeconds(0.1f);
+            // 첫 번째 투사체 초기화 - 컴포넌트를 매번 새로 가져오는 것이 안전
+            WispProjectile firstWispProjectile = firstProjectile.GetComponent<WispProjectile>();
+
+            // 중요: 컴포넌트 캐시 업데이트
+            if (projectileComponents.Length > 0)
+            {
+                projectileComponents[0] = firstWispProjectile;
+            }
+
+            if (firstWispProjectile != null)
+            {
+                firstWispProjectile.SetOwner(transform);
+                firstWispProjectile.SetInitialColor(chargeColor);
+            }
+
+            // 첫 번째 투사체 발사
+            LaunchProjectileDirectly(firstProjectile);
+            launchedProjectiles.Add(firstProjectile);
+
+            Debug.Log($"첫 번째 투사체 발사: {firstProjectile.GetInstanceID()}");
+
+            // 나머지 투사체 발사
+            for (int i = 1; i < projectileCount; i++)
+            {
+                yield return betweenProjectilesWait;
+
+                // 상태 체크
+                if (!gameObject.activeInHierarchy)
+                {
+                    Debug.LogWarning("발사 중 Wisp 비활성화");
+                    break;
+                }
+
+                // 항상 새 투사체 생성
+                GameObject projectile = ObjectPool.Instance.SpawnFromPool(PROJECTILE_POOL_TAG, spawnPosition, Quaternion.identity);
+                if (projectile != null)
+                {
+                    projectile.tag = "Projectile";
+
+                    // 컴포넌트 가져오기 (매번 새로 가져옴)
+                    WispProjectile wispProjectile = projectile.GetComponent<WispProjectile>();
+
+                    // 중요: 컴포넌트 캐시 업데이트
+                    if (i < projectileComponents.Length)
+                    {
+                        projectileComponents[i] = wispProjectile;
+                    }
+
+                    if (wispProjectile != null)
+                    {
+                        wispProjectile.SetOwner(transform);
+                        wispProjectile.SetInitialColor(chargeColor);
+
+                        // 직접 Launch 호출하는 메서드로 변경
+                        LaunchProjectileDirectly(projectile);
+                        launchedProjectiles.Add(projectile);
+
+                        Debug.Log($"투사체 {i} 발사: {projectile.GetInstanceID()}");
+                    }
+                }
+            }
+
+            // 모든 투사체 발사 완료
+            allProjectilesLaunched = true;
+
+            // 발사 후 약간의 지연
+            yield return new WaitForSeconds(0.2f);
         }
         finally
         {
-            // Wisp 색상 원래대로 복원
+            // Wisp 색상 복원
             if (spriteRenderer != null)
             {
                 spriteRenderer.DOColor(originalColor, 1f).SetEase(Ease.OutQuad);
             }
 
-            // 넉백 면역 해제 (단, 모든 투사체가 성공적으로 발사된 경우에만)
-            if (allProjectilesLaunched && enemyComponent != null && isImmuneToKnockbackWhilePreparing)
+            // 넉백 면역 해제
+            if (enemyComponent != null && isImmuneToKnockbackWhilePreparing)
             {
+                Debug.Log("발사 완료 후 넉백 면역 해제");
                 enemyComponent.SetKnockbackImmunity(false);
             }
 
@@ -414,15 +422,44 @@ public class Wisp : EnemyAI
             // 발사된 투사체에 발사 완료 알림
             foreach (GameObject proj in launchedProjectiles)
             {
-                WispProjectile wispProj = proj.GetComponent<WispProjectile>();
-                if (wispProj != null)
+                if (proj != null && proj.activeInHierarchy)
                 {
-                    wispProj.ProjectileLaunched();
+                    WispProjectile wispProj = proj.GetComponent<WispProjectile>();
+                    if (wispProj != null)
+                    {
+                        wispProj.ProjectileLaunched();
+                    }
                 }
             }
         }
     }
+    private void LaunchProjectileDirectly(GameObject projectile)
+    {
+        if (projectile == null || playerTransform == null) return;
 
+        // 플레이어 방향으로 벡터 계산
+        Vector2 direction = (playerTransform.position - projectile.transform.position).normalized;
+
+        // 컴포넌트는 한 번만 가져오기
+        WispProjectile wispProjectile = projectile.GetComponent<WispProjectile>();
+
+        if (wispProjectile != null)
+        {
+            // Launch 메서드 호출 (내부에서 캐싱된 rb 사용)
+            wispProjectile.Launch(direction, projectileSpeed);
+        }
+        else
+        {
+            // 안전장치
+            Debug.LogWarning("WispProjectile 컴포넌트가 없습니다!");
+            Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+                rb.linearVelocity = direction * projectileSpeed;
+            }
+        }
+    }
     // 투사체 발사 로직 - 인덱스 기반 캐싱 활용
     private void LaunchProjectile(GameObject projectile, int index)
     {
@@ -431,40 +468,32 @@ public class Wisp : EnemyAI
         // 플레이어 방향으로 벡터 계산
         Vector2 direction = (playerTransform.position - projectile.transform.position).normalized;
 
-        // 투사체 컴포넌트 캐싱 활용
-        WispProjectile wispProjectile = null;
+        // 캐싱 활용 (단축)
+        WispProjectile wispProjectile = (index < projectileComponents.Length)
+            ? projectileComponents[index]
+            : projectile.GetComponent<WispProjectile>();
 
-        // 캐싱된 컴포넌트가 있는지 확인
-        if (index < projectileComponents.Length && projectileComponents[index] != null)
-        {
-            wispProjectile = projectileComponents[index];
-        }
-        else if (index < projectileComponents.Length)
-        {
-            // 아직 캐싱되지 않았다면 캐싱
-            wispProjectile = projectile.GetComponent<WispProjectile>();
-            projectileComponents[index] = wispProjectile;
-        }
-        else
-        {
-            // 배열 범위를 벗어나면 직접 가져옴
-            wispProjectile = projectile.GetComponent<WispProjectile>();
-        }
-
-        // 투사체에 소유자 설정 (투사체가 Wisp 비활성화를 감지할 수 있도록)
         if (wispProjectile != null)
         {
+            // 소유자 설정 및 발사
             wispProjectile.SetOwner(transform);
+
+            // 중요: 발사 전 확실하게 초기 색상 설정
+            wispProjectile.SetInitialColor(chargeColor);
 
             // 투사체 발사
             wispProjectile.Launch(direction, projectileSpeed);
+
+            // 명시적으로 색상 깜빡임 시작 - 모든 투사체에 동일하게 적용
+            wispProjectile.StartColorBlink(0.15f); // 깜빡임 간격 명시
         }
         else
         {
-            // 최후의 수단으로 Rigidbody2D 직접 접근
+            // 최후의 수단
             Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
             if (rb != null)
             {
+                rb.linearVelocity = Vector2.zero; // 초기화 중요
                 rb.linearVelocity = direction * projectileSpeed;
             }
         }
@@ -592,6 +621,7 @@ public class Wisp : EnemyAI
     {
         private readonly Wisp wisp;
         private Coroutine firingCoroutine;
+        private bool stateActive = false;
 
         public FiringState(Wisp wisp)
         {
@@ -600,12 +630,26 @@ public class Wisp : EnemyAI
 
         public void OnEnter()
         {
-            // 투사체 발사 코루틴 시작
+            stateActive = true;
+
+            // 이전에 실행 중인 코루틴이 있다면 중지
+            if (firingCoroutine != null)
+            {
+                wisp.StopCoroutine(firingCoroutine);
+            }
+
+            // 중요: 투사체 발사 코루틴 시작 전 로그
+            Debug.Log("FiringState 시작: 투사체 발사 코루틴 시작");
             firingCoroutine = wisp.StartCoroutine(wisp.FireProjectiles());
         }
 
         public void OnExit()
         {
+            stateActive = false;
+
+            // 중요: 상태 종료 시 명확한 로그
+            Debug.Log("FiringState 종료");
+
             // 코루틴이 여전히 실행 중이라면 중지
             if (firingCoroutine != null)
             {
