@@ -19,8 +19,8 @@ MonoBehaviour:
     spawnInterval: 3
     spawnAmount: 3
     spawnSettings:
-      formation: 5
-      surroundDistance: 3
+      formation: 2
+      surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -10, y: 0}
       lineEnd: {x: 10, y: 0}
@@ -36,9 +36,9 @@ MonoBehaviour:
     spawnInterval: 2.5
     spawnAmount: 5
     spawnSettings:
-      formation: 0
-      surroundDistance: 0
-      angleOffset: 0
+      formation: 2
+      surroundDistance: 5
+      angleOffset: 360
       lineStart: {x: -10, y: 0}
       lineEnd: {x: 10, y: 0}
       enemiesPerSpawnPoint: 1
@@ -53,7 +53,7 @@ MonoBehaviour:
     spawnInterval: 2.5
     spawnAmount: 7
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -72,7 +72,7 @@ MonoBehaviour:
     spawnInterval: 2.5
     spawnAmount: 9
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -91,7 +91,7 @@ MonoBehaviour:
     spawnInterval: 2.5
     spawnAmount: 12
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -112,7 +112,7 @@ MonoBehaviour:
     spawnInterval: 2
     spawnAmount: 10
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -133,7 +133,7 @@ MonoBehaviour:
     spawnInterval: 2
     spawnAmount: 12
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -154,7 +154,7 @@ MonoBehaviour:
     spawnInterval: 2
     spawnAmount: 14
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -175,7 +175,7 @@ MonoBehaviour:
     spawnInterval: 2
     spawnAmount: 5
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -215,7 +215,7 @@ MonoBehaviour:
     spawnInterval: 2
     spawnAmount: 15
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -236,7 +236,7 @@ MonoBehaviour:
     spawnInterval: 2
     spawnAmount: 15
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -257,7 +257,7 @@ MonoBehaviour:
     spawnInterval: 2
     spawnAmount: 15
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -322,7 +322,7 @@ MonoBehaviour:
     spawnInterval: 2
     spawnAmount: 15
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -391,7 +391,7 @@ MonoBehaviour:
     spawnInterval: 2
     spawnAmount: 20
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}
@@ -408,7 +408,7 @@ MonoBehaviour:
     spawnInterval: 2
     spawnAmount: 15
     spawnSettings:
-      formation: 0
+      formation: 2
       surroundDistance: 5
       angleOffset: 360
       lineStart: {x: -20, y: 0}

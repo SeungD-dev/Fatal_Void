@@ -70,13 +70,13 @@ MonoBehaviour:
     regenValue: 0
     regenHasteIncrease: 0
   currentTier: 1
-  tier1Price: 45
-  tier2Price: 90
-  tier3Price: 180
-  tier4Price: 360
+  tier1Price: 50
+  tier2Price: 100
+  tier3Price: 200
+  tier4Price: 400
   sellPriceRatio: 0.5
   tierStats:
-  - damage: 30
+  - damage: 25
     attackDelay: 3
     projectileSpeed: 3.5
     knockback: 1.5
@@ -92,7 +92,7 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
-  - damage: 45
+  - damage: 40
     attackDelay: 2.8
     projectileSpeed: 3.75
     knockback: 1.5
@@ -124,7 +124,7 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
-  - damage: 75
+  - damage: 80
     attackDelay: 2.4
     projectileSpeed: 4.5
     knockback: 1.5

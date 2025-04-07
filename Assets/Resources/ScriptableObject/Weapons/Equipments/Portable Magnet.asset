@@ -27,7 +27,7 @@ MonoBehaviour:
     healthIncrease: 0
     regenIncrease: 0
     hasteValue: 0
-    pickupRangeIncrease: 25
+    pickupRangeIncrease: 10
     enableAutoMagnet: 0
     knockbackIncrease: 0
     knockbackPowerIncrease: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
     healthIncrease: 0
     regenIncrease: 0
     hasteValue: 0
-    pickupRangeIncrease: 50
+    pickupRangeIncrease: 20
     enableAutoMagnet: 0
     knockbackIncrease: 0
     knockbackPowerIncrease: 0
@@ -51,7 +51,7 @@ MonoBehaviour:
     healthIncrease: 0
     regenIncrease: 0
     hasteValue: 0
-    pickupRangeIncrease: 75
+    pickupRangeIncrease: 30
     enableAutoMagnet: 0
     knockbackIncrease: 0
     knockbackPowerIncrease: 0
@@ -63,7 +63,7 @@ MonoBehaviour:
     healthIncrease: 0
     regenIncrease: 0
     hasteValue: 0
-    pickupRangeIncrease: 100
+    pickupRangeIncrease: 40
     enableAutoMagnet: 1
     knockbackIncrease: 0
     knockbackPowerIncrease: 0

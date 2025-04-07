@@ -18,8 +18,8 @@ MonoBehaviour:
   enemyType: 3
   baseHealth: 45
   maxPossibleHealth: 900
-  baseDamage: 4
+  baseDamage: 5
   moveSpeed: 0.75
   initialPoolSize: 10
   dropTable: {fileID: 11400000, guid: cf0e961c75dce2d4b85d9dc10b1625ed, type: 2}
-  additionalDropRate: 15
+  additionalDropRate: 0.5

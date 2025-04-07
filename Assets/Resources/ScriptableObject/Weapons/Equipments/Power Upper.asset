@@ -21,6 +21,18 @@ MonoBehaviour:
   inventoryWeaponIcon: {fileID: 8864161598196001867, guid: 23d223e2023842d40aadad807faf21ff, type: 3}
   equipmentType: 1
   equipmentTierStats:
+  - powerIncrease: 5
+    speedIncrease: 0
+    hasteIncrease: 0
+    healthIncrease: 0
+    regenIncrease: 0
+    hasteValue: 0
+    pickupRangeIncrease: 0
+    enableAutoMagnet: 0
+    knockbackIncrease: 0
+    knockbackPowerIncrease: 0
+    regenValue: 0
+    regenHasteIncrease: 0
   - powerIncrease: 10
     speedIncrease: 0
     hasteIncrease: 0
@@ -33,7 +45,7 @@ MonoBehaviour:
     knockbackPowerIncrease: 0
     regenValue: 0
     regenHasteIncrease: 0
-  - powerIncrease: 20
+  - powerIncrease: 15
     speedIncrease: 0
     hasteIncrease: 0
     healthIncrease: 0
@@ -45,19 +57,7 @@ MonoBehaviour:
     knockbackPowerIncrease: 0
     regenValue: 0
     regenHasteIncrease: 0
-  - powerIncrease: 30
-    speedIncrease: 0
-    hasteIncrease: 0
-    healthIncrease: 0
-    regenIncrease: 0
-    hasteValue: 0
-    pickupRangeIncrease: 0
-    enableAutoMagnet: 0
-    knockbackIncrease: 0
-    knockbackPowerIncrease: 0
-    regenValue: 0
-    regenHasteIncrease: 0
-  - powerIncrease: 50
+  - powerIncrease: 25
     speedIncrease: 0
     hasteIncrease: 0
     healthIncrease: 0

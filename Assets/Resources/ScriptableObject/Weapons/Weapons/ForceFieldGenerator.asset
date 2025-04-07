@@ -79,7 +79,7 @@ MonoBehaviour:
   - damage: 6
     attackDelay: 0.5
     projectileSpeed: 10
-    knockback: 1
+    knockback: 0
     projectileSize: 0
     range: 0
     canPenetrate: 0
@@ -95,7 +95,7 @@ MonoBehaviour:
   - damage: 12
     attackDelay: 0.5
     projectileSpeed: 10
-    knockback: 1
+    knockback: 0
     projectileSize: 0
     range: 0
     canPenetrate: 0
@@ -111,7 +111,7 @@ MonoBehaviour:
   - damage: 18
     attackDelay: 0.5
     projectileSpeed: 10
-    knockback: 1.5
+    knockback: 1
     projectileSize: 0
     range: 0
     canPenetrate: 0

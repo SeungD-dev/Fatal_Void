@@ -76,10 +76,10 @@ MonoBehaviour:
   tier4Price: 200
   sellPriceRatio: 0.5
   tierStats:
-  - damage: 2
+  - damage: 3
     attackDelay: 0.2
     projectileSpeed: 4.5
-    knockback: 0.8
+    knockback: 1
     projectileSize: 2
     range: 5
     canPenetrate: 0
@@ -92,10 +92,10 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
-  - damage: 3
+  - damage: 4
     attackDelay: 0.18
     projectileSpeed: 4.5
-    knockback: 0.8
+    knockback: 1
     projectileSize: 2
     range: 5
     canPenetrate: 0
@@ -111,7 +111,7 @@ MonoBehaviour:
   - damage: 5
     attackDelay: 0.16
     projectileSpeed: 4.5
-    knockback: 0.8
+    knockback: 1.2
     projectileSize: 2
     range: 5
     canPenetrate: 0
@@ -124,10 +124,10 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
-  - damage: 6.5
+  - damage: 7
     attackDelay: 0.14
     projectileSpeed: 4.5
-    knockback: 0.8
+    knockback: 1.5
     projectileSize: 2
     range: 5
     canPenetrate: 0
