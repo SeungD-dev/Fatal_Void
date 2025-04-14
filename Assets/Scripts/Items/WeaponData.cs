@@ -123,7 +123,16 @@ public class WeaponDataEditor : Editor
     private SerializedProperty tier4Price;
     private SerializedProperty equipmentType;
     private SerializedProperty equipmentTierStats;
-
+    private SerializedProperty supportsXTier;
+    private SerializedProperty xTierStats;
+    private SerializedProperty xTierPrice;
+    private SerializedProperty xTierProjectilePrefab;
+    private SerializedProperty xTierWeaponIcon;
+    private SerializedProperty xTierInventoryWeaponIcon;
+    private SerializedProperty xTierWidth;
+    private SerializedProperty xTierHeight;
+    private SerializedProperty xTierWeaponName;
+    private SerializedProperty xTierWeaponDescription;
     private void OnEnable()
     {
         width = serializedObject.FindProperty("width");
@@ -144,6 +153,16 @@ public class WeaponDataEditor : Editor
         tier4Price = serializedObject.FindProperty("tier4Price");
         equipmentType = serializedObject.FindProperty("equipmentType");
         equipmentTierStats = serializedObject.FindProperty("equipmentTierStats");
+        supportsXTier = serializedObject.FindProperty("supportsXTier");
+        xTierStats = serializedObject.FindProperty("xTierStats");
+        xTierPrice = serializedObject.FindProperty("xTierPrice");
+        xTierProjectilePrefab = serializedObject.FindProperty("xTierProjectilePrefab");
+        xTierWeaponIcon = serializedObject.FindProperty("xTierWeaponIcon");
+        xTierInventoryWeaponIcon = serializedObject.FindProperty("xTierInventoryWeaponIcon");
+        xTierWidth = serializedObject.FindProperty("xTierWidth");
+        xTierHeight = serializedObject.FindProperty("xTierHeight");
+        xTierWeaponName = serializedObject.FindProperty("xTierWeaponName");
+        xTierWeaponDescription = serializedObject.FindProperty("xTierWeaponDescription");
     }
 
     public override void OnInspectorGUI()
@@ -158,6 +177,10 @@ public class WeaponDataEditor : Editor
         DrawTierConfiguration();
         EditorGUILayout.Space();
 
+        // X-Tier 설정 추가
+        DrawXTierConfiguration();
+        EditorGUILayout.Space();
+
         // WeaponType이 Equipment일 때는 Equipment 설정을, 아닐 때는 일반 무기 설정을 보여줌
         if (weaponData.weaponType == WeaponType.Equipment)
         {
@@ -166,6 +189,12 @@ public class WeaponDataEditor : Editor
         else
         {
             DrawTierStats(weaponData);
+
+            // X-Tier 스탯 설정 (활성화된 경우에만)
+            if (weaponData.supportsXTier)
+            {
+                DrawXTierStats(weaponData);
+            }
         }
 
         serializedObject.ApplyModifiedProperties();
@@ -355,6 +384,109 @@ public class WeaponDataEditor : Editor
         }
         EditorGUI.indentLevel--;
     }
+
+    // X-Tier 설정 UI 그리기
+    private void DrawXTierConfiguration()
+    {
+        EditorGUILayout.LabelField("X-Tier Configuration", EditorStyles.boldLabel);
+
+        // X-Tier 지원 여부 토글
+        EditorGUILayout.PropertyField(supportsXTier, new GUIContent("Supports X-Tier", "이 무기가 X-Tier 업그레이드를 지원하는지 여부"));
+
+        // X-Tier가 활성화된 경우에만 추가 설정 표시
+        if (supportsXTier.boolValue)
+        {
+            EditorGUI.indentLevel++;
+
+            // X-Tier 기본 설정
+            EditorGUILayout.LabelField("X-Tier Basic Settings", EditorStyles.boldLabel);
+
+            // 크기 설정
+            EditorGUILayout.PropertyField(xTierWidth, new GUIContent("X-Tier Width", "X-Tier 무기 너비"));
+            EditorGUILayout.PropertyField(xTierHeight, new GUIContent("X-Tier Height", "X-Tier 무기 높이"));
+
+            // 아이콘 설정
+            EditorGUILayout.PropertyField(xTierWeaponIcon, new GUIContent("X-Tier Weapon Icon", "X-Tier 무기 아이콘"));
+            EditorGUILayout.PropertyField(xTierInventoryWeaponIcon, new GUIContent("X-Tier Inventory Icon", "X-Tier 인벤토리 아이콘"));
+
+            // 이름 및 설명
+            EditorGUILayout.PropertyField(xTierWeaponName, new GUIContent("X-Tier Name", "X-Tier 무기 이름 (비워두면 기본 형식 사용)"));
+            EditorGUILayout.PropertyField(xTierWeaponDescription, new GUIContent("X-Tier Description", "X-Tier 무기 설명"));
+
+            // X-Tier 가격
+            EditorGUILayout.PropertyField(xTierPrice, new GUIContent("X-Tier Price", "X-Tier 무기 가격"));
+
+            // X-Tier 전용 투사체 프리팹 (일반 무기만 해당)
+            WeaponData weaponData = (WeaponData)target;
+            if (weaponData.weaponType != WeaponType.Equipment)
+            {
+                EditorGUILayout.PropertyField(xTierProjectilePrefab, new GUIContent("X-Tier Projectile Prefab", "X-Tier 전용 투사체 프리팹 (설정하지 않으면 기본 프리팹 사용)"));
+            }
+
+            EditorGUI.indentLevel--;
+        }
+    }
+
+    private void DrawXTierStats(WeaponData weaponData)
+    {
+        using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            EditorGUILayout.LabelField("X-Tier (Tier 5)", EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+
+            SerializedProperty xTierStatProperty = xTierStats;
+
+            // 기본 스탯들
+            EditorGUILayout.LabelField("Basic Stats", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("damage"));
+            EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("attackDelay"));
+            EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("projectileSpeed"));
+            EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("knockback"));
+            EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("projectileSize"));
+            EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("range"));
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Projectile Properties", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("canPenetrate"));
+            EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("maxPenetrationCount"));
+            EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("penetrationDamageDecay"));
+
+            // 무기 타입별 추가 속성
+            if (weaponData.weaponType == WeaponType.Shotgun)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Shotgun Properties", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("projectileCount"),
+                    new GUIContent("Projectile Count", "샷건의 발사 투사체 수"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("spreadAngle"),
+                    new GUIContent("Spread Angle", "샷건의 발사 각도 범위 (도)"));
+            }
+            else if (weaponData.weaponType == WeaponType.Grinder)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Grinder Properties", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("attackRadius"),
+                    new GUIContent("Attack Radius", "장판 공격 범위"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("groundEffectDuration"),
+                    new GUIContent("Ground Effect Duration", "장판 지속 시간"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("damageTickInterval"),
+                    new GUIContent("Damage Tick Interval", "장판 대미지 틱 간격"));
+            }
+            else if (weaponData.weaponType == WeaponType.ForceFieldGenerator)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Force Field Properties", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("forceFieldRadius"),
+                    new GUIContent("Force Field Radius", "포스 필드의 공격 범위"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("forceFieldTickInterval"),
+                    new GUIContent("Damage Tick Interval", "대미지가 적용되는 시간 간격"));
+            }
+
+            EditorGUI.indentLevel--;
+        }
+
+        EditorGUILayout.Space();
+    }
 }
 #endif
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Inventory/Weapon")]
@@ -384,6 +516,20 @@ public class WeaponData : ScriptableObject
     [Tooltip("현재 무기의 티어")]
     public int currentTier = 1;
 
+    [Header("X-Tier Configuration")]
+    [Tooltip("X-티어(Tier 5) 무기 설정")]
+    public bool supportsXTier = false;
+    public Sprite xTierWeaponIcon;         // X-티어 무기 아이콘
+    public Sprite xTierInventoryWeaponIcon; // X-티어 인벤토리 아이콘
+    public int xTierWidth = 1;             // X-티어 무기 너비
+    public int xTierHeight = 1;            // X-티어 무기 높이
+    public string xTierWeaponName;         // X-티어 무기 이름
+    [TextArea(3, 5)]
+    public string xTierWeaponDescription;  // X-티어 무기 설명
+    public TierStats xTierStats = new TierStats();
+    public int xTierPrice;
+    public GameObject xTierProjectilePrefab; // X-티어 전용 투사체 프리팹
+
     [Header("Tier Prices")]
     public int tier1Price;
     public int tier2Price;
@@ -392,6 +538,7 @@ public class WeaponData : ScriptableObject
     [SerializeField] private float sellPriceRatio = 0.5f;
 
     private int currentPrice = -1;
+
 
     public int price
     {
@@ -408,6 +555,7 @@ public class WeaponData : ScriptableObject
                 2 => tier2Price,
                 3 => tier3Price,
                 4 => tier4Price,
+                5 => xTierPrice,
                 _ => tier1Price
             };
         }
@@ -422,13 +570,14 @@ public class WeaponData : ScriptableObject
     private static readonly Color tier2Color = new Color(0.3f, 1f, 0.3f);  // 티어 2: 초록색
     private static readonly Color tier3Color = new Color(0.3f, 0.7f, 1f);  // 티어 3: 파란색
     private static readonly Color tier4Color = new Color(1f, 0.3f, 0.3f);  // 티어 4: 빨간색
+    private static readonly Color xTierColor = new Color(1f, 0f, 0.3f);  // 진한 핑크/레드 색상
 
     [Tooltip("각 티어별 스탯 설정")]
     public TierStats[] tierStats = new TierStats[4]; // 1-4 티어
 
     [Header("Prefabs")]
     public GameObject projectilePrefab;
-   
+  
     [Header("Grinder Settings")]
     [Tooltip("Grinder 타입일 때만 사용되는 설정들")]
     public float attackRadius = 2f;
@@ -436,9 +585,18 @@ public class WeaponData : ScriptableObject
     public float damageTickInterval = 0.5f;
 
 
-    // 현재 티어의 스탯 getter
-    public TierStats CurrentTierStats => tierStats[Mathf.Clamp(currentTier - 1, 0, 3)];
+    public TierStats CurrentTierStats
+    {
+        get
+        {
+            // X-Tier (Tier 5) 특별 처리
+            if (currentTier == 5 && supportsXTier)
+                return xTierStats;
 
+            // 기존 티어 (1-4)
+            return tierStats[Mathf.Clamp(currentTier - 1, 0, 3)];
+        }
+    }
     private void OnEnable()
     {
         currentPrice = -1;  // 복제될 때마다 현재 가격 초기화
@@ -453,6 +611,7 @@ public class WeaponData : ScriptableObject
             2 => tier2Color,
             3 => tier3Color,
             4 => tier4Color,
+            5 => xTierColor,
             _ => tier1Color
         };
     }
@@ -672,6 +831,66 @@ public class WeaponData : ScriptableObject
         return nextTierWeapon;
     }
 
+
+    // X-티어 무기 생성 메서드 추가
+    public WeaponData CreateXTierWeapon(string customXTierName = null)
+    {
+        if (currentTier != 4 || !supportsXTier)
+        {
+            Debug.LogWarning("Can only create X-Tier weapon from Tier 4 weapons that support X-Tier!");
+            return null;
+        }
+
+        WeaponData xTierWeapon = Instantiate(this);
+        xTierWeapon.currentTier = 5;
+
+        // X-티어 커스텀 속성 적용
+        if (!string.IsNullOrEmpty(xTierWeaponName))
+        {
+            xTierWeapon.weaponName = xTierWeaponName;
+        }
+        else if (!string.IsNullOrEmpty(customXTierName))
+        {
+            xTierWeapon.weaponName = customXTierName;
+        }
+        else
+        {
+            xTierWeapon.weaponName = $"X-{weaponName}";
+        }
+
+        // 설명 적용
+        if (!string.IsNullOrEmpty(xTierWeaponDescription))
+        {
+            xTierWeapon.weaponDescription = xTierWeaponDescription;
+        }
+
+        // 크기 적용
+        if (xTierWidth > 0 && xTierHeight > 0)
+        {
+            xTierWeapon.width = xTierWidth;
+            xTierWeapon.height = xTierHeight;
+        }
+
+        // 아이콘 적용
+        if (xTierWeaponIcon != null)
+        {
+            xTierWeapon.weaponIcon = xTierWeaponIcon;
+        }
+
+        if (xTierInventoryWeaponIcon != null)
+        {
+            xTierWeapon.inventoryWeaponIcon = xTierInventoryWeaponIcon;
+        }
+
+        // 투사체 프리팹이 설정되어 있다면 교체
+        if (xTierProjectilePrefab != null)
+        {
+            xTierWeapon.projectilePrefab = xTierProjectilePrefab;
+        }
+
+        return xTierWeapon;
+    }
+
     private void OnValidate()
     {
         if (tierStats == null || tierStats.Length != 4)
@@ -794,5 +1013,95 @@ public class WeaponData : ScriptableObject
             }
             equipmentTierStats = newEquipmentTierStats;
         }
+
+        // X-Tier 스탯 초기화 추가
+        if (supportsXTier && xTierStats == null)
+        {
+            xTierStats = new TierStats();
+
+            // Tier 4 스탯을 기반으로 X-Tier 스탯 초기 설정
+            if (tierStats != null && tierStats.Length >= 4 && tierStats[3] != null)
+            {
+                // 데미지: 50% 증가
+                xTierStats.damage = tierStats[3].damage * 1.5f;
+
+                // 공격 속도: 30% 증가 (딜레이 30% 감소)
+                xTierStats.attackDelay = tierStats[3].attackDelay * 0.7f;
+
+                // 투사체 속도: 30% 증가
+                xTierStats.projectileSpeed = tierStats[3].projectileSpeed * 1.3f;
+
+                // 넉백: 50% 증가
+                xTierStats.knockback = tierStats[3].knockback * 1.5f;
+
+                // 투사체 크기: 30% 증가
+                xTierStats.projectileSize = tierStats[3].projectileSize * 1.3f;
+
+                // 범위: 30% 증가
+                xTierStats.range = tierStats[3].range * 1.3f;
+
+                // 관통 설정
+                xTierStats.canPenetrate = true;
+                xTierStats.maxPenetrationCount = 0; // 무한 관통
+                xTierStats.penetrationDamageDecay = 0.1f;
+
+                // 무기 타입별 특수 설정
+                if (weaponType == WeaponType.Shotgun)
+                {
+                    xTierStats.projectileCount = tierStats[3].projectileCount + 2;
+                    xTierStats.spreadAngle = tierStats[3].spreadAngle * 1.2f;
+                }
+                else if (weaponType == WeaponType.Grinder)
+                {
+                    xTierStats.attackRadius = tierStats[3].attackRadius * 1.5f;
+                    xTierStats.groundEffectDuration = tierStats[3].groundEffectDuration * 1.5f;
+                    xTierStats.damageTickInterval = tierStats[3].damageTickInterval * 0.7f;
+                }
+                else if (weaponType == WeaponType.ForceFieldGenerator)
+                {
+                    xTierStats.forceFieldRadius = tierStats[3].forceFieldRadius * 1.5f;
+                    xTierStats.forceFieldTickInterval = tierStats[3].forceFieldTickInterval * 0.7f;
+                }
+            }
+
+            if (string.IsNullOrEmpty(xTierWeaponName))
+            {
+                // 무기 타입에 따른 이름 설정
+                switch (weaponType)
+                {
+                    case WeaponType.Buster:
+                        xTierWeaponName = "Exterminator";
+                        break;
+                    case WeaponType.Machinegun:
+                        xTierWeaponName = "Ultrain";
+                        break;
+                    case WeaponType.Blade:
+                        xTierWeaponName = "Plasma Sword";
+                        break;
+                    case WeaponType.Cutter:
+                        xTierWeaponName = "Cyclone Edge";
+                        break;
+                    case WeaponType.Sawblade:
+                        xTierWeaponName = "Infinity Disc";
+                        break;
+                    case WeaponType.BeamSaber:
+                        xTierWeaponName = "Phantom Saber";
+                        break;
+                    case WeaponType.Shotgun:
+                        xTierWeaponName = "HellFire";
+                        break;
+                    case WeaponType.Grinder:
+                        xTierWeaponName = "Black Hole";
+                        break;
+                    case WeaponType.ForceFieldGenerator:
+                        xTierWeaponName = "Time Turner";
+                        break;
+                    default:
+                        xTierWeaponName = $"X-{weaponName}";
+                        break;
+                }
+            }
+        }
+
     }
 }
