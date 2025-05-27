@@ -815,10 +815,14 @@ MonoBehaviour:
   parentCanvas: {fileID: 4678841057335257272}
   weaponPrefab: {fileID: 3724523762829760750, guid: b9dc01a30dc68004ba7b1af7d9269a94, type: 3}
   inventoryHighlight: {fileID: 0}
+  weaponInfoUI: {fileID: 0}
   dragThreshold: 0.3
   holdDelay: 0.3
   physicsSpawnOffset: 50
   physicsRandomVariance: 30
+  shopButtonRect: {fileID: 0}
+  progressButtonRect: {fileID: 0}
+  floorOffsetFromButtons: 10
   useObjectPool: 1
   poolTag: PhysicsInventoryItem
   initialPoolSize: 20
@@ -1420,6 +1424,7 @@ MonoBehaviour:
   mainInventoryGrid: {fileID: 8683447882067856108}
   weaponPrefab: {fileID: 3724523762829760750, guid: b9dc01a30dc68004ba7b1af7d9269a94, type: 3}
   physicsManager: {fileID: 3530368944404533151}
+  waveManager: {fileID: 0}
   refreshCostText: {fileID: 5516809050227040944}
   playerCoinsText: {fileID: 4859501933903467334}
   noticeText: {fileID: 2610912844511049228}
