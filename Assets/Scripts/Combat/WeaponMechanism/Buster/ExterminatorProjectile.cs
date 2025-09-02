@@ -65,13 +65,7 @@ public class ExterminatorProjectile : BulletProjectile
     private void SpawnExecuteVFX(Vector3 position)
     {
         // 현재는 기본 파괴 VFX 사용, 나중에 전용 처형 VFX로 교체
-        GameObject vfx = ObjectPool.Instance.SpawnFromPool("Bullet_DestroyVFX", position, Quaternion.identity);
-        if (vfx != null && vfx.TryGetComponent(out BulletDestroyVFX destroyVFX))
-        {
-            destroyVFX.SetPoolTag("Bullet_DestroyVFX");
-            // 처형 이펙트는 조금 더 크게 표시
-            destroyVFX.SetEffectScale(Vector3.one * 1.5f);
-        }
+        SpawnDestroyVFX();
     }
 
     protected override void Update()

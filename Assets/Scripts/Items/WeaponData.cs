@@ -5,43 +5,51 @@ using UnityEngine;
 public class TierStats
 {
     [Header("Stats")]
-    [Tooltip("ÇØ´ç Æ¼¾îÀÇ ±âº» µ¥¹ÌÁö")]
+    [Tooltip("ï¿½Ø´ï¿½ Æ¼ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float damage = 10f;
-    [Tooltip("ÇØ´ç Æ¼¾îÀÇ ±âº» °ø°İ µô·¹ÀÌ")]
+    [Tooltip("ï¿½Ø´ï¿½ Æ¼ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float attackDelay = 1f;
-    [Tooltip("ÇØ´ç Æ¼¾îÀÇ Åõ»çÃ¼ ¼Óµµ")]
+    [Tooltip("ï¿½Ø´ï¿½ Æ¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½Óµï¿½")]
     public float projectileSpeed = 10f;
-    [Tooltip("ÇØ´ç Æ¼¾îÀÇ ³Ë¹é ¼öÄ¡")]
+    [Tooltip("ï¿½Ø´ï¿½ Æ¼ï¿½ï¿½ï¿½ï¿½ ï¿½Ë¹ï¿½ ï¿½ï¿½Ä¡")]
     public float knockback = 1f;
-    [Tooltip("ÇØ´ç Æ¼¾îÀÇ Åõ»çÃ¼ Å©±â")]
+    [Tooltip("ï¿½Ø´ï¿½ Æ¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ Å©ï¿½ï¿½")]
     public float projectileSize = 1f;
-    [Tooltip("ÇØ´ç Æ¼¾îÀÇ »ç°Å¸®")]
+    [Tooltip("ï¿½Ø´ï¿½ Æ¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½")]
     public float range = 5f;
 
     [Header("Projectile Properties")]
-    [Tooltip("trueÀÏ °æ¿ì Åõ»çÃ¼°¡ ÀûÀ» °üÅëÇÕ´Ï´Ù")]
+    [Tooltip("trueï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½")]
     public bool canPenetrate = false;
-    [Tooltip("°üÅë °¡´ÉÇÑ ÃÖ´ë Àû ¼ö (0 = ¹«ÇÑ)")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ ï¿½ï¿½ (0 = ï¿½ï¿½ï¿½ï¿½)")]
     public int maxPenetrationCount = 0;
-    [Tooltip("°üÅë½Ã µ¥¹ÌÁö °¨¼ÒÀ² (0.1 = 10% °¨¼Ò)")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (0.1 = 10% ï¿½ï¿½ï¿½ï¿½)")]
     public float penetrationDamageDecay = 0.1f;
 
     public int projectileCount = 3;
     public float spreadAngle = 45f;
 
     [Header("Grinder Properties")]
-    [Tooltip("ÀåÆÇ °ø°İ ¹üÀ§")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     public float attackRadius = 2f;
-    [Tooltip("ÀåÆÇ Áö¼Ó ½Ã°£")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½")]
     public float groundEffectDuration = 3f;
-    [Tooltip("ÀåÆÇ ´ë¹ÌÁö Æ½ °£°İ")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Æ½ ï¿½ï¿½ï¿½ï¿½")]
     public float damageTickInterval = 0.5f;
 
     [Header("Force Field Properties")]
-    [Tooltip("Æ÷½º ÇÊµå °ø°İ ¹üÀ§")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½Êµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     public float forceFieldRadius = 3f;
-    [Tooltip("Æ÷½º ÇÊµå ´ë¹ÌÁö Æ½ °£°İ")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½Êµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Æ½ ï¿½ï¿½ï¿½ï¿½")]
     public float forceFieldTickInterval = 0.5f;
+
+    [Header("Machinegun Properties")]
+    [Tooltip("ï¿½Ó¼ï¿½ ï¿½ß£ï¿½ ï¿½ï¿½ï¿½ï¿½")]
+    public int burstCount = 1;
+    [Tooltip("ï¿½Ó¼ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½)")]
+    public float burstDelay = 0.1f;
+    [Tooltip("ï¿½Ë¹ï¿½ ï¿½ï¿½ï¿½ï¿½ (1.0 = ï¿½âº»ï¿½ï¿½)")]
+    public float knockbackMultiplier = 1.0f;
 
     public struct PenetrationInfo
     {
@@ -62,42 +70,42 @@ public class TierStats
 public class EquipmentStats
 {
     [Header("Power Upper Settings")]
-    [Tooltip("°ø°İ·Â Áõ°¡·®")]
+    [Tooltip("ï¿½ï¿½ï¿½İ·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float powerIncrease;
 
     [Header("Speed Upper Settings")]
-    [Tooltip("ÀÌµ¿¼Óµµ Áõ°¡·®")]
+    [Tooltip("ï¿½Ìµï¿½ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float speedIncrease;
-    [Tooltip("Äğ´Ù¿î °¨¼Ò·® (4Æ¼¾î Àü¿ë)")]
+    [Tooltip("ï¿½ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½Ò·ï¿½ (4Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)")]
     public float hasteIncrease;
 
     [Header("Health Upper Settings")]
-    [Tooltip("ÃÖ´ë Ã¼·Â Áõ°¡·®")]
+    [Tooltip("ï¿½Ö´ï¿½ Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float healthIncrease;
-    [Tooltip("Ã¼·Â Àç»ı Áõ°¡·® (4Æ¼¾î Àü¿ë)")]
+    [Tooltip("Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (4Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)")]
     public float regenIncrease;
 
     [Header("Haste Upper Settings")]
-    [Tooltip("Äğ´Ù¿î °¨¼Ò·®")]
+    [Tooltip("ï¿½ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½Ò·ï¿½")]
     public float hasteValue;
 
     [Header("Portable Magnet Settings")]
-    [Tooltip("¾ÆÀÌÅÛ È¹µæ ¹üÀ§ Áõ°¡·® (À¯´Ö)")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½)")]
     public float pickupRangeIncrease;
     [Header("Portable Magnet Additional Effect")]
-    [Tooltip("4Æ¼¾î ÀÚµ¿ ÀÚ¼® È¿°ú È°¼ºÈ­")]
+    [Tooltip("4Æ¼ï¿½ï¿½ ï¿½Úµï¿½ ï¿½Ú¼ï¿½ È¿ï¿½ï¿½ È°ï¿½ï¿½È­")]
     public bool enableAutoMagnet = false;
 
     [Header("Knockback Upper Settings")]
-    [Tooltip("³Ë¹é Áõ°¡·®")]
+    [Tooltip("ï¿½Ë¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float knockbackIncrease;
-    [Tooltip("°ø°İ·Â Áõ°¡·® (4Æ¼¾î Àü¿ë)")]
+    [Tooltip("ï¿½ï¿½ï¿½İ·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (4Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)")]
     public float knockbackPowerIncrease;
 
     [Header("Regen Upper Settings")]
-    [Tooltip("Ã¼·Â Àç»ı Áõ°¡·®")]
+    [Tooltip("Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float regenValue;
-    [Tooltip("Äğ´Ù¿î °¨¼Ò·® (4Æ¼¾î Àü¿ë)")]
+    [Tooltip("ï¿½ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½Ò·ï¿½ (4Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)")]
     public float regenHasteIncrease;
 }
 
@@ -177,11 +185,11 @@ public class WeaponDataEditor : Editor
         DrawTierConfiguration();
         EditorGUILayout.Space();
 
-        // X-Tier ¼³Á¤ Ãß°¡
+        // X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
         DrawXTierConfiguration();
         EditorGUILayout.Space();
 
-        // WeaponTypeÀÌ EquipmentÀÏ ¶§´Â Equipment ¼³Á¤À», ¾Æ´Ò ¶§´Â ÀÏ¹İ ¹«±â ¼³Á¤À» º¸¿©ÁÜ
+        // WeaponTypeï¿½ï¿½ Equipmentï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Equipment ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½Æ´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (weaponData.weaponType == WeaponType.Equipment)
         {
             DrawEquipmentSettings();
@@ -190,7 +198,7 @@ public class WeaponDataEditor : Editor
         {
             DrawTierStats(weaponData);
 
-            // X-Tier ½ºÅÈ ¼³Á¤ (È°¼ºÈ­µÈ °æ¿ì¿¡¸¸)
+            // X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½)
             if (weaponData.supportsXTier)
             {
                 DrawXTierStats(weaponData);
@@ -263,44 +271,44 @@ public class WeaponDataEditor : Editor
                 switch (weaponData.equipmentType)
                 {
                     case EquipmentType.PowerUpper:
-                        DrawEquipmentProperty(tierStat, "powerIncrease", "Power Increase", "°ø°İ·Â Áõ°¡·®");
+                        DrawEquipmentProperty(tierStat, "powerIncrease", "Power Increase", "ï¿½ï¿½ï¿½İ·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                         break;
                     case EquipmentType.SpeedUpper:
-                        DrawEquipmentProperty(tierStat, "speedIncrease", "Speed Increase", "ÀÌµ¿¼Óµµ Áõ°¡·®");
-                        if (i == 3) // 4Æ¼¾î
+                        DrawEquipmentProperty(tierStat, "speedIncrease", "Speed Increase", "ï¿½Ìµï¿½ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
+                        if (i == 3) // 4Æ¼ï¿½ï¿½
                         {
-                            DrawEquipmentProperty(tierStat, "hasteIncrease", "Haste Increase", "Äğ´Ù¿î °¨¼Ò·®");
+                            DrawEquipmentProperty(tierStat, "hasteIncrease", "Haste Increase", "ï¿½ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½Ò·ï¿½");
                         }
                         break;
                     case EquipmentType.HealthUpper:
-                        DrawEquipmentProperty(tierStat, "healthIncrease", "Health Increase", "Ã¼·Â Áõ°¡·®");
-                        if (i == 3) // 4Æ¼¾î
+                        DrawEquipmentProperty(tierStat, "healthIncrease", "Health Increase", "Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
+                        if (i == 3) // 4Æ¼ï¿½ï¿½
                         {
-                            DrawEquipmentProperty(tierStat, "regenIncrease", "Regen Increase", "Ã¼·Â Àç»ı Áõ°¡·®");
+                            DrawEquipmentProperty(tierStat, "regenIncrease", "Regen Increase", "Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                         }
                         break;
                     case EquipmentType.HasteUpper:
-                        DrawEquipmentProperty(tierStat, "hasteValue", "Haste Value", "Äğ´Ù¿î °¨¼Ò·®");
+                        DrawEquipmentProperty(tierStat, "hasteValue", "Haste Value", "ï¿½ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½Ò·ï¿½");
                         break;
                     case EquipmentType.PortableMagnet:
-                        DrawEquipmentProperty(tierStat, "pickupRangeIncrease", "Pickup Range Increase", "¾ÆÀÌÅÛ È¹µæ ¹üÀ§ Áõ°¡·®");
-                        if (i == 3) // 4Æ¼¾î
+                        DrawEquipmentProperty(tierStat, "pickupRangeIncrease", "Pickup Range Increase", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
+                        if (i == 3) // 4Æ¼ï¿½ï¿½
                         {
-                            DrawEquipmentProperty(tierStat, "enableAutoMagnet", "Auto Magnet", "ÀÚµ¿ ÀÚ¼® È¿°ú È°¼ºÈ­");
+                            DrawEquipmentProperty(tierStat, "enableAutoMagnet", "Auto Magnet", "ï¿½Úµï¿½ ï¿½Ú¼ï¿½ È¿ï¿½ï¿½ È°ï¿½ï¿½È­");
                         }
                         break;
                     case EquipmentType.KnockbackUpper:
-                        DrawEquipmentProperty(tierStat, "knockbackIncrease", "Knockback Increase", "³Ë¹é Áõ°¡·®");
-                        if (i == 3) // 4Æ¼¾î
+                        DrawEquipmentProperty(tierStat, "knockbackIncrease", "Knockback Increase", "ï¿½Ë¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
+                        if (i == 3) // 4Æ¼ï¿½ï¿½
                         {
-                            DrawEquipmentProperty(tierStat, "knockbackPowerIncrease", "Power Increase", "°ø°İ·Â Áõ°¡·®");
+                            DrawEquipmentProperty(tierStat, "knockbackPowerIncrease", "Power Increase", "ï¿½ï¿½ï¿½İ·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                         }
                         break;
                     case EquipmentType.RegenUpper:
-                        DrawEquipmentProperty(tierStat, "regenValue", "Regen Value", "Ã¼·Â Àç»ı Áõ°¡·®");
-                        if (i == 3) // 4Æ¼¾î
+                        DrawEquipmentProperty(tierStat, "regenValue", "Regen Value", "Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
+                        if (i == 3) // 4Æ¼ï¿½ï¿½
                         {
-                            DrawEquipmentProperty(tierStat, "regenHasteIncrease", "Haste Increase", "Äğ´Ù¿î °¨¼Ò·®");
+                            DrawEquipmentProperty(tierStat, "regenHasteIncrease", "Haste Increase", "ï¿½ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½Ò·ï¿½");
                         }
                         break;
                 }
@@ -333,7 +341,7 @@ public class WeaponDataEditor : Editor
                 SerializedProperty tierStat = tierStats.GetArrayElementAtIndex(i);
                 EditorGUILayout.LabelField($"Tier {i + 1}", EditorStyles.boldLabel);
 
-                // ±âº» ½ºÅÈµé
+                // ï¿½âº» ï¿½ï¿½ï¿½Èµï¿½
                 EditorGUILayout.LabelField("Basic Stats", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damage"));
                 EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("attackDelay"));
@@ -348,35 +356,48 @@ public class WeaponDataEditor : Editor
                 EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("maxPenetrationCount"));
                 EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("penetrationDamageDecay"));
 
-                // ¹«±â Å¸ÀÔº° Ãß°¡ ¼Ó¼º
+                // ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ôºï¿½ ï¿½ß°ï¿½ ï¿½Ó¼ï¿½
                 if (weaponData.weaponType == WeaponType.Shotgun)
                 {
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Shotgun Properties", EditorStyles.boldLabel);
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("projectileCount"),
-                        new GUIContent("Projectile Count", "¼¦°ÇÀÇ ¹ß»ç Åõ»çÃ¼ ¼ö"));
+                        new GUIContent("Projectile Count", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½"));
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("spreadAngle"),
-                        new GUIContent("Spread Angle", "¼¦°ÇÀÇ ¹ß»ç °¢µµ ¹üÀ§ (µµ)"));
+                        new GUIContent("Spread Angle", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½)"));
                 }
                 else if (weaponData.weaponType == WeaponType.Grinder)
                 {
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Grinder Properties", EditorStyles.boldLabel);
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("attackRadius"),
-                        new GUIContent("Attack Radius", "ÀåÆÇ °ø°İ ¹üÀ§"));
+                        new GUIContent("Attack Radius", "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"));
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("groundEffectDuration"),
-                        new GUIContent("Ground Effect Duration", "ÀåÆÇ Áö¼Ó ½Ã°£"));
+                        new GUIContent("Ground Effect Duration", "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½"));
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damageTickInterval"),
-                        new GUIContent("Damage Tick Interval", "ÀåÆÇ ´ë¹ÌÁö Æ½ °£°İ"));
+                        new GUIContent("Damage Tick Interval", "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Æ½ ï¿½ï¿½ï¿½ï¿½"));
+                }
+                else if (weaponData.weaponType == WeaponType.Machinegun)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Machinegun Properties", EditorStyles.boldLabel);
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("burstCount"),
+                        new GUIContent("Burst Count", "ï¿½Ó¼ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ï¿½ï¿½"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("burstDelay"),
+                        new GUIContent("Burst Delay", "ï¿½Ó¼ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½)"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("spreadAngle"),
+                        new GUIContent("Spread Angle", "ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½)"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("knockbackMultiplier"),
+                        new GUIContent("Knockback Multiplier", "ï¿½Ë¹ï¿½ ï¿½ï¿½ï¿½ï¿½ (1.0 = ï¿½âº»ï¿½ï¿½)"));
                 }
                 else if (weaponData.weaponType == WeaponType.ForceFieldGenerator)
                 {
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Force Field Properties", EditorStyles.boldLabel);
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("forceFieldRadius"),
-                        new GUIContent("Force Field Radius", "Æ÷½º ÇÊµåÀÇ °ø°İ ¹üÀ§"));
+                        new GUIContent("Force Field Radius", "ï¿½ï¿½ï¿½ï¿½ ï¿½Êµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"));
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("forceFieldTickInterval"),
-                        new GUIContent("Damage Tick Interval", "´ë¹ÌÁö°¡ Àû¿ëµÇ´Â ½Ã°£ °£°İ"));
+                        new GUIContent("Damage Tick Interval", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½"));
                 }
             }
 
@@ -385,42 +406,42 @@ public class WeaponDataEditor : Editor
         EditorGUI.indentLevel--;
     }
 
-    // X-Tier ¼³Á¤ UI ±×¸®±â
+    // X-Tier ï¿½ï¿½ï¿½ï¿½ UI ï¿½×¸ï¿½ï¿½ï¿½
     private void DrawXTierConfiguration()
     {
         EditorGUILayout.LabelField("X-Tier Configuration", EditorStyles.boldLabel);
 
-        // X-Tier Áö¿ø ¿©ºÎ Åä±Û
-        EditorGUILayout.PropertyField(supportsXTier, new GUIContent("Supports X-Tier", "ÀÌ ¹«±â°¡ X-Tier ¾÷±×·¹ÀÌµå¸¦ Áö¿øÇÏ´ÂÁö ¿©ºÎ"));
+        // X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+        EditorGUILayout.PropertyField(supportsXTier, new GUIContent("Supports X-Tier", "ï¿½ï¿½ ï¿½ï¿½ï¿½â°¡ X-Tier ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµå¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"));
 
-        // X-Tier°¡ È°¼ºÈ­µÈ °æ¿ì¿¡¸¸ Ãß°¡ ¼³Á¤ Ç¥½Ã
+        // X-Tierï¿½ï¿½ È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½
         if (supportsXTier.boolValue)
         {
             EditorGUI.indentLevel++;
 
-            // X-Tier ±âº» ¼³Á¤
+            // X-Tier ï¿½âº» ï¿½ï¿½ï¿½ï¿½
             EditorGUILayout.LabelField("X-Tier Basic Settings", EditorStyles.boldLabel);
 
-            // Å©±â ¼³Á¤
-            EditorGUILayout.PropertyField(xTierWidth, new GUIContent("X-Tier Width", "X-Tier ¹«±â ³Êºñ"));
-            EditorGUILayout.PropertyField(xTierHeight, new GUIContent("X-Tier Height", "X-Tier ¹«±â ³ôÀÌ"));
+            // Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            EditorGUILayout.PropertyField(xTierWidth, new GUIContent("X-Tier Width", "X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½Êºï¿½"));
+            EditorGUILayout.PropertyField(xTierHeight, new GUIContent("X-Tier Height", "X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"));
 
-            // ¾ÆÀÌÄÜ ¼³Á¤
-            EditorGUILayout.PropertyField(xTierWeaponIcon, new GUIContent("X-Tier Weapon Icon", "X-Tier ¹«±â ¾ÆÀÌÄÜ"));
-            EditorGUILayout.PropertyField(xTierInventoryWeaponIcon, new GUIContent("X-Tier Inventory Icon", "X-Tier ÀÎº¥Åä¸® ¾ÆÀÌÄÜ"));
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            EditorGUILayout.PropertyField(xTierWeaponIcon, new GUIContent("X-Tier Weapon Icon", "X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"));
+            EditorGUILayout.PropertyField(xTierInventoryWeaponIcon, new GUIContent("X-Tier Inventory Icon", "X-Tier ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"));
 
-            // ÀÌ¸§ ¹× ¼³¸í
-            EditorGUILayout.PropertyField(xTierWeaponName, new GUIContent("X-Tier Name", "X-Tier ¹«±â ÀÌ¸§ (ºñ¿öµÎ¸é ±âº» Çü½Ä »ç¿ë)"));
-            EditorGUILayout.PropertyField(xTierWeaponDescription, new GUIContent("X-Tier Description", "X-Tier ¹«±â ¼³¸í"));
+            // ï¿½Ì¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            EditorGUILayout.PropertyField(xTierWeaponName, new GUIContent("X-Tier Name", "X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ (ï¿½ï¿½ï¿½ï¿½Î¸ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)"));
+            EditorGUILayout.PropertyField(xTierWeaponDescription, new GUIContent("X-Tier Description", "X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"));
 
-            // X-Tier °¡°İ
-            EditorGUILayout.PropertyField(xTierPrice, new GUIContent("X-Tier Price", "X-Tier ¹«±â °¡°İ"));
+            // X-Tier ï¿½ï¿½ï¿½ï¿½
+            EditorGUILayout.PropertyField(xTierPrice, new GUIContent("X-Tier Price", "X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"));
 
-            // X-Tier Àü¿ë Åõ»çÃ¼ ÇÁ¸®ÆÕ (ÀÏ¹İ ¹«±â¸¸ ÇØ´ç)
+            // X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½Ï¹ï¿½ ï¿½ï¿½ï¿½â¸¸ ï¿½Ø´ï¿½)
             WeaponData weaponData = (WeaponData)target;
             if (weaponData.weaponType != WeaponType.Equipment)
             {
-                EditorGUILayout.PropertyField(xTierProjectilePrefab, new GUIContent("X-Tier Projectile Prefab", "X-Tier Àü¿ë Åõ»çÃ¼ ÇÁ¸®ÆÕ (¼³Á¤ÇÏÁö ¾ÊÀ¸¸é ±âº» ÇÁ¸®ÆÕ »ç¿ë)"));
+                EditorGUILayout.PropertyField(xTierProjectilePrefab, new GUIContent("X-Tier Projectile Prefab", "X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)"));
             }
 
             EditorGUI.indentLevel--;
@@ -436,7 +457,7 @@ public class WeaponDataEditor : Editor
 
             SerializedProperty xTierStatProperty = xTierStats;
 
-            // ±âº» ½ºÅÈµé
+            // ï¿½âº» ï¿½ï¿½ï¿½Èµï¿½
             EditorGUILayout.LabelField("Basic Stats", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("damage"));
             EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("attackDelay"));
@@ -451,35 +472,48 @@ public class WeaponDataEditor : Editor
             EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("maxPenetrationCount"));
             EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("penetrationDamageDecay"));
 
-            // ¹«±â Å¸ÀÔº° Ãß°¡ ¼Ó¼º
+            // ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ôºï¿½ ï¿½ß°ï¿½ ï¿½Ó¼ï¿½
             if (weaponData.weaponType == WeaponType.Shotgun)
             {
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Shotgun Properties", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("projectileCount"),
-                    new GUIContent("Projectile Count", "¼¦°ÇÀÇ ¹ß»ç Åõ»çÃ¼ ¼ö"));
+                    new GUIContent("Projectile Count", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½"));
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("spreadAngle"),
-                    new GUIContent("Spread Angle", "¼¦°ÇÀÇ ¹ß»ç °¢µµ ¹üÀ§ (µµ)"));
+                    new GUIContent("Spread Angle", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½)"));
+            }
+            else if (weaponData.weaponType == WeaponType.Machinegun)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Machinegun Properties", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("burstCount"),
+                    new GUIContent("Burst Count", "ï¿½Ó¼ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ï¿½ï¿½"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("burstDelay"),
+                    new GUIContent("Burst Delay", "ï¿½Ó¼ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½)"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("spreadAngle"),
+                    new GUIContent("Spread Angle", "ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½)"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("knockbackMultiplier"),
+                    new GUIContent("Knockback Multiplier", "ï¿½Ë¹ï¿½ ï¿½ï¿½ï¿½ï¿½ (1.0 = ï¿½âº»ï¿½ï¿½)"));
             }
             else if (weaponData.weaponType == WeaponType.Grinder)
             {
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Grinder Properties", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("attackRadius"),
-                    new GUIContent("Attack Radius", "ÀåÆÇ °ø°İ ¹üÀ§"));
+                    new GUIContent("Attack Radius", "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"));
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("groundEffectDuration"),
-                    new GUIContent("Ground Effect Duration", "ÀåÆÇ Áö¼Ó ½Ã°£"));
+                    new GUIContent("Ground Effect Duration", "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½"));
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("damageTickInterval"),
-                    new GUIContent("Damage Tick Interval", "ÀåÆÇ ´ë¹ÌÁö Æ½ °£°İ"));
+                    new GUIContent("Damage Tick Interval", "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Æ½ ï¿½ï¿½ï¿½ï¿½"));
             }
             else if (weaponData.weaponType == WeaponType.ForceFieldGenerator)
             {
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Force Field Properties", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("forceFieldRadius"),
-                    new GUIContent("Force Field Radius", "Æ÷½º ÇÊµåÀÇ °ø°İ ¹üÀ§"));
+                    new GUIContent("Force Field Radius", "ï¿½ï¿½ï¿½ï¿½ ï¿½Êµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"));
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("forceFieldTickInterval"),
-                    new GUIContent("Damage Tick Interval", "´ë¹ÌÁö°¡ Àû¿ëµÇ´Â ½Ã°£ °£°İ"));
+                    new GUIContent("Damage Tick Interval", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½"));
             }
 
             EditorGUI.indentLevel--;
@@ -503,32 +537,32 @@ public class WeaponData : ScriptableObject
     public Sprite inventoryWeaponIcon;
 
     [Header("Equipment Settings")]
-    [Tooltip("¹«±â Å¸ÀÔÀÌ EquipmentÀÏ ¶§¸¸ »ç¿ëµÊ")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ Equipmentï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     public EquipmentType equipmentType = EquipmentType.None;
 
-    [Tooltip("°¢ Æ¼¾îº° Àåºñ ´É·ÂÄ¡")]
-    public EquipmentStats[] equipmentTierStats = new EquipmentStats[4]; // 1-4 Æ¼¾î
+    [Tooltip("ï¿½ï¿½ Æ¼ï¿½îº° ï¿½ï¿½ï¿½ ï¿½É·ï¿½Ä¡")]
+    public EquipmentStats[] equipmentTierStats = new EquipmentStats[4]; // 1-4 Æ¼ï¿½ï¿½
 
-    // ÇöÀç Æ¼¾îÀÇ Àåºñ ´É·ÂÄ¡ getter
+    // ï¿½ï¿½ï¿½ï¿½ Æ¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½É·ï¿½Ä¡ getter
     public EquipmentStats CurrentEquipmentStats => equipmentTierStats[Mathf.Clamp(currentTier - 1, 0, 3)];
 
     [Header("Tier Configuration")]
-    [Tooltip("ÇöÀç ¹«±âÀÇ Æ¼¾î")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Æ¼ï¿½ï¿½")]
     public int currentTier = 1;
 
     [Header("X-Tier Configuration")]
-    [Tooltip("X-Æ¼¾î(Tier 5) ¹«±â ¼³Á¤")]
+    [Tooltip("X-Æ¼ï¿½ï¿½(Tier 5) ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     public bool supportsXTier = false;
-    public Sprite xTierWeaponIcon;         // X-Æ¼¾î ¹«±â ¾ÆÀÌÄÜ
-    public Sprite xTierInventoryWeaponIcon; // X-Æ¼¾î ÀÎº¥Åä¸® ¾ÆÀÌÄÜ
-    public int xTierWidth = 1;             // X-Æ¼¾î ¹«±â ³Êºñ
-    public int xTierHeight = 1;            // X-Æ¼¾î ¹«±â ³ôÀÌ
-    public string xTierWeaponName;         // X-Æ¼¾î ¹«±â ÀÌ¸§
+    public Sprite xTierWeaponIcon;         // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public Sprite xTierInventoryWeaponIcon; // X-Æ¼ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public int xTierWidth = 1;             // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Êºï¿½
+    public int xTierHeight = 1;            // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    public string xTierWeaponName;         // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½
     [TextArea(3, 5)]
-    public string xTierWeaponDescription;  // X-Æ¼¾î ¹«±â ¼³¸í
+    public string xTierWeaponDescription;  // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     public TierStats xTierStats = new TierStats();
     public int xTierPrice;
-    public GameObject xTierProjectilePrefab; // X-Æ¼¾î Àü¿ë Åõ»çÃ¼ ÇÁ¸®ÆÕ
+    public GameObject xTierProjectilePrefab; // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
     [Header("Tier Prices")]
     public int tier1Price;
@@ -544,11 +578,11 @@ public class WeaponData : ScriptableObject
     {
         get
         {
-            // currentPrice°¡ ¼³Á¤µÇ¾î ÀÖ´Ù¸é ±× °ªÀ» »ç¿ë
+            // currentPriceï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½Ö´Ù¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             if (currentPrice >= 0)
                 return currentPrice;
 
-            // ¾Æ´Ï¶ó¸é Æ¼¾î¿¡ µû¸¥ ±âº» °¡°İ ¹İÈ¯
+            // ï¿½Æ´Ï¶ï¿½ï¿½ Æ¼ï¿½î¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
             return currentTier switch
             {
                 1 => tier1Price,
@@ -566,20 +600,20 @@ public class WeaponData : ScriptableObject
     }
     public int SellPrice => Mathf.RoundToInt(price * sellPriceRatio);
 
-    private static readonly Color tier1Color = Color.white;       // Æ¼¾î 1: Èò»ö (±âº»)
-    private static readonly Color tier2Color = new Color(0.3f, 1f, 0.3f);  // Æ¼¾î 2: ÃÊ·Ï»ö
-    private static readonly Color tier3Color = new Color(0.3f, 0.7f, 1f);  // Æ¼¾î 3: ÆÄ¶õ»ö
-    private static readonly Color tier4Color = new Color(1f, 0.3f, 0.3f);  // Æ¼¾î 4: »¡°£»ö
-    private static readonly Color xTierColor = new Color(1f, 0f, 0.3f);  // ÁøÇÑ ÇÎÅ©/·¹µå »ö»ó
+    private static readonly Color tier1Color = Color.white;       // Æ¼ï¿½ï¿½ 1: ï¿½ï¿½ï¿½ (ï¿½âº»)
+    private static readonly Color tier2Color = new Color(0.3f, 1f, 0.3f);  // Æ¼ï¿½ï¿½ 2: ï¿½Ê·Ï»ï¿½
+    private static readonly Color tier3Color = new Color(0.3f, 0.7f, 1f);  // Æ¼ï¿½ï¿½ 3: ï¿½Ä¶ï¿½ï¿½ï¿½
+    private static readonly Color tier4Color = new Color(1f, 0.3f, 0.3f);  // Æ¼ï¿½ï¿½ 4: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    private static readonly Color xTierColor = new Color(1f, 0f, 0.3f);  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å©/ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-    [Tooltip("°¢ Æ¼¾îº° ½ºÅÈ ¼³Á¤")]
-    public TierStats[] tierStats = new TierStats[4]; // 1-4 Æ¼¾î
+    [Tooltip("ï¿½ï¿½ Æ¼ï¿½îº° ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
+    public TierStats[] tierStats = new TierStats[4]; // 1-4 Æ¼ï¿½ï¿½
 
     [Header("Prefabs")]
     public GameObject projectilePrefab;
   
     [Header("Grinder Settings")]
-    [Tooltip("Grinder Å¸ÀÔÀÏ ¶§¸¸ »ç¿ëµÇ´Â ¼³Á¤µé")]
+    [Tooltip("Grinder Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float attackRadius = 2f;
     public float groundEffectDuration = 3f;
     public float damageTickInterval = 0.5f;
@@ -589,20 +623,20 @@ public class WeaponData : ScriptableObject
     {
         get
         {
-            // X-Tier (Tier 5) Æ¯º° Ã³¸®
+            // X-Tier (Tier 5) Æ¯ï¿½ï¿½ Ã³ï¿½ï¿½
             if (currentTier == 5 && supportsXTier)
                 return xTierStats;
 
-            // ±âÁ¸ Æ¼¾î (1-4)
+            // ï¿½ï¿½ï¿½ï¿½ Æ¼ï¿½ï¿½ (1-4)
             return tierStats[Mathf.Clamp(currentTier - 1, 0, 3)];
         }
     }
     private void OnEnable()
     {
-        currentPrice = -1;  // º¹Á¦µÉ ¶§¸¶´Ù ÇöÀç °¡°İ ÃÊ±âÈ­
+        currentPrice = -1;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
     }
 
-    // ÇöÀç Æ¼¾î¿¡ ÇØ´çÇÏ´Â »ö»ó ¹İÈ¯
+    // ï¿½ï¿½ï¿½ï¿½ Æ¼ï¿½î¿¡ ï¿½Ø´ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
     public Color GetTierColor()
     {
         return currentTier switch
@@ -616,14 +650,14 @@ public class WeaponData : ScriptableObject
         };
     }
 
-    // »ö»óÀÌ Àû¿ëµÈ ¹«±â ¾ÆÀÌÄÜ ¹İÈ¯
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
     public Sprite GetColoredWeaponIcon()
     {
         if (weaponIcon == null) return null;
         return weaponIcon;
     }
 
-    // »ö»óÀÌ Àû¿ëµÈ ÀÎº¥Åä¸® ¹«±â ¾ÆÀÌÄÜ ¹İÈ¯
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
     public Sprite GetColoredInventoryWeaponIcon()
     {
         if (inventoryWeaponIcon == null) return null;
@@ -633,7 +667,7 @@ public class WeaponData : ScriptableObject
     public float GetAttackRadius()
     {
         if (weaponType != WeaponType.Grinder) return 0f;
-        return attackRadius * (currentTier * 0.25f + 0.75f); // Æ¼¾î¿¡ µû¶ó ¹üÀ§ Áõ°¡
+        return attackRadius * (currentTier * 0.25f + 0.75f); // Æ¼ï¿½î¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
 
     public float GetGroundEffectDuration()
@@ -648,7 +682,7 @@ public class WeaponData : ScriptableObject
         return damageTickInterval;
     }
 
-    // PlayerStats¸¦ °í·ÁÇÑ ÃÖÁ¾ ½ºÅÈ °è»ê ¸Ş¼­µåµé
+    // PlayerStatsï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ş¼ï¿½ï¿½ï¿½ï¿½
     public float CalculateFinalDamage(PlayerStats playerStats)
     {
         if (playerStats == null) return CurrentTierStats.damage;
@@ -692,10 +726,10 @@ public class WeaponData : ScriptableObject
     public float CalculateFinalRange(PlayerStats playerStats)
     {
         if (playerStats == null) return CurrentTierStats.range;
-        return CurrentTierStats.range;  // »ç°Å¸®´Â ÇÃ·¹ÀÌ¾î ½ºÅÈÀÇ ¿µÇâÀ» ¹ŞÁö ¾ÊÀ½
+        return CurrentTierStats.range;  // ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
 
-    // °üÅë Á¤º¸ getter
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ getter
     public TierStats.PenetrationInfo GetPenetrationInfo()
     {
         return CurrentTierStats.GetPenetrationInfo();
@@ -706,7 +740,7 @@ public class WeaponData : ScriptableObject
         return 1f / CalculateFinalAttackDelay(playerStats);
     }
 
-    // DPS °è»ê (UI Ç¥½Ã¿ë)
+    // DPS ï¿½ï¿½ï¿½ (UI Ç¥ï¿½Ã¿ï¿½)
     public float CalculateTheoreticalDPS(PlayerStats playerStats)
     {
         float damage = CalculateFinalDamage(playerStats);
@@ -819,7 +853,7 @@ public class WeaponData : ScriptableObject
     }
 
 
-    // ´ÙÀ½ Æ¼¾î ¹«±â »ı¼º
+    // ï¿½ï¿½ï¿½ï¿½ Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     public WeaponData CreateNextTierWeapon()
     {
         if (currentTier >= 4) return null;
@@ -832,7 +866,7 @@ public class WeaponData : ScriptableObject
     }
 
 
-    // X-Æ¼¾î ¹«±â »ı¼º ¸Ş¼­µå Ãß°¡
+    // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ş¼ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
     public WeaponData CreateXTierWeapon(string customXTierName = null)
     {
         if (currentTier != 4 || !supportsXTier)
@@ -844,7 +878,7 @@ public class WeaponData : ScriptableObject
         WeaponData xTierWeapon = Instantiate(this);
         xTierWeapon.currentTier = 5;
 
-        // X-Æ¼¾î Ä¿½ºÅÒ ¼Ó¼º Àû¿ë
+        // X-Æ¼ï¿½ï¿½ Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (!string.IsNullOrEmpty(xTierWeaponName))
         {
             xTierWeapon.weaponName = xTierWeaponName;
@@ -858,20 +892,20 @@ public class WeaponData : ScriptableObject
             xTierWeapon.weaponName = $"X-{weaponName}";
         }
 
-        // ¼³¸í Àû¿ë
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (!string.IsNullOrEmpty(xTierWeaponDescription))
         {
             xTierWeapon.weaponDescription = xTierWeaponDescription;
         }
 
-        // Å©±â Àû¿ë
+        // Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (xTierWidth > 0 && xTierHeight > 0)
         {
             xTierWeapon.width = xTierWidth;
             xTierWeapon.height = xTierHeight;
         }
 
-        // ¾ÆÀÌÄÜ Àû¿ë
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (xTierWeaponIcon != null)
         {
             xTierWeapon.weaponIcon = xTierWeaponIcon;
@@ -882,7 +916,7 @@ public class WeaponData : ScriptableObject
             xTierWeapon.inventoryWeaponIcon = xTierInventoryWeaponIcon;
         }
 
-        // Åõ»çÃ¼ ÇÁ¸®ÆÕÀÌ ¼³Á¤µÇ¾î ÀÖ´Ù¸é ±³Ã¼
+        // ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½Ö´Ù¸ï¿½ ï¿½ï¿½Ã¼
         if (xTierProjectilePrefab != null)
         {
             xTierWeapon.projectilePrefab = xTierProjectilePrefab;
@@ -923,14 +957,14 @@ public class WeaponData : ScriptableObject
             {
                 if (tierStats[i] == null) continue;
 
-                // ±âº»°ªÀÌ ¾ÆÁ÷ ¼³Á¤µÇÁö ¾ÊÀº °æ¿ì¿¡¸¸ ¼³Á¤
+                // ï¿½âº»ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 if (tierStats[i].projectileCount <= 0)
                 {
-                    tierStats[i].projectileCount = 3 + i;  // 1Æ¼¾î: 3¹ß, 2Æ¼¾î: 4¹ß, ...
+                    tierStats[i].projectileCount = 3 + i;  // 1Æ¼ï¿½ï¿½: 3ï¿½ï¿½, 2Æ¼ï¿½ï¿½: 4ï¿½ï¿½, ...
                 }
                 if (tierStats[i].spreadAngle <= 0)
                 {
-                    tierStats[i].spreadAngle = 45f + (i * 5f);  // 1Æ¼¾î: 45µµ, 2Æ¼¾î: 50µµ, ...
+                    tierStats[i].spreadAngle = 45f + (i * 5f);  // 1Æ¼ï¿½ï¿½: 45ï¿½ï¿½, 2Æ¼ï¿½ï¿½: 50ï¿½ï¿½, ...
                 }
             }
         }
@@ -961,9 +995,9 @@ public class WeaponData : ScriptableObject
             for (int i = 0; i < 4; i++)
             {
                 newEquipmentTierStats[i] = new EquipmentStats();
-                float tierMultiplier = 1f + (i * 0.25f); // Æ¼¾î´ç 25% Áõ°¡
+                float tierMultiplier = 1f + (i * 0.25f); // Æ¼ï¿½ï¿½ï¿½ 25% ï¿½ï¿½ï¿½ï¿½
 
-                // ±âº»°ª ¼³Á¤ (¿¡µğÅÍ¿¡¼­ ¼öÁ¤ °¡´É)
+                // ï¿½âº»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
                 switch (equipmentType)
                 {
                     case EquipmentType.PowerUpper:
@@ -972,17 +1006,17 @@ public class WeaponData : ScriptableObject
 
                     case EquipmentType.SpeedUpper:
                         newEquipmentTierStats[i].speedIncrease = 1f + (i * 0.5f); // 1, 1.5, 2, 2.5
-                        if (i == 3) // 4Æ¼¾î
+                        if (i == 3) // 4Æ¼ï¿½ï¿½
                         {
-                            newEquipmentTierStats[i].hasteIncrease = 20f; // 4Æ¼¾î Äğ´Ù¿î °¨¼Ò
+                            newEquipmentTierStats[i].hasteIncrease = 20f; // 4Æ¼ï¿½ï¿½ ï¿½ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½
                         }
                         break;
 
                     case EquipmentType.HealthUpper:
                         newEquipmentTierStats[i].healthIncrease = 25f + (i * 15f); // 25, 40, 55, 70
-                        if (i == 3) // 4Æ¼¾î
+                        if (i == 3) // 4Æ¼ï¿½ï¿½
                         {
-                            newEquipmentTierStats[i].regenIncrease = 2f; // 4Æ¼¾î Ã¼·Â Àç»ı
+                            newEquipmentTierStats[i].regenIncrease = 2f; // 4Æ¼ï¿½ï¿½ Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½
                         }
                         break;
 
@@ -991,22 +1025,22 @@ public class WeaponData : ScriptableObject
                         break;
 
                     case EquipmentType.PortableMagnet:
-                        newEquipmentTierStats[i].pickupRangeIncrease = 1f + (i * 0.5f); // 1, 1.5, 2, 2.5 (À¯ÀÏÇÏ°Ô % ¾Æ´Ñ ½ÇÁ¦ °Å¸®)
+                        newEquipmentTierStats[i].pickupRangeIncrease = 1f + (i * 0.5f); // 1, 1.5, 2, 2.5 (ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ % ï¿½Æ´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½)
                         break;
 
                     case EquipmentType.KnockbackUpper:
                         newEquipmentTierStats[i].knockbackIncrease = 3f + (i * 2f); // 3, 5, 7, 9
-                        if (i == 3) // 4Æ¼¾î
+                        if (i == 3) // 4Æ¼ï¿½ï¿½
                         {
-                            newEquipmentTierStats[i].knockbackPowerIncrease = 15f; // 4Æ¼¾î °ø°İ·Â
+                            newEquipmentTierStats[i].knockbackPowerIncrease = 15f; // 4Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½İ·ï¿½
                         }
                         break;
 
                     case EquipmentType.RegenUpper:
                         newEquipmentTierStats[i].regenValue = 1f + (i * 0.5f); // 1, 1.5, 2, 2.5
-                        if (i == 3) // 4Æ¼¾î
+                        if (i == 3) // 4Æ¼ï¿½ï¿½
                         {
-                            newEquipmentTierStats[i].regenHasteIncrease = 15f; // 4Æ¼¾î Äğ´Ù¿î °¨¼Ò
+                            newEquipmentTierStats[i].regenHasteIncrease = 15f; // 4Æ¼ï¿½ï¿½ ï¿½ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½
                         }
                         break;
                 }
@@ -1014,42 +1048,49 @@ public class WeaponData : ScriptableObject
             equipmentTierStats = newEquipmentTierStats;
         }
 
-        // X-Tier ½ºÅÈ ÃÊ±âÈ­ Ãß°¡
+        // X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½ß°ï¿½
         if (supportsXTier && xTierStats == null)
         {
             xTierStats = new TierStats();
 
-            // Tier 4 ½ºÅÈÀ» ±â¹İÀ¸·Î X-Tier ½ºÅÈ ÃÊ±â ¼³Á¤
+            // Tier 4 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ X-Tier ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (tierStats != null && tierStats.Length >= 4 && tierStats[3] != null)
             {
-                // µ¥¹ÌÁö: 50% Áõ°¡
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: 50% ï¿½ï¿½ï¿½ï¿½
                 xTierStats.damage = tierStats[3].damage * 1.5f;
 
-                // °ø°İ ¼Óµµ: 30% Áõ°¡ (µô·¹ÀÌ 30% °¨¼Ò)
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½: 30% ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 30% ï¿½ï¿½ï¿½ï¿½)
                 xTierStats.attackDelay = tierStats[3].attackDelay * 0.7f;
 
-                // Åõ»çÃ¼ ¼Óµµ: 30% Áõ°¡
+                // ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½Óµï¿½: 30% ï¿½ï¿½ï¿½ï¿½
                 xTierStats.projectileSpeed = tierStats[3].projectileSpeed * 1.3f;
 
-                // ³Ë¹é: 50% Áõ°¡
+                // ï¿½Ë¹ï¿½: 50% ï¿½ï¿½ï¿½ï¿½
                 xTierStats.knockback = tierStats[3].knockback * 1.5f;
 
-                // Åõ»çÃ¼ Å©±â: 30% Áõ°¡
+                // ï¿½ï¿½ï¿½ï¿½Ã¼ Å©ï¿½ï¿½: 30% ï¿½ï¿½ï¿½ï¿½
                 xTierStats.projectileSize = tierStats[3].projectileSize * 1.3f;
 
-                // ¹üÀ§: 30% Áõ°¡
+                // ï¿½ï¿½ï¿½ï¿½: 30% ï¿½ï¿½ï¿½ï¿½
                 xTierStats.range = tierStats[3].range * 1.3f;
 
-                // °üÅë ¼³Á¤
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 xTierStats.canPenetrate = true;
-                xTierStats.maxPenetrationCount = 0; // ¹«ÇÑ °üÅë
+                xTierStats.maxPenetrationCount = 0; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 xTierStats.penetrationDamageDecay = 0.1f;
 
-                // ¹«±â Å¸ÀÔº° Æ¯¼ö ¼³Á¤
+                // ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ôºï¿½ Æ¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 if (weaponType == WeaponType.Shotgun)
                 {
                     xTierStats.projectileCount = tierStats[3].projectileCount + 2;
                     xTierStats.spreadAngle = tierStats[3].spreadAngle * 1.2f;
+                }
+                else if (weaponType == WeaponType.Machinegun)
+                {
+                    xTierStats.burstCount = tierStats[3].burstCount * 2; // ì—°ì‚¬ íšŸìˆ˜ 2ë°°
+                    xTierStats.burstDelay = tierStats[3].burstDelay * 0.5f; // ì—°ì‚¬ ê°„ê²© 50% ë‹¨ì¶•
+                    xTierStats.spreadAngle = tierStats[3].spreadAngle * 2f; // íƒ„í¼ì§ ê°ë„ 2ë°°
+                    xTierStats.knockbackMultiplier = tierStats[3].knockbackMultiplier * 1.2f; // ë„‰ë°± 20% ì¦ê°€
                 }
                 else if (weaponType == WeaponType.Grinder)
                 {
@@ -1066,7 +1107,7 @@ public class WeaponData : ScriptableObject
 
             if (string.IsNullOrEmpty(xTierWeaponName))
             {
-                // ¹«±â Å¸ÀÔ¿¡ µû¸¥ ÀÌ¸§ ¼³Á¤
+                // ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ô¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
                 switch (weaponType)
                 {
                     case WeaponType.Buster:
