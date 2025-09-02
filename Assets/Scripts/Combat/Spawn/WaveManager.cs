@@ -35,6 +35,7 @@ public class WaveManager : MonoBehaviour
 
     // ���̺� �Ϸ� �̺�Ʈ
     public System.Action OnWaveCompleted;
+    public System.Action OnWaveStarted;
 
     // ĳ��
     private PlayerStats playerStats;
@@ -436,6 +437,9 @@ public class WaveManager : MonoBehaviour
 
         // UI ������Ʈ
         UpdateWaveUI();
+
+        // 웨이브 시작 이벤트 발생
+        OnWaveStarted?.Invoke();
 
         // ���� �ڷ�ƾ ����
         if (spawnCoroutine != null)

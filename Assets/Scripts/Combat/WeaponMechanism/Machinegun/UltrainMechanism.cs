@@ -148,9 +148,10 @@ public class UltrainMechanism : WeaponMechanism
                 weaponData.CalculateFinalKnockback(playerStats),
                 currentRange,
                 weaponData.CalculateFinalProjectileSize(playerStats),
-                false, 0, 0f, // 기본 관통 설정
-                weaponData.CurrentTierStats.knockbackMultiplier // WeaponData에서 넉백 배율 가져오기
+                false, 0, 0f // 기본 관통 설정
             );
+            // 넉백 배율 별도 설정
+            projectile.SetKnockbackMultiplier(weaponData.CurrentTierStats.knockbackMultiplier);
         }
         else if (projectileObj != null && projectileObj.TryGetComponent(out MachinegunProjectile machinegunProjectile))
         {

@@ -12,7 +12,7 @@ public abstract class WeaponMechanism
     protected float currentRange;
     protected float detectionRange;
 
-    // ĳ�ÿ� ������
+    // ĳ�ÿ� ������
     private static readonly List<Transform> tempEnemyList = new List<Transform>(20);
     protected Vector2 tempDirection;
     protected Vector2 playerPosition;
@@ -67,10 +67,10 @@ public abstract class WeaponMechanism
 
     protected virtual Transform FindNearestTarget()
     {
-        // �ӽ� ����Ʈ �ʱ�ȭ
+        // �ӽ� ����Ʈ �ʱ�ȭ
         tempEnemyList.Clear();
 
-        // �� �κ��� Enemy Manager�� ��ü�Ǿ�� �մϴ�
+        // �� �κ��� Enemy Manager�� ��ü�Ǿ�� �մϴ�
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
         playerPosition.x = playerTransform.position.x;
@@ -150,5 +150,13 @@ public abstract class WeaponMechanism
     public virtual void OnPlayerStatsChanged()
     {
         UpdateWeaponStats();
+    }
+
+    /// <summary>
+    /// 무기가 장착 해제될 때 호출되는 메서드 (상속받는 클래스에서 오버라이드 가능)
+    /// </summary>
+    public virtual void OnWeaponUnequipped()
+    {
+        // 기본 구현: 아무것도 하지 않음
     }
 }

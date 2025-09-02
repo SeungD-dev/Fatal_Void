@@ -11,16 +11,22 @@ public class UltrainProjectile : BulletProjectile
     private Vector2 knockbackForce;
     private float knockbackMultiplier = 1.0f;
     
-    public void Initialize(float damage, Vector2 direction, float speed,
+    public override void Initialize(float damage, Vector2 direction, float speed,
         float knockbackPower = 0f, float range = 10f, float projectileSize = 1f,
-        bool canPenetrate = false, int maxPenetrations = 0, float damageDecay = 0.1f, 
-        float knockbackMultiplier = 1.0f)
+        bool canPenetrate = false, int maxPenetrations = 0, float damageDecay = 0.1f)
     {
         base.Initialize(damage, direction, speed, knockbackPower, range, projectileSize,
             canPenetrate, maxPenetrations, damageDecay);
 
-        this.knockbackMultiplier = knockbackMultiplier;
         sqrMaxTravelDistance = range * range;
+    }
+
+    /// <summary>
+    /// 넉백 배율 설정 (UltrainMechanism에서 호출)
+    /// </summary>
+    public void SetKnockbackMultiplier(float multiplier)
+    {
+        knockbackMultiplier = multiplier;
     }
 
     protected override void ApplyDamageAndEffects(Enemy enemy)

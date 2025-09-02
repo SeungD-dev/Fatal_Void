@@ -25,19 +25,33 @@ public class ExterminatorProjectile : BulletProjectile
         float enemyCurrentHealth = enemy.CurrentHealth;
         float executeThreshold = enemyMaxHealth * EXECUTE_THRESHOLD;
 
-        // 일반 데미지 적용
-        enemy.TakeDamage(damage);
-
-        // 처형 조건 확인: 데미지 후 체력이 10% 이하가 되었거나, 이미 10% 이하인 적을 공격했을 때
-        float healthAfterDamage = enemyCurrentHealth - damage;
-        if (healthAfterDamage <= executeThreshold || enemyCurrentHealth <= executeThreshold)
+        // 처형 조건 확인: 현재 체력이 10% 이하이거나, 일반 데미지 후 10% 이하가 될 경우
+        if (enemyCurrentHealth <= executeThreshold)
         {
-            // 즉시 처형 - 적의 현재 체력만큼 추가 데미지를 주어 확실히 사망시킴
-            float executeDamage = enemy.CurrentHealth + 1f; // 현재 체력보다 약간 더 많은 데미지
+            // 즉시 처형 - 현재 체력만큼 추가 데미지로 확실히 사망
+            float executeDamage = enemyCurrentHealth + 1f;
             enemy.TakeDamage(executeDamage);
-            
-            // 처형 이펙트 (선택사항 - 나중에 VFX 추가 가능)
             SpawnExecuteVFX(enemy.transform.position);
+        }
+        else
+        {
+            float healthAfterDamage = enemyCurrentHealth - damage;
+            if (healthAfterDamage <= executeThreshold)
+            {
+                // 일반 데미지 후 처형 범위에 들어가는 경우
+                enemy.TakeDamage(damage);
+                float remainingHealth = enemy.CurrentHealth;
+                if (remainingHealth > 0 && remainingHealth <= executeThreshold)
+                {
+                    enemy.TakeDamage(remainingHealth + 1f);
+                    SpawnExecuteVFX(enemy.transform.position);
+                }
+            }
+            else
+            {
+                // 일반 데미지만 적용
+                enemy.TakeDamage(damage);
+            }
         }
 
         // 넉백 적용

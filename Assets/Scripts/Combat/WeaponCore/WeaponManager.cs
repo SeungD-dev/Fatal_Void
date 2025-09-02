@@ -32,6 +32,9 @@ public class WeaponManager : MonoBehaviour
         playerStats.OnCooldownReduceChanged += UpdateAllWeaponsStats;
         playerStats.OnKnockbackChanged += UpdateAllWeaponsStats;
         playerStats.OnAreaOfEffectChanged += UpdateAllWeaponsStats;
+        
+        // 플레이어 사망 이벤트 구독
+        playerStats.OnPlayerDeath += OnPlayerDeath;
     }
     private void ApplyEquipmentEffect(WeaponData equipmentData)
     {
@@ -132,6 +135,9 @@ public class WeaponManager : MonoBehaviour
     private void CleanupWeaponMechanism(WeaponMechanism mechanism)
     {
         if (mechanism == null) return;
+
+        // 모든 메커니즘에 대해 장착 해제 콜백 호출
+        mechanism.OnWeaponUnequipped();
 
         switch (mechanism)
         {
@@ -313,6 +319,28 @@ public class WeaponManager : MonoBehaviour
         activeEquipments.Clear();
     }
 
+    /// <summary>
+    /// 플레이어 사망 시 모든 무기 정리 및 특수 처리
+    /// </summary>
+    private void OnPlayerDeath()
+    {
+        // InfinityDisc와 PhantomSaber의 OnPlayerDeath 메서드 호출
+        foreach (var mechanism in activeWeapons.Values)
+        {
+            if (mechanism is InfinityDiscMechanism infinityDisc)
+            {
+                infinityDisc.OnPlayerDeath();
+            }
+            else if (mechanism is PhantomSaberMechanism phantomSaber)
+            {
+                phantomSaber.OnPlayerDeath();
+            }
+        }
+
+        // 모든 무기 정리
+        CleanupAllWeapons();
+    }
+
     private void OnDestroy()
     {
         if (playerStats != null)
@@ -321,6 +349,7 @@ public class WeaponManager : MonoBehaviour
             playerStats.OnCooldownReduceChanged -= UpdateAllWeaponsStats;
             playerStats.OnKnockbackChanged -= UpdateAllWeaponsStats;
             playerStats.OnAreaOfEffectChanged -= UpdateAllWeaponsStats;
+            playerStats.OnPlayerDeath -= OnPlayerDeath;
         }
         ClearAllWeapons();
     }

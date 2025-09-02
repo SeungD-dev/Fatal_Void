@@ -115,6 +115,7 @@ public class EnhancedWeaponManager : MonoBehaviour
         if (waveManager != null)
         {
             waveManager.OnWaveCompleted += CheckForEnhancedWeapons;
+            waveManager.OnWaveStarted += ResetWaveState;
         }
     }
 
@@ -126,6 +127,7 @@ public class EnhancedWeaponManager : MonoBehaviour
         if (waveManager != null)
         {
             waveManager.OnWaveCompleted -= CheckForEnhancedWeapons;
+            waveManager.OnWaveStarted -= ResetWaveState;
         }
     }
 

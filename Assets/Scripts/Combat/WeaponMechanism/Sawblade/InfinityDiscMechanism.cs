@@ -139,6 +139,14 @@ public class InfinityDiscMechanism : WeaponMechanism
     }
 
     /// <summary>
+    /// WeaponMechanism의 OnWeaponUnequipped 오버라이드
+    /// </summary>
+    public override void OnWeaponUnequipped()
+    {
+        OnWeaponRemoved();
+    }
+
+    /// <summary>
     /// 플레이어가 죽었을 때 호출
     /// </summary>
     public void OnPlayerDeath()
