@@ -51,6 +51,10 @@ public class TierStats
     [Tooltip("�˹� ���� (1.0 = �⺻��)")]
     public float knockbackMultiplier = 1.0f;
 
+    [Header("Cutter Properties")]
+    [Tooltip("����ü ���� ���� (��)")]
+    public float cutterSpreadAngle = 15f;
+
     public struct PenetrationInfo
     {
         public bool canPenetrate;
@@ -390,6 +394,13 @@ public class WeaponDataEditor : Editor
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("knockbackMultiplier"),
                         new GUIContent("Knockback Multiplier", "�˹� ���� (1.0 = �⺻��)"));
                 }
+                else if (weaponData.weaponType == WeaponType.Cutter)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Cutter Properties", EditorStyles.boldLabel);
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("cutterSpreadAngle"),
+                        new GUIContent("Spread Angle", "투사체 퍼짐 각도 (도)"));
+                }
                 else if (weaponData.weaponType == WeaponType.ForceFieldGenerator)
                 {
                     EditorGUILayout.Space();
@@ -494,6 +505,13 @@ public class WeaponDataEditor : Editor
                     new GUIContent("Spread Angle", "�� ���� ���� (��)"));
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("knockbackMultiplier"),
                     new GUIContent("Knockback Multiplier", "�˹� ���� (1.0 = �⺻��)"));
+            }
+            else if (weaponData.weaponType == WeaponType.Cutter)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Cutter Properties", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("cutterSpreadAngle"),
+                    new GUIContent("Spread Angle", "투사체 퍼짐 각도 (도)"));
             }
             else if (weaponData.weaponType == WeaponType.Grinder)
             {
@@ -1091,6 +1109,10 @@ public class WeaponData : ScriptableObject
                     xTierStats.burstDelay = tierStats[3].burstDelay * 0.5f; // 연사 간격 50% 단축
                     xTierStats.spreadAngle = tierStats[3].spreadAngle * 2f; // 탄퍼짐 각도 2배
                     xTierStats.knockbackMultiplier = tierStats[3].knockbackMultiplier * 1.2f; // 넉백 20% 증가
+                }
+                else if (weaponType == WeaponType.Cutter)
+                {
+                    xTierStats.cutterSpreadAngle = tierStats[3].cutterSpreadAngle * 1.5f; // 퍼짐 각도 50% 증가
                 }
                 else if (weaponType == WeaponType.Grinder)
                 {
