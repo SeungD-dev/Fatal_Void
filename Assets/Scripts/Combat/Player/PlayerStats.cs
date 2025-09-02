@@ -146,7 +146,7 @@ public class PlayerStats : MonoBehaviour
         pickupRange = basePickupRange;
 
         UpdateStats();
-        LevelUp();  // Ã¹ ·¹º§¾÷À¸·Î »óÁ¡ ¿­±â
+        LevelUp();  // Ã¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
         isInitialized = true;
     }
@@ -297,7 +297,7 @@ public class PlayerStats : MonoBehaviour
         while (currentExp >= requiredExp && !isLevelingUp)
         {
             int overflow = currentExp - requiredExp;
-            //LevelUp();
+            LevelUp();
             currentExp = overflow;
         }
 
@@ -543,12 +543,12 @@ public class PlayerStats : MonoBehaviour
             hasMagnetEffect = true;
             OnMagnetEffectChanged?.Invoke(true);
 
-            yield return MagnetEffectDuration;  // Ä³½ÃµÈ WaitForSeconds »ç¿ë
+            yield return MagnetEffectDuration;  // Ä³ï¿½Ãµï¿½ WaitForSeconds ï¿½ï¿½ï¿½
 
             hasMagnetEffect = false;
             OnMagnetEffectChanged?.Invoke(false);
 
-            yield return MagnetEffectCooldown;  // Ä³½ÃµÈ WaitForSeconds »ç¿ë
+            yield return MagnetEffectCooldown;  // Ä³ï¿½Ãµï¿½ WaitForSeconds ï¿½ï¿½ï¿½
         }
     }
     public void SetMagnetEffect(bool isActive)
@@ -560,9 +560,42 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµå¸¦ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
+    /// </summary>
+    /// <param name="levels">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½</param>
+    /// <returns>ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</returns>
+    public bool SubtractLevels(int levels)
+    {
+        if (levels <= 0)
+        {
+            return false;
+        }
+
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å«ï¿½ï¿½ È®ï¿½ï¿½
+        if (level <= levels)
+        {
+            Debug.LogWarning("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
+            return false;
+        }
+
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ (ï¿½Ö¼ï¿½ 1 ï¿½ï¿½ï¿½ï¿½)
+        int newLevel = Mathf.Max(1, level - levels);
+        level = newLevel;
+
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+        UpdateStats();
+
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ß»ï¿½
+        OnLevelUp?.Invoke(newLevel);
+
+        Debug.Log($"ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ {levels}ï¿½ï¿½Å­ ï¿½ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: {newLevel}");
+        return true;
+    }
+
     private void OnDestroy()
     {
-        // ÀÌº¥Æ® ÇÚµé·¯ Á¤¸®
+        // ï¿½Ìºï¿½Æ® ï¿½Úµé·¯ ï¿½ï¿½ï¿½ï¿½
         OnHealthChanged = null;
         OnExpChanged = null;
         OnLevelUp = null;

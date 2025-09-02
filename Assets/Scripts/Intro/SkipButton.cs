@@ -10,14 +10,14 @@ public class SkipButton : MonoBehaviour
 
     private Coroutine hideButtonCoroutine;
     private TouchActions touchActions;
-    private bool skipProcessed = false;  // Áßº¹ È£Ãâ ¹æÁö¿ë ÇÃ·¡±×
+    private bool skipProcessed = false;  // ï¿½ßºï¿½ È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½
 
     private void Awake()
     {
-        // TouchActions ÃÊ±âÈ­
+        // TouchActions ï¿½Ê±ï¿½È­
         touchActions = new TouchActions();
 
-        // ¹öÆ° ¼³Á¤
+        // ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½
         if (skipButton == null)
         {
             skipButton = GetComponent<Button>();
@@ -32,19 +32,19 @@ public class SkipButton : MonoBehaviour
 
     private void OnEnable()
     {
-        // Input Actions È°¼ºÈ­
+        // Input Actions È°ï¿½ï¿½È­
         touchActions.Enable();
         touchActions.Touch.Press.started += OnTouchStarted;
-        skipProcessed = false;  // ÃÊ±âÈ­
+        skipProcessed = false;  // ï¿½Ê±ï¿½È­
     }
 
     private void OnDisable()
     {
-        // Input Actions ºñÈ°¼ºÈ­
+        // Input Actions ï¿½ï¿½È°ï¿½ï¿½È­
         touchActions.Touch.Press.started -= OnTouchStarted;
         touchActions.Disable();
 
-        // ÄÚ·çÆ¾ Á¤¸®
+        // ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
         if (hideButtonCoroutine != null)
         {
             StopCoroutine(hideButtonCoroutine);
@@ -85,34 +85,33 @@ public class SkipButton : MonoBehaviour
 
     private void OnSkipButtonClick()
     {
-        // Áßº¹ ½ÇÇà ¹æÁö
+        // ï¿½ßºï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (skipProcessed) return;
         skipProcessed = true;
 
-        Debug.Log("½ºÅµ ¹öÆ° Å¬¸¯µÊ - ÀÎÆ®·Î ½ºÅµ ½Ãµµ");
+        Debug.Log("ï¿½ï¿½Åµ ï¿½ï¿½Æ° Å¬ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½Åµ ï¿½Ãµï¿½");
 
-        // È¿°úÀ½ Àç»ý
+        // È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         if (SoundManager.Instance != null)
         {
             SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
         }
 
-        // Á÷Á¢ IntroSequenceManager Ã£¾Æ¼­ È£Ãâ - °¡Àå ½Å·Ú¼º ÀÖ´Â ¹æ¹ý
+        // ï¿½ï¿½ï¿½ï¿½ IntroSequenceManager Ã£ï¿½Æ¼ï¿½ È£ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½Å·Ú¼ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½
         IntroSequenceManager introManager = FindAnyObjectByType<IntroSequenceManager>();
         if (introManager != null)
         {
-            Debug.Log("IntroSequenceManager.SkipIntro() È£Ãâ");
+            Debug.Log("IntroSequenceManager.SkipIntro() È£ï¿½ï¿½");
             introManager.SkipIntro();
         }
         else
         {
-            Debug.LogError("IntroSequenceManager¸¦ Ã£À» ¼ö ¾øÀ½");
+            Debug.LogError("IntroSequenceManagerï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
         }
     }
 
     private void OnDestroy()
     {
-        // ÀÌº¥Æ® Á¤¸®
         touchActions.Touch.Press.started -= OnTouchStarted;
         touchActions.Disable();
 

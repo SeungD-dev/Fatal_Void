@@ -4,27 +4,23 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// X-Æ¼¾î ¹«±â ¾÷±×·¹ÀÌµå UI¸¦ °ü¸®ÇÏ´Â Å¬·¡½º
-/// ¿þÀÌºê Å¬¸®¾î ÈÄ 4Æ¼¾î ¹«±â¸¦ X-Æ¼¾î·Î ¾÷±×·¹ÀÌµåÇÏ´Â UI¸¦ Á¦°øÇÕ´Ï´Ù.
+/// X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
+/// ï¿½ï¿½ï¿½Ìºï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ 4Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½â¸¦ X-Æ¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ï¿½Ï´ï¿½ UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 /// </summary>
 public class EnhancedWeaponUI : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI levelInfoText;
-    [SerializeField] private TextMeshProUGUI descriptionText;
-    [SerializeField] private Button skipButton;
-    [SerializeField] private Transform weaponOptionContainer;
-    [SerializeField] private GameObject weaponOptionPrefab;
+    [SerializeField] private EnhancedWeaponOption[] weaponOptions; // ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 
     [Header("Enhanced Weapon Panel")]
     [SerializeField] private EnhancedWeaponManager enhancedWeaponManager;
 
-    // ³»ºÎ »óÅÂ
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     private List<WeaponData> availableWeapons = new List<WeaponData>();
     private int playerLevel;
     private int levelCost;
-    private List<GameObject> instantiatedOptions = new List<GameObject>();
 
     private void Awake()
     {
@@ -37,7 +33,7 @@ public class EnhancedWeaponUI : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇÊ¿äÇÑ ÄÄÆ÷³ÍÆ® ÂüÁ¶ ÃÊ±âÈ­
+    /// ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
     /// </summary>
     private void InitializeComponents()
     {
@@ -46,20 +42,18 @@ public class EnhancedWeaponUI : MonoBehaviour
             enhancedWeaponManager = FindAnyObjectByType<EnhancedWeaponManager>();
         }
 
-        // ±âº» ÅØ½ºÆ® ¼³Á¤
+        // ï¿½âº» ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         if (titleText != null)
         {
             titleText.text = "X-TIER WEAPON UPGRADE";
         }
 
-        if (descriptionText != null)
-        {
-            descriptionText.text = "Select one weapon to upgrade to X-Tier. The upgrade will cost player levels.";
-        }
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½
+        HideAllWeaponOptions();
     }
 
     /// <summary>
-    /// ¾÷±×·¹ÀÌµå °¡´ÉÇÑ ¹«±â µ¥ÀÌÅÍ ¼³Á¤
+    /// ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void SetWeaponsData(List<WeaponData> weapons)
     {
@@ -67,7 +61,7 @@ public class EnhancedWeaponUI : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç ÇÃ·¹ÀÌ¾î ·¹º§ ¼³Á¤
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void SetPlayerLevel(int level)
     {
@@ -75,7 +69,7 @@ public class EnhancedWeaponUI : MonoBehaviour
     }
 
     /// <summary>
-    /// ·¹º§ ºñ¿ë ¼³Á¤
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void SetLevelCost(int cost)
     {
@@ -83,80 +77,68 @@ public class EnhancedWeaponUI : MonoBehaviour
     }
 
     /// <summary>
-    /// UI °»½Å
+    /// UI ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private void UpdateUI()
     {
-        // ·¹º§ Á¤º¸ °»½Å
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (levelInfoText != null)
         {
             levelInfoText.text = $"Your Level: {playerLevel} / Cost: {levelCost} Levels";
         }
 
-        // ¹«±â ¿É¼Ç »ý¼º
-        CreateWeaponOptions();
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ ï¿½ï¿½ï¿½ï¿½
+        UpdateWeaponOptions();
     }
 
     /// <summary>
-    /// ¹«±â ¿É¼Ç UI »ý¼º
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ UI ï¿½ï¿½ï¿½ï¿½
     /// </summary>
-    private void CreateWeaponOptions()
+    private void UpdateWeaponOptions()
     {
-        // ±âÁ¸ ¿É¼Ç Á¤¸®
-        ClearWeaponOptions();
+        // ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­
+        HideAllWeaponOptions();
 
-        if (weaponOptionContainer == null || weaponOptionPrefab == null)
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½
+        for (int i = 0; i < availableWeapons.Count && i < weaponOptions.Length; i++)
         {
-            Debug.LogError("¹«±â ¿É¼Ç ÄÁÅ×ÀÌ³Ê ¶Ç´Â ÇÁ¸®ÆÕÀÌ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù.");
-            return;
-        }
-
-        // °¢ ¹«±â¸¶´Ù ¿É¼Ç UI »ý¼º
-        foreach (var weaponData in availableWeapons)
-        {
-            if (weaponData == null) continue;
-
-            GameObject optionObj = Instantiate(weaponOptionPrefab, weaponOptionContainer);
-            instantiatedOptions.Add(optionObj);
-
-            // EnhancedWeaponOption ÄÄÆ÷³ÍÆ® °¡Á®¿À±â
-            EnhancedWeaponOption option = optionObj.GetComponent<EnhancedWeaponOption>();
-            if (option != null)
+            if (availableWeapons[i] != null && weaponOptions[i] != null)
             {
-                option.Initialize(weaponData, this);
+                weaponOptions[i].gameObject.SetActive(true);
+                weaponOptions[i].Initialize(availableWeapons[i], this);
             }
         }
     }
 
     /// <summary>
-    /// ±âÁ¸ ¹«±â ¿É¼Ç Á¤¸®
+    /// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
-    private void ClearWeaponOptions()
+    private void HideAllWeaponOptions()
     {
-        foreach (var option in instantiatedOptions)
+        if (weaponOptions == null) return;
+
+        foreach (var option in weaponOptions)
         {
             if (option != null)
             {
-                Destroy(option);
+                option.gameObject.SetActive(false);
             }
         }
-
-        instantiatedOptions.Clear();
     }
 
     /// <summary>
-    /// ¹«±â ¼±ÅÃ Ã³¸®
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
     /// </summary>
     public void OnWeaponSelected(WeaponData weaponData)
     {
         if (weaponData == null || enhancedWeaponManager == null) return;
 
-        // ¼±ÅÃÇÑ ¹«±â¸¦ X-Æ¼¾î·Î ¾÷±×·¹ÀÌµå
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â¸¦ X-Æ¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½
         enhancedWeaponManager.UpgradeToXTier(weaponData);
     }
   
     private void OnDestroy()
     {
-        ClearWeaponOptions();
+        HideAllWeaponOptions();
     }
 }

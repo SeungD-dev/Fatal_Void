@@ -4,20 +4,19 @@ using TMPro;
 using System.Collections.Generic;
 
 /// <summary>
-/// Çâ»óµÈ ¹«±â ¿É¼Ç UI ¿ä¼Ò¸¦ °ü¸®ÇÏ´Â Å¬·¡½º
-/// °³º° X-Æ¼¾î ¹«±â ¾÷±×·¹ÀÌµå ¿É¼ÇÀ» Ç¥½ÃÇÕ´Ï´Ù.
+/// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ UI ï¿½ï¿½Ò¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
+/// ï¿½ï¿½ï¿½ï¿½ X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½É¼ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 /// </summary>
 public class EnhancedWeaponOption : MonoBehaviour
 {
     [Header("UI Elements")]
     [SerializeField] private Image weaponIcon;
     [SerializeField] private TextMeshProUGUI weaponNameText;
-    [SerializeField] private TextMeshProUGUI originalNameText;
     [SerializeField] private TextMeshProUGUI weaponDescriptionText;
     [SerializeField] private TextMeshProUGUI statUpgradesText;
     [SerializeField] private Button selectButton;
 
-    // X-Æ¼¾î ¹«±â ÀÌ¸§ ¸ÅÇÎ (¹«±â Å¸ÀÔ -> X-Æ¼¾î ÀÌ¸§)
+    // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ -> X-Æ¼ï¿½ï¿½ ï¿½Ì¸ï¿½)
     private readonly Dictionary<WeaponType, string> xTierWeaponNames = new Dictionary<WeaponType, string>()
     {
         { WeaponType.Buster, "Exterminator" },
@@ -31,13 +30,13 @@ public class EnhancedWeaponOption : MonoBehaviour
         { WeaponType.ForceFieldGenerator, "Time Turner" }
     };
 
-    // ÂüÁ¶ ¹× µ¥ÀÌÅÍ
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private WeaponData weaponData;
     private EnhancedWeaponUI parentUI;
 
     private void Awake()
     {
-        // ¹öÆ° ÀÌº¥Æ® ¼³Á¤
+        // ï¿½ï¿½Æ° ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         if (selectButton != null)
         {
             selectButton.onClick.AddListener(OnSelectButtonClicked);
@@ -45,7 +44,7 @@ public class EnhancedWeaponOption : MonoBehaviour
     }
 
     /// <summary>
-    /// ¹«±â µ¥ÀÌÅÍ ÃÊ±âÈ­
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
     /// </summary>
     public void Initialize(WeaponData data, EnhancedWeaponUI ui)
     {
@@ -56,33 +55,27 @@ public class EnhancedWeaponOption : MonoBehaviour
     }
 
     /// <summary>
-    /// UI Á¤º¸ °»½Å
+    /// UI ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private void UpdateUI()
     {
         if (weaponData == null) return;
 
-        // ¹«±â ¾ÆÀÌÄÜ ¼³Á¤
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (weaponIcon != null)
         {
             weaponIcon.sprite = weaponData.weaponIcon;
-            weaponIcon.color = Color.red; // X-Æ¼¾î »ö»ó (»¡°£»ö)
+            weaponIcon.color = Color.red; // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
         }
 
-        // ¿ø·¡ ¹«±â ÀÌ¸§
-        if (originalNameText != null)
-        {
-            originalNameText.text = $"From: {weaponData.weaponName}";
-        }
-
-        // X-Æ¼¾î ¹«±â ÀÌ¸§
+        // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½
         if (weaponNameText != null)
         {
             string xTierName = GetXTierName(weaponData.weaponType);
             weaponNameText.text = xTierName;
         }
 
-        // ¹«±â ¼³¸í
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (weaponDescriptionText != null)
         {
             string description = GetEnhancedDescription(weaponData);
@@ -91,22 +84,22 @@ public class EnhancedWeaponOption : MonoBehaviour
     }
 
     /// <summary>
-    /// ¼±ÅÃ ¹öÆ° Å¬¸¯ ÀÌº¥Æ® Ã³¸®
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ° Å¬ï¿½ï¿½ ï¿½Ìºï¿½Æ® Ã³ï¿½ï¿½
     /// </summary>
     private void OnSelectButtonClicked()
     {
         if (parentUI != null && weaponData != null)
         {
-            // »ç¿îµå È¿°ú Àç»ý
+            // ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½
             SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
 
-            // ºÎ¸ð UI¿¡ ¼±ÅÃ ¾Ë¸²
+            // ï¿½Î¸ï¿½ UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ë¸ï¿½
             parentUI.OnWeaponSelected(weaponData);
         }
     }
 
     /// <summary>
-    /// ¹«±â Å¸ÀÔ¿¡ µû¸¥ X-Æ¼¾î ÀÌ¸§ ¹ÝÈ¯
+    /// ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ô¿ï¿½ ï¿½ï¿½ï¿½ï¿½ X-Æ¼ï¿½ï¿½ ï¿½Ì¸ï¿½ ï¿½ï¿½È¯
     /// </summary>
     private string GetXTierName(WeaponType weaponType)
     {
@@ -115,16 +108,22 @@ public class EnhancedWeaponOption : MonoBehaviour
             return name;
         }
 
-        // ±âº» ÀÌ¸§ ¹ÝÈ¯
+        // ï¿½âº» ï¿½Ì¸ï¿½ ï¿½ï¿½È¯
         return $"X-{weaponData.weaponName}";
     }
 
     /// <summary>
-    /// X-Æ¼¾î ¹«±â ¼³¸í Ç¥½Ã
+    /// X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½
     /// </summary>
     private string GetEnhancedDescription(WeaponData weaponData)
     {
-        // WeaponData¿¡¼­ Á÷Á¢ °¡Á®¿À±â
-        return weaponData.weaponDescription;
+        // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
+        if (!string.IsNullOrEmpty(weaponData.xTierWeaponDescription))
+        {
+            return weaponData.xTierWeaponDescription;
+        }
+        
+        // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½âº»ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+        return $"Enhanced {weaponData.weaponDescription}\n\n[X-Tier Enhancement]\nâ€¢ Greatly increased damage and performance\nâ€¢ Special effects and abilities activated";
     }
 }

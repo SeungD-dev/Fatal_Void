@@ -11,7 +11,7 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private SpawnWarningController warningController;
     [SerializeField] private ShopController shopController;
     [SerializeField] private InventoryController inventoryController;
-    [SerializeField] private GameObject warningPrefab; // °æ°í ÇÁ¸®ÆÕ
+    [SerializeField] private GameObject warningPrefab; // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
     [Header("Wave UI")]
     [SerializeField] private TextMeshProUGUI waveNumberText;
@@ -19,9 +19,9 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI waveCompleteText;
 
     [Header("Spawn Settings")]
-    [SerializeField] private float minDistanceFromPlayer = 8f; // ÇÃ·¹ÀÌ¾î·ÎºÎÅÍ ÃÖ¼Ò ½ºÆù °Å¸®
+    [SerializeField] private float minDistanceFromPlayer = 8f; // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½Îºï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½
 
-    // ¿þÀÌºê »óÅÂ
+    // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½
     [SerializeField] private int _currentWaveNumber = 0;  // Serialized for inspector visibility
     private bool isWaveActive = false;
     private bool isInSurvivalPhase = false;
@@ -33,14 +33,17 @@ public class WaveManager : MonoBehaviour
     // Public access to current wave number
     public int currentWaveNumber => _currentWaveNumber;
 
-    // Ä³½Ì
+    // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ï·ï¿½ ï¿½Ìºï¿½Æ®
+    public System.Action OnWaveCompleted;
+
+    // Ä³ï¿½ï¿½
     private PlayerStats playerStats;
     private PlayerUIController playerUIController;
     private List<Enemy> spawnedEnemies = new List<Enemy>();
     private Camera mainCamera;
     private GameMap gameMap;
 
-    // ¹®ÀÚ¿­ Ä³½Ã
+    // ï¿½ï¿½ï¿½Ú¿ï¿½ Ä³ï¿½ï¿½
     private readonly System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder(32);
     private const string WAVE_TIME_FORMAT = "Wave: {0:00}";
     private const string SURVIVAL_TIME_FORMAT = "Survive: {0:00}";
@@ -111,13 +114,13 @@ public class WaveManager : MonoBehaviour
 
     private void Start()
     {
-        // ÇÊ¼ö ÀÇÁ¸¼ºÀÌ ¸ðµÎ ÁØºñµÉ ¶§±îÁö ±â´Ù¸®´Â ÄÚ·çÆ¾ ½ÇÇà
+        // ï¿½Ê¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Øºï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ù¸ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
         StartCoroutine(WaitForDependencies());
 
-        // µ¶¸³ÀûÀ¸·Î ÃÊ±âÈ­ÇÒ ¼ö ÀÖ´Â ÀÛ¾÷ ¸ÕÀú ½ÇÇà
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Û¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         InitializeWarningPool();
 
-        // ÀÎº¥Åä¸® ÄÁÆ®·Ñ·¯ÀÇ ÁøÇà ¹öÆ° ÀÌº¥Æ® ¿¬°á
+        // ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ° ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         if (inventoryController != null)
         {
             inventoryController.OnProgressButtonClicked += StartNextWave;
@@ -129,7 +132,7 @@ public class WaveManager : MonoBehaviour
         float timeOut = 5f;
         float elapsed = 0f;
 
-        // GameManager ÀÇÁ¸¼º È®ÀÎ
+        // GameManager ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         while (GameManager.Instance == null && elapsed < timeOut)
         {
             elapsed += 0.1f;
@@ -142,7 +145,7 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
-        // PlayerStats ÀÇÁ¸¼º ÃÊ±âÈ­
+        // PlayerStats ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         while (GameManager.Instance.PlayerStats == null && elapsed < timeOut)
         {
             elapsed += 0.1f;
@@ -158,7 +161,7 @@ public class WaveManager : MonoBehaviour
         playerStats = GameManager.Instance.PlayerStats;
         playerStats.OnPlayerDeath += HandlePlayerDeath;
 
-        // MapManager ÀÇÁ¸¼º È®ÀÎ
+        // MapManager ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         while (MapManager.Instance == null && elapsed < timeOut)
         {
             elapsed += 0.1f;
@@ -171,10 +174,10 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
-        // ¸Ê ·Îµå ´ë±â
+        // ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ï¿½ï¿½
         yield return StartCoroutine(WaitForMapLoad());
 
-        // ³ª¸ÓÁö ÀÌº¥Æ® ±¸µ¶
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
 
         playerUIController = FindAnyObjectByType<PlayerUIController>();
@@ -193,17 +196,17 @@ public class WaveManager : MonoBehaviour
 
     private IEnumerator WaitForMapLoad()
     {
-        float timeOut = 2f; // ´õ ÂªÀº Å¸ÀÓ¾Æ¿ô (5ÃÊ¡æ2ÃÊ)
+        float timeOut = 2f; // ï¿½ï¿½ Âªï¿½ï¿½ Å¸ï¿½Ó¾Æ¿ï¿½ (5ï¿½Ê¡ï¿½2ï¿½ï¿½)
         float elapsed = 0f;
 
-        // MapManager¿¡ ÇöÀç ¸ÊÀÌ ·ÎµåµÉ ¶§±îÁö ±â´Ù¸²
+        // MapManagerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ù¸ï¿½
         while (MapManager.Instance.CurrentMap == null && elapsed < timeOut)
         {
-            elapsed += 0.05f; // ´õ ÂªÀº °£°ÝÀ¸·Î Ã¼Å© (0.1ÃÊ¡æ0.05ÃÊ)
+            elapsed += 0.05f; // ï¿½ï¿½ Âªï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å© (0.1ï¿½Ê¡ï¿½0.05ï¿½ï¿½)
             yield return new WaitForSeconds(0.05f);
         }
 
-        // ¸Ê ÂüÁ¶ °¡Á®¿À±â
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         gameMap = MapManager.Instance.CurrentMap;
 
         if (gameMap == null)
@@ -212,7 +215,7 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
-        // ¸ÊÀÌ ·ÎµåµÈ ÈÄ¿¡ ½ÇÇàµÇ¾î¾ß ÇÏ´Â ÃÊ±âÈ­ ·ÎÁ÷
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ ï¿½Ä¿ï¿½ ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ ï¿½Ï´ï¿½ ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½
         InitializeEnemyPools();
         SetupFirstWave();
 
@@ -221,7 +224,7 @@ public class WaveManager : MonoBehaviour
 
     private void InitializeSystem()
     {
-        // ¸ÊÀÌ ·ÎµåµÈ ÈÄ¿¡ ½ÇÇàµÇ¾î¾ß ÇÏ´Â ÃÊ±âÈ­ ·ÎÁ÷
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ ï¿½Ä¿ï¿½ ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ ï¿½Ï´ï¿½ ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½
         InitializeEnemyPools();
         SetupFirstWave();
     }
@@ -239,7 +242,7 @@ public class WaveManager : MonoBehaviour
 
     private void InitializeEnemyPools()
     {
-        // ¸ðµç ¿þÀÌºê¿¡¼­ »ç¿ëµÇ´Â Àû À¯Çü ¼öÁý
+        // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºê¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         HashSet<EnemyData> allEnemyTypes = new HashSet<EnemyData>();
 
         foreach (var wave in waveData.waves)
@@ -253,18 +256,18 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        // °¢ Àû À¯Çü¿¡ ´ëÇÑ Ç® »ý¼º
+        // ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç® ï¿½ï¿½ï¿½ï¿½
         foreach (var enemyData in allEnemyTypes)
         {
             if (enemyData.enemyPrefab != null)
             {
-                // ÀÌ¹Ì Ç®ÀÌ ÀÖ´ÂÁö È®ÀÎ
+                // ï¿½Ì¹ï¿½ Ç®ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
                 if (!ObjectPool.Instance.DoesPoolExist(enemyData.enemyName))
                 {
-                    // ÄÃ¸µ ¸Å´ÏÀú ÂüÁ¶ ¾ò±â
+                    // ï¿½Ã¸ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
                     EnemyCullingManager cullingManager = FindAnyObjectByType<EnemyCullingManager>();
 
-                    // Enemy ÄÄÆ÷³ÍÆ® ÃÊ±âÈ­
+                    // Enemy ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ê±ï¿½È­
                     if (cullingManager != null)
                     {
                         GameObject prefabInstance = enemyData.enemyPrefab;
@@ -275,7 +278,7 @@ public class WaveManager : MonoBehaviour
                         }
                     }
 
-                    // Ç® »ý¼º
+                    // Ç® ï¿½ï¿½ï¿½ï¿½
                     ObjectPool.Instance.CreatePool(
                         enemyData.enemyName,
                         enemyData.enemyPrefab,
@@ -319,23 +322,23 @@ public class WaveManager : MonoBehaviour
 
     private void HandleGameStateChanged(GameState newState)
     {
-        // °ÔÀÓ ÇÃ·¹ÀÌ »óÅÂÀÏ ¶§¸¸ ¿þÀÌºê ÁøÇà
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½
         if (newState == GameState.Playing)
         {
-            // °ÔÀÓÀÌ ½ÃÀÛµÇ¸é Ã¹ ¿þÀÌºê ½ÃÀÛ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÛµÇ¸ï¿½ Ã¹ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½
             if (!isWaveActive && _currentWaveNumber == 1 && waveTimer == 0f)
             {
                 StartWave(_currentWaveNumber);
             }
             else if (isWaveActive && spawnCoroutine == null)
             {
-                // ÀÏ½ÃÁ¤Áö ÈÄ Àç°³ ½Ã ½ºÆù ÄÚ·çÆ¾ ´Ù½Ã ½ÃÀÛ
+                // ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ç°³ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 spawnCoroutine = StartCoroutine(SpawnEnemiesCoroutine());
             }
         }
         else if (newState == GameState.Paused || newState == GameState.GameOver)
         {
-            // ÀÏ½ÃÁ¤Áö³ª °ÔÀÓ¿À¹ö ½Ã ½ºÆù ÄÚ·çÆ¾ ÁßÁö
+            // ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
             if (spawnCoroutine != null)
             {
                 StopCoroutine(spawnCoroutine);
@@ -349,20 +352,20 @@ public class WaveManager : MonoBehaviour
         if (!isWaveActive || GameManager.Instance.currentGameState != GameState.Playing)
             return;
 
-        // Å¸ÀÌ¸Ó ¾÷µ¥ÀÌÆ®
+        // Å¸ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         waveTimer += Time.deltaTime;
 
-        // Å¸ÀÌ¸Ó UI ¾÷µ¥ÀÌÆ®
+        // Å¸ï¿½Ì¸ï¿½ UI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         UpdateTimerUI();
 
-        // ¿þÀÌºê ´Ü°è °ü¸®
+        // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ü°ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (!isInSurvivalPhase && waveTimer >= currentWave.waveDuration)
         {
-            // ¿þÀÌºê ½Ã°£ Á¾·á - »ýÁ¸ ´Ü°è ½ÃÀÛ
+            // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½Ü°ï¿½ ï¿½ï¿½ï¿½ï¿½
             isInSurvivalPhase = true;
-            waveTimer = 0f; // Å¸ÀÌ¸Ó ¸®¼Â
+            waveTimer = 0f; // Å¸ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-            // ½ºÆù ÄÚ·çÆ¾ ÁßÁö
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
             if (spawnCoroutine != null)
             {
                 StopCoroutine(spawnCoroutine);
@@ -371,12 +374,12 @@ public class WaveManager : MonoBehaviour
         }
         else if (isInSurvivalPhase && waveTimer >= currentWave.survivalDuration)
         {
-            // »ýÁ¸ ´Ü°è ¿Ï·á - ¿þÀÌºê Å¬¸®¾î
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½Ü°ï¿½ ï¿½Ï·ï¿½ - ï¿½ï¿½ï¿½Ìºï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
             CompleteWave();
         }
 
-        // ÁÖ±âÀûÀ¸·Î ÆÄ±«µÈ Àû Á¤¸®
-        if (Time.frameCount % 60 == 0) // ¾à 1ÃÊ¸¶´Ù
+        // ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        if (Time.frameCount % 60 == 0) // ï¿½ï¿½ 1ï¿½Ê¸ï¿½ï¿½ï¿½
         {
             CleanupDestroyedEnemies();
         }
@@ -422,7 +425,7 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
-        // ¿þÀÌºê Á¤º¸ ¼³Á¤
+        // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         _currentWaveNumber = waveNumber;
         waveTimer = 0f;
         isWaveActive = true;
@@ -431,45 +434,45 @@ public class WaveManager : MonoBehaviour
         
         UpdateGameManagerWaveNumber();
 
-        // UI ¾÷µ¥ÀÌÆ®
+        // UI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         UpdateWaveUI();
 
-        // ½ºÆù ÄÚ·çÆ¾ ½ÃÀÛ
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
         if (spawnCoroutine != null)
         {
             StopCoroutine(spawnCoroutine);
         }
         spawnCoroutine = StartCoroutine(SpawnEnemiesCoroutine());
 
-        // °ÔÀÓ »óÅÂ ÇÃ·¹ÀÌ·Î ¼³Á¤
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì·ï¿½ ï¿½ï¿½ï¿½ï¿½
         GameManager.Instance.SetGameState(GameState.Playing);
     }
 
     private IEnumerator SpawnEnemiesCoroutine()
     {
-        // ½ºÆù Å¸ÀÌ¸Ó ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸ï¿½ ï¿½Ê±ï¿½È­
         spawnTimer = 0f;
 
-        // ¿þÀÌºê È°¼ºÈ­ »óÅÂ ¹× »ýÁ¸ ´Ü°è°¡ ¾Æ´Ò ¶§¸¸ ½ºÆù
+        // ï¿½ï¿½ï¿½Ìºï¿½ È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ü°è°¡ ï¿½Æ´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         while (isWaveActive && !isInSurvivalPhase)
         {
-            // °ÔÀÓÀÌ ÇÃ·¹ÀÌ »óÅÂÀÏ ¶§¸¸ ½ÇÇà
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (GameManager.Instance.currentGameState == GameState.Playing)
             {
                 spawnTimer += Time.deltaTime;
 
-                // ½ºÆù ½Ã°£ÀÌ µÇ¾úÀ» ¶§
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½Ç¾ï¿½ï¿½ï¿½ ï¿½ï¿½
                 if (spawnTimer >= currentWave.spawnInterval)
                 {
-                    // Àû ½ºÆù
+                    // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     SpawnEnemyBatch(currentWave.spawnAmount);
                     spawnTimer = 0f;
                 }
 
-                // ¿þÀÌºê ½Ã°£ÀÌ Á¾·áµÇ¾ú´ÂÁö È®ÀÎ
+                // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
                 if (waveTimer >= currentWave.waveDuration)
                 {
-                    break; // ½ºÆù Áß´Ü
+                    break; // ï¿½ï¿½ï¿½ï¿½ ï¿½ß´ï¿½
                 }
             }
 
@@ -485,10 +488,10 @@ public class WaveManager : MonoBehaviour
 
         List<Vector2> spawnPositions = new List<Vector2>(count);
 
-        // ÇöÀç ¿þÀÌºêÀÇ ½ºÆù ¼³Á¤ °¡Á®¿À±â
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         SpawnSettings settings = currentWave.spawnSettings;
 
-        // Àû ½ºÆù À§Ä¡ »ý¼º
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
         switch (settings.formation)
         {
             case SpawnFormation.Surround:
@@ -508,7 +511,7 @@ public class WaveManager : MonoBehaviour
                 break;
             case SpawnFormation.EdgeRandom:
             default:
-                // ±âÁ¸ ¹æ½Ä - °¡ÀåÀÚ¸® ·£´ý
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ ï¿½ï¿½ï¿½ï¿½
                 for (int i = 0; i < count; i++)
                 {
                     spawnPositions.Add(GetOptimizedSpawnPosition());
@@ -516,51 +519,51 @@ public class WaveManager : MonoBehaviour
                 break;
         }
 
-        // °æ°í ¹× ½ºÆù ÄÚ·çÆ¾ ½ÃÀÛ
+        // ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
         StartCoroutine(ShowWarningsAndSpawnBatch(spawnPositions));
     }
 
     private IEnumerator ShowWarningsAndSpawnBatch(List<Vector2> positions)
     {
-        // ½ºÆù ¼³Á¤¿¡¼­ ½ºÆù Æ÷ÀÎÆ®´ç Àû ¼ö °¡Á®¿À±â
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         int enemiesPerPoint = currentWave.spawnSettings.enemiesPerSpawnPoint;
-        if (enemiesPerPoint <= 0) enemiesPerPoint = positions.Count; // 0ÀÌ¸é ¸ðµç ÀûÀ» °°Àº À§Ä¡¿¡ ½ºÆù
+        if (enemiesPerPoint <= 0) enemiesPerPoint = positions.Count; // 0ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
         List<GameObject> warnings = new List<GameObject>();
 
-        // °æ°í Ç¥½Ã »ý¼º
+        // ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         foreach (Vector2 pos in positions)
         {
             GameObject warning = ObjectPool.Instance.SpawnFromPool("SpawnWarning", pos, Quaternion.identity);
             warnings.Add(warning);
         }
 
-        // °æ°í Ç¥½Ã ´ë±â ½Ã°£
+        // ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
         yield return new WaitForSeconds(1f);
 
-        // °æ°í Ç¥½Ã ºñÈ°¼ºÈ­
+        // ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­
         foreach (GameObject warning in warnings)
         {
             ObjectPool.Instance.ReturnToPool("SpawnWarning", warning);
         }
 
-        // Àû ½ºÆù
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         int totalEnemies = positions.Count;
         int spawnedCount = 0;
 
         foreach (Vector2 pos in positions)
         {
-            // ÇöÀç À§Ä¡¿¡ ½ºÆùÇÒ Àû ¼ö °è»ê
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½
             int enemiesToSpawn = Mathf.Min(enemiesPerPoint, totalEnemies - spawnedCount);
 
-            // ÀÌ À§Ä¡¿¡ Àû ½ºÆù
+            // ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             for (int i = 0; i < enemiesToSpawn; i++)
             {
                 SpawnEnemy(pos);
                 spawnedCount++;
             }
 
-            // ¸ðµç ÀûÀ» ½ºÆùÇßÀ¸¸é Á¾·á
+            // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (spawnedCount >= totalEnemies)
                 break;
         }
@@ -590,19 +593,19 @@ public class WaveManager : MonoBehaviour
 
             if (enemy != null && enemyAI != null)
             {
-                // Àû ÃÊ±âÈ­
+                // ï¿½ï¿½ ï¿½Ê±ï¿½È­
                 enemy.SetEnemyData(enemyData);
                 enemy.Initialize(GameManager.Instance.PlayerTransform);
                 enemyAI.Initialize(GameManager.Instance.PlayerTransform);
 
-                // ÄÃ¸µ ¸Å´ÏÀú ÂüÁ¶ ¼³Á¤
+                // ï¿½Ã¸ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 EnemyCullingManager cullingManager = FindAnyObjectByType<EnemyCullingManager>();
                 if (cullingManager != null)
                 {
                     enemy.SetCullingManager(cullingManager);
                 }
 
-                // È°¼ºÈ­µÈ Àû ¸ñ·Ï¿¡ Ãß°¡ (Enemy ÄÄÆ÷³ÍÆ® Á÷Á¢ ÀúÀå)
+                // È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ï¿ï¿½ ï¿½ß°ï¿½ (Enemy ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
                 spawnedEnemies.Add(enemy);
             }
             else
@@ -615,13 +618,13 @@ public class WaveManager : MonoBehaviour
 
     private Vector2 GetOptimizedSpawnPosition()
     {
-        // ¸Ê¿¡¼­ °¡ÀåÀÚ¸® À§Ä¡ °¡Á®¿À±â
+        // ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         Vector2 spawnPosition = gameMap.GetRandomEdgePosition();
 
-        // ÇÃ·¹ÀÌ¾î À§Ä¡
+        // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½Ä¡
         Vector2 playerPos = playerStats.transform.position;
 
-        // ÇÃ·¹ÀÌ¾î¿Í °Å¸® Ã¼Å©
+        // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½Å¸ï¿½ Ã¼Å©
         int maxAttempts = 5;
         int attempts = 0;
 
@@ -629,17 +632,17 @@ public class WaveManager : MonoBehaviour
         {
             float distance = Vector2.Distance(playerPos, spawnPosition);
 
-            // ÇÃ·¹ÀÌ¾î·ÎºÎÅÍ ÃÖ¼Ò °Å¸®¸¦ ¸¸Á·ÇÏ´ÂÁö È®ÀÎ
+            // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½Îºï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
             if (distance >= minDistanceFromPlayer)
             {
-                // È­¸é¿¡ º¸ÀÌÁö ¾Ê´ÂÁö È®ÀÎ
+                // È­ï¿½é¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
                 if (!IsPositionVisible(spawnPosition))
                 {
                     break;
                 }
             }
 
-            // ´Ù¸¥ À§Ä¡ ½Ãµµ
+            // ï¿½Ù¸ï¿½ ï¿½ï¿½Ä¡ ï¿½Ãµï¿½
             spawnPosition = gameMap.GetRandomEdgePosition();
             attempts++;
         }
@@ -657,7 +660,7 @@ public class WaveManager : MonoBehaviour
     }
 
     #region Spawn Formations
-    // ¿øÇü Æ÷À§ À§Ä¡ »ý¼º
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
     private List<Vector2> GenerateSurroundPositions(int count, float radius, float angleOffset)
     {
         List<Vector2> positions = new List<Vector2>(count);
@@ -670,7 +673,7 @@ public class WaveManager : MonoBehaviour
             float radians = angle * Mathf.Deg2Rad;
             Vector2 position = playerPos + new Vector2(Mathf.Cos(radians), Mathf.Sin(radians)) * radius;
 
-            // ¸Ê °æ°è ³»¿¡ ÀÖ´ÂÁö È®ÀÎÇÏ°í Á¶Á¤
+            // ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (gameMap != null && !gameMap.IsPositionInMap(position))
             {
                 position = gameMap.GetRandomEdgePosition();
@@ -682,17 +685,17 @@ public class WaveManager : MonoBehaviour
         return positions;
     }
 
-    // »ç°¢Çü Æ÷À§ À§Ä¡ »ý¼º
+    // ï¿½ç°¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
     private List<Vector2> GenerateRectanglePositions(int count, float distance)
     {
         List<Vector2> positions = new List<Vector2>(count);
         Vector2 playerPos = playerStats.transform.position;
 
-        // »ç°¢ÇüÀÇ ³× º¯¿¡ ÀûµéÀ» ±ÕµîÇÏ°Ô ¹èÄ¡
+        // ï¿½ç°¢ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Õµï¿½ï¿½Ï°ï¿½ ï¿½ï¿½Ä¡
         int enemiesPerSide = Mathf.CeilToInt(count / 4f);
         int remainingEnemies = count;
 
-        // »ó´Ü º¯
+        // ï¿½ï¿½ï¿½ ï¿½ï¿½
         int topCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < topCount; i++)
         {
@@ -703,7 +706,7 @@ public class WaveManager : MonoBehaviour
         }
         remainingEnemies -= topCount;
 
-        // ¿ìÃø º¯
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
         int rightCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < rightCount; i++)
         {
@@ -714,7 +717,7 @@ public class WaveManager : MonoBehaviour
         }
         remainingEnemies -= rightCount;
 
-        // ÇÏ´Ü º¯
+        // ï¿½Ï´ï¿½ ï¿½ï¿½
         int bottomCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < bottomCount; i++)
         {
@@ -725,7 +728,7 @@ public class WaveManager : MonoBehaviour
         }
         remainingEnemies -= bottomCount;
 
-        // ÁÂÃø º¯
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
         int leftCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < leftCount; i++)
         {
@@ -735,7 +738,7 @@ public class WaveManager : MonoBehaviour
             positions.Add(new Vector2(xPos, yPos));
         }
 
-        // ¸Ê °æ°è È®ÀÎ ¹× Á¶Á¤
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         for (int i = 0; i < positions.Count; i++)
         {
             if (gameMap != null && !gameMap.IsPositionInMap(positions[i]))
@@ -747,7 +750,7 @@ public class WaveManager : MonoBehaviour
         return positions;
     }
 
-    // Á÷¼± À§Ä¡ »ý¼º
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
     private List<Vector2> GenerateLinePositions(int count, Vector2 start, Vector2 end)
     {
         List<Vector2> positions = new List<Vector2>(count);
@@ -757,7 +760,7 @@ public class WaveManager : MonoBehaviour
             float t = count > 1 ? (float)i / (count - 1) : 0.5f;
             Vector2 position = Vector2.Lerp(start, end, t);
 
-            // ¸Ê ³»ºÎ À§Ä¡ Á¶Á¤
+            // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
             if (gameMap != null && !gameMap.IsPositionInMap(position))
             {
                 position = gameMap.GetRandomEdgePosition();
@@ -769,12 +772,12 @@ public class WaveManager : MonoBehaviour
         return positions;
     }
 
-    // °íÁ¤ ½ºÆù Æ÷ÀÎÆ® »ç¿ë
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½
     private List<Vector2> GetFixedSpawnPositions(int count, List<int> fixedPoints)
     {
         List<Vector2> positions = new List<Vector2>(count);
 
-        // ÁöÁ¤µÈ ½ºÆù Æ÷ÀÎÆ®°¡ ¾ø°Å³ª ¸ÊÀÌ ¾øÀ¸¸é ·£´ý »ý¼º
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (fixedPoints == null || fixedPoints.Count == 0 || gameMap == null)
         {
             for (int i = 0; i < count; i++)
@@ -784,7 +787,7 @@ public class WaveManager : MonoBehaviour
             return positions;
         }
 
-        // ÁöÁ¤µÈ ½ºÆù Æ÷ÀÎÆ® »ç¿ë
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½
         for (int i = 0; i < count; i++)
         {
             int pointIndex = fixedPoints[i % fixedPoints.Count];
@@ -794,7 +797,7 @@ public class WaveManager : MonoBehaviour
         return positions;
     }
 
-    // ¸Ê ³»ºÎ ·£´ý À§Ä¡ »ý¼º
+    // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
     private List<Vector2> GenerateRandomPositions(int count)
     {
         List<Vector2> positions = new List<Vector2>(count);
@@ -812,7 +815,7 @@ public class WaveManager : MonoBehaviour
     {
         isWaveActive = false;
 
-        // ½ºÆù ÄÚ·çÆ¾ ÁßÁö
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
         if (spawnCoroutine != null)
         {
             StopCoroutine(spawnCoroutine);
@@ -825,17 +828,17 @@ public class WaveManager : MonoBehaviour
         isWaveActive = false;
         isInSurvivalPhase = false;
 
-        // ½ºÆù ÄÚ·çÆ¾ ÁßÁö
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
         if (spawnCoroutine != null)
         {
             StopCoroutine(spawnCoroutine);
             spawnCoroutine = null;
         }
 
-        // ³²¾ÆÀÖ´Â ¸ðµç Àû¿¡°Ô 9999 µ¥¹ÌÁö ÁÖ±â
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 9999 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
         KillAllRemainingEnemies();
 
-        // ¿þÀÌºê º¸»ó Áö±Þ
+        // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (playerStats != null && currentWave != null)
         {
             playerStats.AddCoins(currentWave.coinReward);
@@ -844,32 +847,34 @@ public class WaveManager : MonoBehaviour
         // Update GameManager's wave number
         UpdateGameManagerWaveNumber();
 
-        // ¿þÀÌºê ¿Ï·á ¹è³Ê Ç¥½Ã ¹× Áö¿¬ ÈÄ »óÁ¡ ¿­±â
-        StartCoroutine(ShowCompletionBannerThenOpenShop());
+        // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ï·ï¿½ ï¿½Ìºï¿½Æ® ï¿½ß»ï¿½ (EnhancedWeaponManagerï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½)
+        OnWaveCompleted?.Invoke();
+
+        // EnhancedWeaponManagerï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ ï¿½Ï°ï¿½, ï¿½ï¿½ï¿½â¼­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
 
     private IEnumerator ShowCompletionBannerThenOpenShop()
     {
-        // ¹è³Ê È°¼ºÈ­
+        // ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­
         if (waveCompleteBanner != null)
         {
-            // ÅØ½ºÆ® ¼³Á¤
+            // ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
             if (waveCompleteText != null)
             {
                 waveCompleteText.text = $"Wave {_currentWaveNumber} Complete!";
             }
 
-            // ¹è³Ê ¾Ö´Ï¸ÞÀÌ¼Ç ½ÃÀÛ
+            // ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½
             waveCompleteBanner.SetActive(true);
 
-            // ¹è³Ê°¡ Ç¥½ÃµÉ ½Ã°£ ´ë±â
+            // ï¿½ï¿½Ê°ï¿½ Ç¥ï¿½Ãµï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½
             yield return new WaitForSeconds(2.0f);
 
-            // ¹è³Ê ¼û±â±â
+            // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
             waveCompleteBanner.SetActive(false);
         }
 
-        // °ÔÀÓ Á¾·á Ã¼Å©
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
         if (AreAllWavesCompleted())
         {
             Debug.Log("Game Clear");
@@ -882,7 +887,7 @@ public class WaveManager : MonoBehaviour
             {
                 shopController.isFirstShop = false;
             }
-            // »óÁ¡ ¿­±â
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             shopController.OpenShop();
         }
     }
@@ -890,6 +895,14 @@ public class WaveManager : MonoBehaviour
     public bool AreAllWavesCompleted()
     {
         return waveData.GetNextWaveNumber(_currentWaveNumber) < 0;
+    }
+
+    /// <summary>
+    /// EnhancedWeaponManagerï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¼ï¿½ï¿½ï¿½
+    /// </summary>
+    public void ShowBannerAndOpenShop()
+    {
+        StartCoroutine(ShowCompletionBannerThenOpenShop());
     }
 
     private void UpdateWaveUI()
@@ -902,10 +915,10 @@ public class WaveManager : MonoBehaviour
 
     private void KillAllRemainingEnemies()
     {
-        // »ì¾ÆÀÖ´Â ¸ðµç Àû ÇÑ¹ø¿¡ µ¥¹ÌÁö ÁÖ±â
+        // ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ñ¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
         const float massDeathDamage = 9999f;
 
-        // ¸ðµç Enemy ÄÄÆ÷³ÍÆ®¿¡ Á÷Á¢ Á¢±Ù (GetComponent È£Ãâ ¾øÀ½)
+        // ï¿½ï¿½ï¿½ Enemy ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (GetComponent È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         for (int i = spawnedEnemies.Count - 1; i >= 0; i--)
         {
             Enemy enemy = spawnedEnemies[i];
@@ -915,7 +928,7 @@ public class WaveManager : MonoBehaviour
             }
             else
             {
-                // ÀÌ¹Ì ÆÄ±«µÈ Àû Á¦°Å
+                // ï¿½Ì¹ï¿½ ï¿½Ä±ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 spawnedEnemies.RemoveAt(i);
             }
         }
@@ -923,12 +936,12 @@ public class WaveManager : MonoBehaviour
 
     private void UpdateTimerUI()
     {
-        // ¹®ÀÚ¿­ »ý¼º
+        // ï¿½ï¿½ï¿½Ú¿ï¿½ ï¿½ï¿½ï¿½ï¿½
         string timerDisplay;
 
         if (isInSurvivalPhase)
         {
-            // »ýÁ¸ ´Ü°è - ³²Àº »ýÁ¸ ½Ã°£ Ç¥½Ã
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½Ü°ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ Ç¥ï¿½ï¿½
             float remainingTime = currentWave.survivalDuration - waveTimer;
             if (remainingTime < 0) remainingTime = 0;
 
@@ -938,7 +951,7 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
-            // ¿þÀÌºê ´Ü°è - ³²Àº ¿þÀÌºê ½Ã°£ Ç¥½Ã
+            // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ü°ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ã°ï¿½ Ç¥ï¿½ï¿½
             float remainingTime = currentWave.waveDuration - waveTimer;
             if (remainingTime < 0) remainingTime = 0;
 
@@ -947,7 +960,7 @@ public class WaveManager : MonoBehaviour
             timerDisplay = stringBuilder.ToString();
         }
 
-        // PlayerUIController¿¡ ÀÖ´Â ½Ã°£ Ç¥½Ã¿Í µ¿±âÈ­
+        // PlayerUIControllerï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Ã°ï¿½ Ç¥ï¿½Ã¿ï¿½ ï¿½ï¿½ï¿½ï¿½È­
         if (playerUIController != null)
         {
             playerUIController.SetExternalTimer(timerDisplay);
@@ -956,7 +969,7 @@ public class WaveManager : MonoBehaviour
 
     private void CleanupDestroyedEnemies()
     {
-        // ºñÈ°¼ºÈ­µÈ Àû ¿ÀºêÁ§Æ® Á¤¸®
+        // ï¿½ï¿½È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         for (int i = spawnedEnemies.Count - 1; i >= 0; i--)
         {
             Enemy enemy = spawnedEnemies[i];
@@ -978,7 +991,7 @@ public class WaveManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // ÀÌº¥Æ® ±¸µ¶ ÇØÁ¦
+        // ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (playerStats != null)
         {
             playerStats.OnPlayerDeath -= HandlePlayerDeath;
@@ -994,7 +1007,7 @@ public class WaveManager : MonoBehaviour
             inventoryController.OnProgressButtonClicked -= StartNextWave;
         }
 
-        // ÄÚ·çÆ¾ Á¤¸®
+        // ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
         if (spawnCoroutine != null)
         {
             StopCoroutine(spawnCoroutine);

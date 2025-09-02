@@ -4,8 +4,8 @@ using UnityEngine;
 using System.Collections;
 
 /// <summary>
-/// X-Æ¼¾î ¹«±â ¾÷±×·¹ÀÌµå ½Ã½ºÅÛÀ» °ü¸®ÇÏ´Â Å¬·¡½º
-/// 4Æ¼¾î ¹«±â¸¦ X-Æ¼¾î·Î ¾÷±×·¹ÀÌµåÇÏ´Â ½Ã½ºÅÛÀ» Á¦¾îÇÕ´Ï´Ù.
+/// X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
+/// 4Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½â¸¦ X-Æ¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ï¿½Ï´ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 /// </summary>
 public class EnhancedWeaponManager : MonoBehaviour
 {
@@ -19,20 +19,21 @@ public class EnhancedWeaponManager : MonoBehaviour
     [SerializeField] private ShopController shopController;
     [SerializeField] private WeaponDatabase weaponDatabase;
 
-    // ³»ºÎ »óÅÂ °ü¸®
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     private bool isEnhancedWeaponUIActive = false;
     private bool hasShownEnhancedUIThisWave = false;
 
-    // Ä³½ÌµÈ ÂüÁ¶
+    // Ä³ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
     private PlayerStats playerStats;
     private ItemGrid inventoryGrid;
     private WeaponManager weaponManager;
     private InventoryController inventoryController;
+    private WaveManager waveManager;
 
-    // ¾÷±×·¹ÀÌµå °¡´ÉÇÑ ¹«±â ¸ñ·Ï
+    // ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
     private readonly List<WeaponData> upgradableWeapons = new List<WeaponData>();
 
-    // X-Æ¼¾î ¹«±â ¸ÅÇÎ (4Æ¼¾î ¡æ X-Æ¼¾î)
+    // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (4Æ¼ï¿½ï¿½ ï¿½ï¿½ X-Æ¼ï¿½ï¿½)
     private readonly Dictionary<WeaponType, string> xTierWeaponNames = new Dictionary<WeaponType, string>()
     {
         { WeaponType.Buster, "Exterminator" },
@@ -53,22 +54,22 @@ public class EnhancedWeaponManager : MonoBehaviour
 
     private void Start()
     {
-        // ÇÊ¿äÇÑ ÀÌº¥Æ® ±¸µ¶
+        // ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         SubscribeToEvents();
     }
 
     private void OnDestroy()
     {
-        // ÀÌº¥Æ® ±¸µ¶ ÇØÁ¦
+        // ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         UnsubscribeFromEvents();
     }
 
     /// <summary>
-    /// ¿ÜºÎ ÂüÁ¶ ÃÊ±âÈ­
+    /// ï¿½Üºï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
     /// </summary>
     private void InitializeReferences()
     {
-        // ¾øÀ¸¸é Ã£±â
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
         if (enhancedWeaponUI == null)
             enhancedWeaponUI = FindFirstObjectByType<EnhancedWeaponUI>();
 
@@ -81,76 +82,79 @@ public class EnhancedWeaponManager : MonoBehaviour
         if (weaponDatabase == null)
             weaponDatabase = Resources.Load<WeaponDatabase>("Data/WeaponDatabase");
 
-        // GameManager·ÎºÎÅÍ Áß¿ä ÂüÁ¶ °¡Á®¿À±â
+        // GameManagerï¿½Îºï¿½ï¿½ï¿½ ï¿½ß¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (GameManager.Instance != null)
         {
             playerStats = GameManager.Instance.PlayerStats;
         }
 
-        // ÇÃ·¹ÀÌ¾î Ã£±â
+        // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Ã£ï¿½ï¿½
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
         {
             weaponManager = player.GetComponent<WeaponManager>();
         }
 
-        // ÀÎº¥Åä¸® ÄÁÆ®·Ñ·¯ Ã£±â
+        // ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ Ã£ï¿½ï¿½
         inventoryController = FindFirstObjectByType<InventoryController>();
         if (inventoryController != null)
         {
             inventoryGrid = inventoryController.GetComponentInChildren<ItemGrid>();
         }
+
+        // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Å´ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
+        waveManager = FindFirstObjectByType<WaveManager>();
     }
 
     /// <summary>
-    /// ÀÌº¥Æ® ±¸µ¶ ¼³Á¤
+    /// ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private void SubscribeToEvents()
     {
-        // InventoryControllerÀÇ OnProgressButtonClicked ÀÌº¥Æ®¿¡ ±¸µ¶
-        if (inventoryController != null)
+        // WaveManagerï¿½ï¿½ OnWaveCompleted ï¿½Ìºï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        if (waveManager != null)
         {
-            inventoryController.OnProgressButtonClicked += CheckForEnhancedWeapons;
+            waveManager.OnWaveCompleted += CheckForEnhancedWeapons;
         }
     }
 
     /// <summary>
-    /// ÀÌº¥Æ® ±¸µ¶ ÇØÁ¦
+    /// ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private void UnsubscribeFromEvents()
     {
-        if (inventoryController != null)
+        if (waveManager != null)
         {
-            inventoryController.OnProgressButtonClicked -= CheckForEnhancedWeapons;
+            waveManager.OnWaveCompleted -= CheckForEnhancedWeapons;
         }
     }
 
     /// <summary>
-    /// ¿þÀÌºê ¿Ï·á ÈÄ ´ÙÀ½ ´Ü°è·Î ÁøÇàÇÏ±â Àü¿¡ Ã¼Å©
+    /// ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ï·ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ü°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
     /// </summary>
     private void CheckForEnhancedWeapons()
     {
-        // X-Æ¼¾î ¾÷±×·¹ÀÌµå¸¦ ÀÌ¹Ì ÀÌ¹ø ¿þÀÌºê¿¡¼­ º¸¿©Áá´Ù¸é ½ºÅµ
+        // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµå¸¦ ï¿½Ì¹ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½Ìºê¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½Åµ
         if (hasShownEnhancedUIThisWave) return;
 
-        // ÀÎº¥Åä¸®¿¡ 4Æ¼¾î ¹«±â°¡ ÀÖ´ÂÁö È®ÀÎ
+        // ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ 4Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½â°¡ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         CheckForUpgradableWeapons();
 
-        // ¾÷±×·¹ÀÌµå °¡´ÉÇÑ ¹«±â°¡ ÀÖ°í, ÇÃ·¹ÀÌ¾î ·¹º§ÀÌ ÃæºÐÇÏ¸é UI Ç¥½Ã
+        // ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â°¡ ï¿½Ö°ï¿½, ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ UI Ç¥ï¿½ï¿½
         if (upgradableWeapons.Count > 0 && CanPlayerUpgrade())
         {
             ShowEnhancedWeaponUI();
-            hasShownEnhancedUIThisWave = true; // ÀÌ¹ø ¿þÀÌºê¿¡¼­ Ç¥½ÃÇßÀ½À» ±â·Ï
+            hasShownEnhancedUIThisWave = true; // ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½Ìºê¿¡ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         }
         else
         {
-            // Á¶°ÇÀ» ¸¸Á·ÇÏÁö ¾ÊÀ¸¸é »óÁ¡À¸·Î ¹Ù·Î ÁøÇà
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½
             ContinueToShop();
         }
     }
 
     /// <summary>
-    /// ÀÎº¥Åä¸®¿¡¼­ 4Æ¼¾î ¹«±â¸¦ Ã£¾Æ ¾÷±×·¹ÀÌµå °¡´ÉÇÑ ¹«±â ¸ñ·Ï °»½Å
+    /// ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ï¿½ï¿½ 4Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½â¸¦ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private void CheckForUpgradableWeapons()
     {
@@ -158,11 +162,11 @@ public class EnhancedWeaponManager : MonoBehaviour
 
         if (inventoryGrid == null || !inventoryGrid.IsInitialized)
         {
-            Debug.LogWarning("ÀÎº¥Åä¸® ±×¸®µå¸¦ Ã£À» ¼ö ¾ø°Å³ª ÃÊ±âÈ­µÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("ï¿½Îºï¿½ï¿½ä¸® ï¿½×¸ï¿½ï¿½å¸¦ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Å³ï¿½ ï¿½Ê±ï¿½È­ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾Ò½ï¿½ï¿½Ï´ï¿½.");
             return;
         }
 
-        // ±×¸®µå ³»ÀÇ ¸ðµç ¾ÆÀÌÅÛ È®ÀÎ
+        // ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         for (int x = 0; x < inventoryGrid.Width; x++)
         {
             for (int y = 0; y < inventoryGrid.Height; y++)
@@ -173,7 +177,7 @@ public class EnhancedWeaponManager : MonoBehaviour
                     WeaponData weaponData = item.GetWeaponData();
                     if (weaponData != null && weaponData.currentTier == 4 && !weaponData.weaponType.Equals(WeaponType.Equipment))
                     {
-                        // X-Æ¼¾î ¹«±â ¸Ê¿¡ ÀÖ´Â ¹«±â Å¸ÀÔ¸¸ Ãß°¡
+                        // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ô¸ï¿½ ï¿½ß°ï¿½
                         if (xTierWeaponNames.ContainsKey(weaponData.weaponType))
                         {
                             upgradableWeapons.Add(weaponData);
@@ -183,18 +187,18 @@ public class EnhancedWeaponManager : MonoBehaviour
             }
         }
 
-        // µð¹ö±× ·Î±ë
-        Debug.Log($"¾÷±×·¹ÀÌµå °¡´ÉÇÑ ¹«±â {upgradableWeapons.Count}°³ Ã£À½");
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½
+        Debug.Log($"ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ {upgradableWeapons.Count}ï¿½ï¿½ Ã£ï¿½ï¿½");
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î°¡ ¾÷±×·¹ÀÌµå °¡´ÉÇÑ Á¶°ÇÀ» °®Ãß¾ú´ÂÁö È®ÀÎ
+    /// ï¿½Ã·ï¿½ï¿½Ì¾î°¡ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ß¾ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
     /// </summary>
     private bool CanPlayerUpgrade()
     {
         if (playerStats == null)
         {
-            Debug.LogWarning("ÇÃ·¹ÀÌ¾î ½ºÅÈ ÂüÁ¶¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             return false;
         }
 
@@ -202,57 +206,57 @@ public class EnhancedWeaponManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Çâ»óµÈ ¹«±â UI Ç¥½Ã
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ UI Ç¥ï¿½ï¿½
     /// </summary>
     private void ShowEnhancedWeaponUI()
     {
         if (enhancedWeaponUI == null)
         {
-            Debug.LogError("EnhancedWeaponUI ÂüÁ¶°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogError("EnhancedWeaponUI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             ContinueToShop();
             return;
         }
 
-        // UI¿¡ ¾÷±×·¹ÀÌµå °¡´ÉÇÑ ¹«±â Àü´Þ ¹× Ç¥½Ã
+        // UIï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Ç¥ï¿½ï¿½
         enhancedWeaponUI.SetWeaponsData(upgradableWeapons);
         enhancedWeaponUI.SetPlayerLevel(playerStats.Level);
         enhancedWeaponUI.SetLevelCost(levelCost);
         enhancedWeaponUI.gameObject.SetActive(true);
         isEnhancedWeaponUIActive = true;
 
-        // °ÔÀÓ ÀÏ½Ã Á¤Áö »óÅÂ ¼³Á¤
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ï½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         GameManager.Instance.SetGameState(GameState.Paused);
     }
 
     /// <summary>
-    /// X-Æ¼¾î ¹«±â·Î ¾÷±×·¹ÀÌµå
+    /// X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½
     /// </summary>
     public void UpgradeToXTier(WeaponData weaponData)
     {
         if (weaponData == null || !CanPlayerUpgrade())
         {
-            Debug.LogWarning("¾÷±×·¹ÀÌµå Á¶°ÇÀÌ ÃæÁ·µÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾Ò½ï¿½ï¿½Ï´ï¿½.");
             return;
         }
 
-        // ·¹º§ Â÷°¨
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         playerStats.SubtractLevels(levelCost);
 
-        // ±âÁ¸ ¹«±â Á¦°Å
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         RemoveOriginalWeapon(weaponData);
 
-        // X-Æ¼¾î ¹«±â »ý¼º
+        // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         CreateXTierWeapon(weaponData);
 
-        // ¾÷±×·¹ÀÌµå UI ´Ý±â
+        // ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ UI ï¿½Ý±ï¿½
         CloseEnhancedWeaponUI();
 
-        // »óÁ¡À¸·Î ÁøÇà
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         StartCoroutine(DelayedContinueToShop());
     }
 
     /// <summary>
-    /// ¿ø·¡ ¹«±â Á¦°Å
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private void RemoveOriginalWeapon(WeaponData weaponData)
     {
@@ -265,13 +269,13 @@ public class EnhancedWeaponManager : MonoBehaviour
                 InventoryItem item = inventoryGrid.GetItem(x, y);
                 if (item != null && item.GetWeaponData() == weaponData)
                 {
-                    // ¸ÕÀú WeaponManager¿¡¼­ ÀåÂø ÇØÁ¦
+                    // ï¿½ï¿½ï¿½ï¿½ WeaponManagerï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     if (weaponManager != null)
                     {
                         weaponManager.UnequipWeapon(weaponData);
                     }
 
-                    // ±×¸®µå¿¡¼­ ¾ÆÀÌÅÛ Á¦°Å
+                    // ï¿½×¸ï¿½ï¿½å¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     inventoryGrid.RemoveItem(new Vector2Int(x, y));
                     Destroy(item.gameObject);
                     return;
@@ -281,28 +285,28 @@ public class EnhancedWeaponManager : MonoBehaviour
     }
 
     /// <summary>
-    /// X-Æ¼¾î ¹«±â »ý¼º ¹× ÀÎº¥Åä¸®¿¡ ¹èÄ¡
+    /// X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ ï¿½ï¿½Ä¡
     /// </summary>
     private void CreateXTierWeapon(WeaponData originalWeapon)
     {
         if (inventoryController == null || originalWeapon == null) return;
 
-        // ¿øº» ¹«±âÀÇ À§Ä¡ Ã£±â
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ Ã£ï¿½ï¿½
         Vector2Int? originalPosition = FindWeaponPosition(originalWeapon);
-        Vector2Int position = originalPosition ?? new Vector2Int(0, 0); // ±âº» À§Ä¡
+        Vector2Int position = originalPosition ?? new Vector2Int(0, 0); // ï¿½âº» ï¿½ï¿½Ä¡
 
-        // X-Æ¼¾î ¹«±â µ¥ÀÌÅÍ »ý¼º
+        // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         WeaponData xTierWeapon = CreateXTierWeaponData(originalWeapon);
 
         if (xTierWeapon != null)
         {
-            // ÀÎº¥Åä¸® ÄÁÆ®·Ñ·¯¸¦ ÅëÇØ ¾÷±×·¹ÀÌµåµÈ ¾ÆÀÌÅÛ »ý¼º
+            // ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             inventoryController.CreateUpgradedItem(xTierWeapon, position);
         }
     }
 
     /// <summary>
-    /// ¹«±âÀÇ ±×¸®µå À§Ä¡ Ã£±â
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ Ã£ï¿½ï¿½
     /// </summary>
     private Vector2Int? FindWeaponPosition(WeaponData weaponData)
     {
@@ -324,16 +328,16 @@ public class EnhancedWeaponManager : MonoBehaviour
     }
 
     /// <summary>
-    /// X-Æ¼¾î ¹«±â µ¥ÀÌÅÍ »ý¼º
+    /// X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private WeaponData CreateXTierWeaponData(WeaponData originalWeapon)
     {
         if (originalWeapon == null) return null;
 
-        // ¿øº» ¹«±â º¹Á¦
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         WeaponData xTierWeapon = Instantiate(originalWeapon);
 
-        // X-Æ¼¾î ¹«±â ÀÌ¸§ ¼³Á¤
+        // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (xTierWeaponNames.TryGetValue(originalWeapon.weaponType, out string xTierName))
         {
             xTierWeapon.weaponName = xTierName;
@@ -343,26 +347,26 @@ public class EnhancedWeaponManager : MonoBehaviour
             xTierWeapon.weaponName = $"X-{originalWeapon.weaponName}";
         }
 
-        // X-Æ¼¾î ¹«±â ¼³¸íÀº ÀÌ¹Ì WeaponData¿¡ ¼³Á¤µÇ¾î ÀÖÀ½
-        // weaponDescription ÇÊµå¸¦ ¼öÁ¤ÇÏÁö ¾ÊÀ½ (¿øº» ±×´ë·Î »ç¿ë)
+        // X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ WeaponDataï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½ï¿½ï¿½ï¿½
+        // weaponDescription ï¿½Êµå¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½×´ï¿½ï¿½ ï¿½ï¿½ï¿½)
 
-        // Æ¼¾î 5·Î ¼³Á¤ (X-Æ¼¾î)
+        // Æ¼ï¿½ï¿½ 5ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (X-Æ¼ï¿½ï¿½)
         xTierWeapon.currentTier = 5;
 
         return xTierWeapon;
     }
 
     /// <summary>
-    /// X-Æ¼¾î ¹«±â ¼³¸í ¼³Á¤ - ÀÌ ¸Þ¼­µå´Â WeaponData¿¡ ÀÌ¹Ì ¼³Á¤µÈ ¼³¸íÀ» »ç¿ëÇÕ´Ï´Ù.
+    /// X-Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ ï¿½Þ¼ï¿½ï¿½ï¿½ï¿½ WeaponDataï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void UpdateXTierDescription(WeaponData weaponData)
     {
-        // ±âÁ¸ ¹«±â ¼³¸í »ç¿ë - ½ÇÁ¦ ¼³¸íÀº WeaponData ³»¿¡¼­ °ü¸®
-        // ÇÊ¿äÇÑ °æ¿ì ¿©±â¼­ ¼³¸íÀ» ¾à°£ ¼öÁ¤ÇÒ ¼ö ÀÖÀ½
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ WeaponData ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        // ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â¼­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½à°£ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
 
     /// <summary>
-    /// Çâ»óµÈ ¹«±â UI ´Ý±â
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ UI ï¿½Ý±ï¿½
     /// </summary>
     public void CloseEnhancedWeaponUI()
     {
@@ -375,46 +379,34 @@ public class EnhancedWeaponManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇÁ·¹ÀÓ ´ë±â ÈÄ »óÁ¡À¸·Î ÁøÇà
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private IEnumerator DelayedContinueToShop()
     {
-        // 1ÇÁ·¹ÀÓ ´ë±â
+        // 1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         yield return null;
 
         ContinueToShop();
     }
 
     /// <summary>
-    /// »óÁ¡À¸·Î ÁøÇà
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private void ContinueToShop()
     {
-        if (shopController != null)
+        if (waveManager != null)
         {
-            // Æ®·£Áö¼Ç È¿°ú°¡ ÀÖÀ¸¸é »ç¿ë
-            if (transitionEffect != null)
-            {
-                transitionEffect.reverseEffect = false; // ¾È¿¡¼­ ¹ÛÀ¸·Î È¿°ú
-                transitionEffect.gameObject.SetActive(true);
-                transitionEffect.PlayTransition(() => {
-                    shopController.OpenShop();
-                });
-            }
-            else
-            {
-                // Æ®·£Áö¼Ç ¾øÀÌ ¹Ù·Î »óÁ¡ ¿­±â
-                shopController.OpenShop();
-            }
+            // WaveManagerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            waveManager.ShowBannerAndOpenShop();
         }
         else
         {
-            Debug.LogWarning("ShopController ÂüÁ¶¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("WaveManager ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
         }
     }
 
     /// <summary>
-    /// »õ ¿þÀÌºê ½ÃÀÛ ½Ã »óÅÂ ÃÊ±âÈ­
+    /// ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
     /// </summary>
     public void ResetWaveState()
     {

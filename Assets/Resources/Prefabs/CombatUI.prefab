@@ -701,6 +701,10 @@ PrefabInstance:
       propertyPath: sellPriceText
       value: 
       objectReference: {fileID: 3383715443513618733}
+    - target: {fileID: 6971194159308087723, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7314674448963137728, guid: 9e47812d57fcffa4f93368e6a9d68173, type: 3}
       propertyPath: m_SizeDelta.x
       value: 550
