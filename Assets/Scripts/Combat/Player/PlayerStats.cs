@@ -75,6 +75,11 @@ public class PlayerStats : MonoBehaviour
     private float aoe;
     private float pickupRange;
 
+    // Temporary Buffs (for weapon effects like Phantom Saber)
+    private float temporaryPower = 0f;
+    private float temporaryHaste = 0f; // Haste = CooldownReduce
+    private float temporaryMovementSpeed = 0f;
+
     // Cached Components
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
@@ -113,6 +118,11 @@ public class PlayerStats : MonoBehaviour
     public float AreaOfEffect => aoe;
     public float PickupRange => pickupRange;
     public bool HasMagnetEffect => hasMagnetEffect;
+    
+    // Total stats including temporary buffs
+    public float TotalPower => power + temporaryPower;
+    public float TotalMovementSpeed => movementSpeed + temporaryMovementSpeed;
+    public float TotalHaste => cooldownReduce + temporaryHaste;
     #endregion
 
     static PlayerStats()
@@ -559,6 +569,86 @@ public class PlayerStats : MonoBehaviour
             OnMagnetEffectChanged?.Invoke(isActive);
         }
     }
+
+    #region Temporary Buff Management
+    /// <summary>
+    /// 임시 Power 버프를 추가합니다 (Phantom Saber 등의 무기 효과용)
+    /// </summary>
+    /// <param name="amount">추가할 Power 수치</param>
+    public void AddTemporaryPower(float amount)
+    {
+        temporaryPower += amount;
+        OnPowerChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 임시 Power 버프를 제거합니다
+    /// </summary>
+    /// <param name="amount">제거할 Power 수치</param>
+    public void RemoveTemporaryPower(float amount)
+    {
+        temporaryPower = Mathf.Max(0f, temporaryPower - amount);
+        OnPowerChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 임시 Haste(쿨다운 감소) 버프를 추가합니다
+    /// </summary>
+    /// <param name="amount">추가할 Haste 수치</param>
+    public void AddTemporaryHaste(float amount)
+    {
+        temporaryHaste += amount;
+        OnCooldownReduceChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 임시 Haste 버프를 제거합니다
+    /// </summary>
+    /// <param name="amount">제거할 Haste 수치</param>
+    public void RemoveTemporaryHaste(float amount)
+    {
+        temporaryHaste = Mathf.Max(0f, temporaryHaste - amount);
+        OnCooldownReduceChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 임시 이동속도 버프를 추가합니다
+    /// </summary>
+    /// <param name="amount">추가할 이동속도 수치</param>
+    public void AddTemporaryMovementSpeed(float amount)
+    {
+        temporaryMovementSpeed += amount;
+        OnMovementSpeedChanged?.Invoke(movementSpeed + temporaryMovementSpeed);
+    }
+
+    /// <summary>
+    /// 임시 이동속도 버프를 제거합니다
+    /// </summary>
+    /// <param name="amount">제거할 이동속도 수치</param>
+    public void RemoveTemporaryMovementSpeed(float amount)
+    {
+        temporaryMovementSpeed = Mathf.Max(0f, temporaryMovementSpeed - amount);
+        OnMovementSpeedChanged?.Invoke(movementSpeed + temporaryMovementSpeed);
+    }
+
+    /// <summary>
+    /// 모든 임시 버프를 제거합니다
+    /// </summary>
+    public void ClearAllTemporaryBuffs()
+    {
+        bool powerChanged = temporaryPower > 0f;
+        bool hasteChanged = temporaryHaste > 0f;
+        bool speedChanged = temporaryMovementSpeed > 0f;
+
+        temporaryPower = 0f;
+        temporaryHaste = 0f;
+        temporaryMovementSpeed = 0f;
+
+        if (powerChanged) OnPowerChanged?.Invoke();
+        if (hasteChanged) OnCooldownReduceChanged?.Invoke();
+        if (speedChanged) OnMovementSpeedChanged?.Invoke(movementSpeed);
+    }
+    #endregion
 
     /// <summary>
     /// X-Ƽ�� ���׷��̵带 ���� �÷��̾� ������ �����մϴ�.

@@ -55,6 +55,18 @@ public class TierStats
     [Tooltip("����ü ���� ���� (��)")]
     public float cutterSpreadAngle = 15f;
 
+    [Header("Phantom Saber Properties")]
+    [Tooltip("������ ����")]
+    public float phantomSaberDamageMultiplier = 1.5f;
+    [Tooltip("���� ���� ����")]
+    public float phantomSaberRangeMultiplier = 1.3f;
+    [Tooltip("Power ������")]
+    public float phantomSaberPowerBonus = 15f;
+    [Tooltip("Haste ������")]
+    public float phantomSaberHasteBonus = 15f;
+    [Tooltip("�̵��ӵ� ������")]
+    public float phantomSaberSpeedBonus = 25f;
+
     public struct PenetrationInfo
     {
         public bool canPenetrate;
@@ -401,6 +413,21 @@ public class WeaponDataEditor : Editor
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("cutterSpreadAngle"),
                         new GUIContent("Spread Angle", "투사체 퍼짐 각도 (도)"));
                 }
+                else if (weaponData.weaponType == WeaponType.BeamSaber)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Phantom Saber Properties", EditorStyles.boldLabel);
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("phantomSaberDamageMultiplier"),
+                        new GUIContent("Damage Multiplier", "데미지 배율"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("phantomSaberRangeMultiplier"),
+                        new GUIContent("Range Multiplier", "공격 범위 배율"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("phantomSaberPowerBonus"),
+                        new GUIContent("Power Bonus", "Power 증가량"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("phantomSaberHasteBonus"),
+                        new GUIContent("Haste Bonus", "Haste 증가량"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("phantomSaberSpeedBonus"),
+                        new GUIContent("Speed Bonus", "이동속도 증가량"));
+                }
                 else if (weaponData.weaponType == WeaponType.ForceFieldGenerator)
                 {
                     EditorGUILayout.Space();
@@ -512,6 +539,21 @@ public class WeaponDataEditor : Editor
                 EditorGUILayout.LabelField("Cutter Properties", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("cutterSpreadAngle"),
                     new GUIContent("Spread Angle", "투사체 퍼짐 각도 (도)"));
+            }
+            else if (weaponData.weaponType == WeaponType.BeamSaber)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Phantom Saber Properties", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("phantomSaberDamageMultiplier"),
+                    new GUIContent("Damage Multiplier", "데미지 배율"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("phantomSaberRangeMultiplier"),
+                    new GUIContent("Range Multiplier", "공격 범위 배율"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("phantomSaberPowerBonus"),
+                    new GUIContent("Power Bonus", "Power 증가량"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("phantomSaberHasteBonus"),
+                    new GUIContent("Haste Bonus", "Haste 증가량"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("phantomSaberSpeedBonus"),
+                    new GUIContent("Speed Bonus", "이동속도 증가량"));
             }
             else if (weaponData.weaponType == WeaponType.Grinder)
             {
@@ -1113,6 +1155,14 @@ public class WeaponData : ScriptableObject
                 else if (weaponType == WeaponType.Cutter)
                 {
                     xTierStats.cutterSpreadAngle = tierStats[3].cutterSpreadAngle * 1.5f; // 퍼짐 각도 50% 증가
+                }
+                else if (weaponType == WeaponType.BeamSaber)
+                {
+                    xTierStats.phantomSaberDamageMultiplier = tierStats[3].phantomSaberDamageMultiplier * 1.2f; // 데미지 배율 20% 증가
+                    xTierStats.phantomSaberRangeMultiplier = tierStats[3].phantomSaberRangeMultiplier * 1.2f; // 범위 배율 20% 증가
+                    xTierStats.phantomSaberPowerBonus = tierStats[3].phantomSaberPowerBonus * 1.5f; // Power 보너스 50% 증가
+                    xTierStats.phantomSaberHasteBonus = tierStats[3].phantomSaberHasteBonus * 1.5f; // Haste 보너스 50% 증가
+                    xTierStats.phantomSaberSpeedBonus = tierStats[3].phantomSaberSpeedBonus * 1.5f; // 속도 보너스 50% 증가
                 }
                 else if (weaponType == WeaponType.Grinder)
                 {
