@@ -33,6 +33,10 @@ public class Enemy : MonoBehaviour, IPooledObject
     private const float damageDelay = 1f;
     private Transform targetTransform;
     private bool isFlashing;
+    
+    // 이동속도 디버프 관련
+    private bool isSlowed = false;
+    private float speedDebuffAmount = 0f;
 
     // 캐시된 컴포넌트
     private EnemyCullingManager cullingManager;
@@ -54,7 +58,9 @@ public class Enemy : MonoBehaviour, IPooledObject
     public float CurrentHealth => currentHealth;
     public float MaxHealth => calculatedMaxHealth;
     public float Damage => enemyData?.baseDamage ?? 0f;
-    public float MoveSpeed => enemyData?.moveSpeed ?? 0f;
+    public float MoveSpeed => isSlowed ? 
+        (enemyData?.moveSpeed ?? 0f) * (1f - speedDebuffAmount) : 
+        enemyData?.moveSpeed ?? 0f;
     public bool IsKnockbackImmune => isKnockbackImmune;
     public string EnemyName => enemyData?.enemyName ?? "Unknown Enemy";
     #endregion
@@ -303,6 +309,36 @@ public class Enemy : MonoBehaviour, IPooledObject
     {
         isKnockbackImmune = immune;
     }
+
+    /// <summary>
+    /// 이동속도 디버프를 적용합니다 (중첩되지 않음)
+    /// </summary>
+    /// <param name="debuffAmount">감소율 (0.0~1.0, 예: 0.3f = 30% 감소)</param>
+    public void ApplySpeedDebuff(float debuffAmount)
+    {
+        if (debuffAmount < 0f || debuffAmount > 1f)
+        {
+            Debug.LogWarning($"Invalid speed debuff amount: {debuffAmount}. Should be between 0.0 and 1.0");
+            return;
+        }
+
+        isSlowed = true;
+        speedDebuffAmount = debuffAmount;
+    }
+
+    /// <summary>
+    /// 이동속도 디버프를 제거합니다
+    /// </summary>
+    public void RemoveSpeedDebuff()
+    {
+        isSlowed = false;
+        speedDebuffAmount = 0f;
+    }
+
+    /// <summary>
+    /// 현재 이동속도 디버프 상태를 확인합니다
+    /// </summary>
+    public bool IsSlowed => isSlowed;
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (!gameObject.activeSelf) return;

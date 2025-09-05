@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class ForceFieldMechanism : WeaponMechanism
 {
-    private ForceFieldProjectile currentForceField;
-    private Vector3 spawnPosition = Vector3.zero;
+    protected ForceFieldProjectile currentForceField;
+    protected Vector3 spawnPosition = Vector3.zero;
     public override void Initialize(WeaponData data, Transform player)
     {
         base.Initialize(data, player);
@@ -15,7 +15,7 @@ public class ForceFieldMechanism : WeaponMechanism
     {
         if (currentForceField != null && currentForceField.gameObject != null)
         {
-            // Destroy ´ë½Å Ç®¸µ ½Ã½ºÅÛ »ç¿ë
+            // Destroy ï¿½ï¿½ï¿½ Ç®ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             ObjectPool.Instance?.ReturnToPool("ForceField_Projectile", currentForceField.gameObject);
             currentForceField = null;
         }
@@ -65,10 +65,10 @@ public class ForceFieldMechanism : WeaponMechanism
     }
     public override void UpdateMechanism()
     {
-        // Æ÷½ºÇÊµå´Â Update¿¡¼­ ÀÚÃ¼ÀûÀ¸·Î µ¿ÀÛ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ Updateï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
 
-    // AttackÀº »ç¿ëÇÏÁö ¾ÊÀ½
+    // Attackï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     protected override void Attack(Transform target) { }
 
 

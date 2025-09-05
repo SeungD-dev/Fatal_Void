@@ -73,6 +73,12 @@ public class TierStats
     public float blackHoleScaleMultiplier = 1.5f;
     public float blackHoleDuration = 5f;
 
+    // Time Turner (ForceFieldGenerator X-Tier) 속성들
+    [Header("Time Turner Properties")]
+    public float timeTurnerTickInterval = 0.5f;
+    public float timeTurnerRadius = 3f;
+    public float timeTurnerSpeedDebuff = 0.3f;
+
     public struct PenetrationInfo
     {
         public bool canPenetrate;
@@ -449,6 +455,13 @@ public class WeaponDataEditor : Editor
                         new GUIContent("Force Field Radius", "���� �ʵ��� ���� ����"));
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("forceFieldTickInterval"),
                         new GUIContent("Damage Tick Interval", "������� ����Ǵ� �ð� ����"));
+                        
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("timeTurnerTickInterval"),
+                        new GUIContent("Time Turner Tick Interval", "TimeTurner X-Tier 공격 간격"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("timeTurnerRadius"),
+                        new GUIContent("Time Turner Radius", "TimeTurner X-Tier 공격 범위"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("timeTurnerSpeedDebuff"),
+                        new GUIContent("Time Turner Speed Debuff", "TimeTurner X-Tier 이동속도 감소율 (0.0~1.0)"));
                 }
             }
 
@@ -594,6 +607,13 @@ public class WeaponDataEditor : Editor
                     new GUIContent("Force Field Radius", "���� �ʵ��� ���� ����"));
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("forceFieldTickInterval"),
                     new GUIContent("Damage Tick Interval", "������� ����Ǵ� �ð� ����"));
+                    
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("timeTurnerTickInterval"),
+                    new GUIContent("Time Turner Tick Interval", "TimeTurner X-Tier 공격 간격"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("timeTurnerRadius"),
+                    new GUIContent("Time Turner Radius", "TimeTurner X-Tier 공격 범위"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("timeTurnerSpeedDebuff"),
+                    new GUIContent("Time Turner Speed Debuff", "TimeTurner X-Tier 이동속도 감소율 (0.0~1.0)"));
             }
 
             EditorGUI.indentLevel--;
@@ -1199,6 +1219,11 @@ public class WeaponData : ScriptableObject
                 {
                     xTierStats.forceFieldRadius = tierStats[3].forceFieldRadius * 1.5f;
                     xTierStats.forceFieldTickInterval = tierStats[3].forceFieldTickInterval * 0.7f;
+                    
+                    // Time Turner X-Tier 속성 초기화
+                    xTierStats.timeTurnerTickInterval = 0.5f;
+                    xTierStats.timeTurnerRadius = 3f;
+                    xTierStats.timeTurnerSpeedDebuff = 0.3f;
                 }
             }
 
