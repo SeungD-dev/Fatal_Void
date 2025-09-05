@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// °ÔÀÓÀÇ ¿É¼Ç ¼³Á¤À» °ü¸®ÇÏ´Â ÄÁÆ®·Ñ·¯
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½Æ®ï¿½Ñ·ï¿½
 /// </summary>
 public class OptionController : MonoBehaviour
 {
@@ -17,6 +17,12 @@ public class OptionController : MonoBehaviour
     [SerializeField] private GameObject optionPanel;
     [SerializeField] private Button quitButton;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    [Header("Debug UI")]
+    [SerializeField] private Button debugButton;
+    [SerializeField] private GameObject xTierDebugPanel;
+#endif
+
     private SoundManager soundManager;
     private const string BGM_VOLUME_KEY = "BGMVolume";
     private const string SFX_VOLUME_KEY = "SFXVolume";
@@ -27,6 +33,10 @@ public class OptionController : MonoBehaviour
         InitializeVolumeSettings();
         SetupSliderListeners();
         SetupQuitButton();
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        SetupDebugButton();
+#endif
     }
 
     private void InitializeVolumeSettings()
@@ -55,6 +65,55 @@ public class OptionController : MonoBehaviour
         }
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    private void SetupDebugButton()
+    {
+        if (debugButton != null)
+        {
+            debugButton.onClick.AddListener(OnDebugButtonClicked);
+        }
+
+        // ë””ë²„ê·¸ íŒ¨ë„ì€ ì²˜ìŒì— ë¹„í™œì„±í™”
+        if (xTierDebugPanel != null)
+        {
+            xTierDebugPanel.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// ë””ë²„ê·¸ ë²„íŠ¼ í´ë¦­ ì‹œ X-Tier ë¬´ê¸° ë””ë²„ê·¸ íŒ¨ë„ í† ê¸€
+    /// </summary>
+    public void OnDebugButtonClicked()
+    {
+        if (soundManager.currentSoundBank != null)
+        {
+            soundManager.PlaySound("Button_sfx", 0f, false);
+        }
+
+        if (xTierDebugPanel != null)
+        {
+            bool isActive = xTierDebugPanel.activeSelf;
+            xTierDebugPanel.SetActive(!isActive);
+        }
+    }
+
+    /// <summary>
+    /// X-Tier ë””ë²„ê·¸ íŒ¨ë„ ë‹«ê¸° (íŒ¨ë„ì˜ ë‹«ê¸° ë²„íŠ¼ì—ì„œ í˜¸ì¶œë¨)
+    /// </summary>
+    public void CloseXTierDebugPanel()
+    {
+        if (soundManager.currentSoundBank != null)
+        {
+            soundManager.PlaySound("Button_sfx", 0f, false);
+        }
+
+        if (xTierDebugPanel != null)
+        {
+            xTierDebugPanel.SetActive(false);
+        }
+    }
+#endif
+
     private void OnBGMVolumeChanged(float volume)
     {
         soundManager.SetBGMVolume(volume);
@@ -74,7 +133,7 @@ public class OptionController : MonoBehaviour
         PlayerPrefs.Save();    
     }
     /// <summary>
-    /// ¿É¼Ç ÆĞ³ÎÀ» Åä±ÛÇÏ°í °ÔÀÓ »óÅÂ¸¦ °ü¸®
+    /// ï¿½É¼ï¿½ ï¿½Ğ³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¸ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void CloseOptionPanel()
     {
@@ -92,7 +151,7 @@ public class OptionController : MonoBehaviour
     }
 
     /// <summary>
-    /// °ÔÀÓ Á¾·á Ã³¸®
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
     /// </summary>
     public void OnQuitButtonClicked()
     {
@@ -113,5 +172,9 @@ public class OptionController : MonoBehaviour
         if (bgmSlider != null) bgmSlider.onValueChanged.RemoveAllListeners();
         if (sfxSlider != null) sfxSlider.onValueChanged.RemoveAllListeners();
         if (quitButton != null) quitButton.onClick.RemoveAllListeners();
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (debugButton != null) debugButton.onClick.RemoveAllListeners();
+#endif
     }
 }

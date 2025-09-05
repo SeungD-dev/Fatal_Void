@@ -692,6 +692,24 @@ public class InventoryController : MonoBehaviour
         yield return new WaitForEndOfFrame();
         SelectNewlyPurchasedItem(weaponData);
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>
+    /// 디버그용: 특정 무기를 인벤토리에 직접 추가
+    /// </summary>
+    /// <param name="weaponData">추가할 무기 데이터</param>
+    public void AddWeaponForDebug(WeaponData weaponData)
+    {
+        if (weaponData == null)
+        {
+            Debug.LogError("WeaponData가 null입니다!");
+            return;
+        }
+
+        CreateInventoryItem(weaponData);
+        Debug.Log($"디버그: {weaponData.weaponName} 무기를 인벤토리에 추가했습니다.");
+    }
+#endif
     private void SelectNewlyPurchasedItem(WeaponData weaponData)
     {
         if (weaponInfoUI == null || mainInventoryGrid == null) return;

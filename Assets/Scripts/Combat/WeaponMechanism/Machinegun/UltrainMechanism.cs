@@ -3,11 +3,12 @@ using UnityEngine;
 
 /// <summary>
 /// Ultrain (Machinegun X-Tier) 무기 메커니즘
-/// MachinegunMechanism과 동일한 패턴을 사용하되 버스트 발사 추가
+/// 매우 빠른 Attack Delay와 넓은 Spread Angle을 사용한 단순한 연속 공격
+/// X-Tier Basic Stats만 사용하여 복잡한 버스트 로직 대신 기본 발사 패턴 활용
 /// </summary>
 public class UltrainMechanism : WeaponMechanism
 {
-    // 캐싱된 변수들 (MachinegunMechanism과 동일)
+    // 캐싱된 변수들
     private Vector2 baseDirection;
     private Vector2 spreadDirection;
     private Vector3 spawnPosition;
@@ -15,20 +16,10 @@ public class UltrainMechanism : WeaponMechanism
     private float finalAngle;
     private float cosAngle;
     private float sinAngle;
-    
-    // 버스트 발사 관련
-    private bool isFiring = false;
-    private Coroutine burstCoroutine;
-    private MonoBehaviour ownerComponent;
 
     public override void Initialize(WeaponData data, Transform player)
     {
         base.Initialize(data, player);
-        ownerComponent = player.GetComponent<MonoBehaviour>();
-        if (ownerComponent == null)
-        {
-            Debug.LogError("UltrainMechanism requires MonoBehaviour component for coroutines!");
-        }
     }
 
     protected override void InitializeProjectilePool()
@@ -43,10 +34,8 @@ public class UltrainMechanism : WeaponMechanism
         poolTag = $"Ultrain_Projectile";
         if (prefabToUse != null)
         {
-            // 버스트 발사를 고려해 더 많은 풀 생성
-            int burstCount = Mathf.Max(1, (int)weaponData.CurrentTierStats.burstCount);
-            int poolSize = Mathf.Max(30, burstCount * 5); 
-            ObjectPool.Instance.CreatePool(poolTag, prefabToUse, poolSize);
+            // 빠른 연사를 고려해 충분한 풀 생성
+            ObjectPool.Instance.CreatePool(poolTag, prefabToUse, 30);
         }
         else
         {
@@ -56,50 +45,17 @@ public class UltrainMechanism : WeaponMechanism
 
     protected override void Attack(Transform target)
     {
-        if (target == null || isFiring || ownerComponent == null) return;
+        if (target == null) return;
 
-        // 버스트 발사 시작
-        if (burstCoroutine != null)
-        {
-            ownerComponent.StopCoroutine(burstCoroutine);
-        }
-        
-        burstCoroutine = ownerComponent.StartCoroutine(BurstFire(target));
-    }
-
-    /// <summary>
-    /// 버스트 발사 코루틴
-    /// </summary>
-    private IEnumerator BurstFire(Transform target)
-    {
-        isFiring = true;
-        
-        int burstCount = Mathf.Max(1, (int)weaponData.CurrentTierStats.burstCount);
-        float burstDelay = Mathf.Max(0.05f, weaponData.CurrentTierStats.burstDelay);
-
-        // 사운드 재생 (버스트 시작 시 한 번만)
+        // 사운드 재생
         SoundManager.Instance?.PlaySound("Machinegun_atk", 1.2f, false);
 
-        for (int i = 0; i < burstCount; i++)
-        {
-            if (target == null) break;
-
-            // MachinegunMechanism과 동일한 방식으로 방향과 탄퍼짐 계산
-            CalculateBaseDirection(target);
-            CalculateSpreadDirection();
-            
-            // 투사체 발사
-            FireUltrainProjectile(spreadDirection);
-
-            // 마지막 발사가 아니면 대기
-            if (i < burstCount - 1)
-            {
-                yield return new WaitForSeconds(burstDelay);
-            }
-        }
-
-        isFiring = false;
-        burstCoroutine = null;
+        // 방향과 탄퍼짐 계산
+        CalculateBaseDirection(target);
+        CalculateSpreadDirection();
+        
+        // 투사체 발사
+        FireUltrainProjectile(spreadDirection);
     }
 
     /// <summary>
@@ -156,13 +112,12 @@ public class UltrainMechanism : WeaponMechanism
                 weaponData.CalculateFinalDamage(playerStats),
                 direction,
                 weaponData.CurrentTierStats.projectileSpeed,
-                weaponData.CalculateFinalKnockback(playerStats),
+                weaponData.CalculateFinalKnockback(playerStats), // Basic Stats의 knockback 사용
                 currentRange,
                 weaponData.CalculateFinalProjectileSize(playerStats),
                 false, 0, 0f // 기본 관통 설정
             );
-            // 넉백 배율 별도 설정
-            projectile.SetKnockbackMultiplier(weaponData.CurrentTierStats.knockbackMultiplier);
+            // knockbackMultiplier 제거: Basic Stats의 knockback만 사용
         }
         else if (projectileObj != null && projectileObj.TryGetComponent(out MachinegunProjectile machinegunProjectile))
         {
@@ -180,15 +135,10 @@ public class UltrainMechanism : WeaponMechanism
     }
 
     /// <summary>
-    /// 무기가 장착 해제될 때 실행 중인 코루틴 정리
+    /// 무기가 장착 해제될 때 호출
     /// </summary>
     public override void OnWeaponUnequipped()
     {
-        if (burstCoroutine != null && ownerComponent != null)
-        {
-            ownerComponent.StopCoroutine(burstCoroutine);
-            burstCoroutine = null;
-        }
-        isFiring = false;
+        // Ultrain은 단순 발사 패턴이므로 별도 정리 불필요
     }
 }

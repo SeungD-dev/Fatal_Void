@@ -71,22 +71,22 @@ MonoBehaviour:
     regenHasteIncrease: 0
   currentTier: 1
   supportsXTier: 1
-  xTierWeaponIcon: {fileID: 0}
-  xTierInventoryWeaponIcon: {fileID: 0}
-  xTierWidth: 1
-  xTierHeight: 1
-  xTierWeaponName: 
+  xTierWeaponIcon: {fileID: 1402025545409372402, guid: 1f6400dd34dfb61479d3ad53542f8247, type: 3}
+  xTierInventoryWeaponIcon: {fileID: 1402025545409372402, guid: 1f6400dd34dfb61479d3ad53542f8247, type: 3}
+  xTierWidth: 2
+  xTierHeight: 2
+  xTierWeaponName: Plasma Sword
   xTierWeaponDescription: 
   xTierStats:
-    damage: 10
-    attackDelay: 1
-    projectileSpeed: 10
-    knockback: 1
-    projectileSize: 1
+    damage: 42
+    attackDelay: 0.65
+    projectileSpeed: 5
+    knockback: 3
+    projectileSize: 4.5
     range: 5
-    canPenetrate: 0
+    canPenetrate: 1
     maxPenetrationCount: 0
-    penetrationDamageDecay: 0.1
+    penetrationDamageDecay: 0
     projectileCount: 3
     spreadAngle: 45
     attackRadius: 2
@@ -94,6 +94,19 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
+    burstCount: 1
+    burstDelay: 0.1
+    knockbackMultiplier: 1
+    cutterSpreadAngle: 15
+    phantomSaberPowerBonus: 15
+    phantomSaberHasteBonus: 15
+    phantomSaberSpeedBonus: 25
+    blackHoleDamageInterval: 0.25
+    blackHoleScaleMultiplier: 1.5
+    blackHoleDuration: 5
+    timeTurnerTickInterval: 0.5
+    timeTurnerRadius: 3
+    timeTurnerSpeedDebuff: 0.3
   xTierPrice: 0
   xTierProjectilePrefab: {fileID: 0}
   tier1Price: 25
@@ -118,6 +131,19 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
+    burstCount: 1
+    burstDelay: 0.1
+    knockbackMultiplier: 1
+    cutterSpreadAngle: 15
+    phantomSaberPowerBonus: 15
+    phantomSaberHasteBonus: 15
+    phantomSaberSpeedBonus: 25
+    blackHoleDamageInterval: 0.25
+    blackHoleScaleMultiplier: 1.5
+    blackHoleDuration: 5
+    timeTurnerTickInterval: 0.5
+    timeTurnerRadius: 3
+    timeTurnerSpeedDebuff: 0.3
   - damage: 15
     attackDelay: 1.25
     projectileSpeed: 4
@@ -134,6 +160,19 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
+    burstCount: 1
+    burstDelay: 0.1
+    knockbackMultiplier: 1
+    cutterSpreadAngle: 15
+    phantomSaberPowerBonus: 15
+    phantomSaberHasteBonus: 15
+    phantomSaberSpeedBonus: 25
+    blackHoleDamageInterval: 0.25
+    blackHoleScaleMultiplier: 1.5
+    blackHoleDuration: 5
+    timeTurnerTickInterval: 0.5
+    timeTurnerRadius: 3
+    timeTurnerSpeedDebuff: 0.3
   - damage: 21
     attackDelay: 1
     projectileSpeed: 4
@@ -150,6 +189,19 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
+    burstCount: 1
+    burstDelay: 0.1
+    knockbackMultiplier: 1
+    cutterSpreadAngle: 15
+    phantomSaberPowerBonus: 15
+    phantomSaberHasteBonus: 15
+    phantomSaberSpeedBonus: 25
+    blackHoleDamageInterval: 0.25
+    blackHoleScaleMultiplier: 1.5
+    blackHoleDuration: 5
+    timeTurnerTickInterval: 0.5
+    timeTurnerRadius: 3
+    timeTurnerSpeedDebuff: 0.3
   - damage: 28
     attackDelay: 0.75
     projectileSpeed: 4
@@ -166,6 +218,19 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
+    burstCount: 1
+    burstDelay: 0.1
+    knockbackMultiplier: 1
+    cutterSpreadAngle: 15
+    phantomSaberPowerBonus: 15
+    phantomSaberHasteBonus: 15
+    phantomSaberSpeedBonus: 25
+    blackHoleDamageInterval: 0.25
+    blackHoleScaleMultiplier: 1.5
+    blackHoleDuration: 5
+    timeTurnerTickInterval: 0.5
+    timeTurnerRadius: 3
+    timeTurnerSpeedDebuff: 0.3
   projectilePrefab: {fileID: 4589099209072863335, guid: 495678b785e0b444f92342df2119c894, type: 3}
   attackRadius: 2
   groundEffectDuration: 3

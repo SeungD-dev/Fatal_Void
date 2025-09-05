@@ -515,15 +515,12 @@ public class WeaponDataEditor : Editor
             else if (weaponData.weaponType == WeaponType.Machinegun)
             {
                 EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Machinegun Properties", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("burstCount"),
-                    new GUIContent("Burst Count", "�Ӽ� �߻� ����"));
-                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("burstDelay"),
-                    new GUIContent("Burst Delay", "�Ӽ� �߻� �� ���� ������ (��)"));
+                EditorGUILayout.LabelField("Ultrain Properties", EditorStyles.boldLabel);
+                // burstCount 삭제: Ultrain은 Basic Stats의 attackDelay만 사용
+                // burstDelay 삭제: 빠른 연사는 Basic Stats의 attackDelay로 처리
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("spreadAngle"),
                     new GUIContent("Spread Angle", "�� ���� ���� (��)"));
-                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("knockbackMultiplier"),
-                    new GUIContent("Knockback Multiplier", "�˹� ���� (1.0 = �⺻��)"));
+                // knockbackMultiplier 삭제: Basic Stats의 knockback 사용
             }
             else if (weaponData.weaponType == WeaponType.Cutter)
             {
