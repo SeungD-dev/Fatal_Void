@@ -56,10 +56,6 @@ public class TierStats
     public float cutterSpreadAngle = 15f;
 
     [Header("Phantom Saber Properties")]
-    [Tooltip("������ ����")]
-    public float phantomSaberDamageMultiplier = 1.5f;
-    [Tooltip("���� ���� ����")]
-    public float phantomSaberRangeMultiplier = 1.3f;
     [Tooltip("Power ������")]
     public float phantomSaberPowerBonus = 15f;
     [Tooltip("Haste ������")]
@@ -405,48 +401,23 @@ public class WeaponDataEditor : Editor
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damageTickInterval"),
                         new GUIContent("Damage Tick Interval", "���� ����� ƽ ����"));
                     
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("blackHoleDamageInterval"),
-                        new GUIContent("Black Hole Damage Interval", "BlackHole X-Tier 데미지 주기"));
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("blackHoleScaleMultiplier"),
-                        new GUIContent("Black Hole Scale Multiplier", "BlackHole X-Tier 최대 확장 배율"));
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("blackHoleDuration"),
-                        new GUIContent("Black Hole Duration", "BlackHole X-Tier 지속시간"));
+                    // Black Hole 속성들은 X-Tier에서만 표시
                 }
                 else if (weaponData.weaponType == WeaponType.Machinegun)
                 {
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Machinegun Properties", EditorStyles.boldLabel);
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("burstCount"),
-                        new GUIContent("Burst Count", "�Ӽ� �߻� ����"));
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("burstDelay"),
                         new GUIContent("Burst Delay", "�Ӽ� �߻� �� ���� ������ (��)"));
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("spreadAngle"),
                         new GUIContent("Spread Angle", "�� ���� ���� (��)"));
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("knockbackMultiplier"),
-                        new GUIContent("Knockback Multiplier", "�˹� ���� (1.0 = �⺻��)"));
+                    // burstCount와 knockbackMultiplier는 X-Tier에서만 표시
                 }
                 else if (weaponData.weaponType == WeaponType.Cutter)
                 {
-                    EditorGUILayout.Space();
-                    EditorGUILayout.LabelField("Cutter Properties", EditorStyles.boldLabel);
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("cutterSpreadAngle"),
-                        new GUIContent("Spread Angle", "투사체 퍼짐 각도 (도)"));
+                    // cutterSpreadAngle는 X-Tier에서만 표시
                 }
-                else if (weaponData.weaponType == WeaponType.BeamSaber)
-                {
-                    EditorGUILayout.Space();
-                    EditorGUILayout.LabelField("Phantom Saber Properties", EditorStyles.boldLabel);
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("phantomSaberDamageMultiplier"),
-                        new GUIContent("Damage Multiplier", "데미지 배율"));
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("phantomSaberRangeMultiplier"),
-                        new GUIContent("Range Multiplier", "공격 범위 배율"));
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("phantomSaberPowerBonus"),
-                        new GUIContent("Power Bonus", "Power 증가량"));
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("phantomSaberHasteBonus"),
-                        new GUIContent("Haste Bonus", "Haste 증가량"));
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("phantomSaberSpeedBonus"),
-                        new GUIContent("Speed Bonus", "이동속도 증가량"));
-                }
+                // BeamSaber는 일반 Tier에서 특별한 속성이 없음 (X-Tier에서만 Phantom Saber 속성 사용)
                 else if (weaponData.weaponType == WeaponType.ForceFieldGenerator)
                 {
                     EditorGUILayout.Space();
@@ -456,12 +427,7 @@ public class WeaponDataEditor : Editor
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("forceFieldTickInterval"),
                         new GUIContent("Damage Tick Interval", "������� ����Ǵ� �ð� ����"));
                         
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("timeTurnerTickInterval"),
-                        new GUIContent("Time Turner Tick Interval", "TimeTurner X-Tier 공격 간격"));
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("timeTurnerRadius"),
-                        new GUIContent("Time Turner Radius", "TimeTurner X-Tier 공격 범위"));
-                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("timeTurnerSpeedDebuff"),
-                        new GUIContent("Time Turner Speed Debuff", "TimeTurner X-Tier 이동속도 감소율 (0.0~1.0)"));
+                    // Time Turner 속성들은 X-Tier에서만 표시
                 }
             }
 
@@ -570,10 +536,6 @@ public class WeaponDataEditor : Editor
             {
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Phantom Saber Properties", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("phantomSaberDamageMultiplier"),
-                    new GUIContent("Damage Multiplier", "데미지 배율"));
-                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("phantomSaberRangeMultiplier"),
-                    new GUIContent("Range Multiplier", "공격 범위 배율"));
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("phantomSaberPowerBonus"),
                     new GUIContent("Power Bonus", "Power 증가량"));
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("phantomSaberHasteBonus"),
@@ -1198,8 +1160,6 @@ public class WeaponData : ScriptableObject
                 }
                 else if (weaponType == WeaponType.BeamSaber)
                 {
-                    xTierStats.phantomSaberDamageMultiplier = tierStats[3].phantomSaberDamageMultiplier * 1.2f; // 데미지 배율 20% 증가
-                    xTierStats.phantomSaberRangeMultiplier = tierStats[3].phantomSaberRangeMultiplier * 1.2f; // 범위 배율 20% 증가
                     xTierStats.phantomSaberPowerBonus = tierStats[3].phantomSaberPowerBonus * 1.5f; // Power 보너스 50% 증가
                     xTierStats.phantomSaberHasteBonus = tierStats[3].phantomSaberHasteBonus * 1.5f; // Haste 보너스 50% 증가
                     xTierStats.phantomSaberSpeedBonus = tierStats[3].phantomSaberSpeedBonus * 1.5f; // 속도 보너스 50% 증가

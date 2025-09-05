@@ -181,31 +181,29 @@ public class PhantomSaberMechanism : WeaponMechanism
         {
             projectile.SetPoolTag(poolTag);
 
-            // Phantom Saber 전용 강화된 데미지 계산
-            float baseDamage = weaponData.CalculateFinalDamage(playerStats);
-            float enhancedDamage = baseDamage * weaponData.CurrentTierStats.phantomSaberDamageMultiplier;
+            // X-Tier Basic Stats를 사용한 데미지 계산
+            float damage = weaponData.CalculateFinalDamage(playerStats);
             
             // 연속공격 시 추가 데미지 보너스
             if (isComboAttack && comboCount > 1)
             {
-                enhancedDamage *= 1.2f;
+                damage *= 1.2f;
             }
 
-            // 강화된 공격 범위 계산
-            float baseRange = weaponData.CalculateFinalRange(playerStats);
-            float enhancedRange = baseRange * weaponData.CurrentTierStats.phantomSaberRangeMultiplier;
+            // X-Tier Basic Stats를 사용한 공격 범위
+            float range = weaponData.CalculateFinalRange(playerStats);
 
             projectile.Initialize(
-                enhancedDamage,
+                damage,
                 Vector2.zero,
                 0f,
                 weaponData.CalculateFinalKnockback(playerStats),
-                enhancedRange,
+                range,
                 weaponData.CalculateFinalProjectileSize(playerStats)
             );
 
             projectile.SetupCircularAttack(
-                enhancedRange,
+                range,
                 enemyLayer,
                 playerTransform
             );
@@ -215,28 +213,26 @@ public class PhantomSaberMechanism : WeaponMechanism
             // PhantomSaberProjectile이 없으면 BeamSaberProjectile을 대체 사용
             beamSaberProjectile.SetPoolTag(poolTag);
 
-            float baseDamage = weaponData.CalculateFinalDamage(playerStats);
-            float enhancedDamage = baseDamage * weaponData.CurrentTierStats.phantomSaberDamageMultiplier;
+            float damage = weaponData.CalculateFinalDamage(playerStats);
             
             if (isComboAttack && comboCount > 1)
             {
-                enhancedDamage *= 1.2f;
+                damage *= 1.2f;
             }
 
-            float baseRange = weaponData.CalculateFinalRange(playerStats);
-            float enhancedRange = baseRange * weaponData.CurrentTierStats.phantomSaberRangeMultiplier;
+            float range = weaponData.CalculateFinalRange(playerStats);
 
             beamSaberProjectile.Initialize(
-                enhancedDamage,
+                damage,
                 Vector2.zero,
                 0f,
                 weaponData.CalculateFinalKnockback(playerStats),
-                enhancedRange,
+                range,
                 weaponData.CalculateFinalProjectileSize(playerStats)
             );
 
             beamSaberProjectile.SetupCircularAttack(
-                enhancedRange,
+                range,
                 enemyLayer,
                 playerTransform
             );
