@@ -695,7 +695,7 @@ public class InventoryController : MonoBehaviour
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     /// <summary>
-    /// 디버그용: 특정 무기를 인벤토리에 직접 추가
+    /// 디버그용: 특정 무기를 인벤토리에 직접 추가하고 즉시 장착
     /// </summary>
     /// <param name="weaponData">추가할 무기 데이터</param>
     public void AddWeaponForDebug(WeaponData weaponData)
@@ -707,7 +707,17 @@ public class InventoryController : MonoBehaviour
         }
 
         CreateInventoryItem(weaponData);
-        Debug.Log($"디버그: {weaponData.weaponName} 무기를 인벤토리에 추가했습니다.");
+        
+        // 디버그 모드에서는 게임 상태와 관계없이 즉시 무기 장착
+        if (weaponManager != null)
+        {
+            weaponManager.EquipWeapon(weaponData);
+            Debug.Log($"디버그: {weaponData.weaponName} 무기를 인벤토리에 추가하고 즉시 장착했습니다.");
+        }
+        else
+        {
+            Debug.Log($"디버그: {weaponData.weaponName} 무기를 인벤토리에 추가했습니다.");
+        }
     }
 #endif
     private void SelectNewlyPurchasedItem(WeaponData weaponData)

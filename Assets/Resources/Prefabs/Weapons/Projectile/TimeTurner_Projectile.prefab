@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2271665153582508333}
   - component: {fileID: 2165676355276888029}
-  - component: {fileID: 909989191553821599}
-  - component: {fileID: -3579370714380259460}
+  - component: {fileID: 7409297365056648639}
+  - component: {fileID: 2287755938460305036}
   m_Layer: 8
-  m_Name: BeamSaber_Projectile
+  m_Name: TimeTurner_Projectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -77,8 +77,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
-  m_Sprite: {fileID: -4104764068523884431, guid: ba2e94b36be76024399f31ffde757165, type: 3}
+  m_SortingOrder: 2
+  m_Sprite: {fileID: -5476380460940941738, guid: 31dfa654119cd0743ab1b89df4317938, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -89,7 +89,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &909989191553821599
+--- !u!95 &7409297365056648639
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
@@ -99,7 +99,7 @@ Animator:
   m_GameObject: {fileID: 4589099209072863335}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: cf52f93d9177d40409340559f8c4c0e6, type: 2}
+  m_Controller: {fileID: 9100000, guid: 2d90e5caa82f897418b57bda5e2905f9, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -111,7 +111,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &-3579370714380259460
+--- !u!114 &2287755938460305036
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -120,7 +120,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4589099209072863335}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 176692e267d594d48a363f8a1949c58f, type: 3}
+  m_Script: {fileID: 11500000, guid: 691768e6f54f50341b6c0d8f1a574675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rotationOffset: 0

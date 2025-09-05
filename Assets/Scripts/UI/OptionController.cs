@@ -71,12 +71,21 @@ public class OptionController : MonoBehaviour
         if (debugButton != null)
         {
             debugButton.onClick.AddListener(OnDebugButtonClicked);
+            Debug.Log("OptionController: Debug button listener added");
+        }
+        else
+        {
+            Debug.LogWarning("OptionController: Debug button is null!");
         }
 
-        // 디버그 패널은 처음에 비활성화
+        // 디버그 패널 확인 (Hierarchy에서 이미 비활성화 상태)
         if (xTierDebugPanel != null)
         {
-            xTierDebugPanel.SetActive(false);
+            Debug.Log("OptionController: X-Tier debug panel found");
+        }
+        else
+        {
+            Debug.LogWarning("OptionController: X-Tier debug panel is null!");
         }
     }
 
@@ -85,6 +94,8 @@ public class OptionController : MonoBehaviour
     /// </summary>
     public void OnDebugButtonClicked()
     {
+        Debug.Log("OptionController: Debug button clicked!");
+        
         if (soundManager.currentSoundBank != null)
         {
             soundManager.PlaySound("Button_sfx", 0f, false);
@@ -92,8 +103,19 @@ public class OptionController : MonoBehaviour
 
         if (xTierDebugPanel != null)
         {
-            bool isActive = xTierDebugPanel.activeSelf;
-            xTierDebugPanel.SetActive(!isActive);
+            // 디버그 버튼을 누르면 항상 옵션 패널 -> 디버그 패널로 전환
+            if (optionPanel != null)
+            {
+                optionPanel.SetActive(false);
+                Debug.Log("OptionController: Option panel disabled");
+            }
+            
+            xTierDebugPanel.SetActive(true);
+            Debug.Log("OptionController: X-Tier debug panel activated");
+        }
+        else
+        {
+            Debug.LogError("OptionController: X-Tier debug panel is null when trying to toggle!");
         }
     }
 
@@ -110,6 +132,14 @@ public class OptionController : MonoBehaviour
         if (xTierDebugPanel != null)
         {
             xTierDebugPanel.SetActive(false);
+            Debug.Log("OptionController: X-Tier debug panel closed");
+        }
+
+        // 디버그 패널을 닫을 때 옵션 패널 다시 활성화
+        if (optionPanel != null)
+        {
+            optionPanel.SetActive(true);
+            Debug.Log("OptionController: Option panel reactivated after debug close");
         }
     }
 #endif

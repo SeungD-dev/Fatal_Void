@@ -71,18 +71,18 @@ MonoBehaviour:
     regenHasteIncrease: 0
   currentTier: 1
   supportsXTier: 1
-  xTierWeaponIcon: {fileID: 0}
-  xTierInventoryWeaponIcon: {fileID: 0}
-  xTierWidth: 1
-  xTierHeight: 1
-  xTierWeaponName: 
+  xTierWeaponIcon: {fileID: 8058670007424940187, guid: 90847314f2f9229439d51106a3eb45f1, type: 3}
+  xTierInventoryWeaponIcon: {fileID: 8058670007424940187, guid: 90847314f2f9229439d51106a3eb45f1, type: 3}
+  xTierWidth: 2
+  xTierHeight: 2
+  xTierWeaponName: Black Hole
   xTierWeaponDescription: 
   xTierStats:
-    damage: 10
-    attackDelay: 1
-    projectileSpeed: 10
-    knockback: 1
-    projectileSize: 1
+    damage: 25
+    attackDelay: 1.2
+    projectileSpeed: 1
+    knockback: 0
+    projectileSize: 2
     range: 5
     canPenetrate: 0
     maxPenetrationCount: 0
@@ -107,8 +107,13 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
-  xTierPrice: 0
-  xTierProjectilePrefab: {fileID: 0}
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
+  xTierPrice: 350
+  xTierProjectilePrefab: {fileID: 4589099209072863335, guid: c614134723ca6564d99a0d67216ea4c1, type: 3}
   tier1Price: 45
   tier2Price: 90
   tier3Price: 180
@@ -144,6 +149,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 9
     attackDelay: 2.5
     projectileSpeed: 1
@@ -173,6 +183,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 13
     attackDelay: 2
     projectileSpeed: 1
@@ -202,6 +217,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 17
     attackDelay: 1.5
     projectileSpeed: 1
@@ -231,6 +251,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   projectilePrefab: {fileID: 4589099209072863335, guid: 9d821cbd67d0f234595d52b1b4ddd61d, type: 3}
   attackRadius: 2
   groundEffectDuration: 3

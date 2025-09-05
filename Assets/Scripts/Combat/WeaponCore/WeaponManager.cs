@@ -226,8 +226,8 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
-        // 새로운 무기 장착
-        WeaponMechanism mechanism = CreateWeaponMechanism(weaponData.weaponType);
+        // 새로운 무기 장착 (X-Tier 지원)
+        WeaponMechanism mechanism = CreateWeaponMechanism(weaponData);
         if (mechanism != null)
         {
             mechanism.Initialize(weaponData, transform);
@@ -286,6 +286,18 @@ public class WeaponManager : MonoBehaviour
     {
         ClearAllWeapons();
     }
+    private WeaponMechanism CreateWeaponMechanism(WeaponData weaponData)
+    {
+        // X-Tier (Tier 5) 무기인 경우 X-Tier 전용 메커니즘 사용
+        if (weaponData.currentTier == 5)
+        {
+            return CreateXTierMechanism(weaponData.weaponType);
+        }
+        
+        // 일반 Tier 무기들
+        return CreateWeaponMechanism(weaponData.weaponType);
+    }
+
     private WeaponMechanism CreateWeaponMechanism(WeaponType weaponType)
     {
         return weaponType switch
@@ -301,6 +313,23 @@ public class WeaponManager : MonoBehaviour
             WeaponType.ForceFieldGenerator => new ForceFieldMechanism(),
             WeaponType.Equipment => null, // Equipment는 별도 처리
             _ => null
+        };
+    }
+
+    private WeaponMechanism CreateXTierMechanism(WeaponType weaponType)
+    {
+        return weaponType switch
+        {
+            WeaponType.Buster => new ExterminatorMechanism(),
+            WeaponType.Machinegun => new UltrainMechanism(),
+            WeaponType.Blade => new PlasmaSwordMechanism(),
+            WeaponType.Cutter => new CycloneEdgeMechanism(),
+            WeaponType.Sawblade => new InfinityDiscMechanism(),
+            WeaponType.BeamSaber => new PhantomSaberMechanism(),
+            WeaponType.Shotgun => new HellFireMechanism(),
+            WeaponType.Grinder => new BlackHoleMechanism(),
+            WeaponType.ForceFieldGenerator => new TimeTurnerMechanism(),
+            _ => CreateWeaponMechanism(weaponType) // X-Tier가 없으면 기본 메커니즘 사용
         };
     }
 

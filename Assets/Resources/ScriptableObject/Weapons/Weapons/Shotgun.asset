@@ -70,6 +70,50 @@ MonoBehaviour:
     regenValue: 0
     regenHasteIncrease: 0
   currentTier: 1
+  supportsXTier: 1
+  xTierWeaponIcon: {fileID: -1983434036056564680, guid: d883b5a94c0148548bb3c3b73d35e052, type: 3}
+  xTierInventoryWeaponIcon: {fileID: -1983434036056564680, guid: d883b5a94c0148548bb3c3b73d35e052, type: 3}
+  xTierWidth: 1
+  xTierHeight: 3
+  xTierWeaponName: Hellfire
+  xTierWeaponDescription: 
+  xTierStats:
+    damage: 10
+    attackDelay: 2
+    projectileSpeed: 8
+    knockback: 7
+    projectileSize: 2.5
+    range: 5
+    canPenetrate: 0
+    maxPenetrationCount: 0
+    penetrationDamageDecay: 0.1
+    projectileCount: 3
+    spreadAngle: 15
+    attackRadius: 2
+    groundEffectDuration: 3
+    damageTickInterval: 0.5
+    forceFieldRadius: 3
+    forceFieldTickInterval: 0.5
+    burstCount: 1
+    burstDelay: 0.1
+    knockbackMultiplier: 1
+    cutterSpreadAngle: 15
+    phantomSaberPowerBonus: 15
+    phantomSaberHasteBonus: 15
+    phantomSaberSpeedBonus: 25
+    blackHoleDamageInterval: 0.25
+    blackHoleScaleMultiplier: 1.5
+    blackHoleDuration: 5
+    timeTurnerTickInterval: 0.5
+    timeTurnerRadius: 3
+    timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.3
+    hellFireSecondInterval: 0.3
+  xTierPrice: 350
+  xTierProjectilePrefab: {fileID: 4589099209072863335, guid: e84a77811d502e745b5e238faed1716b, type: 3}
   tier1Price: 45
   tier2Price: 90
   tier3Price: 180
@@ -92,6 +136,24 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
+    burstCount: 1
+    burstDelay: 0.1
+    knockbackMultiplier: 1
+    cutterSpreadAngle: 15
+    phantomSaberPowerBonus: 15
+    phantomSaberHasteBonus: 15
+    phantomSaberSpeedBonus: 25
+    blackHoleDamageInterval: 0.25
+    blackHoleScaleMultiplier: 1.5
+    blackHoleDuration: 5
+    timeTurnerTickInterval: 0.5
+    timeTurnerRadius: 3
+    timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 9
     attackDelay: 2
     projectileSpeed: 4
@@ -108,6 +170,24 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
+    burstCount: 1
+    burstDelay: 0.1
+    knockbackMultiplier: 1
+    cutterSpreadAngle: 15
+    phantomSaberPowerBonus: 15
+    phantomSaberHasteBonus: 15
+    phantomSaberSpeedBonus: 25
+    blackHoleDamageInterval: 0.25
+    blackHoleScaleMultiplier: 1.5
+    blackHoleDuration: 5
+    timeTurnerTickInterval: 0.5
+    timeTurnerRadius: 3
+    timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 12
     attackDelay: 2
     projectileSpeed: 4
@@ -124,6 +204,24 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
+    burstCount: 1
+    burstDelay: 0.1
+    knockbackMultiplier: 1
+    cutterSpreadAngle: 15
+    phantomSaberPowerBonus: 15
+    phantomSaberHasteBonus: 15
+    phantomSaberSpeedBonus: 25
+    blackHoleDamageInterval: 0.25
+    blackHoleScaleMultiplier: 1.5
+    blackHoleDuration: 5
+    timeTurnerTickInterval: 0.5
+    timeTurnerRadius: 3
+    timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 15
     attackDelay: 2
     projectileSpeed: 4
@@ -140,6 +238,24 @@ MonoBehaviour:
     damageTickInterval: 0.5
     forceFieldRadius: 3
     forceFieldTickInterval: 0.5
+    burstCount: 1
+    burstDelay: 0.1
+    knockbackMultiplier: 1
+    cutterSpreadAngle: 15
+    phantomSaberPowerBonus: 15
+    phantomSaberHasteBonus: 15
+    phantomSaberSpeedBonus: 25
+    blackHoleDamageInterval: 0.25
+    blackHoleScaleMultiplier: 1.5
+    blackHoleDuration: 5
+    timeTurnerTickInterval: 0.5
+    timeTurnerRadius: 3
+    timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   projectilePrefab: {fileID: 4589099209072863335, guid: 6817771fa34581a43965c3e49ced5f63, type: 3}
   attackRadius: 2
   groundEffectDuration: 3

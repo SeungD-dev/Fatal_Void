@@ -16,12 +16,15 @@ public class XTierWeaponDebugPanel : MonoBehaviour
     [SerializeField] private Button closeButton;
 
     [Header("X-Tier Weapon Buttons")]
+    [SerializeField] private Button exterminatorButton;      // Exterminator (Buster X-Tier)
+    [SerializeField] private Button ultrainButton;           // Ultrain (Machinegun X-Tier)
+    [SerializeField] private Button plasmaSwordButton;       // Plasma Sword (Blade X-Tier)
+    [SerializeField] private Button cycloneEdgeButton;       // Cyclone Edge (Cutter X-Tier)
+    [SerializeField] private Button infinityDiscButton;      // Infinity Disc (Sawblade X-Tier)
     [SerializeField] private Button phantomSaberButton;      // Phantom Saber (BeamSaber X-Tier)
+    [SerializeField] private Button hellFireButton;          // HellFire (Shotgun X-Tier)
     [SerializeField] private Button blackHoleButton;         // Black Hole (Grinder X-Tier)
     [SerializeField] private Button timeTurnerButton;        // Time Turner (ForceFieldGenerator X-Tier)
-    [SerializeField] private Button cycloneEdgeButton;       // Cyclone Edge (Cutter X-Tier)
-    [SerializeField] private Button infinityDiscButton;      // Infinity Disc (Boomerang X-Tier)
-    [SerializeField] private Button ultrainButton;           // Ultrain (Machinegun X-Tier)
 
     private SoundManager soundManager;
     private Dictionary<WeaponType, WeaponData> xTierWeapons = new Dictionary<WeaponType, WeaponData>();
@@ -112,19 +115,19 @@ public class XTierWeaponDebugPanel : MonoBehaviour
         }
 
         // X-Tier 무기 버튼들
-        if (phantomSaberButton != null)
+        if (exterminatorButton != null)
         {
-            phantomSaberButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.BeamSaber));
+            exterminatorButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.Buster));
         }
 
-        if (blackHoleButton != null)
+        if (ultrainButton != null)
         {
-            blackHoleButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.Grinder));
+            ultrainButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.Machinegun));
         }
 
-        if (timeTurnerButton != null)
+        if (plasmaSwordButton != null)
         {
-            timeTurnerButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.ForceFieldGenerator));
+            plasmaSwordButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.Blade));
         }
 
         if (cycloneEdgeButton != null)
@@ -137,9 +140,24 @@ public class XTierWeaponDebugPanel : MonoBehaviour
             infinityDiscButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.Sawblade));
         }
 
-        if (ultrainButton != null)
+        if (phantomSaberButton != null)
         {
-            ultrainButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.Machinegun));
+            phantomSaberButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.BeamSaber));
+        }
+
+        if (hellFireButton != null)
+        {
+            hellFireButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.Shotgun));
+        }
+
+        if (blackHoleButton != null)
+        {
+            blackHoleButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.Grinder));
+        }
+
+        if (timeTurnerButton != null)
+        {
+            timeTurnerButton.onClick.AddListener(() => OnWeaponButtonClicked(WeaponType.ForceFieldGenerator));
         }
     }
 
@@ -221,12 +239,15 @@ public class XTierWeaponDebugPanel : MonoBehaviour
     {
         // 리스너 정리
         if (closeButton != null) closeButton.onClick.RemoveAllListeners();
-        if (phantomSaberButton != null) phantomSaberButton.onClick.RemoveAllListeners();
-        if (blackHoleButton != null) blackHoleButton.onClick.RemoveAllListeners();
-        if (timeTurnerButton != null) timeTurnerButton.onClick.RemoveAllListeners();
+        if (exterminatorButton != null) exterminatorButton.onClick.RemoveAllListeners();
+        if (ultrainButton != null) ultrainButton.onClick.RemoveAllListeners();
+        if (plasmaSwordButton != null) plasmaSwordButton.onClick.RemoveAllListeners();
         if (cycloneEdgeButton != null) cycloneEdgeButton.onClick.RemoveAllListeners();
         if (infinityDiscButton != null) infinityDiscButton.onClick.RemoveAllListeners();
-        if (ultrainButton != null) ultrainButton.onClick.RemoveAllListeners();
+        if (phantomSaberButton != null) phantomSaberButton.onClick.RemoveAllListeners();
+        if (hellFireButton != null) hellFireButton.onClick.RemoveAllListeners();
+        if (blackHoleButton != null) blackHoleButton.onClick.RemoveAllListeners();
+        if (timeTurnerButton != null) timeTurnerButton.onClick.RemoveAllListeners();
     }
 }
 #endif

@@ -75,7 +75,7 @@ MonoBehaviour:
   xTierInventoryWeaponIcon: {fileID: -4864538693794854076, guid: 9210cd84c8a4ff94f9842bd852bc3ddc, type: 3}
   xTierWidth: 1
   xTierHeight: 3
-  xTierWeaponName: Phantom Sabert
+  xTierWeaponName: Phantom Saber
   xTierWeaponDescription: 
   xTierStats:
     damage: 90
@@ -99,14 +99,19 @@ MonoBehaviour:
     knockbackMultiplier: 1
     cutterSpreadAngle: 15
     phantomSaberPowerBonus: 15
-    phantomSaberHasteBonus: 15
-    phantomSaberSpeedBonus: 25
+    phantomSaberHasteBonus: 2
+    phantomSaberSpeedBonus: 12.5
     blackHoleDamageInterval: 0.25
     blackHoleScaleMultiplier: 1.5
     blackHoleDuration: 5
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   xTierPrice: 720
   xTierProjectilePrefab: {fileID: 4589099209072863335, guid: 6871908684f082c4eb3b94688390ffff, type: 3}
   tier1Price: 45
@@ -144,6 +149,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 45
     attackDelay: 2
     projectileSpeed: 10
@@ -173,6 +183,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 35
     attackDelay: 2
     projectileSpeed: 10
@@ -202,6 +217,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 55
     attackDelay: 2
     projectileSpeed: 10
@@ -231,6 +251,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   projectilePrefab: {fileID: 4589099209072863335, guid: f7daaed26157fa6498d0c41b4bc6d57a, type: 3}
   attackRadius: 2
   groundEffectDuration: 3

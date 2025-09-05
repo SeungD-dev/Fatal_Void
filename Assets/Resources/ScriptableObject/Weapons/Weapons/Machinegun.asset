@@ -88,7 +88,7 @@ MonoBehaviour:
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
     projectileCount: 3
-    spreadAngle: 45
+    spreadAngle: 70
     attackRadius: 2
     groundEffectDuration: 3
     damageTickInterval: 0.5
@@ -107,8 +107,13 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   xTierPrice: 350
-  xTierProjectilePrefab: {fileID: 0}
+  xTierProjectilePrefab: {fileID: 4589099209072863335, guid: 1572cfa788e90bf468623041f75e8da9, type: 3}
   tier1Price: 25
   tier2Price: 50
   tier3Price: 100
@@ -144,6 +149,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 4
     attackDelay: 0.18
     projectileSpeed: 4.5
@@ -173,6 +183,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 5
     attackDelay: 0.16
     projectileSpeed: 4.5
@@ -202,6 +217,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   - damage: 7
     attackDelay: 0.14
     projectileSpeed: 4.5
@@ -231,6 +251,11 @@ MonoBehaviour:
     timeTurnerTickInterval: 0.5
     timeTurnerRadius: 3
     timeTurnerSpeedDebuff: 0.3
+    hellFireFirstShotCount: 7
+    hellFireSecondShotCount: 5
+    hellFireThirdShotCount: 3
+    hellFireFirstInterval: 0.2
+    hellFireSecondInterval: 0.2
   projectilePrefab: {fileID: 4589099209072863335, guid: 9b06e1994508f364aa2cba6dcfb807c7, type: 3}
   attackRadius: 2
   groundEffectDuration: 3

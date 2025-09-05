@@ -75,6 +75,14 @@ public class TierStats
     public float timeTurnerRadius = 3f;
     public float timeTurnerSpeedDebuff = 0.3f;
 
+    // HellFire (Shotgun X-Tier) 속성들
+    [Header("HellFire Properties")]
+    public int hellFireFirstShotCount = 7;
+    public int hellFireSecondShotCount = 5;
+    public int hellFireThirdShotCount = 3;
+    public float hellFireFirstInterval = 0.2f;
+    public float hellFireSecondInterval = 0.2f;
+
     public struct PenetrationInfo
     {
         public bool canPenetrate;
@@ -506,11 +514,25 @@ public class WeaponDataEditor : Editor
             if (weaponData.weaponType == WeaponType.Shotgun)
             {
                 EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Shotgun Properties", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("projectileCount"),
-                    new GUIContent("Projectile Count", "������ �߻� ����ü ��"));
+                EditorGUILayout.LabelField("HellFire Properties", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("spreadAngle"),
-                    new GUIContent("Spread Angle", "������ �߻� ���� ���� (��)"));
+                    new GUIContent("Spread Angle", "투사체 퍼짐 각도 (도)"));
+                
+                EditorGUILayout.Space(5);
+                EditorGUILayout.LabelField("3-Burst Shot System", EditorStyles.miniBoldLabel);
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("hellFireFirstShotCount"),
+                    new GUIContent("1st Shot Count", "첫 번째 발사 투사체 개수"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("hellFireSecondShotCount"),
+                    new GUIContent("2nd Shot Count", "두 번째 발사 투사체 개수"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("hellFireThirdShotCount"),
+                    new GUIContent("3rd Shot Count", "세 번째 발사 투사체 개수"));
+                
+                EditorGUILayout.Space(5);
+                EditorGUILayout.LabelField("Shot Intervals", EditorStyles.miniBoldLabel);
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("hellFireFirstInterval"),
+                    new GUIContent("1st → 2nd Interval", "첫 번째와 두 번째 발사 간격 (초)"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("hellFireSecondInterval"),
+                    new GUIContent("2nd → 3rd Interval", "두 번째와 세 번째 발사 간격 (초)"));
             }
             else if (weaponData.weaponType == WeaponType.Machinegun)
             {
@@ -709,16 +731,28 @@ public class WeaponData : ScriptableObject
         };
     }
 
-    // ������ ����� ���� ������ ��ȯ
+    // 현재 티어에 맞는 무기 아이콘 반환
     public Sprite GetColoredWeaponIcon()
     {
+        // X-Tier (Tier 5)일 때 X-Tier 전용 아이콘 사용
+        if (currentTier == 5 && supportsXTier && xTierWeaponIcon != null)
+        {
+            return xTierWeaponIcon;
+        }
+        
         if (weaponIcon == null) return null;
         return weaponIcon;
     }
 
-    // ������ ����� �κ��丮 ���� ������ ��ȯ
+    // 현재 티어에 맞는 인벤토리 무기 아이콘 반환
     public Sprite GetColoredInventoryWeaponIcon()
     {
+        // X-Tier (Tier 5)일 때 X-Tier 전용 인벤토리 아이콘 사용
+        if (currentTier == 5 && supportsXTier && xTierInventoryWeaponIcon != null)
+        {
+            return xTierInventoryWeaponIcon;
+        }
+        
         if (inventoryWeaponIcon == null) return null;
         return inventoryWeaponIcon;
     }
