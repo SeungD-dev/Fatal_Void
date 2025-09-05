@@ -6,11 +6,11 @@ public class GrinderProjectile : BaseProjectile
     public GameObject groundEffectPrefab;
 
     private float spawnTime;
-    private Vector2 targetPosition;
-    private float attackRadius;
-    private float groundEffectDuration;
-    private float damageTickInterval;
-    private string groundEffectPoolTag;
+    protected Vector2 targetPosition;
+    protected float attackRadius;
+    protected float groundEffectDuration;
+    protected float damageTickInterval;
+    protected string groundEffectPoolTag;
     private float airTime;
     private const float MAX_HEIGHT = 3f;
     private float angleZ;
@@ -23,7 +23,7 @@ public class GrinderProjectile : BaseProjectile
         base.OnObjectSpawn();
         spawnTime = Time.time;
 
-        // Å©±â ¾÷µ¥ÀÌÆ®
+        // Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         transform.localScale = Vector3.one * baseProjectileSize;
     }
 
@@ -47,7 +47,7 @@ public class GrinderProjectile : BaseProjectile
         this.groundEffectPoolTag = effectPoolTag;
         this.airTime = Vector2.Distance(transform.position, targetPosition) / speed;
 
-        // Å©±â ¼³Á¤
+        // Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         transform.localScale = Vector3.one * size;
         angleZ = 0f;
     }
@@ -55,7 +55,7 @@ public class GrinderProjectile : BaseProjectile
 
     protected override void OnTriggerEnter2D(Collider2D other)
     {
-        // Åõ»çÃ¼ ÀÚÃ¼´Â ´ë¹ÌÁö¸¦ ÁÖÁö ¾Êµµ·Ï override
+        // ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Êµï¿½ï¿½ï¿½ override
     }
 
     protected override void Update()
@@ -81,7 +81,7 @@ public class GrinderProjectile : BaseProjectile
     }
 
 
-    private void CreateGroundEffect()
+    protected virtual void CreateGroundEffect()
     {
         if (string.IsNullOrEmpty(groundEffectPoolTag)) return;
 

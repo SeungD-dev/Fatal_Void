@@ -338,7 +338,7 @@ public class WeaponManager : MonoBehaviour
         }
 
         // 모든 무기 정리
-        CleanupAllWeapons();
+        ClearAllWeapons();
     }
 
     private void OnDestroy()

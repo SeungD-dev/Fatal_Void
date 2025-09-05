@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class GrinderMechanism : WeaponMechanism
 {
-    private string groundEffectPoolTag;
-    private Vector2 targetDirection;
-    private Vector3 spawnPosition;
-    private float calculatedAttackRadius;
+    protected string groundEffectPoolTag;
+    protected Vector2 targetDirection;
+    protected Vector3 spawnPosition;
+    protected float calculatedAttackRadius;
 
     public override void Initialize(WeaponData data, Transform player)
     {

@@ -19,6 +19,17 @@ public class UltrainMechanism : WeaponMechanism
     // 버스트 발사 관련
     private bool isFiring = false;
     private Coroutine burstCoroutine;
+    private MonoBehaviour ownerComponent;
+
+    public override void Initialize(WeaponData data, Transform player)
+    {
+        base.Initialize(data, player);
+        ownerComponent = player.GetComponent<MonoBehaviour>();
+        if (ownerComponent == null)
+        {
+            Debug.LogError("UltrainMechanism requires MonoBehaviour component for coroutines!");
+        }
+    }
 
     protected override void InitializeProjectilePool()
     {
@@ -45,15 +56,15 @@ public class UltrainMechanism : WeaponMechanism
 
     protected override void Attack(Transform target)
     {
-        if (target == null || isFiring) return;
+        if (target == null || isFiring || ownerComponent == null) return;
 
         // 버스트 발사 시작
         if (burstCoroutine != null)
         {
-            StopCoroutine(burstCoroutine);
+            ownerComponent.StopCoroutine(burstCoroutine);
         }
         
-        burstCoroutine = StartCoroutine(BurstFire(target));
+        burstCoroutine = ownerComponent.StartCoroutine(BurstFire(target));
     }
 
     /// <summary>
@@ -169,14 +180,15 @@ public class UltrainMechanism : WeaponMechanism
     }
 
     /// <summary>
-    /// MonoBehaviour가 파괴될 때 실행 중인 코루틴 정리
+    /// 무기가 장착 해제될 때 실행 중인 코루틴 정리
     /// </summary>
-    private void OnDestroy()
+    public override void OnWeaponUnequipped()
     {
-        if (burstCoroutine != null)
+        if (burstCoroutine != null && ownerComponent != null)
         {
-            StopCoroutine(burstCoroutine);
+            ownerComponent.StopCoroutine(burstCoroutine);
             burstCoroutine = null;
         }
+        isFiring = false;
     }
 }

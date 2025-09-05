@@ -67,6 +67,12 @@ public class TierStats
     [Tooltip("�̵��ӵ� ������")]
     public float phantomSaberSpeedBonus = 25f;
 
+    // Black Hole (Grinder X-Tier) 속성들
+    [Header("Black Hole Properties")]
+    public float blackHoleDamageInterval = 0.25f;
+    public float blackHoleScaleMultiplier = 1.5f;
+    public float blackHoleDuration = 5f;
+
     public struct PenetrationInfo
     {
         public bool canPenetrate;
@@ -392,6 +398,13 @@ public class WeaponDataEditor : Editor
                         new GUIContent("Ground Effect Duration", "���� ���� �ð�"));
                     EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("damageTickInterval"),
                         new GUIContent("Damage Tick Interval", "���� ����� ƽ ����"));
+                    
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("blackHoleDamageInterval"),
+                        new GUIContent("Black Hole Damage Interval", "BlackHole X-Tier 데미지 주기"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("blackHoleScaleMultiplier"),
+                        new GUIContent("Black Hole Scale Multiplier", "BlackHole X-Tier 최대 확장 배율"));
+                    EditorGUILayout.PropertyField(tierStat.FindPropertyRelative("blackHoleDuration"),
+                        new GUIContent("Black Hole Duration", "BlackHole X-Tier 지속시간"));
                 }
                 else if (weaponData.weaponType == WeaponType.Machinegun)
                 {
@@ -565,6 +578,13 @@ public class WeaponDataEditor : Editor
                     new GUIContent("Ground Effect Duration", "���� ���� �ð�"));
                 EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("damageTickInterval"),
                     new GUIContent("Damage Tick Interval", "���� ����� ƽ ����"));
+                    
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("blackHoleDamageInterval"),
+                    new GUIContent("Black Hole Damage Interval", "BlackHole X-Tier 데미지 주기"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("blackHoleScaleMultiplier"),
+                    new GUIContent("Black Hole Scale Multiplier", "BlackHole X-Tier 최대 확장 배율"));
+                EditorGUILayout.PropertyField(xTierStatProperty.FindPropertyRelative("blackHoleDuration"),
+                    new GUIContent("Black Hole Duration", "BlackHole X-Tier 지속시간"));
             }
             else if (weaponData.weaponType == WeaponType.ForceFieldGenerator)
             {
@@ -1169,6 +1189,11 @@ public class WeaponData : ScriptableObject
                     xTierStats.attackRadius = tierStats[3].attackRadius * 1.5f;
                     xTierStats.groundEffectDuration = tierStats[3].groundEffectDuration * 1.5f;
                     xTierStats.damageTickInterval = tierStats[3].damageTickInterval * 0.7f;
+                    
+                    // Black Hole X-Tier 속성 초기화
+                    xTierStats.blackHoleDamageInterval = 0.25f;
+                    xTierStats.blackHoleScaleMultiplier = 1.5f;
+                    xTierStats.blackHoleDuration = 5f;
                 }
                 else if (weaponType == WeaponType.ForceFieldGenerator)
                 {
