@@ -79,13 +79,13 @@ MonoBehaviour:
   xTierWeaponDescription: 
   xTierStats:
     damage: 48
-    attackDelay: 0.6
-    projectileSpeed: 3.5
+    attackDelay: 0.4
+    projectileSpeed: 7
     knockback: 4
-    projectileSize: 2.5
+    projectileSize: 6
     range: 6
     canPenetrate: 1
-    maxPenetrationCount: 2
+    maxPenetrationCount: 5
     penetrationDamageDecay: 0
     projectileCount: 3
     spreadAngle: 45

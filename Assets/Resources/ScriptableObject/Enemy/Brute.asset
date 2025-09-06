@@ -17,7 +17,7 @@ MonoBehaviour:
   enemySprite: {fileID: 6305624645585283877, guid: 3148dd3f427d9c340a4f797e7a97c232, type: 3}
   enemyType: 4
   baseHealth: 100
-  maxPossibleHealth: 4000
+  maxPossibleHealth: 3000
   baseDamage: 15
   moveSpeed: 1
   initialPoolSize: 10
