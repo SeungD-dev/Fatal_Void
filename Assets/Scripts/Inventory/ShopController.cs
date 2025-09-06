@@ -40,7 +40,7 @@ public class ShopController : MonoBehaviour
     private Coroutine currentNoticeCoroutine;
     private void Start()
     {
-        // ¸®ÇÁ·¹½Ã ¹öÆ° ÀÌº¥Æ® ¼³Á¤
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ° ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         if (refreshButton != null)
         {
             refreshButton.onClick.AddListener(RefreshShop);
@@ -76,14 +76,14 @@ public class ShopController : MonoBehaviour
     }
     private void OnDisable()
     {
-        // ÄÄÆ÷³ÍÆ®°¡ ºñÈ°¼ºÈ­µÉ ¶§ ½ÇÇà ÁßÀÎ ÄÚ·çÆ¾ Á¤¸®
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
         if (currentNoticeCoroutine != null)
         {
             StopCoroutine(currentNoticeCoroutine);
             currentNoticeCoroutine = null;
         }
 
-        // Notice UI°¡ È°¼ºÈ­µÈ »óÅÂ·Î ³²¾ÆÀÖÁö ¾Êµµ·Ï º¸Àå
+        // Notice UIï¿½ï¿½ È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Êµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (noticeUI != null)
         {
             noticeUI.SetActive(false);
@@ -119,15 +119,15 @@ public class ShopController : MonoBehaviour
         }
     }
 
-    // UI ÀüÈ¯ ¸Þ¼­µå
+    // UI ï¿½ï¿½È¯ ï¿½Þ¼ï¿½ï¿½ï¿½
     public void OpenInventory()
     {
         if (inventoryController != null)
         {
-            // »óÁ¡ UI ºñÈ°¼ºÈ­
+            // ï¿½ï¿½ï¿½ï¿½ UI ï¿½ï¿½È°ï¿½ï¿½È­
             shopUI.SetActive(false);
 
-            // ÀÎº¥Åä¸® ÄÁÆ®·Ñ·¯¸¦ ÅëÇØ ÀÎº¥Åä¸® ¿­±â
+            // ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½
             inventoryController.OpenInventory();
         }
         else
@@ -143,12 +143,12 @@ public class ShopController : MonoBehaviour
             isFirstShop = false;
         }
 
-        // »óÁ¡ UI ÁØºñ (¾ÆÁ÷ Ç¥½Ã ¾È ÇÔ)
+        // ï¿½ï¿½ï¿½ï¿½ UI ï¿½Øºï¿½ (ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½)
         PrepareShop(false);
 
         if (transitionEffect != null)
         {
-            // ¾È¿¡¼­ ¹Ù±ùÀ¸·Î È¿°ú (reverseEffect = true)
+            // ï¿½È¿ï¿½ï¿½ï¿½ ï¿½Ù±ï¿½ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ (reverseEffect = true)
             transitionEffect.reverseEffect = true;
             transitionEffect.PlayTransition(() => {
                 ShowShopUI();
@@ -171,18 +171,18 @@ public class ShopController : MonoBehaviour
             inventoryUI.SetActive(false);
         }
 
-        // Ã¹ »óÁ¡ÀÌ ¾Æ´Ò °æ¿ì »õ·Î¿î ¹«±â ¿É¼ÇÀ» »ý¼º
+        // Ã¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (!isFirstShop)
         {
             InitializeNewWeapons();
         }
-        // Ã¹ »óÁ¡ÀÌ¸é¼­ ¾ÆÁ÷ ±¸¸ÅÇÏÁö ¾ÊÀº °æ¿ì ¹«·á ¹«±â Ç¥½Ã
+        // Ã¹ ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸é¼­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½
         else if (isFirstShop && !hasFirstPurchase)
         {
             InitializeFreeWeapons();
         }
-        // Ã¹ »óÁ¡¿¡¼­ ÀÌ¹Ì ±¸¸ÅÇßÁö¸¸ ¾ÆÁ÷ Ã¹ »óÁ¡ÀÎ °æ¿ì
-        // ´ÙÀ½ ¿þÀÌºê·Î ÁøÇàÇÏÁö ¾Ê°í »óÁ¡À¸·Î µ¹¾Æ¿Â °æ¿ì¿¡ ÇØ´ç
+        // Ã¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ¿ï¿½ ï¿½ï¿½ì¿¡ ï¿½Ø´ï¿½
         else if (isFirstShop && hasFirstPurchase)
         {
             foreach (var option in weaponOptions)
@@ -201,7 +201,7 @@ public class ShopController : MonoBehaviour
         shopUI.SetActive(true);
         inventoryUI.SetActive(false);
 
-        // °ÔÀÓ »óÅÂ°¡ ÀÏ½ÃÁ¤Áö »óÅÂ°¡ ¾Æ´Ï¶ó¸é ÀÏ½ÃÁ¤Áö·Î º¯°æ
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½ ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½ ï¿½Æ´Ï¶ï¿½ï¿½ ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (GameManager.Instance.currentGameState != GameState.Paused)
         {
             GameManager.Instance.SetGameState(GameState.Paused);
@@ -227,20 +227,20 @@ public class ShopController : MonoBehaviour
             }
         }
     }
-    // ShopController.cs - OnPurchaseClicked ¸Þ¼­µå ÀüÃ¼ ±³Ã¼
+    // ShopController.cs - OnPurchaseClicked ï¿½Þ¼ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½Ã¼
     public void OnPurchaseClicked(WeaponOptionUI weaponOption)
     {
         if (weaponOption == null || weaponOption.WeaponData == null || playerStats == null) return;
 
         WeaponData weaponData = weaponOption.WeaponData;
 
-        // ÀüÃ¼ ¸Þ¼­µå¸¦ »õ ·ÎÁ÷À¸·Î ±³Ã¼
-        // ÀÎº¥Åä¸® °ø°£ Ã¼Å© (physicsManager »ç¿ë)
+        // ï¿½ï¿½Ã¼ ï¿½Þ¼ï¿½ï¿½å¸¦ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼
+        // ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ Ã¼Å© (physicsManager ï¿½ï¿½ï¿½)
         if (physicsManager != null)
         {
             bool hasSpace = physicsManager.HasSpaceForItem(weaponData);
 
-            // ±¸¸Å ÁøÇà (°ø°£ ¿©ºÎ¿Í »ó°ü¾øÀÌ)
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
             if (weaponData.price == 0 || playerStats.SpendCoins(weaponData.price))
             {
                 SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
@@ -248,26 +248,26 @@ public class ShopController : MonoBehaviour
 
                 if (hasSpace)
                 {
-                    // ±×¸®µå¿¡ ºó °ø°£ÀÌ ÀÖÀ¸¸é ÀÏ¹ÝÀûÀÎ ¹æ¹ýÀ¸·Î ±¸¸Å
+                    // ï¿½×¸ï¿½ï¿½å¿¡ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     PurchaseWeapon(weaponData);
                 }
                 else
                 {
-                    // ºó °ø°£ÀÌ ¾øÀ¸¸é ¹°¸® ¾ÆÀÌÅÛÀ¸·Î »ý¼º
+                    // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     physicsManager.HandleFullInventory(weaponData);
                 }
             }
         }
         else
         {
-            // physicsManager°¡ ¾ø´Â °æ¿ì ±âÁ¸ ·ÎÁ÷ »ç¿ë
+            // physicsManagerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             if (!HasEnoughSpaceForItem(weaponData))
             {
                 ShowNotice("Not enough space in inventory!");
                 return;
             }
 
-            // ±¸¸Å ÁøÇà
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (weaponData.price == 0 || playerStats.SpendCoins(weaponData.price))
             {
                 SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
@@ -302,7 +302,7 @@ public class ShopController : MonoBehaviour
 
         try
         { 
-            // ÀÓ½Ã InventoryItem »ý¼º
+            // ï¿½Ó½ï¿½ InventoryItem ï¿½ï¿½ï¿½ï¿½
             GameObject tempObj = Instantiate(weaponPrefab);
             if (tempObj == null)
             {
@@ -317,9 +317,9 @@ public class ShopController : MonoBehaviour
                 return false;
             }
             tempItem.Initialize(weaponData);
-            // °ø°£ Ã¼Å©
+            // ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
             Vector2Int? freePosition = mainInventoryGrid.FindSpaceForObject(tempItem);
-            // ÀÓ½Ã ¿ÀºêÁ§Æ® Á¦°Å
+            // ï¿½Ó½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
             Destroy(tempObj);
 
             return freePosition.HasValue;
@@ -334,7 +334,7 @@ public class ShopController : MonoBehaviour
     {
         if (noticeUI == null || noticeText == null) return;
 
-        // ÀÌÀü¿¡ ½ÇÇà ÁßÀÎ ÄÚ·çÆ¾ÀÌ ÀÖ´Ù¸é ÁßÁö
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ï¿½ï¿½ ï¿½Ö´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (currentNoticeCoroutine != null)
         {
             StopCoroutine(currentNoticeCoroutine);
@@ -393,11 +393,11 @@ public class ShopController : MonoBehaviour
             GameManager.Instance.SetGameState(GameState.Paused);
         }
 
-        // »óÁ¡ÀÌ »õ·Î ¿­¸± ¶§¸¶´Ù ¸®ÇÁ·¹½Ã ºñ¿ë ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         currentRefreshCost = initialRefreshCost;
         UpdateRefreshCostText();
 
-        // PlayerStats ÂüÁ¶ ¼³Á¤
+        // PlayerStats ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (playerStats == null)
         {
             playerStats = GameManager.Instance.PlayerStats;
@@ -409,28 +409,28 @@ public class ShopController : MonoBehaviour
             playerStats.OnCoinChanged += UpdatePlayerCoinsText;
         }
 
-        // UI ÃÊ±âÈ­
+        // UI ï¿½Ê±ï¿½È­
         UpdatePlayerCoinsText(playerStats.CoinCount);
         playerControlUI.SetActive(false);
         playerStatsUI.SetActive(false);
         shopUI.SetActive(true);
 
-        // ¹«±â ¿É¼Ç ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ ï¿½Ê±ï¿½È­
         List<WeaponData> randomWeapons = GetRandomWeapons(weaponOptions.Length);
 
-        // ¸ðµç ¹«±â ¿É¼Ç ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ ï¿½Ê±ï¿½È­
         for (int i = 0; i < weaponOptions.Length; i++)
         {
             if (i < randomWeapons.Count && weaponOptions[i] != null)
             {
                 WeaponData weapon = randomWeapons[i];
-                // Ã¹ »óÁ¡ÀÌ°í ¾ÆÁ÷ ±¸¸ÅÇÏÁö ¾Ê¾Ò´Ù¸é ¹«·á·Î ¼³Á¤
+                // Ã¹ ï¿½ï¿½ï¿½ï¿½ï¿½Ì°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾Ò´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 if (isFirstShop && !hasFirstPurchase)
                 {
                     weapon.price = 0;
                 }
 
-                // ¹«±â ¿É¼Ç ÃÊ±âÈ­ (Ç×»ó ±¸¸Å °¡´ÉÇÑ »óÅÂ·Î ½ÃÀÛ)
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ ï¿½Ê±ï¿½È­ (ï¿½×»ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½)
                 weaponOptions[i].ResetPurchaseState();
                 weaponOptions[i].Initialize(weapon, this);
             }
@@ -457,12 +457,12 @@ public class ShopController : MonoBehaviour
 
         return randomWeapons;
     }
-    // ¿þÀÌºê ¹øÈ£¸¦ ±â¹ÝÀ¸·Î ¹«±â °¡Á®¿À±â
+    // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private WeaponData GetRandomWeaponByWave()
     {
         int currentWave = GetCurrentWave();
 
-        // ÇöÀç ¿þÀÌºê ¹øÈ£¿Í ÇÔ²² tierProbability »ç¿ë
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½Ô²ï¿½ tierProbability ï¿½ï¿½ï¿½
         float[] tierProbs = weaponDatabase.tierProbability.GetTierProbabilities(currentWave);
         float random = Random.value * 100f;
         float cumulative = 0f;
@@ -509,14 +509,14 @@ public class ShopController : MonoBehaviour
     {
         if (weaponData != null)
         {
-            // ±¸¸ÅÇÑ ¹«±â ¸ñ·Ï¿¡ Ãß°¡
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ï¿ï¿½ ï¿½ß°ï¿½
             purchasedWeapons.Add(weaponData);
 
-            // Ã¹ »óÁ¡¿¡¼­ÀÇ Ã¹ ±¸¸Å Ã³¸®
+            // Ã¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¹ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
             if (isFirstShop && !hasFirstPurchase)
             {
                 hasFirstPurchase = true;
-                // Ã¹ »óÁ¡¿¡¼­¸¸ ³ª¸ÓÁö ¹«±âµéÀ» ºñÈ°¼ºÈ­
+                // Ã¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­
                 foreach (var option in weaponOptions)
                 {
                     if (option.WeaponData != weaponData)
@@ -541,33 +541,33 @@ public class ShopController : MonoBehaviour
     {
         if (playerStats == null || !playerStats.SpendCoins(currentRefreshCost)) return;
 
-        // ¸®ÇÁ·¹½Ã ºñ¿ë Áõ°¡
+        // ë¦¬ë¡¤ ë¹„ìš© ì¦ê°€
         currentRefreshCost += refreshCostIncrease;
         UpdateRefreshCostText();
 
-        // »õ·Î¿î ¹«±â ¸ñ·Ï »ý¼º
+        // ìƒˆë¡œìš´ ë¬´ê¸° ì˜µì…˜ ìƒì„±
         GenerateNewWeaponOptions();
 
-        // È¿°úÀ½ Àç»ý
+        // íš¨ê³¼ìŒ ìž¬ìƒ
         SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
     }
 
-    // ÇöÀç ¿þÀÌºê ¹øÈ£¸¦ °¡Á®¿À´Â ¸Þ¼Òµå
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¼Òµï¿½
     private int GetCurrentWave()
     {
-        // WaveManager ÂüÁ¶°¡ ÀÖÀ¸¸é »ç¿ë
+        // WaveManager ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         if (waveManager != null)
         {
             return waveManager.currentWaveNumber;
         }
 
-        // ´ë¾È: GameManager¿¡¼­ È®ÀÎ (¿þÀÌºê ¹øÈ£¸¦ ÃßÀûÇÑ´Ù¸é)
+        // ï¿½ï¿½ï¿½: GameManagerï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ (ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´Ù¸ï¿½)
         if (GameManager.Instance != null && GameManager.Instance.CurrentWave > 0)
         {
             return GameManager.Instance.CurrentWave;
         }
 
-        // ±âº»°ªÀ¸·Î 1 ¹ÝÈ¯
+        // ï¿½âº»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 1 ï¿½ï¿½È¯
         Debug.LogWarning("Unable to get current wave number, using default value of 1");
         return 1;
     }

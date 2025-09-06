@@ -30,6 +30,9 @@ public class PlayerStats : MonoBehaviour
     #region Serialized Fields
     [Header("Level Settings")]
     [SerializeField] private int initialRequiredExp = 100;
+    
+    [Header("Economy Settings")]
+    [SerializeField] private int initialCoinCount = 0;
 
     [Header("Base Stats")]
     [SerializeField] private float baseHealth = 100f;
@@ -152,7 +155,7 @@ public class PlayerStats : MonoBehaviour
         currentExp = 0;
         requiredExp = initialRequiredExp;
         killCount = 0;
-        coinCount = 0;
+        coinCount = initialCoinCount;
         pickupRange = basePickupRange;
 
         UpdateStats();

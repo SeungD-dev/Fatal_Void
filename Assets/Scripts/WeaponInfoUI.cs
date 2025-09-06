@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
-/// ¹«±â Á¤º¸ ¹× ¾÷±×·¹ÀÌµå UI¸¦ °ü¸®ÇÏ´Â Å¬·¡½º
+/// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 public class WeaponInfoUI : MonoBehaviour
 {
@@ -14,8 +14,8 @@ public class WeaponInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI weaponLevelText;
     [SerializeField] private TextMeshProUGUI weaponNameText;
     [SerializeField] private TextMeshProUGUI weaponDescriptionText;
-    [SerializeField] private Button sellButton; // ÆÇ¸Å ¹öÆ° Ãß°¡
-    [SerializeField] private TextMeshProUGUI sellPriceText; // ÆÇ¸Å °¡°Ý ÅØ½ºÆ® Ãß°¡
+    [SerializeField] private Button sellButton; // ï¿½Ç¸ï¿½ ï¿½ï¿½Æ° ï¿½ß°ï¿½
+    [SerializeField] private TextMeshProUGUI sellPriceText; // ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ® ï¿½ß°ï¿½
 
 
     [Header("Upgrade System")]
@@ -42,7 +42,7 @@ public class WeaponInfoUI : MonoBehaviour
         InitializeUI();
         SubscribeToEvents();
 
-        // ÃÊ±âÈ­°¡ °¡´ÉÇÏ¸é Áï½Ã ÃÊ±âÈ­
+        // ï¿½Ê±ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         if (GameManager.Instance != null && GameManager.Instance.IsInitialized)
         {
             InitializeReferences();
@@ -87,20 +87,20 @@ public class WeaponInfoUI : MonoBehaviour
     }
     private bool CanSellCurrentItem()
     {
-        // ±âº» ·ÎÁ÷: ÀÎº¥Åä¸®¿¡ 2°³ ÀÌ»óÀÇ ¾ÆÀÌÅÛÀÌ ÀÖÀ» ¶§¸¸ ÆÇ¸Å °¡´É
+        // ï¿½âº» ï¿½ï¿½ï¿½ï¿½: ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ 2ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½ï¿½
         int itemCount = CountItemsInGrid();
 
-        // ¿¹¿Ü: ¼±ÅÃµÈ ¾ÆÀÌÅÛÀÌ ¹°¸® ¾ÆÀÌÅÛÀÎ °æ¿ì¿¡´Â Ç×»ó ÆÇ¸Å °¡´É
+        // ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½×»ï¿½ ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (selectedWeapon != null)
         {
             Vector2Int? itemPosition = FindSelectedItemPosition();
-            if (!itemPosition.HasValue) // ±×¸®µå À§Ä¡°¡ ¾øÀ¸¸é ¹°¸® ¾ÆÀÌÅÛÀÏ °¡´É¼º ³ôÀ½
+            if (!itemPosition.HasValue) // ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½É¼ï¿½ ï¿½ï¿½ï¿½ï¿½
             {
                 return true;
             }
         }
 
-        return itemCount > 1; // ±âº» ·ÎÁ÷: ±×¸®µå¿¡ ¾ÆÀÌÅÛÀÌ 2°³ ÀÌ»óÀÏ ¶§¸¸ ÆÇ¸Å °¡´É
+        return itemCount > 1; // ï¿½âº» ï¿½ï¿½ï¿½ï¿½: ï¿½×¸ï¿½ï¿½å¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 2ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
     private int CountItemsInGrid()
     {
@@ -122,7 +122,7 @@ public class WeaponInfoUI : MonoBehaviour
         SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
         playerStats.AddCoins(selectedWeapon.SellPrice);
 
-        // ¾ÆÀÌÅÛÀÌ EquipmentÀÎ °æ¿ì È¿°ú Á¦°Å
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Equipmentï¿½ï¿½ ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (selectedWeapon.weaponType == WeaponType.Equipment)
         {
             var weaponManager = GameObject.FindWithTag("Player")?.GetComponent<WeaponManager>();
@@ -132,11 +132,11 @@ public class WeaponInfoUI : MonoBehaviour
             }
         }
 
-        // PhysicsInventoryManager ÂüÁ¶ °¡Á®¿À±â (Ä³½ÌµÈ ÂüÁ¶ »ç¿ë)
+        // PhysicsInventoryManager ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (Ä³ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)
         PhysicsInventoryManager physicsManager = FindAnyObjectByType<PhysicsInventoryManager>();
         if (physicsManager != null)
         {
-            // ÇöÀç µå·¡±× ÁßÀÎ ¾ÆÀÌÅÛ ¶Ç´Â ¼±ÅÃµÈ ¹«±â µ¥ÀÌÅÍ¿Í ÀÏÄ¡ÇÏ´Â ¾ÆÀÌÅÛ Ã£±â
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½å·¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½Ä¡ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
             PhysicsInventoryItem physicsItem = physicsManager.GetDraggedPhysicsItem();
 
             if (physicsItem != null)
@@ -145,7 +145,7 @@ public class WeaponInfoUI : MonoBehaviour
             }
             else
             {
-                // ¼±ÅÃµÈ ¹«±â µ¥ÀÌÅÍ¿Í ÀÏÄ¡ÇÏ´Â ¾ÆÀÌÅÛ Ã£±â
+                // ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½Ä¡ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
                 var physicsItems = physicsManager.GetAllPhysicsItems();
                 foreach (var item in physicsItems)
                 {
@@ -158,7 +158,7 @@ public class WeaponInfoUI : MonoBehaviour
             }
         }
 
-        // UI »óÅÂ ÃÊ±âÈ­
+        // UI ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         selectedWeapon = null;
         gameObject.SetActive(false);
     }
@@ -167,35 +167,35 @@ public class WeaponInfoUI : MonoBehaviour
     {
         if (!CanSellCurrentItem() || selectedWeapon == null) return;
 
-        // ÇöÀç ¼±ÅÃµÈ ¾ÆÀÌÅÛÀÇ À§Ä¡ Ã£±â
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ Ã£ï¿½ï¿½
         Vector2Int? itemPosition = FindSelectedItemPosition();
         
-        //¹°¸®¹ýÄ¢ ¾ÆÀÌÅÛ ÆÇ¸Å
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¢ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç¸ï¿½
         if (!itemPosition.HasValue)
         {
             SellPhysicsItem();
             return;
         }
 
-        // ÆÇ¸Å Ã³¸®
+        // ï¿½Ç¸ï¿½ Ã³ï¿½ï¿½
         SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
         playerStats.AddCoins(selectedWeapon.SellPrice);
 
-        // ¾ÆÀÌÅÛÀÌ EquipmentÀÎ °æ¿ì È¿°ú Á¦°Å
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Equipmentï¿½ï¿½ ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (selectedWeapon.weaponType == WeaponType.Equipment)
         {
             var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
             weaponManager?.UnequipWeapon(selectedWeapon);
         }
 
-        // ±×¸®µå¿¡¼­ ¾ÆÀÌÅÛ Á¦°Å
+        // ï¿½×¸ï¿½ï¿½å¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         InventoryItem item = mainItemGrid.RemoveItem(itemPosition.Value);
         if (item != null)
         {
             Destroy(item.gameObject);
         }
 
-        // UI »óÅÂ ÃÊ±âÈ­
+        // UI ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         selectedWeapon = null;
         gameObject.SetActive(false);
     }
@@ -223,7 +223,7 @@ public class WeaponInfoUI : MonoBehaviour
         }
         else
         {
-            // ¼±ÅÃµÈ ¹«±â°¡ ¾øÀ» ¶§´Â ¾÷±×·¹ÀÌµå ¹öÆ° ¼û±â±â
+            // ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½â°¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½ï¿½
             upgradeButton.gameObject.SetActive(false);
         }
     }
@@ -278,7 +278,7 @@ public class WeaponInfoUI : MonoBehaviour
 
         if (mainItemGrid != null)
         {
-            // ÀÌ¹Ì ±¸µ¶µÇ¾î ÀÖÁö ¾ÊÀºÁö È®ÀÎ (Áßº¹ ±¸µ¶ ¹æÁö)
+            // ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ (ï¿½ßºï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
             mainItemGrid.OnGridChanged -= RefreshUpgradeUI;
             mainItemGrid.OnGridChanged += RefreshUpgradeUI;
         }
@@ -373,16 +373,16 @@ public class WeaponInfoUI : MonoBehaviour
 
         Debug.Log($"Found {upgradeableWeapons.Count} upgradeable weapons");
 
-        // ¾÷±×·¹ÀÌµå Àç·á·Î »ç¿ëµÉ ¹«±âµéÀÇ À§Ä¡ ÀúÀå
+        // ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
         Vector2Int upgradePosition = upgradeableWeapons[0].GridPosition;
 
-        // ±âÁ¸ ¹«±â Á¦°Å
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         RemoveUpgradeMaterials();
 
-        // »õ·Î¿î ¹«±â »ý¼º
+        // ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         inventoryController?.CreateUpgradedItem(nextTierWeapon, upgradePosition);
 
-        // »óÅÂ Á¤¸®
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         CleanupUpgradeState();
     }
 
@@ -403,7 +403,7 @@ public class WeaponInfoUI : MonoBehaviour
             }
         }
 
-        // ¾÷±×·¹ÀÌµå¿¡ »ç¿ëµÉ 2°³ÀÇ ¹«±â¸¸ Ã³¸®
+        // ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµå¿¡ ï¿½ï¿½ï¿½ï¿½ 2ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â¸¸ Ã³ï¿½ï¿½
         var weaponsToRemove = upgradeableWeapons.Take(2).ToList();
         foreach (var weapon in weaponsToRemove)
         {
@@ -442,5 +442,6 @@ public class WeaponInfoUI : MonoBehaviour
                upgradeableWeapons.Count >= 2 && selectedWeapon != null &&
                mainItemGrid != null && selectedWeapon.currentTier < 4;
     }
+
     #endregion
 }

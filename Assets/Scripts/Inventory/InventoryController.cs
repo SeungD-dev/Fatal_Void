@@ -712,11 +712,6 @@ public class InventoryController : MonoBehaviour
         if (weaponManager != null)
         {
             weaponManager.EquipWeapon(weaponData);
-            Debug.Log($"디버그: {weaponData.weaponName} 무기를 인벤토리에 추가하고 즉시 장착했습니다.");
-        }
-        else
-        {
-            Debug.Log($"디버그: {weaponData.weaponName} 무기를 인벤토리에 추가했습니다.");
         }
     }
 #endif
@@ -1206,17 +1201,26 @@ public class InventoryController : MonoBehaviour
             }
             else
             {
-                // 빈 공간이 없는 경우 스폰 포인트에 배치
-                if (itemSpawnPoint != null)
+                // 빈 공간이 없는 경우 물리 아이템으로 스폰
+                if (physicsManager != null && itemSpawnPoint != null)
                 {
-                    item.transform.SetParent(canvasTransform, false);
-                    item.transform.position = itemSpawnPoint.position;
-                    item.SetGridPosition(new Vector2Int(-1, -1));
+                    Vector2 spawnPosition = itemSpawnPoint.position;
+                    physicsManager.ConvertToPhysicsItem(item, spawnPosition);
                 }
                 else
                 {
-                    Debug.LogWarning("ItemSpawnPoint not found! Using default position.");
-                    item.GetComponent<RectTransform>().localPosition = Vector2.zero;
+                    // PhysicsManager가 없는 경우 기존 방식 사용
+                    if (itemSpawnPoint != null)
+                    {
+                        item.transform.SetParent(canvasTransform, false);
+                        item.transform.position = itemSpawnPoint.position;
+                        item.SetGridPosition(new Vector2Int(-1, -1));
+                    }
+                    else
+                    {
+                        Debug.LogWarning("ItemSpawnPoint not found! Using default position.");
+                        item.GetComponent<RectTransform>().localPosition = Vector2.zero;
+                    }
                 }
             }
         }

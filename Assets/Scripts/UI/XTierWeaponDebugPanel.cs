@@ -100,7 +100,6 @@ public class XTierWeaponDebugPanel : MonoBehaviour
             }
         }
 
-        Debug.Log($"X-Tier 무기 {xTierWeapons.Count}개를 로드했습니다.");
     }
 
     /// <summary>
@@ -207,8 +206,6 @@ public class XTierWeaponDebugPanel : MonoBehaviour
             
             // InventoryController의 AddWeaponForDebug 메서드를 통해 인벤토리에 추가
             inventoryController.AddWeaponForDebug(xTierWeapon);
-            string displayName = !string.IsNullOrEmpty(xTierWeapon.xTierWeaponName) ? xTierWeapon.xTierWeaponName : xTierWeapon.weaponName;
-            Debug.Log($"X-Tier 무기를 인벤토리에 추가했습니다: {displayName}");
         }
         catch (System.Exception e)
         {
