@@ -13,12 +13,12 @@ public class WaveData : ScriptableObject
     [System.Serializable]
     public enum SpawnFormation
     {
-        Random,         // ¿ÏÀüÈ÷ ·£´ýÇÑ À§Ä¡¿¡¼­ ½ºÆù
-        EdgeRandom,     // ÇöÀç ±âº» ¹æ½Ä - °¡ÀåÀÚ¸® ·£´ý
-        Surround,       // ÇÃ·¹ÀÌ¾î ÁÖº¯À» ¿øÇüÀ¸·Î Æ÷À§
-        Rectangle,      // Á÷»ç°¢Çü ÇüÅÂ·Î Æ÷À§
-        Line,           // Á÷¼± ÇüÅÂ·Î ½ºÆù
-        Fixed           // °íÁ¤µÈ ½ºÆù Æ÷ÀÎÆ® »ç¿ë
+        Random,         // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        EdgeRandom,     // ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ ï¿½ï¿½ï¿½ï¿½
+        Surround,       // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½Öºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        Rectangle,      // ï¿½ï¿½ï¿½ç°¢ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½
+        Line,           // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½
+        Fixed           // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½
     }
 
     [System.Serializable]
@@ -28,21 +28,21 @@ public class WaveData : ScriptableObject
         public SpawnFormation formation = SpawnFormation.EdgeRandom;
 
         
-        [Tooltip("¿øÇü ¶Ç´Â »ç°¢Çü Æ÷À§ ½Ã ÇÃ·¹ÀÌ¾î·ÎºÎÅÍÀÇ °Å¸®")]
+        [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ç°¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½Îºï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½")]
         public float surroundDistance = 10f;
 
-        [Tooltip("¿øÇü Æ÷À§ ½Ã °¢µµ ¿ÀÇÁ¼Â (0-360)")]
+        [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (0-360)")]
         [Range(0f, 360f)]
         public float angleOffset = 0f;
 
-        [Tooltip("Á÷¼± ÇüÅÂ ½ºÆù ½Ã ½ÃÀÛ À§Ä¡¿Í ¹æÇâ")]
+        [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
         public Vector2 lineStart = new Vector2(-10f, 0f);
         public Vector2 lineEnd = new Vector2(10f, 0f);
 
-        [Tooltip("½ºÆù Æ÷ÀÎÆ®´ç ½ºÆùµÇ´Â Àû ¼ö (0: ¸ðµç ÀûÀ» ÇÏ³ªÀÇ À§Ä¡¿¡ ½ºÆù)")]
+        [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ ï¿½ï¿½ (0: ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)")]
         public int enemiesPerSpawnPoint = 1;
 
-        [Tooltip("°íÁ¤ ½ºÆù Æ÷ÀÎÆ® »ç¿ë ½Ã ½ºÆù Æ÷ÀÎÆ® ÀÎµ¦½º (ºñ¿öµÎ¸é ·£´ý ¼±ÅÃ)")]
+        [Tooltip("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Îµï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)")]
         public List<int> fixedSpawnPoints = new List<int>();
     }
 
@@ -59,14 +59,15 @@ public class WaveData : ScriptableObject
     {
         [Header("Wave Settings")]
         public int waveNumber;
+        public bool isBossWave = false;
 
         [Header("Time Settings")]
-        public float waveDuration = 60f; // ¿þÀÌºê Áö¼Ó ½Ã°£(ÃÊ)
-        public float survivalDuration = 15f; // Ãß°¡ »ýÁ¸ ½Ã°£(ÃÊ)
+        public float waveDuration = 60f; // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½(ï¿½ï¿½)
+        public float survivalDuration = 15f; // ï¿½ß°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½(ï¿½ï¿½)
 
         [Header("Spawn Settings")]
-        public float spawnInterval = 1f; // ½ºÆù °£°Ý(ÃÊ)
-        public int spawnAmount = 3; // ÇÑ ¹ø¿¡ ½ºÆùµÇ´Â Àû ¼ö
+        public float spawnInterval = 1f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½)
+        public int spawnAmount = 3; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ ï¿½ï¿½
 
         [Header("Spawn Formation")]
         public SpawnSettings spawnSettings = new SpawnSettings();
@@ -74,14 +75,17 @@ public class WaveData : ScriptableObject
         [Header("Enemies")]
         public List<WaveEnemy> enemies = new List<WaveEnemy>();
 
+        [Header("Boss")]
+        public EnemyData boss;
+
         [Header("Rewards")]
-        public int coinReward = 10; // ¿þÀÌºê Å¬¸®¾î ½Ã Áö±ÞµÇ´Â ÄÚÀÎ
+        public int coinReward = 10; // ï¿½ï¿½ï¿½Ìºï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ÞµÇ´ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
 
     [Header("Waves")]
     public List<Wave> waves = new List<Wave>();
 
-    // ÁöÁ¤µÈ ¿þÀÌºê ¹øÈ£ÀÇ µ¥ÀÌÅÍ ¹ÝÈ¯
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
     public Wave GetWave(int waveNumber)
     {
         foreach (Wave wave in waves)
@@ -90,11 +94,11 @@ public class WaveData : ScriptableObject
                 return wave;
         }
 
-        // ¾øÀ¸¸é ¸¶Áö¸· ¿þÀÌºê ¹ÝÈ¯
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½È¯
         return waves.Count > 0 ? waves[waves.Count - 1] : null;
     }
 
-    // ´ÙÀ½ ¿þÀÌºê ¹øÈ£ °¡Á®¿À±â
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½È£ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     public int GetNextWaveNumber(int currentWaveNumber)
     {
         int nextWaveNumber = currentWaveNumber + 1;
@@ -107,28 +111,28 @@ public class WaveData : ScriptableObject
             }
         }
 
-        // ´õ ÀÌ»ó ¿þÀÌºê°¡ ¾øÀ¸¸é -1 ¹ÝÈ¯
+        // ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½ï¿½ï¿½Ìºê°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ -1 ï¿½ï¿½È¯
         return -1;
     }
 
-    // ·£´ý Àû µ¥ÀÌÅÍ °¡Á®¿À±â
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     public EnemyData GetRandomEnemy(Wave wave)
     {
         if (wave == null || wave.enemies.Count == 0)
             return null;
 
-        // ÃÑ È®·ü °è»ê
+        // ï¿½ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ï¿½
         float totalChance = 0f;
         foreach (var enemy in wave.enemies)
         {
             totalChance += enemy.spawnChance;
         }
 
-        // ·£´ý °ª »ý¼º
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         float random = UnityEngine.Random.Range(0, totalChance);
         float currentSum = 0f;
 
-        // ¼±ÅÃµÈ Àû Ã£±â
+        // ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ Ã£ï¿½ï¿½
         foreach (var enemy in wave.enemies)
         {
             currentSum += enemy.spawnChance;
@@ -136,12 +140,12 @@ public class WaveData : ScriptableObject
                 return enemy.enemyData;
         }
 
-        // ±âº»°ª
+        // ï¿½âº»ï¿½ï¿½
         return wave.enemies[0].enemyData;
     }
 
 #if UNITY_EDITOR
-    // ¿¡µðÅÍ ¹Ì¸®º¸±â À¯Æ¿¸®Æ¼
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ¿ï¿½ï¿½Æ¼
     public void PreviewWave(int waveNumber)
     {
         Wave wave = GetWave(waveNumber);
@@ -157,7 +161,7 @@ public class WaveData : ScriptableObject
                   $"\nSpawn Amount: {wave.spawnAmount} enemies per spawn" +
                   $"\nEnemies: {wave.enemies.Count} types");
 
-        // Àû ½ºÆù È®·ü ºÐ¼®
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ ï¿½Ð¼ï¿½
         float totalChance = 0;
         foreach (var enemy in wave.enemies)
         {
@@ -189,9 +193,18 @@ public class WaveDataEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        DrawDefaultInspector();
-
         WaveData waveData = (WaveData)target;
+
+        EditorGUI.BeginChangeCheck();
+
+        // Waves ë°°ì—´ í‘œì‹œ
+        SerializedProperty wavesProp = serializedObject.FindProperty("waves");
+        EditorGUILayout.PropertyField(wavesProp, new GUIContent("Waves"), true);
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            serializedObject.ApplyModifiedProperties();
+        }
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Preview Tools", EditorStyles.boldLabel);
@@ -205,7 +218,7 @@ public class WaveDataEditor : Editor
         }
         EditorGUILayout.EndHorizontal();
 
-        // ½ºÆù Æ÷¸ÞÀÌ¼Ç ¹Ì¸®º¸±â Ãß°¡
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Spawn Formation Preview", EditorStyles.boldLabel);
 
@@ -227,17 +240,17 @@ public class WaveDataEditor : Editor
 
     private void DrawPreviewGrid()
     {
-        // ¹Ì¸®º¸±â ±×¸®µå¸¦ ±×¸®±â À§ÇÑ °£´ÜÇÑ ·¹ÀÌ¾Æ¿ô
+        // ï¿½Ì¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½å¸¦ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾Æ¿ï¿½
         float gridSize = 200f;
         Rect gridRect = GUILayoutUtility.GetRect(gridSize, gridSize);
 
-        // ¹Ì¸®º¸±â ±×¸®µå ±×¸®±â
+        // ï¿½Ì¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
         Handles.BeginGUI();
 
-        // ¹è°æ
+        // ï¿½ï¿½ï¿½
         EditorGUI.DrawRect(gridRect, new Color(0.2f, 0.2f, 0.2f));
 
-        // °ÝÀÚ
+        // ï¿½ï¿½ï¿½ï¿½
         Handles.color = new Color(0.3f, 0.3f, 0.3f);
         float cellSize = 20f;
         for (float x = 0; x <= gridSize; x += cellSize)
@@ -255,27 +268,27 @@ public class WaveDataEditor : Editor
             );
         }
 
-        // Áß¾Ó(ÇÃ·¹ÀÌ¾î À§Ä¡) Ç¥½Ã
+        // ï¿½ß¾ï¿½(ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½Ä¡) Ç¥ï¿½ï¿½
         Vector2 center = new Vector2(gridRect.x + gridSize / 2, gridRect.y + gridSize / 2);
         float playerSize = 10f;
         Handles.color = Color.white;
         Handles.DrawSolidDisc(center, Vector3.forward, playerSize / 2);
 
-        // ½ºÆù Æ÷ÀÎÆ® ±×¸®±â
-        float scale = gridSize / 30f; // 30x30 ´ÜÀ§¸¦ ±×¸®µå¿¡ ¸Â°Ô ½ºÄÉÀÏ¸µ
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½×¸ï¿½ï¿½ï¿½
+        float scale = gridSize / 30f; // 30x30 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½å¿¡ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½
 
         for (int i = 0; i < previewPositions.Count; i++)
         {
             Vector2 pos = previewPositions[i];
-            Vector2 screenPos = center + new Vector2(pos.x * scale, -pos.y * scale); // yÃà ¹ÝÀü
+            Vector2 screenPos = center + new Vector2(pos.x * scale, -pos.y * scale); // yï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
             Color pointColor = previewColors[i % previewColors.Length];
             Handles.color = pointColor;
 
-            // ½ºÆù Æ÷ÀÎÆ® ¿ø
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½
             Handles.DrawSolidDisc(screenPos, Vector3.forward, 5f);
 
-            // ¹øÈ£ Ç¥½Ã
+            // ï¿½ï¿½È£ Ç¥ï¿½ï¿½
             GUIStyle style = new GUIStyle();
             style.normal.textColor = Color.black;
             style.alignment = TextAnchor.MiddleCenter;
@@ -286,7 +299,7 @@ public class WaveDataEditor : Editor
 
         Handles.EndGUI();
 
-        // ¹ü·Ê Ç¥½Ã
+        // ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("Preview Scale: 1 unit = " + (1 / scale).ToString("F1") + " game units");
         EditorGUILayout.EndHorizontal();
@@ -296,7 +309,7 @@ public class WaveDataEditor : Editor
     {
         previewPositions.Clear();
 
-        // ¼±ÅÃÇÑ ¿þÀÌºê Ã£±â
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ Ã£ï¿½ï¿½
         WaveData.Wave wave = waveData.GetWave(previewWaveNumber);
         if (wave == null)
         {
@@ -304,11 +317,11 @@ public class WaveDataEditor : Editor
             return;
         }
 
-        // ½ºÆù ¼³Á¤ °¡Á®¿À±â
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         SpawnSettings settings = wave.spawnSettings;
         int count = wave.spawnAmount;
 
-        // Æ÷¸ÞÀÌ¼Ç¿¡ µû¶ó ¹Ì¸®º¸±â Æ÷ÀÎÆ® »ý¼º
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼Ç¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         switch (settings.formation)
         {
             case SpawnFormation.Surround:
@@ -327,7 +340,7 @@ public class WaveDataEditor : Editor
                 GenerateEdgeRandomPreviewPoints(count);
                 break;
             case SpawnFormation.Fixed:
-                // °íÁ¤ ½ºÆù Æ÷ÀÎÆ®´Â ¿©±â¼­ ¹Ì¸®º¸±â »ý¼ºÇÏÁö ¾ÊÀ½
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½â¼­ ï¿½Ì¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 break;
         }
     }
@@ -351,11 +364,11 @@ public class WaveDataEditor : Editor
     {
         float distance = settings.surroundDistance;
 
-        // »ç°¢ÇüÀÇ ³× º¯¿¡ ÀûµéÀ» ±ÕµîÇÏ°Ô ¹èÄ¡
+        // ï¿½ç°¢ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Õµï¿½ï¿½Ï°ï¿½ ï¿½ï¿½Ä¡
         int enemiesPerSide = Mathf.CeilToInt(count / 4f);
         int remainingEnemies = count;
 
-        // »ó´Ü º¯
+        // ï¿½ï¿½ï¿½ ï¿½ï¿½
         int topCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < topCount; i++)
         {
@@ -366,7 +379,7 @@ public class WaveDataEditor : Editor
         }
         remainingEnemies -= topCount;
 
-        // ¿ìÃø º¯
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
         int rightCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < rightCount; i++)
         {
@@ -377,7 +390,7 @@ public class WaveDataEditor : Editor
         }
         remainingEnemies -= rightCount;
 
-        // ÇÏ´Ü º¯
+        // ï¿½Ï´ï¿½ ï¿½ï¿½
         int bottomCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < bottomCount; i++)
         {
@@ -388,7 +401,7 @@ public class WaveDataEditor : Editor
         }
         remainingEnemies -= bottomCount;
 
-        // ÁÂÃø º¯
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
         int leftCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < leftCount; i++)
         {
@@ -413,7 +426,7 @@ public class WaveDataEditor : Editor
 
     private void GenerateRandomPreviewPoints(int count)
     {
-        // ·£´ý À§Ä¡ ´ë½Å °í¸£°Ô ºÐÆ÷µÈ ¿¹½Ã Á¡µé »ý¼º
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         for (int i = 0; i < count; i++)
         {
             float angle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
@@ -425,7 +438,7 @@ public class WaveDataEditor : Editor
 
     private void GenerateEdgeRandomPreviewPoints(int count)
     {
-        // ¸Ê °¡ÀåÀÚ¸®¸¦ ½Ã¹Ä·¹ÀÌ¼ÇÇÏ´Â ¿¹½Ã Á¡µé
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ï¿½ï¿½ ï¿½Ã¹Ä·ï¿½ï¿½Ì¼ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         float mapSize = 15f;
 
         for (int i = 0; i < count; i++)
@@ -435,16 +448,16 @@ public class WaveDataEditor : Editor
 
             switch (side)
             {
-                case 0: // »ó´Ü
+                case 0: // ï¿½ï¿½ï¿½
                     position = new Vector2(UnityEngine.Random.Range(-mapSize, mapSize), mapSize);
                     break;
-                case 1: // ¿ìÃø
+                case 1: // ï¿½ï¿½ï¿½ï¿½
                     position = new Vector2(mapSize, UnityEngine.Random.Range(-mapSize, mapSize));
                     break;
-                case 2: // ÇÏ´Ü
+                case 2: // ï¿½Ï´ï¿½
                     position = new Vector2(UnityEngine.Random.Range(-mapSize, mapSize), -mapSize);
                     break;
-                case 3: // ÁÂÃø
+                case 3: // ï¿½ï¿½ï¿½ï¿½
                 default:
                     position = new Vector2(-mapSize, UnityEngine.Random.Range(-mapSize, mapSize));
                     break;
@@ -471,37 +484,37 @@ public class SpawnSettingsDrawer : PropertyDrawer
     {
         EditorGUI.BeginProperty(position, label, property);
 
-        // °è»ê¿¡ ÇÊ¿äÇÑ º¯¼öµé
+        // ï¿½ï¿½ê¿¡ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         float currentHeight = 0f;
         float lineHeight = EditorGUIUtility.singleLineHeight;
         float spacing = EditorGUIUtility.standardVerticalSpacing;
 
-        // Æ÷¸ÞÀÌ¼Ç µå·Ó´Ù¿îÀ» °¡Á®¿È
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½Ó´Ù¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         SerializedProperty formationProp = property.FindPropertyRelative("formation");
         SpawnFormation formation = (SpawnFormation)formationProp.enumValueIndex;
 
-        // Á¦¸ñ Ç¥½Ã
+        // ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½
         Rect titleRect = new Rect(position.x, position.y + currentHeight, position.width, lineHeight);
         showSettings = EditorGUI.Foldout(titleRect, showSettings, label, true);
         currentHeight += lineHeight + spacing;
 
         if (showSettings)
         {
-            // Æ÷¸ÞÀÌ¼Ç ¼±ÅÃ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½
             Rect formationRect = new Rect(position.x, position.y + currentHeight, position.width, lineHeight);
             EditorGUI.PropertyField(formationRect, formationProp, new GUIContent("Formation"));
             currentHeight += lineHeight + spacing;
 
-            // Æ÷¸ÞÀÌ¼Ç ¼³Á¤ Çì´õ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             Rect headerRect = new Rect(position.x, position.y + currentHeight, position.width, lineHeight);
             EditorGUI.LabelField(headerRect, "Formation Settings", EditorStyles.boldLabel);
             currentHeight += lineHeight + spacing;
 
-            // Æ÷¸ÞÀÌ¼Ç º° °ü·Ã ¼Ó¼º¸¸ Ç¥½Ã
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ó¼ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½
             switch (formation)
             {
                 case SpawnFormation.Surround:
-                    // Surround Æ÷¸ÞÀÌ¼Ç ¼Ó¼º
+                    // Surround ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½Ó¼ï¿½
                     SerializedProperty surroundDistanceProp = property.FindPropertyRelative("surroundDistance");
                     SerializedProperty angleOffsetProp = property.FindPropertyRelative("angleOffset");
 
@@ -515,7 +528,7 @@ public class SpawnSettingsDrawer : PropertyDrawer
                     break;
 
                 case SpawnFormation.Rectangle:
-                    // Rectangle Æ÷¸ÞÀÌ¼Ç ¼Ó¼º
+                    // Rectangle ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½Ó¼ï¿½
                     SerializedProperty rectDistanceProp = property.FindPropertyRelative("surroundDistance");
 
                     Rect rectDistRect = new Rect(position.x, position.y + currentHeight, position.width, lineHeight);
@@ -524,7 +537,7 @@ public class SpawnSettingsDrawer : PropertyDrawer
                     break;
 
                 case SpawnFormation.Line:
-                    // Line Æ÷¸ÞÀÌ¼Ç ¼Ó¼º
+                    // Line ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½Ó¼ï¿½
                     SerializedProperty lineStartProp = property.FindPropertyRelative("lineStart");
                     SerializedProperty lineEndProp = property.FindPropertyRelative("lineEnd");
 
@@ -538,7 +551,7 @@ public class SpawnSettingsDrawer : PropertyDrawer
                     break;
 
                 case SpawnFormation.Fixed:
-                    // Fixed Æ÷¸ÞÀÌ¼Ç ¼Ó¼º
+                    // Fixed ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ ï¿½Ó¼ï¿½
                     SerializedProperty fixedPointsProp = property.FindPropertyRelative("fixedSpawnPoints");
 
                     Rect pointsRect = new Rect(position.x, position.y + currentHeight, position.width, EditorGUI.GetPropertyHeight(fixedPointsProp, true));
@@ -547,7 +560,7 @@ public class SpawnSettingsDrawer : PropertyDrawer
                     break;
             }
 
-            // ¸ðµç Æ÷¸ÞÀÌ¼Ç¿¡ °øÅëÀ¸·Î ÇÊ¿äÇÑ ¼Ó¼º
+            // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼Ç¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½Ó¼ï¿½
             SerializedProperty enemiesPerPointProp = property.FindPropertyRelative("enemiesPerSpawnPoint");
 
             Rect enemiesPerPointRect = new Rect(position.x, position.y + currentHeight, position.width, lineHeight);
@@ -555,9 +568,130 @@ public class SpawnSettingsDrawer : PropertyDrawer
             currentHeight += lineHeight + spacing;
         }
 
-        // ÀüÃ¼ ³ôÀÌ ¼³Á¤
+        // ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         propertyHeight = currentHeight;
 
+        EditorGUI.EndProperty();
+    }
+}
+
+[CustomPropertyDrawer(typeof(Wave))]
+public class WavePropertyDrawer : PropertyDrawer
+{
+    private bool foldout = true;
+    private float totalHeight = 0f;
+
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    {
+        return totalHeight;
+    }
+
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        EditorGUI.BeginProperty(position, label, property);
+
+        float currentY = position.y;
+        float lineHeight = EditorGUIUtility.singleLineHeight;
+        float spacing = EditorGUIUtility.standardVerticalSpacing;
+
+        // Wave numberì™€ Boss Wave ì²´í¬ë°•ìŠ¤ë¥¼ í•œ ì¤„ì— í‘œì‹œ
+        Rect headerRect = new Rect(position.x, currentY, position.width, lineHeight);
+        
+        SerializedProperty waveNumberProp = property.FindPropertyRelative("waveNumber");
+        SerializedProperty isBossWaveProp = property.FindPropertyRelative("isBossWave");
+        
+        float halfWidth = position.width * 0.5f;
+        Rect waveNumRect = new Rect(position.x, currentY, halfWidth - 5f, lineHeight);
+        Rect bossCheckRect = new Rect(position.x + halfWidth + 5f, currentY, halfWidth - 5f, lineHeight);
+        
+        EditorGUI.PropertyField(waveNumRect, waveNumberProp, new GUIContent("Wave Number"));
+        EditorGUI.PropertyField(bossCheckRect, isBossWaveProp, new GUIContent("Boss Wave"));
+        
+        currentY += lineHeight + spacing;
+
+        bool isBossWave = isBossWaveProp.boolValue;
+
+        // Foldout
+        Rect foldoutRect = new Rect(position.x, currentY, position.width, lineHeight);
+        foldout = EditorGUI.Foldout(foldoutRect, foldout, isBossWave ? "Boss Wave Settings" : "Normal Wave Settings", true);
+        currentY += lineHeight + spacing;
+
+        if (foldout)
+        {
+            EditorGUI.indentLevel++;
+
+            if (isBossWave)
+            {
+                // Boss Wave ì „ìš© í•„ë“œë“¤
+                SerializedProperty bossProp = property.FindPropertyRelative("boss");
+                
+                Rect bossRect = new Rect(position.x, currentY, position.width, lineHeight);
+                EditorGUI.PropertyField(bossRect, bossProp, new GUIContent("Boss"));
+                currentY += lineHeight + spacing;
+            }
+            else
+            {
+                // Normal Wave ì „ìš© í•„ë“œë“¤
+                EditorGUI.LabelField(new Rect(position.x, currentY, position.width, lineHeight), "Time Settings", EditorStyles.boldLabel);
+                currentY += lineHeight + spacing;
+
+                SerializedProperty waveDurationProp = property.FindPropertyRelative("waveDuration");
+                SerializedProperty survivalDurationProp = property.FindPropertyRelative("survivalDuration");
+
+                Rect waveDurRect = new Rect(position.x, currentY, position.width, lineHeight);
+                EditorGUI.PropertyField(waveDurRect, waveDurationProp, new GUIContent("Wave Duration"));
+                currentY += lineHeight + spacing;
+
+                Rect survivalDurRect = new Rect(position.x, currentY, position.width, lineHeight);
+                EditorGUI.PropertyField(survivalDurRect, survivalDurationProp, new GUIContent("Survival Duration"));
+                currentY += lineHeight + spacing;
+
+                EditorGUI.LabelField(new Rect(position.x, currentY, position.width, lineHeight), "Spawn Settings", EditorStyles.boldLabel);
+                currentY += lineHeight + spacing;
+
+                SerializedProperty spawnIntervalProp = property.FindPropertyRelative("spawnInterval");
+                SerializedProperty spawnAmountProp = property.FindPropertyRelative("spawnAmount");
+
+                Rect intervalRect = new Rect(position.x, currentY, position.width, lineHeight);
+                EditorGUI.PropertyField(intervalRect, spawnIntervalProp, new GUIContent("Spawn Interval"));
+                currentY += lineHeight + spacing;
+
+                Rect amountRect = new Rect(position.x, currentY, position.width, lineHeight);
+                EditorGUI.PropertyField(amountRect, spawnAmountProp, new GUIContent("Spawn Amount"));
+                currentY += lineHeight + spacing;
+
+                EditorGUI.LabelField(new Rect(position.x, currentY, position.width, lineHeight), "Spawn Formation", EditorStyles.boldLabel);
+                currentY += lineHeight + spacing;
+
+                SerializedProperty spawnSettingsProp = property.FindPropertyRelative("spawnSettings");
+                float spawnSettingsHeight = EditorGUI.GetPropertyHeight(spawnSettingsProp, true);
+                Rect spawnSettingsRect = new Rect(position.x, currentY, position.width, spawnSettingsHeight);
+                EditorGUI.PropertyField(spawnSettingsRect, spawnSettingsProp, new GUIContent("Spawn Settings"), true);
+                currentY += spawnSettingsHeight + spacing;
+
+                EditorGUI.LabelField(new Rect(position.x, currentY, position.width, lineHeight), "Enemies", EditorStyles.boldLabel);
+                currentY += lineHeight + spacing;
+
+                SerializedProperty enemiesProp = property.FindPropertyRelative("enemies");
+                float enemiesHeight = EditorGUI.GetPropertyHeight(enemiesProp, true);
+                Rect enemiesRect = new Rect(position.x, currentY, position.width, enemiesHeight);
+                EditorGUI.PropertyField(enemiesRect, enemiesProp, new GUIContent("Enemies"), true);
+                currentY += enemiesHeight + spacing;
+            }
+
+            // ê³µí†µ Rewards ì„¹ì…˜
+            EditorGUI.LabelField(new Rect(position.x, currentY, position.width, lineHeight), "Rewards", EditorStyles.boldLabel);
+            currentY += lineHeight + spacing;
+
+            SerializedProperty coinRewardProp = property.FindPropertyRelative("coinReward");
+            Rect coinRect = new Rect(position.x, currentY, position.width, lineHeight);
+            EditorGUI.PropertyField(coinRect, coinRewardProp, new GUIContent("Coin Reward"));
+            currentY += lineHeight + spacing;
+
+            EditorGUI.indentLevel--;
+        }
+
+        totalHeight = currentY - position.y;
         EditorGUI.EndProperty();
     }
 }
