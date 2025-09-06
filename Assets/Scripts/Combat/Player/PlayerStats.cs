@@ -177,9 +177,12 @@ public class PlayerStats : MonoBehaviour
         int levelMinus1 = level - 1;
         maxHealth = baseHealth + (healthPerLevel * levelMinus1);
         healthRegen = baseHealthRegen + (healthRegenPerLevel * levelMinus1);
-        power = basePower + (powerPerLevel * levelMinus1);
-        movementSpeed = baseMovementSpeed + (movementSpeedPerLevel * levelMinus1);
-        cooldownReduce = baseCooldownReduce + (cooldownReducePerLevel * levelMinus1);
+        
+        // 임시 버프를 고려하여 스탯 계산
+        power = basePower + (powerPerLevel * levelMinus1) + temporaryPower;
+        movementSpeed = baseMovementSpeed + (movementSpeedPerLevel * levelMinus1) + temporaryMovementSpeed;
+        cooldownReduce = baseCooldownReduce + (cooldownReducePerLevel * levelMinus1) + temporaryHaste;
+        
         knockback = baseKnockback + (knockbackIncreasePerLevel * levelMinus1);
         aoe = baseAreaOfEffect + (aoeIncreasePerLevel * levelMinus1);
 
@@ -581,7 +584,7 @@ public class PlayerStats : MonoBehaviour
     public void AddTemporaryPower(float amount)
     {
         temporaryPower += amount;
-        OnPowerChanged?.Invoke();
+        UpdateStats();
     }
 
     /// <summary>
@@ -591,7 +594,7 @@ public class PlayerStats : MonoBehaviour
     public void RemoveTemporaryPower(float amount)
     {
         temporaryPower = Mathf.Max(0f, temporaryPower - amount);
-        OnPowerChanged?.Invoke();
+        UpdateStats();
     }
 
     /// <summary>
@@ -601,7 +604,7 @@ public class PlayerStats : MonoBehaviour
     public void AddTemporaryHaste(float amount)
     {
         temporaryHaste += amount;
-        OnCooldownReduceChanged?.Invoke();
+        UpdateStats();
     }
 
     /// <summary>
@@ -611,7 +614,7 @@ public class PlayerStats : MonoBehaviour
     public void RemoveTemporaryHaste(float amount)
     {
         temporaryHaste = Mathf.Max(0f, temporaryHaste - amount);
-        OnCooldownReduceChanged?.Invoke();
+        UpdateStats();
     }
 
     /// <summary>
@@ -621,7 +624,8 @@ public class PlayerStats : MonoBehaviour
     public void AddTemporaryMovementSpeed(float amount)
     {
         temporaryMovementSpeed += amount;
-        OnMovementSpeedChanged?.Invoke(movementSpeed + temporaryMovementSpeed);
+        // movementSpeed는 이미 temporaryMovementSpeed를 포함하고 있으므로 UpdateStats() 호출
+        UpdateStats();
     }
 
     /// <summary>
@@ -631,7 +635,8 @@ public class PlayerStats : MonoBehaviour
     public void RemoveTemporaryMovementSpeed(float amount)
     {
         temporaryMovementSpeed = Mathf.Max(0f, temporaryMovementSpeed - amount);
-        OnMovementSpeedChanged?.Invoke(movementSpeed + temporaryMovementSpeed);
+        // movementSpeed는 이미 temporaryMovementSpeed를 포함하고 있으므로 UpdateStats() 호출
+        UpdateStats();
     }
 
     /// <summary>
@@ -639,17 +644,17 @@ public class PlayerStats : MonoBehaviour
     /// </summary>
     public void ClearAllTemporaryBuffs()
     {
-        bool powerChanged = temporaryPower > 0f;
-        bool hasteChanged = temporaryHaste > 0f;
-        bool speedChanged = temporaryMovementSpeed > 0f;
+        bool hasAnyBuff = temporaryPower > 0f || temporaryHaste > 0f || temporaryMovementSpeed > 0f;
 
         temporaryPower = 0f;
         temporaryHaste = 0f;
         temporaryMovementSpeed = 0f;
 
-        if (powerChanged) OnPowerChanged?.Invoke();
-        if (hasteChanged) OnCooldownReduceChanged?.Invoke();
-        if (speedChanged) OnMovementSpeedChanged?.Invoke(movementSpeed);
+        // 변경사항이 있으면 통합적으로 스탯 업데이트
+        if (hasAnyBuff)
+        {
+            UpdateStats();
+        }
     }
     #endregion
 
