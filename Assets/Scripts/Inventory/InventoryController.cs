@@ -951,6 +951,17 @@ public class InventoryController : MonoBehaviour
                         // 아이템 위치 다시 계산하여 설정
                         rt.localPosition = grid.CalculatePositionOnGrid(item, gridPos.x, gridPos.y);
                     }
+
+                    // 아이템 이미지도 함께 업데이트
+                    if (item.WeaponData != null)
+                    {
+                        var image = item.GetComponent<UnityEngine.UI.Image>();
+                        if (image != null)
+                        {
+                            image.sprite = item.WeaponData.GetColoredInventoryWeaponIcon();
+                            image.color = item.WeaponData.GetTierColor();
+                        }
+                    }
                 }
             }
         }
@@ -1000,12 +1011,6 @@ public class InventoryController : MonoBehaviour
         }
 
         PlayButtonSound();
-
-        // 물리 아이템 처리 - 판매 로직 추가
-        if (physicsManager != null)
-        {
-            SellAllPhysicsItems();
-        }
 
         // 먼저 인벤토리 UI를 비활성화
         inventoryUI.SetActive(false);

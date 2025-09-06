@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// ÀÎº¥Åä¸®¿¡¼­ »ç¿ëµÇ´Â ¾ÆÀÌÅÛÀ» °ü¸®ÇÏ´Â ÄÄÆ÷³ÍÆ®
-/// ¾ÆÀÌÅÛÀÇ Å©±â, È¸Àü, ±×¸®µå À§Ä¡ µîÀ» Ã³¸®
+/// ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½, È¸ï¿½ï¿½, ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 /// </summary>
 public class InventoryItem : MonoBehaviour
 {
@@ -20,7 +20,7 @@ public class InventoryItem : MonoBehaviour
     #region Properties
     #region Properties
     /// <summary>
-    /// ¾ÆÀÌÅÛÀÇ ¹«±â µ¥ÀÌÅÍ¿¡ ´ëÇÑ °ø°³ Á¢±ÙÀÚ
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public WeaponData WeaponData
     {
@@ -55,6 +55,15 @@ public class InventoryItem : MonoBehaviour
         gridPosition = INVALID_POSITION;
     }
 
+    private void OnEnable()
+    {
+        // íŒ¨ë„ì´ í™œì„±í™”ë  ë•Œë§ˆë‹¤ ì´ë¯¸ì§€ ë³µì›
+        if (WeaponData != null)
+        {
+            UpdateVisuals();
+        }
+    }
+
     private void OnValidate()
     {
         InitializeComponents();
@@ -63,9 +72,9 @@ public class InventoryItem : MonoBehaviour
 
     #region Public Methods
     /// <summary>
-    /// ¾ÆÀÌÅÛ ÃÊ±âÈ­
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
     /// </summary>
-    /// <param name="data">¹«±â µ¥ÀÌÅÍ</param>
+    /// <param name="data">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</param>
     /// 
     public WeaponData GetWeaponData()
     {
@@ -93,13 +102,13 @@ public class InventoryItem : MonoBehaviour
         }
     }
     /// <summary>
-    /// ¾ÆÀÌÅÛ È¸Àü
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½
     /// </summary>
     public void Rotate()
     {
         isRotated = !isRotated;
 
-        // ÀÌ¹ÌÁö¸¸ È¸ÀüÇÏ°í Å©±â´Â À¯Áö
+        // ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½Ï°ï¿½ Å©ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (rectTransform != null)
         {
             rectTransform.localRotation = Quaternion.Euler(0, 0, isRotated ? 90f : 0f);
@@ -108,14 +117,14 @@ public class InventoryItem : MonoBehaviour
 
 
     /// <summary>
-    /// ±×¸®µå À§Ä¡ ¼³Á¤
+    /// ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void SetGridPosition(Vector2Int position)
     {
         gridPosition = position;
     }
     /// <summary>
-    /// ¾ÆÀÌÅÛ Å©±â ¹İÈ¯
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½È¯
     /// </summary>
     public Vector2 GetWorldSize()
     {
@@ -128,7 +137,7 @@ public class InventoryItem : MonoBehaviour
 
     #region Private Methods
     /// <summary>
-    /// ¾ÆÀÌÅÛÀÇ ½Ã°¢Àû ¿ä¼Ò ¾÷µ¥ÀÌÆ®
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     /// </summary>
     private void InitializeComponents()
     {
@@ -145,22 +154,22 @@ public class InventoryItem : MonoBehaviour
     }
 
     /// <summary>
-    /// RectTransform Å©±â ¾÷µ¥ÀÌÆ®
+    /// RectTransform Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     /// </summary>
     private void UpdateSize()
     {
         if (rectTransform != null)
         {
-            // ÃÊ±â Å©±â ¼³Á¤
+            // ï¿½Ê±ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             rectTransform.sizeDelta = new Vector2(
-                itemData.width * ItemGrid.TILE_SIZE,   // Width ´ë½Å Á÷Á¢ itemData.width »ç¿ë
-                itemData.height * ItemGrid.TILE_SIZE   // Height ´ë½Å Á÷Á¢ itemData.height »ç¿ë
+                itemData.width * ItemGrid.TILE_SIZE,   // Width ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ itemData.width ï¿½ï¿½ï¿½
+                itemData.height * ItemGrid.TILE_SIZE   // Height ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ itemData.height ï¿½ï¿½ï¿½
             );
         }
     }
 
     /// <summary>
-    /// È¸Àü Àû¿ë
+    /// È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
 
 

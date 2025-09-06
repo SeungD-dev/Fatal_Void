@@ -26,6 +26,7 @@ public class WeaponInfoUI : MonoBehaviour
     [Header("Scene References")]
     [SerializeField] private InventoryController inventoryController;
     [SerializeField] private ItemGrid mainItemGrid;
+    [SerializeField] private PhysicsInventoryManager physicsInventoryManager;
     #endregion
 
     #region Private Fields
@@ -257,6 +258,13 @@ public class WeaponInfoUI : MonoBehaviour
         if (isInitialized) return;
 
         playerStats = GameManager.Instance.PlayerStats;
+        
+        // PhysicsInventoryManager 자동 찾기
+        if (physicsInventoryManager == null)
+        {
+            physicsInventoryManager = FindAnyObjectByType<PhysicsInventoryManager>();
+        }
+        
         if (playerStats != null && inventoryController != null)
         {
             isInitialized = true;
@@ -335,6 +343,7 @@ public class WeaponInfoUI : MonoBehaviour
     #region Private Methods - Upgrade Logic
     private void SearchUpgradeableWeapons(WeaponType targetType, int targetTier, EquipmentType targetEquipmentType)
     {
+        // 1. 인벤토리 격자에서 검색
         for (int x = 0; x < mainItemGrid.Width; x++)
         {
             for (int y = 0; y < mainItemGrid.Height; y++)
@@ -352,11 +361,42 @@ public class WeaponInfoUI : MonoBehaviour
                 }
             }
         }
+
+        // 2. 물리 아이템에서 검색
+        if (physicsInventoryManager != null)
+        {
+            var physicsItems = physicsInventoryManager.GetAllPhysicsItems();
+            foreach (var physicsItem in physicsItems)
+            {
+                if (physicsItem == null) continue;
+                
+                InventoryItem inventoryItem = physicsItem.GetComponent<InventoryItem>();
+                if (inventoryItem == null || inventoryItem.WeaponData == null) continue;
+
+                bool isMatchingType = (targetType == WeaponType.Equipment) ?
+                    inventoryItem.WeaponData.weaponType == targetType && inventoryItem.WeaponData.equipmentType == targetEquipmentType :
+                    inventoryItem.WeaponData.weaponType == targetType;
+
+                if (isMatchingType && inventoryItem.WeaponData.currentTier == targetTier && !upgradeableWeapons.Contains(inventoryItem))
+                {
+                    upgradeableWeapons.Add(inventoryItem);
+                }
+            }
+        }
     }
 
     private void OnUpgradeButtonClick()
     {
         Debug.Log("Upgrade button clicked");
+
+        // 업그레이드 실행 전 최신 상태로 다시 검색
+        if (selectedWeapon != null)
+        {
+            upgradeableWeapons.Clear();
+            WeaponType targetType = selectedWeapon.weaponType;
+            int targetTier = selectedWeapon.currentTier;
+            SearchUpgradeableWeapons(targetType, targetTier, selectedWeapon.equipmentType);
+        }
 
         if (!ValidateUpgradeOperation())
         {
@@ -373,13 +413,32 @@ public class WeaponInfoUI : MonoBehaviour
 
         Debug.Log($"Found {upgradeableWeapons.Count} upgradeable weapons");
 
-        // ���׷��̵� ���� ���� ������� ��ġ ����
-        Vector2Int upgradePosition = upgradeableWeapons[0].GridPosition;
+        // 업그레이드된 무기 배치 위치 결정 (인벤토리 격자 아이템 우선)
+        Vector2Int upgradePosition = Vector2Int.zero;
+        bool hasValidPosition = false;
+        
+        foreach (var weapon in upgradeableWeapons)
+        {
+            PhysicsInventoryItem physicsItem = weapon.GetComponent<PhysicsInventoryItem>();
+            if (physicsItem == null || !physicsItem.IsPhysicsActive)
+            {
+                // 인벤토리 격자 아이템인 경우 해당 위치 사용
+                upgradePosition = weapon.GridPosition;
+                hasValidPosition = true;
+                break;
+            }
+        }
+        
+        // 모두 물리 아이템인 경우 기본 위치 사용
+        if (!hasValidPosition)
+        {
+            upgradePosition = Vector2Int.zero;
+        }
 
-        // ���� ���� ����
+        // 기존 무기 제거
         RemoveUpgradeMaterials();
 
-        // ���ο� ���� ����
+        // 새로운 무기 생성
         inventoryController?.CreateUpgradedItem(nextTierWeapon, upgradePosition);
 
         // ���� ����
@@ -403,16 +462,35 @@ public class WeaponInfoUI : MonoBehaviour
             }
         }
 
-        // ���׷��̵忡 ���� 2���� ���⸸ ó��
+        // 업그레이드에 사용될 2개의 무기만 처리
         var weaponsToRemove = upgradeableWeapons.Take(2).ToList();
         foreach (var weapon in weaponsToRemove)
         {
             if (weapon != null)
             {
-                Debug.Log($"Removing weapon from grid at position {weapon.GridPosition}");
-                mainItemGrid.RemoveItem(weapon.GridPosition);
-                Debug.Log($"Destroying weapon GameObject");
-                Destroy(weapon.gameObject);
+                // 물리 아이템인지 확인
+                PhysicsInventoryItem physicsItem = weapon.GetComponent<PhysicsInventoryItem>();
+                
+                if (physicsItem != null && physicsItem.IsPhysicsActive)
+                {
+                    // 물리 아이템인 경우
+                    Debug.Log($"Removing physics item: {weapon.name}");
+                    if (physicsInventoryManager != null)
+                    {
+                        physicsInventoryManager.RemovePhysicsItem(physicsItem);
+                    }
+                    else
+                    {
+                        Destroy(weapon.gameObject);
+                    }
+                }
+                else
+                {
+                    // 인벤토리 격자 아이템인 경우
+                    Debug.Log($"Removing weapon from grid at position {weapon.GridPosition}");
+                    mainItemGrid.RemoveItem(weapon.GridPosition);
+                    Destroy(weapon.gameObject);
+                }
             }
         }
     }
