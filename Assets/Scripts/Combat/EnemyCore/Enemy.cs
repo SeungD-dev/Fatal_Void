@@ -195,10 +195,15 @@ public class Enemy : MonoBehaviour, IPooledObject
             Debug.LogWarning("Enemy spawned without EnemyData!");
         }
 
-        // 플레이어 참조가 없는 경우 GameManager에서 가져오기
-        if (targetTransform == null && GameManager.Instance != null && GameManager.Instance.PlayerTransform != null)
+        // 플레이어 참조 설정 및 AI 초기화 보장
+        if (GameManager.Instance != null && GameManager.Instance.PlayerTransform != null)
         {
+            // 항상 최신 플레이어 참조로 초기화
             Initialize(GameManager.Instance.PlayerTransform);
+        }
+        else
+        {
+            Debug.LogWarning("Enemy spawned but GameManager or PlayerTransform is null!");
         }
 
         if (spriteRenderer != null)

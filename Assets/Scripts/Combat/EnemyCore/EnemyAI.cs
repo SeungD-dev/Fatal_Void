@@ -8,22 +8,22 @@ public abstract class EnemyAI : MonoBehaviour
     [HideInInspector] public SpriteRenderer spriteRenderer;
     public Transform PlayerTransform => playerTransform;
 
-    // ¼º´É ÃÖÀûÈ­¸¦ À§ÇÑ º¯¼öµé
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     protected bool isActive;
-    protected bool isCulled;  // ÄÃ¸µ »óÅÂ ÃßÀû
+    protected bool isCulled;  // ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     protected Vector3 lastKnownPlayerPosition;
 
-    // °Å¸® ±â¹Ý ¾÷µ¥ÀÌÆ® ÃÖÀûÈ­
-    [SerializeField] protected float distanceUpdateThreshold = 15f; // ÇÃ·¹ÀÌ¾î¿ÍÀÇ °Å¸®°¡ ÀÌ °ªº¸´Ù Å©¸é ¾÷µ¥ÀÌÆ® ÁÖ±â ´Ã¸²
+    // ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½È­
+    [SerializeField] protected float distanceUpdateThreshold = 15f; // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ö±ï¿½ ï¿½Ã¸ï¿½
     protected float sqrDistanceToPlayer;
     protected float sqrDistanceThreshold;
 
-    // ¿òÁ÷ÀÓ Á¦¾î º¯¼ö
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     protected Vector2 moveDirection;
     protected float currentMoveSpeed;
 
-    // ½Ã°¢Àû È¿°ú °ü·Ã º¯¼ö
-    protected float effectUpdateInterval = 0.1f;  // ½Ã°¢Àû È¿°ú ¾÷µ¥ÀÌÆ® ÁÖ±â
+    // ï¿½Ã°ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    protected float effectUpdateInterval = 0.1f;  // ï¿½Ã°ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ö±ï¿½
     protected float nextEffectUpdateTime;
 
     protected virtual void Awake()
@@ -32,10 +32,10 @@ public abstract class EnemyAI : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         stateMachine = new StateMachine();
 
-        // °Å¸® ÀÓ°è°ª Á¦°ö (¸Å¹ø Á¦°ö±Ù °è»ê È¸ÇÇ)
+        // ï¿½Å¸ï¿½ ï¿½Ó°è°ª ï¿½ï¿½ï¿½ï¿½ (ï¿½Å¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ È¸ï¿½ï¿½)
         sqrDistanceThreshold = distanceUpdateThreshold * distanceUpdateThreshold;
 
-        // Ã¹ È¿°ú ¾÷µ¥ÀÌÆ® ½Ã°£ ¼³Á¤
+        // Ã¹ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½
         nextEffectUpdateTime = Time.time + Random.Range(0f, effectUpdateInterval);
     }
 
@@ -49,7 +49,7 @@ public abstract class EnemyAI : MonoBehaviour
                   GameManager.Instance.currentGameState == GameState.Playing;
         isCulled = false;
 
-        // »óÅÂ ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         InitializeStates();
     }
 
@@ -86,7 +86,11 @@ public abstract class EnemyAI : MonoBehaviour
 
     public virtual void Initialize(Transform target)
     {
-        if (target == null) return;
+        if (target == null) 
+        {
+            Debug.LogWarning($"EnemyAI.Initialize called with null target on {gameObject.name}");
+            return;
+        }
 
         playerTransform = target;
         lastKnownPlayerPosition = playerTransform.position;
@@ -96,23 +100,27 @@ public abstract class EnemyAI : MonoBehaviour
             GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
         }
 
-        // ¹Ù·Î ÃßÀû »óÅÂ·Î ÀüÈ¯
+        // í™œì„± ìƒíƒœë¡œ ì„¤ì •
+        isActive = IsGamePlaying();
+        isCulled = false;
+
+        // ë°”ë¡œ ì¶”ì  ìƒíƒœë¡œ ì „í™˜
         var chasingState = new ChasingState(this);
         stateMachine.SetState(chasingState);
 
-        isActive = IsGamePlaying();
+        Debug.Log($"EnemyAI initialized successfully for {gameObject.name} - isActive: {isActive}");
     }
 
-    // °¡º­¿î ·ÎÁ÷°ú ½Ã°¢Àû È¿°ú¸¸ Update¿¡¼­ Ã³¸®
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ Updateï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
     protected virtual void Update()
     {
-        // ÄÃ¸µµÇ¾ú°Å³ª °ÔÀÓÀÌ ÀÏ½ÃÁ¤ÁöµÇ¾úÀ¸¸é Ã³¸®ÇÏÁö ¾ÊÀ½
+        // ï¿½Ã¸ï¿½ï¿½Ç¾ï¿½ï¿½Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (isCulled || !isActive || playerTransform == null) return;
 
-        // »óÅÂ ¸Ó½Å ¾÷µ¥ÀÌÆ® (ÀÌµ¿ °ü·Ã ·ÎÁ÷ Á¦¿Ü)
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ó½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         stateMachine.Update();
 
-        // ½Ã°¢Àû È¿°ú ¾÷µ¥ÀÌÆ® (Á¦ÇÑµÈ ÁÖ±â·Î)
+        // ï¿½Ã°ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (ï¿½ï¿½ï¿½Ñµï¿½ ï¿½Ö±ï¿½ï¿½)
         if (Time.time >= nextEffectUpdateTime)
         {
             UpdateVisualEffects();
@@ -120,42 +128,42 @@ public abstract class EnemyAI : MonoBehaviour
         }
     }
 
-    // ¹°¸® ¹× ÀÌµ¿ ·ÎÁ÷Àº FixedUpdate¿¡¼­ Ã³¸®
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ FixedUpdateï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
     protected virtual void FixedUpdate()
     {
-        // ÄÃ¸µµÇ¾ú°Å³ª °ÔÀÓÀÌ ÀÏ½ÃÁ¤ÁöµÇ¾úÀ¸¸é Ã³¸®ÇÏÁö ¾ÊÀ½
+        // ï¿½Ã¸ï¿½ï¿½Ç¾ï¿½ï¿½Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (isCulled || !isActive || playerTransform == null) return;
 
-        // »óÅÂ ¸Ó½Å FixedUpdate È£Ãâ·Î ÀÌµ¿ ·ÎÁ÷ ¼öÇà
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ó½ï¿½ FixedUpdate È£ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         stateMachine.FixedUpdate();
     }
 
-    // ÄÃ¸µ »óÅÂ ¼³Á¤ (EnemyCullingManager¿¡¼­ È£ÃâµÊ)
+    // ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (EnemyCullingManagerï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½)
     public virtual void SetCullingState(bool isVisible)
     {
         isCulled = !isVisible;
 
-        // ÄÄÆ÷³ÍÆ® È°¼ºÈ­/ºñÈ°¼ºÈ­
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® È°ï¿½ï¿½È­/ï¿½ï¿½È°ï¿½ï¿½È­
         enabled = isVisible;
 
-        // Enemy ÄÄÆ÷³ÍÆ®¿¡ ÄÃ¸µ »óÅÂ Àü´Þ
+        // Enemy ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (enemyStats != null)
         {
             enemyStats.SetCullingState(isVisible);
         }
     }
 
-    // ½Ã°¢Àû È¿°ú ¾÷µ¥ÀÌÆ® (¹Ù¿î½º, ÆÄÆ¼Å¬ µî)
+    // ï¿½Ã°ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (ï¿½Ù¿î½º, ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½)
     protected virtual void UpdateVisualEffects()
     {
-        // ¹Ù¿î½º È¿°ú ¾÷µ¥ÀÌÆ®
+        // ï¿½Ù¿î½º È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         if (enemyStats != null && !enemyStats.IsKnockBack)
         {
             enemyStats.UpdateBounceEffect();
         }
     }
 
-    // ÇÃ·¹ÀÌ¾î »óÅÂ Ã¼Å©
+    // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
     protected virtual bool IsPlayerAlive()
     {
         return GameManager.Instance != null &&
@@ -163,14 +171,14 @@ public abstract class EnemyAI : MonoBehaviour
                GameManager.Instance.PlayerStats.CurrentHealth > 0;
     }
 
-    // °ÔÀÓ »óÅÂ Ã¼Å©
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
     protected virtual bool IsGamePlaying()
     {
         return GameManager.Instance != null &&
                GameManager.Instance.currentGameState == GameState.Playing;
     }
 
-    // µð¹ö±×¿ë ±âÁî¸ð
+    // ï¿½ï¿½ï¿½ï¿½×¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
     protected virtual void OnDrawGizmosSelected()
     {
         if (!Application.isPlaying) return;
