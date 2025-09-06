@@ -35,6 +35,9 @@ public class Wisp : EnemyAI
 
     // 재사용 가능한 리스트
     private readonly List<GameObject> activeProjectiles = new List<GameObject>();
+    
+    // 발사된 모든 투사체 추적 (사망 시 정리용)
+    private readonly List<GameObject> allLaunchedProjectiles = new List<GameObject>();
 
     public Wisp()
     {
@@ -297,7 +300,6 @@ public class Wisp : EnemyAI
         if (isFiring) yield break;
 
         isFiring = true;
-        lastFireTime = Time.time;
         bool allProjectilesLaunched = false;
         List<GameObject> launchedProjectiles = new List<GameObject>();
 
@@ -348,6 +350,7 @@ public class Wisp : EnemyAI
             // 첫 번째 투사체 발사
             LaunchProjectileDirectly(firstProjectile);
             launchedProjectiles.Add(firstProjectile);
+            allLaunchedProjectiles.Add(firstProjectile); // 전체 리스트에도 추가
 
             Debug.Log($"첫 번째 투사체 발사: {firstProjectile.GetInstanceID()}");
 
@@ -386,6 +389,7 @@ public class Wisp : EnemyAI
                         // 직접 Launch 호출하는 메서드로 변경
                         LaunchProjectileDirectly(projectile);
                         launchedProjectiles.Add(projectile);
+                        allLaunchedProjectiles.Add(projectile); // 전체 리스트에도 추가
 
                         Debug.Log($"투사체 {i} 발사: {projectile.GetInstanceID()}");
                     }
@@ -415,6 +419,9 @@ public class Wisp : EnemyAI
 
             // 발사 상태 종료
             isFiring = false;
+            
+            // 쿨다운 시간 설정 (발사 완료 후)
+            lastFireTime = Time.time;
 
             // 활성 투사체 리스트 비우기
             activeProjectiles.Clear();
@@ -540,6 +547,27 @@ public class Wisp : EnemyAI
             }
         }
         activeProjectiles.Clear();
+
+        // 발사된 모든 투사체를 풀로 반환
+        for (int i = allLaunchedProjectiles.Count - 1; i >= 0; i--)
+        {
+            GameObject projectile = allLaunchedProjectiles[i];
+            if (projectile != null && projectile.activeInHierarchy)
+            {
+                // WispProjectile 컴포넌트에 소유자 사망을 알림
+                WispProjectile wispProj = projectile.GetComponent<WispProjectile>();
+                if (wispProj != null)
+                {
+                    // 소유자가 사망했음을 알리고 즉시 풀로 반환
+                    ObjectPool.Instance.ReturnToPool(PROJECTILE_POOL_TAG, projectile);
+                }
+                else
+                {
+                    ObjectPool.Instance.ReturnToPool(PROJECTILE_POOL_TAG, projectile);
+                }
+            }
+        }
+        allLaunchedProjectiles.Clear();
 
         // Scene에서 준비 중이지만 아직 activeProjectiles에 추가되지 않은 투사체 찾기
         if (isPreparingProjectile)
