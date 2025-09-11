@@ -39,10 +39,10 @@ public class BlastPatternSettings
 public class SpiralPatternSettings
 {
     [Header("Spiral Pattern")]
-    public int shotNum = 8;
-    public int volly = 3;
-    public float shotTime = 0.05f;
-    public bool clockwise = true;
+    public float spiralTime = 3f;        // 지속 시간
+    public int directions = 8;           // 기본 방향 수 (나선의 밀도)
+    public float rotationSpeed = 45f;    // 회전 속도 (도/초)
+    public float waitTime = 0.05f;       // 발사 간격
     
     [Header("Spiral Bullet Properties")]
     public float bulletSpeed = 6f;
@@ -53,9 +53,10 @@ public class SpiralPatternSettings
 public class FlowerPatternSettings
 {
     [Header("Flower Pattern")]
-    public float flowerTime = 3f;
+    public float flowerTime = 10f;
     public int directions = 6;
-    public float rotTime = 10f;
+    public float phaseTime = 1f;         // 각 단계 지속 시간 (1초)
+    public float rotationAngle = 30f;    // 각 단계마다 회전할 각도
     public float waitTime = 0.1f;
     
     [Header("Flower Bullet Properties")]
@@ -160,10 +161,10 @@ public class EnemyDataEditor : Editor
                     
                 case BulletPatternType.Spiral:
                     EditorGUILayout.LabelField("Spiral Pattern Settings", EditorStyles.boldLabel);
-                    enemyData.spiralSettings.shotNum = EditorGUILayout.IntField("Shot Number", enemyData.spiralSettings.shotNum);
-                    enemyData.spiralSettings.volly = EditorGUILayout.IntField("Volly", enemyData.spiralSettings.volly);
-                    enemyData.spiralSettings.shotTime = EditorGUILayout.FloatField("Shot Time", enemyData.spiralSettings.shotTime);
-                    enemyData.spiralSettings.clockwise = EditorGUILayout.Toggle("Clockwise", enemyData.spiralSettings.clockwise);
+                    enemyData.spiralSettings.spiralTime = EditorGUILayout.FloatField("Spiral Time", enemyData.spiralSettings.spiralTime);
+                    enemyData.spiralSettings.directions = EditorGUILayout.IntField("Directions", enemyData.spiralSettings.directions);
+                    enemyData.spiralSettings.rotationSpeed = EditorGUILayout.FloatField("Rotation Speed", enemyData.spiralSettings.rotationSpeed);
+                    enemyData.spiralSettings.waitTime = EditorGUILayout.FloatField("Wait Time", enemyData.spiralSettings.waitTime);
                     
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Spiral Bullet Properties", EditorStyles.boldLabel);
@@ -175,7 +176,8 @@ public class EnemyDataEditor : Editor
                     EditorGUILayout.LabelField("Flower Pattern Settings", EditorStyles.boldLabel);
                     enemyData.flowerSettings.flowerTime = EditorGUILayout.FloatField("Flower Time", enemyData.flowerSettings.flowerTime);
                     enemyData.flowerSettings.directions = EditorGUILayout.IntField("Directions", enemyData.flowerSettings.directions);
-                    enemyData.flowerSettings.rotTime = EditorGUILayout.FloatField("Rotation Time", enemyData.flowerSettings.rotTime);
+                    enemyData.flowerSettings.phaseTime = EditorGUILayout.FloatField("Phase Time", enemyData.flowerSettings.phaseTime);
+                    enemyData.flowerSettings.rotationAngle = EditorGUILayout.FloatField("Rotation Angle", enemyData.flowerSettings.rotationAngle);
                     enemyData.flowerSettings.waitTime = EditorGUILayout.FloatField("Wait Time", enemyData.flowerSettings.waitTime);
                     
                     EditorGUILayout.Space();

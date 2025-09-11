@@ -162,12 +162,15 @@ public class CalamityBoss : Enemy
                 break;
                 
             case BulletPatternType.Spiral:
+                // 랜덤하게 시계방향 또는 반시계방향 선택
+                bool randomClockwise = Random.value > 0.5f;
                 yield return StartCoroutine(SpiralPattern(
                     transform,
-                    EnemyData.spiralSettings.shotNum,
-                    EnemyData.spiralSettings.volly,
-                    EnemyData.spiralSettings.shotTime,
-                    EnemyData.spiralSettings.clockwise
+                    EnemyData.spiralSettings.spiralTime,
+                    EnemyData.spiralSettings.directions,
+                    EnemyData.spiralSettings.rotationSpeed,
+                    EnemyData.spiralSettings.waitTime,
+                    randomClockwise
                 ));
                 break;
                 
@@ -176,7 +179,8 @@ public class CalamityBoss : Enemy
                     transform,
                     EnemyData.flowerSettings.flowerTime,
                     EnemyData.flowerSettings.directions,
-                    EnemyData.flowerSettings.rotTime,
+                    EnemyData.flowerSettings.phaseTime,
+                    EnemyData.flowerSettings.rotationAngle,
                     EnemyData.flowerSettings.waitTime
                 ));
                 break;
@@ -421,78 +425,69 @@ public class CalamityBoss : Enemy
     // 탄막 패턴 구현
     private IEnumerator BlastPattern(Transform shooter, int shotNum, int volly, float spread, float shotTime)
     {
-        float bulletRot = shooter.eulerAngles.z; // 2D에서는 z축 회전 사용
+        int originalVolly = volly; // 원본 volly 값 저장
+        int currentVollyIndex = 1; // 현재 volly 인덱스 (1부터 시작)
         
         if (shotNum <= 1)
         {
-            // 단발 직사
-            FireBullet(shooter.position, bulletRot, BulletPatternType.Blast);
+            // 단발 직사 - 플레이어 방향으로
+            if (playerTarget != null)
+            {
+                Vector2 directionToPlayer = (playerTarget.position - shooter.position).normalized;
+                float angleToPlayer = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
+                FireBullet(shooter.position, angleToPlayer, BulletPatternType.Blast);
+            }
         }
         else
         {
             while (volly > 0)
             {
-                bulletRot = shooter.eulerAngles.z - (spread / 2); // 확산 시작 각도
-                
-                for (int i = 0; i < shotNum; i++)
+                // 각 volly마다 플레이어 방향을 다시 계산 (플레이어가 움직일 수 있으므로)
+                if (playerTarget != null)
                 {
-                    FireBullet(shooter.position, bulletRot, BulletPatternType.Blast);
-                    bulletRot += spread / (shotNum - 1); // 다음 탄환 각도
+                    Vector2 directionToPlayer = (playerTarget.position - shooter.position).normalized;
+                    float angleToPlayer = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
                     
-                    if (shotTime > 0)
+                    // 각 volly마다 spread가 누적되어 증가
+                    float currentSpread = spread * currentVollyIndex;
+                    float bulletRot = angleToPlayer - (currentSpread / 2); // 플레이어 방향 중심으로 확산 시작
+                    
+                    for (int i = 0; i < shotNum; i++)
                     {
-                        yield return new WaitForSeconds(shotTime);
+                        FireBullet(shooter.position, bulletRot, BulletPatternType.Blast);
+                        bulletRot += currentSpread / (shotNum - 1); // 다음 탄환 각도
+                        
+                        if (shotTime > 0)
+                        {
+                            yield return new WaitForSeconds(shotTime);
+                        }
                     }
                 }
                 
-                bulletRot = shooter.eulerAngles.z; // 기본 각도 리셋
                 volly--;
+                currentVollyIndex++; // 다음 volly로 인덱스 증가
             }
         }
     }
     
-    private IEnumerator SpiralPattern(Transform shooter, int shotNum, int volly, float shotTime, bool clockwise)
-    {
-        float bulletRot = shooter.eulerAngles.z;
-        
-        while (volly > 0)
-        {
-            for (int i = 0; i < shotNum; i++)
-            {
-                FireBullet(shooter.position, bulletRot, BulletPatternType.Spiral);
-                
-                if (clockwise)
-                {
-                    bulletRot += 360.0f / shotNum;
-                }
-                else
-                {
-                    bulletRot -= 360.0f / shotNum;
-                }
-                
-                if (shotTime > 0)
-                {
-                    yield return new WaitForSeconds(shotTime);
-                }
-            }
-            volly--;
-        }
-    }
-    
-    private IEnumerator FlowerPattern(Transform shooter, float flowerTime, int directions, float rotTime, float waitTime)
+    private IEnumerator SpiralPattern(Transform shooter, float spiralTime, int directions, float rotationSpeed, float waitTime, bool clockwise)
     {
         float bulletRot = 0.0f;
+        float rotationDirection = clockwise ? 1f : -1f;
         
-        while (flowerTime > 0)
+        while (spiralTime > 0)
         {
+            // 현재 나선 패턴 발사 (여러 방향으로 동시에)
             for (int i = 0; i < directions; i++)
             {
-                FireBullet(shooter.position, bulletRot, BulletPatternType.Flower);
-                bulletRot += 360.0f / directions;
+                FireBullet(shooter.position, bulletRot, BulletPatternType.Spiral);
+                bulletRot += 360.0f / directions; // 균등하게 분산
             }
             
-            bulletRot += rotTime;
+            // 다음 프레임을 위해 전체 패턴 회전
+            bulletRot += rotationSpeed * rotationDirection * waitTime;
             
+            // 각도 정규화 (0-360도 범위 유지)
             if (bulletRot > 360)
             {
                 bulletRot -= 360;
@@ -502,8 +497,53 @@ public class CalamityBoss : Enemy
                 bulletRot += 360;
             }
             
-            flowerTime -= waitTime;
+            spiralTime -= waitTime;
             yield return new WaitForSeconds(waitTime);
+        }
+    }
+    
+    private IEnumerator FlowerPattern(Transform shooter, float flowerTime, int directions, float phaseTime, float rotationAngle, float waitTime)
+    {
+        float currentBaseAngle = 0.0f;
+        
+        while (flowerTime > 0)
+        {
+            // 각 단계(Phase) 동안 고정된 방향으로 발사
+            float currentPhaseTime = phaseTime;
+            
+            while (currentPhaseTime > 0 && flowerTime > 0)
+            {
+                // 현재 기준 각도에서 directions 수만큼 균등하게 발사
+                for (int i = 0; i < directions; i++)
+                {
+                    float bulletAngle = currentBaseAngle + (360.0f / directions) * i;
+                    FireBullet(shooter.position, bulletAngle, BulletPatternType.Flower);
+                }
+                
+                currentPhaseTime -= waitTime;
+                flowerTime -= waitTime;
+                yield return new WaitForSeconds(waitTime);
+            }
+            
+            // 단계 종료 시 다음 단계를 위해 기준 각도 변경
+            if (flowerTime > 0)
+            {
+                // 랜덤하게 시계방향 또는 반시계방향으로 회전
+                bool clockwise = Random.value > 0.5f;
+                currentBaseAngle += clockwise ? rotationAngle : -rotationAngle;
+                
+                // 각도 정규화
+                if (currentBaseAngle >= 360)
+                {
+                    currentBaseAngle -= 360;
+                }
+                else if (currentBaseAngle < 0)
+                {
+                    currentBaseAngle += 360;
+                }
+                
+                Debug.Log($"Flower pattern phase changed - New base angle: {currentBaseAngle:F1}°, Direction: {(clockwise ? "Clockwise" : "Counter-clockwise")}");
+            }
         }
     }
     

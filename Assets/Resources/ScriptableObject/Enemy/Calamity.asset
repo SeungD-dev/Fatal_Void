@@ -22,29 +22,30 @@ MonoBehaviour:
   moveSpeed: 0
   bossPrefab: {fileID: 5146724370443768224, guid: e2ddbdd33bffe13499e341cdc48326e3, type: 3}
   bossHealth: 65000
-  bossDamage: 25
+  bossDamage: 10
   bulletPatternType: 2
   blastSettings:
     shotNum: 5
-    volly: 2
+    volly: 3
     spread: 15
     shotTime: 0.05
-    bulletSpeed: 5
-    bulletLifetime: 10
+    bulletSpeed: 3.5
+    bulletLifetime: 5
   spiralSettings:
-    shotNum: 8
-    volly: 4
-    shotTime: 0.1
-    clockwise: 1
-    bulletSpeed: 3
+    spiralTime: 3
+    directions: 8
+    rotationSpeed: 45
+    waitTime: 0.2
+    bulletSpeed: 2
     bulletLifetime: 10
   flowerSettings:
-    flowerTime: 3
-    directions: 6
-    rotTime: 5
+    flowerTime: 10
+    directions: 16
+    phaseTime: 1
+    rotationAngle: 5
     waitTime: 0.2
-    bulletSpeed: 1.5
-    bulletLifetime: 15
+    bulletSpeed: 3
+    bulletLifetime: 14
   initialPoolSize: 10
   dropTable: {fileID: 0}
   additionalDropRate: 0

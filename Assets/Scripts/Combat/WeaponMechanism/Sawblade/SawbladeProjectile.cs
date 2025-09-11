@@ -4,13 +4,13 @@ using UnityEngine;
 public class SawbladeProjectile : BaseProjectile
 {
     [SerializeField] private float rotationSpeed = 720f;
-    private readonly HashSet<Enemy> hitEnemies = new HashSet<Enemy>(8); // ÃÊ±â ¿ë·® ÁöÁ¤
+    private readonly HashSet<Enemy> hitEnemies = new HashSet<Enemy>(8); // ï¿½Ê±ï¿½ ï¿½ë·® ï¿½ï¿½ï¿½ï¿½
     private int bounceCount;
     private Camera mainCamera;
     private const int MAX_BOUNCES = 2;
     private float angleZ;
 
-    // Ä«¸Ş¶ó °æ°è Ä³½Ì
+    // Ä«ï¿½Ş¶ï¿½ ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½
     private float cameraHeight;
     private float cameraWidth;
     private Vector2 cameraPosition;
@@ -52,13 +52,13 @@ public class SawbladeProjectile : BaseProjectile
     }
     protected override void Update()
     {
-        // È¸Àü ÃÖÀûÈ­
+        // È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­
         angleZ = (angleZ + rotationSpeed * Time.deltaTime) % 360f;
         transform.rotation = Quaternion.Euler(0f, 0f, angleZ);
 
         transform.Translate(direction * speed * Time.deltaTime, Space.World);
 
-        if (Time.frameCount % 5 == 0) // 5ÇÁ·¹ÀÓ¸¶´Ù °æ°è Ã¼Å©
+        if (Time.frameCount % 5 == 0) // 5ï¿½ï¿½ï¿½ï¿½ï¿½Ó¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Ã¼Å©
         {
             UpdateCameraBounds();
             CheckCameraBounds();
@@ -100,7 +100,7 @@ public class SawbladeProjectile : BaseProjectile
     }
     protected override void ApplyDamageAndEffects(Enemy enemy)
     {
-        if (!hitEnemies.Add(enemy)) return; // HashSet.AddÀÇ ¹İÈ¯°ª È°¿ë
+        if (!hitEnemies.Add(enemy)) return; // HashSet.Addï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ È°ï¿½ï¿½
 
         enemy.TakeDamage(damage);
 
@@ -111,7 +111,8 @@ public class SawbladeProjectile : BaseProjectile
             enemy.ApplyKnockback(knockbackForce);
         }
 
-        HandlePenetration();
+        // SawBladeëŠ” ë²½ì— íŠ•ê¸°ë©´ì„œ ê³„ì† ë‚ ì•„ê°€ì•¼ í•˜ë¯€ë¡œ HandlePenetration() í˜¸ì¶œí•˜ì§€ ì•ŠìŒ
+        // í™”ë©´ ê²½ê³„ì—ì„œ MAX_BOUNCESë§Œí¼ íŠ•ê¸´ í›„ì—ë§Œ ReturnToPool() ë¨
     }
 
     protected override void OnDisable()
