@@ -14,7 +14,7 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
     protected int remainingPenetrations;
     protected float damageDecayRate;
 
-    // AOE °ü·Ã ÇÊµå Ãß°¡
+    // AOE ï¿½ï¿½ï¿½ï¿½ ï¿½Êµï¿½ ï¿½ß°ï¿½
     protected float baseProjectileSize = 1f;
     protected float currentProjectileSize;
 
@@ -57,14 +57,14 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
         UpdateProjectileSize();
     }
 
-    // AOE Å©±â ¾÷µ¥ÀÌÆ®
+    // AOE Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     protected virtual void UpdateProjectileSize()
     {
         currentProjectileSize = baseProjectileSize;
         transform.localScale = Vector3.one * currentProjectileSize;
     }
 
-    // Åõ»çÃ¼ Å©±â º¯°æ ¸Þ¼­µå (¿ÜºÎ¿¡¼­ AOE º¯°æ ½Ã È£Ãâ)
+    // ï¿½ï¿½ï¿½ï¿½Ã¼ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¼ï¿½ï¿½ï¿½ (ï¿½ÜºÎ¿ï¿½ï¿½ï¿½ AOE ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ È£ï¿½ï¿½)
     public virtual void UpdateSize(float newSize)
     {
         baseProjectileSize = newSize;
@@ -89,10 +89,10 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
 
     protected virtual void Update()
     {
-        // Åõ»çÃ¼ ÀÌµ¿
+        // ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½Ìµï¿½
         transform.Translate(direction * speed * Time.deltaTime, Space.World);
 
-        // ÃÖ´ë »ç°Å¸® Ã¼Å©
+        // ï¿½Ö´ï¿½ ï¿½ï¿½Å¸ï¿½ Ã¼Å©
         if (Vector2.Distance(startPosition, transform.position) >= maxTravelDistance)
         {
             ReturnToPool();
@@ -126,7 +126,7 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
 
     protected virtual void HandlePenetration()
     {
-        if (canPenetrate && (remainingPenetrations > 0 || remainingPenetrations == 0))
+        if (canPenetrate && remainingPenetrations != 0)
         {
             if (remainingPenetrations > 0)
             {
@@ -150,7 +150,7 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
                 rb.angularVelocity = 0f;
             }
             transform.rotation = Quaternion.identity;
-            transform.localScale = Vector3.one; // Å©±â ÃÊ±âÈ­
+            transform.localScale = Vector3.one; // Å©ï¿½ï¿½ ï¿½Ê±ï¿½È­
 
             ObjectPool.Instance.ReturnToPool(poolTag, gameObject);
         }
@@ -173,6 +173,6 @@ public abstract class BaseProjectile : MonoBehaviour, IPooledObject
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
-        transform.localScale = Vector3.one; // Å©±â ÃÊ±âÈ­
+        transform.localScale = Vector3.one; // Å©ï¿½ï¿½ ï¿½Ê±ï¿½È­
     }
 }

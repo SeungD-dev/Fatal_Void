@@ -15,26 +15,31 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField] private Slider healthBar;
     [SerializeField] private GameObject optionPanel;
 
+    [Header("Boss Warning System")]
+    [SerializeField] private TextMeshProUGUI bossWarningTxt;
+    [SerializeField] private GameObject transitionEffect;
+    [SerializeField] private BossWarningEffects bossWarningEffects;
+
 
     [Header("UI Update Settings")]
     [SerializeField] private float uiUpdateInterval = 0.1f;
 
-    // Ä³½ÃµÈ ÂüÁ¶
+    // Ä³ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½
     private PlayerStats playerStats;
     private GameManager gameManager;
     private StringBuilder stringBuilder;
 
-    // »óÅÂ °ü¸®
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     private float gameTime;
     private bool isInitialized;
     private float nextUpdateTime;
     private bool useExternalTimer = false;
 
-    // Ä³½ÃµÈ ½Ã°£ º¯¼ö
+    // Ä³ï¿½Ãµï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½
     private int cachedMinutes;
     private int cachedSeconds;
 
-    // Ä³½ÃµÈ ¹®ÀÚ¿­ Æ÷¸Ë
+    // Ä³ï¿½Ãµï¿½ ï¿½ï¿½ï¿½Ú¿ï¿½ ï¿½ï¿½ï¿½ï¿½
     private const string TIME_FORMAT = "{0:00}:{1:00}";
     private const string KILL_FORMAT = "Kills: {0}";
     private const string LEVEL_FORMAT = "Lv.{0}";
@@ -92,9 +97,9 @@ public class PlayerUIController : MonoBehaviour
         playerStats = gameManager.PlayerStats;
         if (playerStats != null)
         {
-            // UI ÀÌº¥Æ® ±¸µ¶
+            // UI ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½
             SubscribeToEvents();
-            // ÃÊ±â UI ¼³Á¤
+            // ï¿½Ê±ï¿½ UI ï¿½ï¿½ï¿½ï¿½
             ResetUI();
             isInitialized = true;
         }
@@ -115,7 +120,7 @@ public class PlayerUIController : MonoBehaviour
     {
         if (!isInitialized || !gameManager.IsPlaying()) return;
 
-        // ¿ÜºÎ Å¸ÀÌ¸Ó¸¦ »ç¿ëÇÏÁö ¾ÊÀ» ¶§¸¸ ½Ã°£ ¾÷µ¥ÀÌÆ®
+        // ï¿½Üºï¿½ Å¸ï¿½Ì¸Ó¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         if (!useExternalTimer)
         {
             gameTime += Time.deltaTime;
@@ -149,7 +154,7 @@ public class PlayerUIController : MonoBehaviour
         int minutes = Mathf.FloorToInt(gameTime / 60f);
         int seconds = Mathf.FloorToInt(gameTime % 60f);
 
-        // ½Ã°£ÀÌ º¯°æµÇ¾úÀ» ¶§¸¸ ÅØ½ºÆ® ¾÷µ¥ÀÌÆ®
+        // ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         if (minutes != cachedMinutes || seconds != cachedSeconds)
         {
             stringBuilder.Clear();
@@ -228,6 +233,73 @@ public class PlayerUIController : MonoBehaviour
     private void HandleGameStateChanged(GameState newState)
     {
         enabled = (newState == GameState.Playing);
+    }
+    #endregion
+
+    #region Boss Warning System
+    public void StartBossWarningSequence(System.Action onComplete = null)
+    {
+        StartCoroutine(BossWarningSequence(onComplete));
+    }
+
+    private IEnumerator BossWarningSequence(System.Action onComplete)
+    {
+        // 1. BossWarningTxt í™œì„±í™” ë° ê¸€ë¦¬ì¹˜ íš¨ê³¼ ì‹œì‘ (2ì´ˆ)
+        if (bossWarningTxt != null)
+        {
+            bossWarningTxt.gameObject.SetActive(true);
+            if (bossWarningEffects != null)
+            {
+                bossWarningEffects.StartGlitchEffect();
+            }
+        }
+
+        yield return new WaitForSeconds(2.0f);
+
+        // 2. ê¸€ë¦¬ì¹˜ íš¨ê³¼ ì¤‘ì§€
+        if (bossWarningEffects != null)
+        {
+            bossWarningEffects.StopGlitchEffect();
+        }
+
+        // 3. TransitionEffect í™œì„±í™” ë° í”Œë ˆì´ì–´ ìœ„ì¹˜ ì´ë™ (0.3ì´ˆ)
+        if (transitionEffect != null)
+        {
+            transitionEffect.SetActive(true);
+            
+            // í”Œë ˆì´ì–´ë¥¼ (0, -0.8, 0) ìœ„ì¹˜ë¡œ ì´ë™
+            if (GameManager.Instance != null && GameManager.Instance.PlayerTransform != null)
+            {
+                GameManager.Instance.PlayerTransform.position = new Vector3(0, -0.8f, 0);
+                Debug.Log("Player moved to (0, -0.8, 0) for boss entrance");
+            }
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
+        // 4. ëª¨ë“  íš¨ê³¼ ë¹„í™œì„±í™”
+        HideBossWarningEffects();
+
+        // 5. ì™„ë£Œ ì½œë°± í˜¸ì¶œ
+        onComplete?.Invoke();
+    }
+
+    public void HideBossWarningEffects()
+    {
+        if (bossWarningTxt != null)
+        {
+            bossWarningTxt.gameObject.SetActive(false);
+        }
+
+        if (transitionEffect != null)
+        {
+            transitionEffect.SetActive(false);
+        }
+
+        if (bossWarningEffects != null)
+        {
+            bossWarningEffects.StopGlitchEffect();
+        }
     }
     #endregion
 

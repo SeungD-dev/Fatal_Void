@@ -82,10 +82,22 @@ public abstract class WeaponMechanism
         for (int i = 0; i < enemies.Length; i++)
         {
             Transform enemyTransform = enemies[i].transform;
-            targetPosition.x = enemyTransform.position.x;
-            targetPosition.y = enemyTransform.position.y;
+            Enemy enemy = enemyTransform.GetComponent<Enemy>();
+            
+            float sqrDistance;
+            if (enemy != null)
+            {
+                // Enemy 컴포넌트가 있으면 보스 크기를 고려한 거리 계산 사용
+                sqrDistance = enemy.GetSquaredDistanceToPlayer(playerPosition);
+            }
+            else
+            {
+                // Enemy 컴포넌트가 없으면 기존 방식 사용 (fallback)
+                targetPosition.x = enemyTransform.position.x;
+                targetPosition.y = enemyTransform.position.y;
+                sqrDistance = (targetPosition - playerPosition).sqrMagnitude;
+            }
 
-            float sqrDistance = (targetPosition - playerPosition).sqrMagnitude;
             if (sqrDistance <= nearestDistance)
             {
                 nearestDistance = sqrDistance;

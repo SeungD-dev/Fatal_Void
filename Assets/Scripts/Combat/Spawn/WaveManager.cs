@@ -11,6 +11,7 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private SpawnWarningController warningController;
     [SerializeField] private ShopController shopController;
     [SerializeField] private InventoryController inventoryController;
+    [SerializeField] private PlayerUIController playerUIController;
     [SerializeField] private GameObject warningPrefab; // ��� ������
 
     [Header("Wave UI")]
@@ -39,10 +40,13 @@ public class WaveManager : MonoBehaviour
 
     // ĳ��
     private PlayerStats playerStats;
-    private PlayerUIController playerUIController;
     private List<Enemy> spawnedEnemies = new List<Enemy>();
     private Camera mainCamera;
     private GameMap gameMap;
+    
+    // 보스 웨이브 관련
+    private CalamityBoss currentBoss;
+    private bool isBossWave = false;
 
     // ���ڿ� ĳ��
     private readonly System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder(32);
@@ -110,7 +114,11 @@ public class WaveManager : MonoBehaviour
             enabled = false;
             return;
         }
-        playerUIController = FindAnyObjectByType<PlayerUIController>();
+        
+        if (playerUIController == null)
+        {
+            playerUIController = FindAnyObjectByType<PlayerUIController>();
+        }
     }
 
     private void Start()
@@ -181,7 +189,11 @@ public class WaveManager : MonoBehaviour
         // ������ �̺�Ʈ ����
         GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
 
-        playerUIController = FindAnyObjectByType<PlayerUIController>();
+        // PlayerUIController가 Inspector에서 할당되지 않은 경우에만 찾기
+        if (playerUIController == null)
+        {
+            playerUIController = FindAnyObjectByType<PlayerUIController>();
+        }
 
         
         if (GameManager.Instance != null)
@@ -239,6 +251,29 @@ public class WaveManager : MonoBehaviour
                 ObjectPool.Instance.CreatePool("SpawnWarning", warningPrefab, 10);
             }
         }
+        
+        // 보스 탄막용 ObjectPool 초기화
+        InitializeBossPool();
+    }
+    
+    private void InitializeBossPool()
+    {
+        if (ObjectPool.Instance == null) return;
+        
+        // BossBullet 풀 생성
+        GameObject bossBulletPrefab = Resources.Load<GameObject>("Prefabs/Projectiles/Calamity_Projectile");
+        if (bossBulletPrefab != null)
+        {
+            if (!ObjectPool.Instance.DoesPoolExist("BossBullet"))
+            {
+                ObjectPool.Instance.CreatePool("BossBullet", bossBulletPrefab, 50);
+                Debug.Log("BossBullet ObjectPool created with 50 bullets");
+            }
+        }
+        else
+        {
+            Debug.LogError("BossBullet prefab not found at Resources/Prefabs/Projectiles/Calamity_Projectile");
+        }
     }
 
     private void InitializeEnemyPools()
@@ -248,6 +283,7 @@ public class WaveManager : MonoBehaviour
 
         foreach (var wave in waveData.waves)
         {
+            // 일반 적들 추가
             foreach (var enemy in wave.enemies)
             {
                 if (enemy.enemyData != null)
@@ -255,12 +291,23 @@ public class WaveManager : MonoBehaviour
                     allEnemyTypes.Add(enemy.enemyData);
                 }
             }
+            
+            // 보스는 ObjectPool을 사용하지 않으므로 제외
+            // if (wave.isBossWave && wave.boss != null)
+            // {
+            //     allEnemyTypes.Add(wave.boss);
+            // }
         }
 
         // �� �� ������ ���� Ǯ ����
         foreach (var enemyData in allEnemyTypes)
         {
-            if (enemyData.enemyPrefab != null)
+            // 보스 타입인지 확인하여 올바른 프리팹 사용
+            GameObject prefabToUse = (enemyData.enemyType == EnemyType.Boss && enemyData.bossPrefab != null) 
+                ? enemyData.bossPrefab 
+                : enemyData.enemyPrefab;
+                
+            if (prefabToUse != null)
             {
                 // �̹� Ǯ�� �ִ��� Ȯ��
                 if (!ObjectPool.Instance.DoesPoolExist(enemyData.enemyName))
@@ -271,8 +318,7 @@ public class WaveManager : MonoBehaviour
                     // Enemy ������Ʈ �ʱ�ȭ
                     if (cullingManager != null)
                     {
-                        GameObject prefabInstance = enemyData.enemyPrefab;
-                        Enemy enemyComponent = prefabInstance.GetComponent<Enemy>();
+                        Enemy enemyComponent = prefabToUse.GetComponent<Enemy>();
                         if (enemyComponent != null)
                         {
                             enemyComponent.SetCullingManager(cullingManager);
@@ -282,7 +328,7 @@ public class WaveManager : MonoBehaviour
                     // Ǯ ����
                     ObjectPool.Instance.CreatePool(
                         enemyData.enemyName,
-                        enemyData.enemyPrefab,
+                        prefabToUse,
                         enemyData.initialPoolSize
                     );
                 }
@@ -297,8 +343,6 @@ public class WaveManager : MonoBehaviour
         if (currentWave != null)
         {
             UpdateWaveUI();
-
-            
             UpdateGameManagerWaveNumber();
         }
         else
@@ -353,13 +397,20 @@ public class WaveManager : MonoBehaviour
         if (!isWaveActive || GameManager.Instance.currentGameState != GameState.Playing)
             return;
 
-        // Ÿ�̸� ������Ʈ
+        // 보스 웨이브인 경우 시간 체크 안함 (보스 처치 시에만 완료)
+        if (isBossWave)
+        {
+            // 보스가 살아있는지만 체크하고 타이머는 업데이트하지 않음
+            return;
+        }
+
+        // Ÿ�̸� ������Ʈ (일반 웨이브만)
         waveTimer += Time.deltaTime;
 
         // Ÿ�̸� UI ������Ʈ
         UpdateTimerUI();
 
-        // ���̺� �ܰ� ����
+        // ���̺� �ܰ� ���� (일반 웨이브만)
         if (!isInSurvivalPhase && waveTimer >= currentWave.waveDuration)
         {
             // ���̺� �ð� ���� - ���� �ܰ� ����
@@ -441,15 +492,126 @@ public class WaveManager : MonoBehaviour
         // 웨이브 시작 이벤트 발생
         OnWaveStarted?.Invoke();
 
-        // ���� �ڷ�ƾ ����
-        if (spawnCoroutine != null)
+        // 보스 웨이브인지 체크
+        isBossWave = currentWave.isBossWave;
+        
+        
+        if (isBossWave)
         {
-            StopCoroutine(spawnCoroutine);
+            // 보스 경고 시퀀스 시작
+            StartBossWarningSequence();
         }
-        spawnCoroutine = StartCoroutine(SpawnEnemiesCoroutine());
+        else
+        {
+            // 일반 적 스폰 코루틴 시작
+            if (spawnCoroutine != null)
+            {
+                StopCoroutine(spawnCoroutine);
+            }
+            spawnCoroutine = StartCoroutine(SpawnEnemiesCoroutine());
+        }
 
         // ���� ���� �÷��̷� ����
         GameManager.Instance.SetGameState(GameState.Playing);
+    }
+    
+    private void StartBossWarningSequence()
+    {
+        // PlayerUIController가 없다면 다시 찾기 시도
+        if (playerUIController == null)
+        {
+            playerUIController = FindAnyObjectByType<PlayerUIController>();
+        }
+        
+        if (playerUIController == null)
+        {
+            Debug.LogError("PlayerUIController를 찾을 수 없습니다! Inspector에서 직접 할당하거나 씬에 PlayerUIController가 있는지 확인하세요.");
+            // 보스 경고 없이 바로 스폰
+            SpawnBoss();
+            return;
+        }
+
+        Debug.Log("보스 경고 시퀀스 시작");
+        // PlayerUIController의 보스 경고 시퀀스 시작 (완료 시 보스 스폰)
+        playerUIController.StartBossWarningSequence(SpawnBoss);
+    }
+
+    private void SpawnBoss()
+    {
+        if (currentWave == null)
+        {
+            Debug.LogError("currentWave가 null입니다!");
+            return;
+        }
+        
+        if (currentWave.boss == null)
+        {
+            Debug.LogError("Boss wave에 boss EnemyData가 설정되지 않았습니다!");
+            return;
+        }
+        
+        // 보스 스폰 위치 (고정 위치)
+        Vector3 bossSpawnPosition = new Vector3(0, 6.5f, 0);
+        
+        // 보스 프리팹 확인
+        GameObject bossPrefab = currentWave.boss.bossPrefab;
+        if (bossPrefab == null)
+        {
+            Debug.LogError("Boss EnemyData에 bossPrefab이 설정되지 않았습니다!");
+            return;
+        }
+        
+        // 보스 직접 생성 (ObjectPool 사용 안함)
+        GameObject spawnedBoss = Instantiate(bossPrefab, bossSpawnPosition, Quaternion.identity);
+        if (spawnedBoss != null)
+        {
+            currentBoss = spawnedBoss.GetComponent<CalamityBoss>();
+            if (currentBoss != null)
+            {
+                // 보스 데이터 먼저 설정
+                var enemyComponent = currentBoss.GetComponent<Enemy>();
+                if (enemyComponent != null)
+                {
+                    enemyComponent.SetEnemyData(currentWave.boss);
+                    enemyComponent.Initialize(GameManager.Instance.PlayerTransform);
+                    
+                    // 보스는 컬링에서 제외되므로 컬링 매니저 설정하지 않음
+                }
+                
+                // CalamityBoss 전용 초기화 (웨이브 데이터와 참조들 전달)
+                currentBoss.InitializeBoss(
+                    currentWave,
+                    ObjectPool.Instance,
+                    GameManager.Instance.PlayerTransform,
+                    this
+                );
+                
+                // 보스 활성화 (OnObjectSpawn 호출)
+                currentBoss.OnObjectSpawn();
+                
+                Debug.Log($"Boss {currentWave.boss.enemyName} spawned and initialized for wave {_currentWaveNumber}");
+            }
+            else
+            {
+                Debug.LogError("Spawned boss does not have CalamityBoss component!");
+            }
+        }
+        else
+        {
+            Debug.LogError("Failed to instantiate boss prefab!");
+        }
+    }
+    
+    public void OnBossDefeated()
+    {
+        if (isBossWave && currentBoss != null)
+        {
+            Debug.Log("Boss defeated! Completing wave...");
+            currentBoss = null;
+            
+            // 보스 웨이브 즉시 완료
+            CompleteWave();
+        }
     }
 
     private IEnumerator SpawnEnemiesCoroutine()
@@ -489,6 +651,9 @@ public class WaveManager : MonoBehaviour
     private void SpawnEnemyBatch(int count)
     {
         if (currentWave == null) return;
+        
+        // 보스 웨이브에서는 일반 적 스폰하지 않음
+        if (isBossWave) return;
 
         List<Vector2> spawnPositions = new List<Vector2>(count);
 
@@ -576,6 +741,9 @@ public class WaveManager : MonoBehaviour
     private void SpawnEnemy(Vector2 position)
     {
         if (!isWaveActive || isInSurvivalPhase) return;
+        
+        // 보스 웨이브에서는 일반 적 스폰하지 않음
+        if (isBossWave) return;
 
         EnemyData enemyData = waveData.GetRandomEnemy(currentWave);
         if (enemyData == null)

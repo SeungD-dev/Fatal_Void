@@ -13,36 +13,34 @@ public class WaveData : ScriptableObject
     [System.Serializable]
     public enum SpawnFormation
     {
-        Random,         // ������ ������ ��ġ���� ����
-        EdgeRandom,     // ���� �⺻ ��� - �����ڸ� ����
-        Surround,       // �÷��̾� �ֺ��� �������� ����
-        Rectangle,      // ���簢�� ���·� ����
-        Line,           // ���� ���·� ����
-        Fixed           // ������ ���� ����Ʈ ���
+        Random,         // 랜덤한 위치에서 스폰
+        EdgeRandom,     // 기본 스폰 형태 - 가장자리 랜덤
+        Surround,       // 플레이어 주변을 둘러싸게 스폰
+        Rectangle,      // 직사각형 형태로 스폰
+        Line,           // 일직선 형태로 스폰
+        Fixed           // 정해진 스폰 포인트 사용
     }
 
     [System.Serializable]
     public class SpawnSettings
     {
-        
         public SpawnFormation formation = SpawnFormation.EdgeRandom;
 
-        
-        [Tooltip("���� �Ǵ� �簢�� ���� �� �÷��̾�κ����� �Ÿ�")]
+        [Tooltip("원형 또는 직사각형 스폰 시 플레이어로부터 거리")]
         public float surroundDistance = 10f;
 
-        [Tooltip("���� ���� �� ���� ������ (0-360)")]
+        [Tooltip("원형 스폰 시 첫번째 스폰의 각도 (0-360)")]
         [Range(0f, 360f)]
         public float angleOffset = 0f;
 
-        [Tooltip("���� ���� ���� �� ���� ��ġ�� ����")]
+        [Tooltip("일직선 스폰 시 시작과 끝 위치를 설정")]
         public Vector2 lineStart = new Vector2(-10f, 0f);
         public Vector2 lineEnd = new Vector2(10f, 0f);
 
-        [Tooltip("���� ����Ʈ�� �����Ǵ� �� �� (0: ��� ���� �ϳ��� ��ġ�� ����)")]
+        [Tooltip("고정 포인트가 설정되는 경우 수 (0: 모든 스폰 하나씩 위치에 설정)")]
         public int enemiesPerSpawnPoint = 1;
 
-        [Tooltip("���� ���� ����Ʈ ��� �� ���� ����Ʈ �ε��� (����θ� ���� ����)")]
+        [Tooltip("고정 스폰 포인트 모드 시 사용할 포인트 인덱스 (배열이름은 임의로 설정)")]
         public List<int> fixedSpawnPoints = new List<int>();
     }
 
@@ -59,15 +57,14 @@ public class WaveData : ScriptableObject
     {
         [Header("Wave Settings")]
         public int waveNumber;
-        public bool isBossWave = false;
 
         [Header("Time Settings")]
-        public float waveDuration = 60f; // ���̺� ���� �ð�(��)
-        public float survivalDuration = 15f; // �߰� ���� �ð�(��)
+        public float waveDuration = 60f; // 웨이브 지속 시간(초)
+        public float survivalDuration = 15f; // 추가 생존 시간(초)
 
         [Header("Spawn Settings")]
-        public float spawnInterval = 1f; // ���� ����(��)
-        public int spawnAmount = 3; // �� ���� �����Ǵ� �� ��
+        public float spawnInterval = 1f; // 스폰 간격(초)
+        public int spawnAmount = 3; // 한 번에 스폰되는 적 수
 
         [Header("Spawn Formation")]
         public SpawnSettings spawnSettings = new SpawnSettings();
@@ -75,17 +72,18 @@ public class WaveData : ScriptableObject
         [Header("Enemies")]
         public List<WaveEnemy> enemies = new List<WaveEnemy>();
 
-        [Header("Boss")]
-        public EnemyData boss;
-
         [Header("Rewards")]
-        public int coinReward = 10; // ���̺� Ŭ���� �� ���޵Ǵ� ����
+        public int coinReward = 10; // 웨이브 클리어 시 획득되는 코인
+
+        [Header("Boss Settings")]
+        public bool isBossWave = false;
+        public EnemyData boss;
     }
 
     [Header("Waves")]
     public List<Wave> waves = new List<Wave>();
 
-    // ������ ���̺� ��ȣ�� ������ ��ȯ
+    // 특정한 웨이브 번호에 해당하는 반환
     public Wave GetWave(int waveNumber)
     {
         foreach (Wave wave in waves)
@@ -94,11 +92,11 @@ public class WaveData : ScriptableObject
                 return wave;
         }
 
-        // ������ ������ ���̺� ��ȯ
+        // 찾지못한 마지막 웨이브 반환
         return waves.Count > 0 ? waves[waves.Count - 1] : null;
     }
 
-    // ���� ���̺� ��ȣ ��������
+    // 다음 웨이브 번호 가져오기
     public int GetNextWaveNumber(int currentWaveNumber)
     {
         int nextWaveNumber = currentWaveNumber + 1;
@@ -111,28 +109,28 @@ public class WaveData : ScriptableObject
             }
         }
 
-        // �� �̻� ���̺갡 ������ -1 ��ȯ
+        // 더 이상 웨이브가 없으면 -1 반환
         return -1;
     }
 
-    // ���� �� ������ ��������
+    // 랜덤 적 선택하기 가져오기
     public EnemyData GetRandomEnemy(Wave wave)
     {
         if (wave == null || wave.enemies.Count == 0)
             return null;
 
-        // �� Ȯ�� ���
+        // 총 확률 계산
         float totalChance = 0f;
         foreach (var enemy in wave.enemies)
         {
             totalChance += enemy.spawnChance;
         }
 
-        // ���� �� ����
+        // 랜덤 값 선택
         float random = UnityEngine.Random.Range(0, totalChance);
         float currentSum = 0f;
 
-        // ���õ� �� ã��
+        // 선택된 적 찾기
         foreach (var enemy in wave.enemies)
         {
             currentSum += enemy.spawnChance;
@@ -140,12 +138,12 @@ public class WaveData : ScriptableObject
                 return enemy.enemyData;
         }
 
-        // �⺻��
+        // 기본값
         return wave.enemies[0].enemyData;
     }
 
 #if UNITY_EDITOR
-    // ������ �̸����� ��ƿ��Ƽ
+    // 에디터 미리보기 유틸리티
     public void PreviewWave(int waveNumber)
     {
         Wave wave = GetWave(waveNumber);
@@ -161,7 +159,7 @@ public class WaveData : ScriptableObject
                   $"\nSpawn Amount: {wave.spawnAmount} enemies per spawn" +
                   $"\nEnemies: {wave.enemies.Count} types");
 
-        // �� ���� Ȯ�� �м�
+        // 각 적의 확률 분석
         float totalChance = 0;
         foreach (var enemy in wave.enemies)
         {
@@ -218,7 +216,7 @@ public class WaveDataEditor : Editor
         }
         EditorGUILayout.EndHorizontal();
 
-        // ���� �����̼� �̸����� �߰�
+        // 스폰 시뮬레이션 미리보기 추가
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Spawn Formation Preview", EditorStyles.boldLabel);
 
@@ -240,17 +238,17 @@ public class WaveDataEditor : Editor
 
     private void DrawPreviewGrid()
     {
-        // �̸����� �׸��带 �׸��� ���� ������ ���̾ƿ�
+        // 미리보기 그리드를 그리는 간단한 레이아웃
         float gridSize = 200f;
         Rect gridRect = GUILayoutUtility.GetRect(gridSize, gridSize);
 
-        // �̸����� �׸��� �׸���
+        // 미리보기 그리드 그리기
         Handles.BeginGUI();
 
-        // ���
+        // 배경
         EditorGUI.DrawRect(gridRect, new Color(0.2f, 0.2f, 0.2f));
 
-        // ����
+        // 격자
         Handles.color = new Color(0.3f, 0.3f, 0.3f);
         float cellSize = 20f;
         for (float x = 0; x <= gridSize; x += cellSize)
@@ -268,27 +266,27 @@ public class WaveDataEditor : Editor
             );
         }
 
-        // �߾�(�÷��̾� ��ġ) ǥ��
+        // 중앙(플레이어 위치) 표시
         Vector2 center = new Vector2(gridRect.x + gridSize / 2, gridRect.y + gridSize / 2);
         float playerSize = 10f;
         Handles.color = Color.white;
         Handles.DrawSolidDisc(center, Vector3.forward, playerSize / 2);
 
-        // ���� ����Ʈ �׸���
-        float scale = gridSize / 30f; // 30x30 ������ �׸��忡 �°� �����ϸ�
+        // 스폰 포인트 그리기
+        float scale = gridSize / 30f; // 30x30 유닛을 그리드에 맞게 스케일링
 
         for (int i = 0; i < previewPositions.Count; i++)
         {
             Vector2 pos = previewPositions[i];
-            Vector2 screenPos = center + new Vector2(pos.x * scale, -pos.y * scale); // y�� ����
+            Vector2 screenPos = center + new Vector2(pos.x * scale, -pos.y * scale); // y축 뒤집기
 
             Color pointColor = previewColors[i % previewColors.Length];
             Handles.color = pointColor;
 
-            // ���� ����Ʈ ��
+            // 스폰 포인트 원
             Handles.DrawSolidDisc(screenPos, Vector3.forward, 5f);
 
-            // ��ȣ ǥ��
+            // 번호 표시
             GUIStyle style = new GUIStyle();
             style.normal.textColor = Color.black;
             style.alignment = TextAnchor.MiddleCenter;
@@ -299,7 +297,7 @@ public class WaveDataEditor : Editor
 
         Handles.EndGUI();
 
-        // ���� ǥ��
+        // 스케일 표시
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("Preview Scale: 1 unit = " + (1 / scale).ToString("F1") + " game units");
         EditorGUILayout.EndHorizontal();
@@ -309,7 +307,7 @@ public class WaveDataEditor : Editor
     {
         previewPositions.Clear();
 
-        // ������ ���̺� ã��
+        // 해당하는 웨이브 찾기
         WaveData.Wave wave = waveData.GetWave(previewWaveNumber);
         if (wave == null)
         {
@@ -317,11 +315,11 @@ public class WaveDataEditor : Editor
             return;
         }
 
-        // ���� ���� ��������
+        // 스폰 설정 가져오기
         SpawnSettings settings = wave.spawnSettings;
         int count = wave.spawnAmount;
 
-        // �����̼ǿ� ���� �̸����� ����Ʈ ����
+        // 포메이션에 따라 미리보기 포인트 생성
         switch (settings.formation)
         {
             case SpawnFormation.Surround:
@@ -340,7 +338,7 @@ public class WaveDataEditor : Editor
                 GenerateEdgeRandomPreviewPoints(count);
                 break;
             case SpawnFormation.Fixed:
-                // ���� ���� ����Ʈ�� ���⼭ �̸����� �������� ����
+                // 고정 스폰 포인트는 여기서 미리보기 구현하지 않음
                 break;
         }
     }
@@ -364,11 +362,11 @@ public class WaveDataEditor : Editor
     {
         float distance = settings.surroundDistance;
 
-        // �簢���� �� ���� ������ �յ��ϰ� ��ġ
+        // 직사각형의 각 변에 적들을 균등하게 배치
         int enemiesPerSide = Mathf.CeilToInt(count / 4f);
         int remainingEnemies = count;
 
-        // ��� ��
+        // 위쪽 변
         int topCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < topCount; i++)
         {
@@ -379,7 +377,7 @@ public class WaveDataEditor : Editor
         }
         remainingEnemies -= topCount;
 
-        // ���� ��
+        // 오른쪽 변
         int rightCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < rightCount; i++)
         {
@@ -390,7 +388,7 @@ public class WaveDataEditor : Editor
         }
         remainingEnemies -= rightCount;
 
-        // �ϴ� ��
+        // 아래쪽 변
         int bottomCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < bottomCount; i++)
         {
@@ -401,7 +399,7 @@ public class WaveDataEditor : Editor
         }
         remainingEnemies -= bottomCount;
 
-        // ���� ��
+        // 왼쪽 변
         int leftCount = Mathf.Min(enemiesPerSide, remainingEnemies);
         for (int i = 0; i < leftCount; i++)
         {
@@ -426,7 +424,7 @@ public class WaveDataEditor : Editor
 
     private void GenerateRandomPreviewPoints(int count)
     {
-        // ���� ��ġ ��� ������ ������ ���� ���� ����
+        // 랜덤 위치 생성 (플레이어 근처의 랜덤 거리 적용)
         for (int i = 0; i < count; i++)
         {
             float angle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
@@ -438,7 +436,7 @@ public class WaveDataEditor : Editor
 
     private void GenerateEdgeRandomPreviewPoints(int count)
     {
-        // �� �����ڸ��� �ùķ��̼��ϴ� ���� ����
+        // 맵 경계선에서 순환하면서 랜덤 배치
         float mapSize = 15f;
 
         for (int i = 0; i < count; i++)
@@ -448,16 +446,16 @@ public class WaveDataEditor : Editor
 
             switch (side)
             {
-                case 0: // ���
+                case 0: // 위쪽
                     position = new Vector2(UnityEngine.Random.Range(-mapSize, mapSize), mapSize);
                     break;
-                case 1: // ����
+                case 1: // 오른쪽
                     position = new Vector2(mapSize, UnityEngine.Random.Range(-mapSize, mapSize));
                     break;
-                case 2: // �ϴ�
+                case 2: // 아래쪽
                     position = new Vector2(UnityEngine.Random.Range(-mapSize, mapSize), -mapSize);
                     break;
-                case 3: // ����
+                case 3: // 왼쪽
                 default:
                     position = new Vector2(-mapSize, UnityEngine.Random.Range(-mapSize, mapSize));
                     break;
@@ -467,8 +465,7 @@ public class WaveDataEditor : Editor
         }
     }
 }
-#endif
-#if UNITY_EDITOR
+
 [CustomPropertyDrawer(typeof(SpawnSettings))]
 public class SpawnSettingsDrawer : PropertyDrawer
 {
@@ -484,37 +481,37 @@ public class SpawnSettingsDrawer : PropertyDrawer
     {
         EditorGUI.BeginProperty(position, label, property);
 
-        // ��꿡 �ʿ��� ������
+        // 기본에 필요한 변수들
         float currentHeight = 0f;
         float lineHeight = EditorGUIUtility.singleLineHeight;
         float spacing = EditorGUIUtility.standardVerticalSpacing;
 
-        // �����̼� ��Ӵٿ��� ������
+        // 포메이션 속성다운로드 가져오기
         SerializedProperty formationProp = property.FindPropertyRelative("formation");
         SpawnFormation formation = (SpawnFormation)formationProp.enumValueIndex;
 
-        // ���� ǥ��
+        // 제목 표시
         Rect titleRect = new Rect(position.x, position.y + currentHeight, position.width, lineHeight);
         showSettings = EditorGUI.Foldout(titleRect, showSettings, label, true);
         currentHeight += lineHeight + spacing;
 
         if (showSettings)
         {
-            // �����̼� ����
+            // 포메이션 선택
             Rect formationRect = new Rect(position.x, position.y + currentHeight, position.width, lineHeight);
             EditorGUI.PropertyField(formationRect, formationProp, new GUIContent("Formation"));
             currentHeight += lineHeight + spacing;
 
-            // �����̼� ���� ���
+            // 포메이션 설정 헤더
             Rect headerRect = new Rect(position.x, position.y + currentHeight, position.width, lineHeight);
             EditorGUI.LabelField(headerRect, "Formation Settings", EditorStyles.boldLabel);
             currentHeight += lineHeight + spacing;
 
-            // �����̼� �� ���� �Ӽ��� ǥ��
+            // 포메이션 별 필요 속성들 표시
             switch (formation)
             {
                 case SpawnFormation.Surround:
-                    // Surround �����̼� �Ӽ�
+                    // Surround 포메이션 속성
                     SerializedProperty surroundDistanceProp = property.FindPropertyRelative("surroundDistance");
                     SerializedProperty angleOffsetProp = property.FindPropertyRelative("angleOffset");
 
@@ -528,7 +525,7 @@ public class SpawnSettingsDrawer : PropertyDrawer
                     break;
 
                 case SpawnFormation.Rectangle:
-                    // Rectangle �����̼� �Ӽ�
+                    // Rectangle 포메이션 속성
                     SerializedProperty rectDistanceProp = property.FindPropertyRelative("surroundDistance");
 
                     Rect rectDistRect = new Rect(position.x, position.y + currentHeight, position.width, lineHeight);
@@ -537,7 +534,7 @@ public class SpawnSettingsDrawer : PropertyDrawer
                     break;
 
                 case SpawnFormation.Line:
-                    // Line �����̼� �Ӽ�
+                    // Line 포메이션 속성
                     SerializedProperty lineStartProp = property.FindPropertyRelative("lineStart");
                     SerializedProperty lineEndProp = property.FindPropertyRelative("lineEnd");
 
@@ -551,7 +548,7 @@ public class SpawnSettingsDrawer : PropertyDrawer
                     break;
 
                 case SpawnFormation.Fixed:
-                    // Fixed �����̼� �Ӽ�
+                    // Fixed 포메이션 속성
                     SerializedProperty fixedPointsProp = property.FindPropertyRelative("fixedSpawnPoints");
 
                     Rect pointsRect = new Rect(position.x, position.y + currentHeight, position.width, EditorGUI.GetPropertyHeight(fixedPointsProp, true));
@@ -560,7 +557,7 @@ public class SpawnSettingsDrawer : PropertyDrawer
                     break;
             }
 
-            // ��� �����̼ǿ� �������� �ʿ��� �Ӽ�
+            // 모든 포메이션에 공통적으로 필요한 속성
             SerializedProperty enemiesPerPointProp = property.FindPropertyRelative("enemiesPerSpawnPoint");
 
             Rect enemiesPerPointRect = new Rect(position.x, position.y + currentHeight, position.width, lineHeight);
@@ -568,130 +565,9 @@ public class SpawnSettingsDrawer : PropertyDrawer
             currentHeight += lineHeight + spacing;
         }
 
-        // ��ü ���� ����
+        // 전체 높이 설정
         propertyHeight = currentHeight;
 
-        EditorGUI.EndProperty();
-    }
-}
-
-[CustomPropertyDrawer(typeof(Wave))]
-public class WavePropertyDrawer : PropertyDrawer
-{
-    private bool foldout = true;
-    private float totalHeight = 0f;
-
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        return totalHeight;
-    }
-
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    {
-        EditorGUI.BeginProperty(position, label, property);
-
-        float currentY = position.y;
-        float lineHeight = EditorGUIUtility.singleLineHeight;
-        float spacing = EditorGUIUtility.standardVerticalSpacing;
-
-        // Wave number와 Boss Wave 체크박스를 한 줄에 표시
-        Rect headerRect = new Rect(position.x, currentY, position.width, lineHeight);
-        
-        SerializedProperty waveNumberProp = property.FindPropertyRelative("waveNumber");
-        SerializedProperty isBossWaveProp = property.FindPropertyRelative("isBossWave");
-        
-        float halfWidth = position.width * 0.5f;
-        Rect waveNumRect = new Rect(position.x, currentY, halfWidth - 5f, lineHeight);
-        Rect bossCheckRect = new Rect(position.x + halfWidth + 5f, currentY, halfWidth - 5f, lineHeight);
-        
-        EditorGUI.PropertyField(waveNumRect, waveNumberProp, new GUIContent("Wave Number"));
-        EditorGUI.PropertyField(bossCheckRect, isBossWaveProp, new GUIContent("Boss Wave"));
-        
-        currentY += lineHeight + spacing;
-
-        bool isBossWave = isBossWaveProp.boolValue;
-
-        // Foldout
-        Rect foldoutRect = new Rect(position.x, currentY, position.width, lineHeight);
-        foldout = EditorGUI.Foldout(foldoutRect, foldout, isBossWave ? "Boss Wave Settings" : "Normal Wave Settings", true);
-        currentY += lineHeight + spacing;
-
-        if (foldout)
-        {
-            EditorGUI.indentLevel++;
-
-            if (isBossWave)
-            {
-                // Boss Wave 전용 필드들
-                SerializedProperty bossProp = property.FindPropertyRelative("boss");
-                
-                Rect bossRect = new Rect(position.x, currentY, position.width, lineHeight);
-                EditorGUI.PropertyField(bossRect, bossProp, new GUIContent("Boss"));
-                currentY += lineHeight + spacing;
-            }
-            else
-            {
-                // Normal Wave 전용 필드들
-                EditorGUI.LabelField(new Rect(position.x, currentY, position.width, lineHeight), "Time Settings", EditorStyles.boldLabel);
-                currentY += lineHeight + spacing;
-
-                SerializedProperty waveDurationProp = property.FindPropertyRelative("waveDuration");
-                SerializedProperty survivalDurationProp = property.FindPropertyRelative("survivalDuration");
-
-                Rect waveDurRect = new Rect(position.x, currentY, position.width, lineHeight);
-                EditorGUI.PropertyField(waveDurRect, waveDurationProp, new GUIContent("Wave Duration"));
-                currentY += lineHeight + spacing;
-
-                Rect survivalDurRect = new Rect(position.x, currentY, position.width, lineHeight);
-                EditorGUI.PropertyField(survivalDurRect, survivalDurationProp, new GUIContent("Survival Duration"));
-                currentY += lineHeight + spacing;
-
-                EditorGUI.LabelField(new Rect(position.x, currentY, position.width, lineHeight), "Spawn Settings", EditorStyles.boldLabel);
-                currentY += lineHeight + spacing;
-
-                SerializedProperty spawnIntervalProp = property.FindPropertyRelative("spawnInterval");
-                SerializedProperty spawnAmountProp = property.FindPropertyRelative("spawnAmount");
-
-                Rect intervalRect = new Rect(position.x, currentY, position.width, lineHeight);
-                EditorGUI.PropertyField(intervalRect, spawnIntervalProp, new GUIContent("Spawn Interval"));
-                currentY += lineHeight + spacing;
-
-                Rect amountRect = new Rect(position.x, currentY, position.width, lineHeight);
-                EditorGUI.PropertyField(amountRect, spawnAmountProp, new GUIContent("Spawn Amount"));
-                currentY += lineHeight + spacing;
-
-                EditorGUI.LabelField(new Rect(position.x, currentY, position.width, lineHeight), "Spawn Formation", EditorStyles.boldLabel);
-                currentY += lineHeight + spacing;
-
-                SerializedProperty spawnSettingsProp = property.FindPropertyRelative("spawnSettings");
-                float spawnSettingsHeight = EditorGUI.GetPropertyHeight(spawnSettingsProp, true);
-                Rect spawnSettingsRect = new Rect(position.x, currentY, position.width, spawnSettingsHeight);
-                EditorGUI.PropertyField(spawnSettingsRect, spawnSettingsProp, new GUIContent("Spawn Settings"), true);
-                currentY += spawnSettingsHeight + spacing;
-
-                EditorGUI.LabelField(new Rect(position.x, currentY, position.width, lineHeight), "Enemies", EditorStyles.boldLabel);
-                currentY += lineHeight + spacing;
-
-                SerializedProperty enemiesProp = property.FindPropertyRelative("enemies");
-                float enemiesHeight = EditorGUI.GetPropertyHeight(enemiesProp, true);
-                Rect enemiesRect = new Rect(position.x, currentY, position.width, enemiesHeight);
-                EditorGUI.PropertyField(enemiesRect, enemiesProp, new GUIContent("Enemies"), true);
-                currentY += enemiesHeight + spacing;
-            }
-
-            // 공통 Rewards 섹션
-            EditorGUI.LabelField(new Rect(position.x, currentY, position.width, lineHeight), "Rewards", EditorStyles.boldLabel);
-            currentY += lineHeight + spacing;
-
-            SerializedProperty coinRewardProp = property.FindPropertyRelative("coinReward");
-            Rect coinRect = new Rect(position.x, currentY, position.width, lineHeight);
-            EditorGUI.PropertyField(coinRect, coinRewardProp, new GUIContent("Coin Reward"));
-            currentY += lineHeight + spacing;
-
-            EditorGUI.indentLevel--;
-        }
-
-        totalHeight = currentY - position.y;
         EditorGUI.EndProperty();
     }
 }

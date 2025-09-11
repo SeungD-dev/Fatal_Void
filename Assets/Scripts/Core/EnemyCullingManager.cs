@@ -10,11 +10,11 @@ public class EnemyCullingManager : MonoBehaviour
 
     [Header("Optimization")]
     [SerializeField] private bool useDistanceBasedInterval = true;
-    [SerializeField] private float nearUpdateInterval = 0.1f;   // °¡±î¿î Àû ¾÷µ¥ÀÌÆ® °£°İ
-    [SerializeField] private float farUpdateInterval = 0.3f;    // ¸Õ Àû ¾÷µ¥ÀÌÆ® °£°İ
-    [SerializeField] private float distanceThreshold = 15f;     // °¡±î¿î/¸Õ °Å¸® ±âÁØ
+    [SerializeField] private float nearUpdateInterval = 0.1f;   // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
+    [SerializeField] private float farUpdateInterval = 0.3f;    // ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
+    [SerializeField] private float distanceThreshold = 15f;     // ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-    // Ä³½ÌµÈ º¯¼öµé
+    // Ä³ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private Camera mainCamera;
     private Transform playerTransform;
     private float nextUpdateTime;
@@ -23,7 +23,7 @@ public class EnemyCullingManager : MonoBehaviour
     private Vector2 screenBounds;
     private float aspectRatio;
 
-    // °Å¸® ±â¹İ ¾÷µ¥ÀÌÆ®¸¦ À§ÇÑ º¯¼öµé
+    // ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private HashSet<Enemy> nearEnemies = new HashSet<Enemy>();
     private HashSet<Enemy> farEnemies = new HashSet<Enemy>();
     private float nextNearUpdateTime;
@@ -32,7 +32,7 @@ public class EnemyCullingManager : MonoBehaviour
 
     private void Awake()
     {
-        // °Å¸® ÀÓ°è°ª Á¦°ö (¸Å¹ø Á¦°ö±Ù °è»ê È¸ÇÇ)
+        // ï¿½Å¸ï¿½ ï¿½Ó°è°ª ï¿½ï¿½ï¿½ï¿½ (ï¿½Å¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ È¸ï¿½ï¿½)
         sqrDistanceThreshold = distanceThreshold * distanceThreshold;
     }
 
@@ -40,14 +40,14 @@ public class EnemyCullingManager : MonoBehaviour
     {
         mainCamera = Camera.main;
 
-        // GameManager¿¡¼­ ÇÃ·¹ÀÌ¾î ÂüÁ¶ °¡Á®¿À±â
+        // GameManagerï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (GameManager.Instance != null && GameManager.Instance.PlayerTransform != null)
         {
             playerTransform = GameManager.Instance.PlayerTransform;
         }
         else
         {
-            // Æú¹éÀ¸·Î Find »ç¿ë (ÃÊ±âÈ­ ½Ã ÇÑ ¹ø¸¸)
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Find ï¿½ï¿½ï¿½ (ï¿½Ê±ï¿½È­ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
             playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
         }
 
@@ -65,7 +65,7 @@ public class EnemyCullingManager : MonoBehaviour
 
         CalculateScreenBounds();
 
-        // ÃÊ±â ¾÷µ¥ÀÌÆ® ½Ã°£ ¼³Á¤
+        // ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½
         nextUpdateTime = Time.time + updateInterval;
         nextNearUpdateTime = Time.time + nearUpdateInterval;
         nextFarUpdateTime = Time.time + farUpdateInterval;
@@ -88,14 +88,14 @@ public class EnemyCullingManager : MonoBehaviour
 
         if (useDistanceBasedInterval)
         {
-            // °¡±î¿î Àûµé ´õ ÀÚÁÖ ¾÷µ¥ÀÌÆ®
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
             if (currentTime >= nextNearUpdateTime)
             {
                 UpdateNearEnemyCulling();
                 nextNearUpdateTime = currentTime + nearUpdateInterval;
             }
 
-            // ¸Õ Àûµé ´ú ÀÚÁÖ ¾÷µ¥ÀÌÆ®
+            // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
             if (currentTime >= nextFarUpdateTime)
             {
                 UpdateFarEnemyCulling();
@@ -104,7 +104,7 @@ public class EnemyCullingManager : MonoBehaviour
         }
         else
         {
-            // ±âÁ¸ ¹æ½Ä - ¸ğµç ÀûÀ» µ¿ÀÏÇÑ °£°İÀ¸·Î ¾÷µ¥ÀÌÆ®
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
             if (currentTime >= nextUpdateTime)
             {
                 UpdateAllEnemyCulling();
@@ -113,7 +113,7 @@ public class EnemyCullingManager : MonoBehaviour
         }
     }
 
-    // °¡±î¿î Àûµé ¾÷µ¥ÀÌÆ®
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     private void UpdateNearEnemyCulling()
     {
         enemiesCache.Clear();
@@ -128,26 +128,26 @@ public class EnemyCullingManager : MonoBehaviour
                 continue;
             }
 
-            // °Å¸® È®ÀÎ ¹× ÇÊ¿ä½Ã ÁıÇÕ ÀçºĞ·ù
+            // ï¿½Å¸ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ğ·ï¿½
             Vector2 enemyPos = enemy.transform.position;
             Vector2 playerPos = playerTransform.position;
             float distanceSqr = Vector2.SqrMagnitude(enemyPos - playerPos);
 
             if (distanceSqr > sqrDistanceThreshold)
             {
-                // ¸Ö¾îÁ³À¸¹Ç·Î far·Î ÀÌµ¿
+                // ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ farï¿½ï¿½ ï¿½Ìµï¿½
                 nearEnemies.Remove(enemy);
                 farEnemies.Add(enemy);
             }
             else
             {
-                // ¿©ÀüÈ÷ °¡±î¿ì¹Ç·Î ÄÃ¸µ »óÅÂ ¾÷µ¥ÀÌÆ®
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
                 UpdateSingleEnemyCulling(enemy);
             }
         }
     }
 
-    // ¸Õ Àûµé ¾÷µ¥ÀÌÆ®
+    // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     private void UpdateFarEnemyCulling()
     {
         enemiesCache.Clear();
@@ -162,35 +162,35 @@ public class EnemyCullingManager : MonoBehaviour
                 continue;
             }
 
-            // °Å¸® È®ÀÎ ¹× ÇÊ¿ä½Ã ÁıÇÕ ÀçºĞ·ù
+            // ï¿½Å¸ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ğ·ï¿½
             Vector2 enemyPos = enemy.transform.position;
             Vector2 playerPos = playerTransform.position;
             float distanceSqr = Vector2.SqrMagnitude(enemyPos - playerPos);
 
             if (distanceSqr <= sqrDistanceThreshold)
             {
-                // °¡±î¿öÁ³À¸¹Ç·Î near·Î ÀÌµ¿
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ nearï¿½ï¿½ ï¿½Ìµï¿½
                 farEnemies.Remove(enemy);
                 nearEnemies.Add(enemy);
             }
             else
             {
-                // ¿©ÀüÈ÷ ¸Ö¸® ÀÖÀ¸¹Ç·Î ÄÃ¸µ »óÅÂ ¾÷µ¥ÀÌÆ®
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
                 UpdateSingleEnemyCulling(enemy);
             }
         }
     }
 
-    // ¸ğµç Àûµé ¾÷µ¥ÀÌÆ® (±âÁ¸ ¹æ½Ä)
+    // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)
     private void UpdateAllEnemyCulling()
     {
         if (playerTransform == null) return;
 
-        // ÇöÀç È°¼ºÈ­µÈ ÀûµéÀÇ ¸ñ·ÏÀ» Ä³½Ã¿¡ º¹»ç
+        // ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½Ã¿ï¿½ ï¿½ï¿½ï¿½ï¿½
         enemiesCache.Clear();
         enemiesCache.AddRange(activeEnemies);
 
-        // Ä³½ÃµÈ ¸ñ·ÏÀ» »ç¿ëÇÏ¿© ÄÃ¸µ ¾÷µ¥ÀÌÆ®
+        // Ä³ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         foreach (var enemy in enemiesCache)
         {
             if (enemy == null)
@@ -202,27 +202,34 @@ public class EnemyCullingManager : MonoBehaviour
             UpdateSingleEnemyCulling(enemy);
         }
 
-        // ÆÄ±«µÈ Àûµé Á¤¸®
+        // ï¿½Ä±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         activeEnemies.RemoveWhere(e => e == null);
     }
 
-    // Àû µî·Ï
+    // ï¿½ï¿½ ï¿½ï¿½ï¿½
     public void RegisterEnemy(Enemy enemy)
     {
         if (!activeEnemies.Contains(enemy))
         {
+            // ë³´ìŠ¤ëŠ” ì»¬ë§ì—ì„œ ì œì™¸
+            if (enemy.GetComponent<CalamityBoss>() != null)
+            {
+                Debug.Log("Boss enemy excluded from culling system");
+                return;
+            }
+
             activeEnemies.Add(enemy);
 
-            // ÄÃ¸µ ¸Å´ÏÀú ÂüÁ¶ ¼³Á¤
+            // ï¿½Ã¸ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             enemy.SetCullingManager(this);
 
-            // ÇÃ·¹ÀÌ¾î ÂüÁ¶ Àü´Ş
+            // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (playerTransform != null)
             {
                 enemy.Initialize(playerTransform);
             }
 
-            // °Å¸® ±â¹İ ºĞ·ù
+            // ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ ï¿½Ğ·ï¿½
             if (useDistanceBasedInterval && playerTransform != null)
             {
                 float distanceSqr = Vector2.SqrMagnitude(
@@ -238,12 +245,12 @@ public class EnemyCullingManager : MonoBehaviour
                 }
             }
 
-            // ÃÊ±â ÄÃ¸µ »óÅÂ ¼³Á¤
+            // ï¿½Ê±ï¿½ ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             UpdateSingleEnemyCulling(enemy);
         }
     }
 
-    // Àû µî·Ï ÇØÁ¦
+    // ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     public void UnregisterEnemy(Enemy enemy)
     {
         activeEnemies.Remove(enemy);
@@ -251,7 +258,7 @@ public class EnemyCullingManager : MonoBehaviour
         farEnemies.Remove(enemy);
     }
 
-    // °³º° Àû ÄÃ¸µ »óÅÂ ¾÷µ¥ÀÌÆ®
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     private void UpdateSingleEnemyCulling(Enemy enemy)
     {
         if (enemy == null || playerTransform == null) return;
@@ -260,14 +267,14 @@ public class EnemyCullingManager : MonoBehaviour
         Vector2 playerPos = playerTransform.position;
         float distanceSqr = Vector2.SqrMagnitude(enemyPos - playerPos);
 
-        // °Å¸® ±â¹İ ÄÃ¸µ
+        // ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã¸ï¿½
         if (distanceSqr > cullingDistance * cullingDistance)
         {
             enemy.SetCullingState(false);
             return;
         }
 
-        // È­¸é ±â¹İ ÄÃ¸µ (°¡½Ã¼º È®ÀÎ)
+        // È­ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã¸ï¿½ (ï¿½ï¿½ï¿½Ã¼ï¿½ È®ï¿½ï¿½)
         Vector2 viewportPoint = mainCamera.WorldToViewportPoint(enemyPos);
         bool isVisible = IsInScreenBounds(viewportPoint);
         enemy.SetCullingState(isVisible);
@@ -280,30 +287,30 @@ public class EnemyCullingManager : MonoBehaviour
                viewportPoint.y >= -buffer && viewportPoint.y <= (1 + buffer);
     }
 
-    // È­¸é Å©±â º¯°æ ½Ã °æ°è°ª Àç°è»ê
+    // È­ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½è°ª ï¿½ï¿½ï¿½ï¿½
     private void OnRectTransformDimensionsChange()
     {
         CalculateScreenBounds();
     }
 
-    // ÃÖÀûÈ­ ¼³Á¤ ½Ç½Ã°£ º¯°æ ¸Ş¼­µå
+    // ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½Ç½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ş¼ï¿½ï¿½ï¿½
     public void SetDistanceBasedInterval(bool enable)
     {
         useDistanceBasedInterval = enable;
 
         if (!enable)
         {
-            // ºñÈ°¼ºÈ­ ½Ã ¸ğµç ÀûÀ» ÇÑ ¹ø ¾÷µ¥ÀÌÆ®
+            // ï¿½ï¿½È°ï¿½ï¿½È­ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
             UpdateAllEnemyCulling();
         }
         else
         {
-            // È°¼ºÈ­ ½Ã ÀûµéÀ» °Å¸®¿¡ µû¶ó ºĞ·ù
+            // È°ï¿½ï¿½È­ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ğ·ï¿½
             ReclassifyEnemiesByDistance();
         }
     }
 
-    // °Å¸®¿¡ µû¶ó Àû ÀçºĞ·ù
+    // ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ğ·ï¿½
     private void ReclassifyEnemiesByDistance()
     {
         if (playerTransform == null) return;
@@ -334,7 +341,7 @@ public class EnemyCullingManager : MonoBehaviour
         {
             playerTransform = player;
 
-            // ÀÌ¹Ì µî·ÏµÈ ¸ğµç Àû¿¡°Ô ÇÃ·¹ÀÌ¾î ÂüÁ¶ Àü´Ş
+            // ï¿½Ì¹ï¿½ ï¿½ï¿½Ïµï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             foreach (var enemy in activeEnemies)
             {
                 if (enemy != null)
@@ -351,17 +358,17 @@ private void OnDrawGizmos()
 {
     if (!Application.isPlaying || playerTransform == null) return;
 
-    // ÄÃ¸µ ¹üÀ§ ½Ã°¢È­
+    // ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½È­
     Gizmos.color = Color.red;
     Gizmos.DrawWireSphere(playerTransform.position, cullingDistance);
 
-    // È­¸é ¹üÀ§ ½Ã°¢È­
+    // È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½È­
     Gizmos.color = Color.yellow;
     Vector3 center = playerTransform.position;
     Vector3 size = new Vector3(screenBounds.x * 2, screenBounds.y * 2, 0);
     Gizmos.DrawWireCube(center, size);
 
-    // ¹öÆÛ ¿µ¿ª ½Ã°¢È­
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½È­
     Gizmos.color = Color.green;
     float bufferSize = screenBuffer * 2;
     Vector3 bufferSizeVec = new Vector3(
@@ -371,7 +378,7 @@ private void OnDrawGizmos()
     );
     Gizmos.DrawWireCube(center, bufferSizeVec);
 
-    // °Å¸® ±â¹İ ¾÷µ¥ÀÌÆ® ÀÓ°è°ª ½Ã°¢È­
+    // ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ó°è°ª ï¿½Ã°ï¿½È­
     if (useDistanceBasedInterval)
     {
         Gizmos.color = Color.blue;

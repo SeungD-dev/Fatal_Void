@@ -57,12 +57,15 @@ public class Enemy : MonoBehaviour, IPooledObject
     public bool IsKnockBack => isKnockedBack;
     public float CurrentHealth => currentHealth;
     public float MaxHealth => calculatedMaxHealth;
-    public float Damage => enemyData?.baseDamage ?? 0f;
+    public float Damage => enemyData?.enemyType == EnemyType.Boss ? 
+        (enemyData?.bossDamage ?? 0f) : 
+        (enemyData?.baseDamage ?? 0f);
     public float MoveSpeed => isSlowed ? 
         (enemyData?.moveSpeed ?? 0f) * (1f - speedDebuffAmount) : 
         enemyData?.moveSpeed ?? 0f;
     public bool IsKnockbackImmune => isKnockbackImmune;
     public string EnemyName => enemyData?.enemyName ?? "Unknown Enemy";
+    public EnemyData EnemyData => enemyData;
     #endregion
 
     static Enemy()
@@ -161,7 +164,11 @@ public class Enemy : MonoBehaviour, IPooledObject
 
     public void ResetBounceEffect()
     {
-        cachedTransform.localScale = originalScale;
+        // ObjectPool 생성 시 OnDisable이 Awake보다 먼저 호출될 수 있음
+        if (cachedTransform != null)
+        {
+            cachedTransform.localScale = originalScale;
+        }
         bounceTime = 0f;
         isXBounce = false;
     }
@@ -219,12 +226,23 @@ public class Enemy : MonoBehaviour, IPooledObject
     {
         if (enemyData == null) return;
 
-        int playerLevel = GameManager.Instance.PlayerStats.Level;
-        calculatedMaxHealth = Mathf.Min(
-            enemyData.baseHealth * playerLevel,
-            enemyData.maxPossibleHealth
-        );
-        currentHealth = calculatedMaxHealth;
+        if (enemyData.enemyType == EnemyType.Boss)
+        {
+            // 보스는 고정 스탯 사용
+            calculatedMaxHealth = enemyData.bossHealth;
+            currentHealth = calculatedMaxHealth;
+        }
+        else
+        {
+            // 일반 적은 레벨 기반 스탯 계산
+            int playerLevel = GameManager.Instance.PlayerStats.Level;
+            calculatedMaxHealth = Mathf.Min(
+                enemyData.baseHealth * playerLevel,
+                enemyData.maxPossibleHealth
+            );
+            currentHealth = calculatedMaxHealth;
+        }
+        
         lastDamageTime = 0f;
     }
 
@@ -241,7 +259,7 @@ public class Enemy : MonoBehaviour, IPooledObject
         }
 
         var floatingTextManager = FloatingTextManager.Instance;
-        if (floatingTextManager != null && floatingTextManager.isFloatingTextEnabled)
+        if (floatingTextManager != null && floatingTextManager.isFloatingTextEnabled && cachedTransform != null)
         {
             floatingTextManager.ShowFloatingText(
                 damage.ToString("F0"),
@@ -344,6 +362,31 @@ public class Enemy : MonoBehaviour, IPooledObject
     /// 현재 이동속도 디버프 상태를 확인합니다
     /// </summary>
     public bool IsSlowed => isSlowed;
+    
+    /// <summary>
+    /// 플레이어와의 거리를 계산합니다. 보스의 경우 바운딩 박스를 고려합니다.
+    /// </summary>
+    /// <param name="playerPosition">플레이어 위치</param>
+    /// <returns>실제 거리의 제곱값</returns>
+    public float GetSquaredDistanceToPlayer(Vector2 playerPosition)
+    {
+        Vector2 enemyPosition = cachedTransform.position;
+        
+        // 보스인 경우 바운딩 박스를 고려한 거리 계산
+        if (enemyData != null && enemyData.enemyType == EnemyType.Boss)
+        {
+            // SpriteRenderer의 bounds를 사용하여 가장 가까운 점 계산
+            if (spriteRenderer != null)
+            {
+                Bounds bounds = spriteRenderer.bounds;
+                Vector2 closestPoint = bounds.ClosestPoint(playerPosition);
+                return (closestPoint - playerPosition).sqrMagnitude;
+            }
+        }
+        
+        // 일반 적은 기존 방식 사용 (pivot 기준)
+        return (enemyPosition - playerPosition).sqrMagnitude;
+    }
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (!gameObject.activeSelf) return;

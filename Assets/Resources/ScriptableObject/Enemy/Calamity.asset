@@ -23,6 +23,28 @@ MonoBehaviour:
   bossPrefab: {fileID: 5146724370443768224, guid: e2ddbdd33bffe13499e341cdc48326e3, type: 3}
   bossHealth: 65000
   bossDamage: 25
+  bulletPatternType: 2
+  blastSettings:
+    shotNum: 5
+    volly: 2
+    spread: 15
+    shotTime: 0.05
+    bulletSpeed: 5
+    bulletLifetime: 10
+  spiralSettings:
+    shotNum: 8
+    volly: 4
+    shotTime: 0.1
+    clockwise: 1
+    bulletSpeed: 3
+    bulletLifetime: 10
+  flowerSettings:
+    flowerTime: 3
+    directions: 6
+    rotTime: 5
+    waitTime: 0.2
+    bulletSpeed: 1.5
+    bulletLifetime: 15
   initialPoolSize: 10
   dropTable: {fileID: 0}
   additionalDropRate: 0

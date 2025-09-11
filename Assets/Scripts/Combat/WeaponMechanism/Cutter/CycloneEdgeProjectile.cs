@@ -89,8 +89,8 @@ public class CycloneEdgeProjectile : BaseProjectile
             enemy.ApplyKnockback(direction * knockbackPower);
         }
 
-        // X-tier 특성: 관통 처리 (나가는 길과 돌아오는 길 모두에서 데미지)
-        HandlePenetration();
+        // 부메랑 특성: 관통 처리하지 않음 (계속 날아가야 함)
+        // HandlePenetration()을 호출하지 않아서 풀로 돌아가지 않음
     }
 
     protected override void OnTriggerEnter2D(Collider2D other)
