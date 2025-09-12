@@ -18,6 +18,7 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI waveNumberText;
     [SerializeField] private GameObject waveCompleteBanner;
     [SerializeField] private TextMeshProUGUI waveCompleteText;
+    [SerializeField] private TextMeshProUGUI waveRewardText;
 
     [Header("Spawn Settings")]
     [SerializeField] private float minDistanceFromPlayer = 8f; // �÷��̾�κ��� �ּ� ���� �Ÿ�
@@ -1034,6 +1035,12 @@ public class WaveManager : MonoBehaviour
             if (waveCompleteText != null)
             {
                 waveCompleteText.text = $"Wave {_currentWaveNumber} Complete!";
+            }
+            
+            // 리워드 텍스트 설정
+            if (waveRewardText != null && currentWave != null)
+            {
+                waveRewardText.text = $"Reward: {currentWave.coinReward}";
             }
 
             // ��� �ִϸ��̼� ����

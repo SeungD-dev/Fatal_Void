@@ -1119,6 +1119,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 326169988}
   m_CullTransparentMesh: 1
+--- !u!114 &330144808 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9069258116279238976, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
+  m_PrefabInstance: {fileID: 7947131200979300798}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &413178857
 GameObject:
   m_ObjectHideFlags: 0
@@ -1855,6 +1866,7 @@ MonoBehaviour:
   waveNumberText: {fileID: 7947131200979300803}
   waveCompleteBanner: {fileID: 7947131200979300802}
   waveCompleteText: {fileID: 7947131200979300801}
+  waveRewardText: {fileID: 330144808}
   minDistanceFromPlayer: 0.5
   _currentWaveNumber: 0
 --- !u!1 &632933799
@@ -5144,6 +5156,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2650436711329200, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 176192796569737370, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1607438738086639999, guid: e15af15a5cf9fa144b8c2eaa1a6d3813, type: 3}
