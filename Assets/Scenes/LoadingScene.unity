@@ -1327,9 +1327,8 @@ MonoBehaviour:
   fadeInDuration: 0.5
   fadeOutDuration: 0.5
   tipMessages:
-  - Tip Messages0
-  - Tip Messages1
-  - Tip Messages2
+  - You can upgrade your weapon with 2 same weapons
+  - The highest weapon tier is 5
 --- !u!4 &1768651342
 Transform:
   m_ObjectHideFlags: 0

@@ -76,7 +76,8 @@ MonoBehaviour:
   xTierWidth: 1
   xTierHeight: 3
   xTierWeaponName: Phantom Saber
-  xTierWeaponDescription: 
+  xTierWeaponDescription: A phantom blade of ghostly speed, cutting down enemies
+    with unmatched swiftness.
   xTierStats:
     damage: 90
     attackDelay: 2

@@ -76,7 +76,8 @@ MonoBehaviour:
   xTierWidth: 3
   xTierHeight: 1
   xTierWeaponName: Exterminator
-  xTierWeaponDescription: 
+  xTierWeaponDescription: Fires a devastating blast that executes weakened enemies
+    without mercy
   xTierStats:
     damage: 48
     attackDelay: 0.4

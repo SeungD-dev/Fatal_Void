@@ -3610,7 +3610,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9450005411114373, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
       propertyPath: initialCoinCount
-      value: 9999
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 9450005411114373, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
       propertyPath: baseMovementSpeed
@@ -4189,6 +4189,10 @@ PrefabInstance:
       propertyPath: playerControlUI
       value: 
       objectReference: {fileID: 7947131200979300800}
+    - target: {fileID: 309602412944202592, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
+      propertyPath: refreshCostIncrease
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 448299228486703714, guid: 0bf9e16e8462b7649b79c23715bec0f6, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1

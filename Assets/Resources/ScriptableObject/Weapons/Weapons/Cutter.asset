@@ -76,7 +76,8 @@ MonoBehaviour:
   xTierWidth: 2
   xTierHeight: 2
   xTierWeaponName: Cyclone Edge
-  xTierWeaponDescription: 
+  xTierWeaponDescription: A storm of blades that soar out and return, striking enemies
+    with unyielding force
   xTierStats:
     damage: 85
     attackDelay: 1

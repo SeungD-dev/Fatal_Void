@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponIcon: {fileID: 8748014352817928020, guid: 891e64b129e3c5240b8d03093668611a, type: 3}
   weaponType: 1
   weaponName: Machinegun
-  weaponDescription: rapid fire
+  weaponDescription: Rapid Fire
   inventoryWeaponIcon: {fileID: 21300000, guid: 4333bb2ed971c5b4aa11ea7b993b3fdd, type: 3}
   equipmentType: 0
   equipmentTierStats:
@@ -76,7 +76,8 @@ MonoBehaviour:
   xTierWidth: 3
   xTierHeight: 1
   xTierWeaponName: Ultrain
-  xTierWeaponDescription: 
+  xTierWeaponDescription: Unmatched rapid-fire capability, foes won't even dare to
+    approach.
   xTierStats:
     damage: 10
     attackDelay: 0.08
@@ -88,7 +89,7 @@ MonoBehaviour:
     maxPenetrationCount: 0
     penetrationDamageDecay: 0
     projectileCount: 3
-    spreadAngle: 70
+    spreadAngle: 50
     attackRadius: 2
     groundEffectDuration: 3
     damageTickInterval: 0.5

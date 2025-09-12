@@ -76,7 +76,8 @@ MonoBehaviour:
   xTierWidth: 1
   xTierHeight: 3
   xTierWeaponName: Hellfire
-  xTierWeaponDescription: 
+  xTierWeaponDescription: Unleashes a wave of pure incineration, leaving only ash
+    in its wake
   xTierStats:
     damage: 10
     attackDelay: 2

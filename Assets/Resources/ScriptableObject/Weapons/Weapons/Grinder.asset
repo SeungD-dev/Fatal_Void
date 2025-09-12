@@ -76,7 +76,8 @@ MonoBehaviour:
   xTierWidth: 2
   xTierHeight: 2
   xTierWeaponName: Black Hole
-  xTierWeaponDescription: 
+  xTierWeaponDescription: The shadow of their death, slowly growing, utterly annihilates
+    their enemies
   xTierStats:
     damage: 25
     attackDelay: 1.2

@@ -76,7 +76,8 @@ MonoBehaviour:
   xTierWidth: 2
   xTierHeight: 2
   xTierWeaponName: Plasma Sword
-  xTierWeaponDescription: 
+  xTierWeaponDescription: Unleashes plasma slashes that alternate between cross and
+    diagonal strikes
   xTierStats:
     damage: 42
     attackDelay: 0.65

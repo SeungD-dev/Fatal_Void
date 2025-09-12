@@ -123,14 +123,11 @@ public class WeaponInfoUI : MonoBehaviour
         SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
         playerStats.AddCoins(selectedWeapon.SellPrice);
 
-        // �������� Equipment�� ��� ȿ�� ����
-        if (selectedWeapon.weaponType == WeaponType.Equipment)
+        // 장착된 무기 효과 제거 (모든 무기 타입에 대해)
+        var weaponManager = GameObject.FindWithTag("Player")?.GetComponent<WeaponManager>();
+        if (weaponManager != null)
         {
-            var weaponManager = GameObject.FindWithTag("Player")?.GetComponent<WeaponManager>();
-            if (weaponManager != null)
-            {
-                weaponManager.UnequipWeapon(selectedWeapon);
-            }
+            weaponManager.UnequipWeapon(selectedWeapon);
         }
 
         // PhysicsInventoryManager ���� �������� (ĳ�̵� ���� ���)
@@ -182,12 +179,9 @@ public class WeaponInfoUI : MonoBehaviour
         SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
         playerStats.AddCoins(selectedWeapon.SellPrice);
 
-        // �������� Equipment�� ��� ȿ�� ����
-        if (selectedWeapon.weaponType == WeaponType.Equipment)
-        {
-            var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
-            weaponManager?.UnequipWeapon(selectedWeapon);
-        }
+        // 장착된 무기 효과 제거 (모든 무기 타입에 대해)
+        var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
+        weaponManager?.UnequipWeapon(selectedWeapon);
 
         // �׸��忡�� ������ ����
         InventoryItem item = mainItemGrid.RemoveItem(itemPosition.Value);
@@ -316,9 +310,52 @@ public class WeaponInfoUI : MonoBehaviour
     #region Private Methods - UI Updates
     private void UpdateBasicInfo(WeaponData weaponData)
     {
-        weaponLevelText.text = $"Tier {weaponData.currentTier}";
-        weaponNameText.text = weaponData.weaponName;
-        weaponDescriptionText.text = weaponData.weaponDescription;
+        // Tier 5 (X-Tier) 특별 처리
+        if (weaponData.currentTier == 5)
+        {
+            weaponLevelText.text = "Tier X";
+            
+            // X-Tier 전용 이름이 설정되어 있으면 사용, 없으면 기본 이름 정리
+            if (!string.IsNullOrEmpty(weaponData.xTierWeaponName))
+            {
+                weaponNameText.text = weaponData.xTierWeaponName;
+            }
+            else
+            {
+                weaponNameText.text = GetCleanWeaponName(weaponData.weaponName);
+            }
+            
+            // X-Tier 전용 설명이 설정되어 있으면 사용, 없으면 기본 설명 사용
+            if (!string.IsNullOrEmpty(weaponData.xTierWeaponDescription))
+            {
+                weaponDescriptionText.text = weaponData.xTierWeaponDescription;
+            }
+            else
+            {
+                weaponDescriptionText.text = weaponData.weaponDescription;
+            }
+        }
+        else
+        {
+            // 일반 Tier 처리 (Tier 1-4)
+            weaponLevelText.text = $"Tier {weaponData.currentTier}";
+            weaponNameText.text = GetCleanWeaponName(weaponData.weaponName);
+            weaponDescriptionText.text = weaponData.weaponDescription;
+        }
+    }
+
+    private string GetCleanWeaponName(string weaponName)
+    {
+        // "Tier X" 패턴을 제거하여 깔끔한 무기 이름만 반환
+        if (string.IsNullOrEmpty(weaponName))
+            return weaponName;
+            
+        // "Tier X" 또는 " Tier X" 패턴을 찾아서 제거
+        System.Text.RegularExpressions.Regex tierPattern = new System.Text.RegularExpressions.Regex(@"\s*Tier\s*\d+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        string cleanName = tierPattern.Replace(weaponName, "").Trim();
+        
+        // 결과가 비어있지 않다면 반환, 비어있다면 원본 반환
+        return string.IsNullOrEmpty(cleanName) ? weaponName : cleanName;
     }
 
     private void CheckUpgradePossibility()
@@ -449,16 +486,14 @@ public class WeaponInfoUI : MonoBehaviour
     {
         Debug.Log($"Attempting to remove {upgradeableWeapons.Count} materials");
 
-        if (selectedWeapon.weaponType == WeaponType.Equipment)
+        // 장착된 무기들의 효과 제거 (모든 무기 타입에 대해)
+        var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
+        if (weaponManager != null)
         {
-            var weaponManager = GameObject.FindGameObjectWithTag("Player")?.GetComponent<WeaponManager>();
-            if (weaponManager != null)
+            foreach (var weapon in upgradeableWeapons.Take(2))
             {
-                foreach (var weapon in upgradeableWeapons.Take(2))
-                {
-                    Debug.Log($"Removing equipment effect from weapon at position {weapon.GridPosition}");
-                    weaponManager.UnequipWeapon(weapon.GetWeaponData());
-                }
+                Debug.Log($"Removing weapon effect from weapon at position {weapon.GridPosition}");
+                weaponManager.UnequipWeapon(weapon.GetWeaponData());
             }
         }
 

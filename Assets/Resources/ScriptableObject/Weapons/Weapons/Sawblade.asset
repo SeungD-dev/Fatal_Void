@@ -76,7 +76,8 @@ MonoBehaviour:
   xTierWidth: 1
   xTierHeight: 1
   xTierWeaponName: InfinityDisc
-  xTierWeaponDescription: 
+  xTierWeaponDescription: Forged from a dying star, this disc of pure annihilation
+    carves a path through reality.
   xTierStats:
     damage: 120
     attackDelay: 1
