@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using DG.Tweening;
 
 /// <summary>
-/// °ÔÀÓÀÇ Àü¹ÝÀûÀÎ »óÅÂ¿Í ½Ã½ºÅÛÀ» °ü¸®ÇÏ´Â ¸Å´ÏÀú Å¬·¡½º
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¿ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 public class GameManager : MonoBehaviour
 {
-    // ½Ì±ÛÅæ ÀÎ½ºÅÏ½º
+    // ï¿½Ì±ï¿½ï¿½ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½
     private static GameManager instance;
     private static readonly object _lock = new object();
 
@@ -41,7 +41,7 @@ public class GameManager : MonoBehaviour
     private ShopController shopController;
     private CombatController combatController;
     private GameOverController gameOverController;
-    private PhysicsInventoryManager physicsInventoryManager; // Ãß°¡: ¹°¸® ÀÎº¥Åä¸® ½Ã½ºÅÛ ÂüÁ¶
+    private PhysicsInventoryManager physicsInventoryManager; // ï¿½ß°ï¿½: ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     [SerializeField] private int _currentWave = 0;
     public int CurrentWave
     {
@@ -50,22 +50,22 @@ public class GameManager : MonoBehaviour
     }
 
 
-    // ÀÚÁÖ »ç¿ëµÇ´Â ¼Ó¼ºµéÀ» Ä³½Ì
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½Ó¼ï¿½ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½
     private bool isInitialized;
     public bool IsInitialized => isInitialized;
     public PlayerStats PlayerStats => playerStats;
     public ShopController ShopController => shopController;
     public CombatController CombatController => combatController;
     public GameOverController GameOverController => gameOverController;
-    public PhysicsInventoryManager PhysicsInventoryManager => physicsInventoryManager; // Ãß°¡: ¹°¸® ÀÎº¥Åä¸® ¸Å´ÏÀú ÇÁ·ÎÆÛÆ¼
+    public PhysicsInventoryManager PhysicsInventoryManager => physicsInventoryManager; // ï¿½ß°ï¿½: ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½Å´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼
 
     public event System.Action<GameState> OnGameStateChanged;
 
-    // ·Îµù °ü·Ã ÀÌº¥Æ®
+    // ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ®
     public event System.Action OnLoadingCompleted;
     public event System.Action OnLoadingCancelled;
 
-    // ÀÚÁÖ »ç¿ëµÇ´Â WaitForSeconds Ä³½Ì
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ç´ï¿½ WaitForSeconds Ä³ï¿½ï¿½
     private static readonly WaitForSeconds InitializationDelay = new WaitForSeconds(0.1f);
     private static readonly WaitForSeconds ResourceLoadDelay = new WaitForSeconds(0.02f);
     #endregion
@@ -73,13 +73,13 @@ public class GameManager : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private GameObject optionPanel;
     public GameObject OptionPanel => optionPanel;
-    // ·Îµù ½Ã½ºÅÛ °ü·Ã ¼Ó¼º
-    [Header("·Îµù ¼³Á¤")]
+    // ï¿½Îµï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ó¼ï¿½
+    [Header("ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private float minimumLoadingTime = 1.5f;
     [SerializeField] private bool aggressiveMemoryOptimization = true;
     public float LoadingProgress { get; private set; }
 
-    // ¸®¼Ò½º Ä³½Ì ¹× ·Îµù »óÅÂ Á¦¾î
+    // ï¿½ï¿½ï¿½Ò½ï¿½ Ä³ï¿½ï¿½ ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     private bool isLoadingCancelled = false;
     private AsyncOperation currentSceneLoadOperation;
 
@@ -104,23 +104,23 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// °ÔÀÓ ¾À Á¤º¸¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void InitializeGameScenes()
     {
-        gameScene = new Dictionary<GameState, int>(5) // ÃÊ±â ¿ë·® ÁöÁ¤À¸·Î ÀçÇÒ´ç ¹æÁö
+        gameScene = new Dictionary<GameState, int>(5) // ï¿½Ê±ï¿½ ï¿½ë·® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò´ï¿½ ï¿½ï¿½ï¿½ï¿½
         {
             {GameState.Intro, 0 },
             { GameState.MainMenu, 1 },    // TitleScene
             { GameState.Loading, 2 },     // LoadingScene
             { GameState.Playing, 3 },     // CombatScene
-            { GameState.Paused, 3 },      // °°Àº CombatScene¿¡¼­ Pause
-            { GameState.GameOver, 3 }     // °°Àº CombatScene¿¡¼­ GameOver
+            { GameState.Paused, 3 },      // ï¿½ï¿½ï¿½ï¿½ CombatSceneï¿½ï¿½ï¿½ï¿½ Pause
+            { GameState.GameOver, 3 }     // ï¿½ï¿½ï¿½ï¿½ CombatSceneï¿½ï¿½ï¿½ï¿½ GameOver
         };
     }
     public void StartApplication()
     {
-        // Ã¹ ½ÇÇà È®ÀÎ ¾øÀÌ Ç×»ó ÀÎÆ®·Î¾ÀÀ¸·Î ÀÌµ¿
+        // Ã¹ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×»ï¿½ ï¿½ï¿½Æ®ï¿½Î¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
         SetGameState(GameState.Intro);
         LoadIntroScene();
     }
@@ -134,8 +134,8 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("ÀÎÆ®·Î¾À ÀÎµ¦½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
-            // Æú¹é: ¸ÞÀÎ ¸Þ´º·Î ÀÌµ¿
+            Debug.LogError("ï¿½ï¿½Æ®ï¿½Î¾ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
+            // ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ ï¿½Þ´ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
             SetGameState(GameState.MainMenu);
             LoadMainMenuScene();
         }
@@ -156,7 +156,7 @@ public class GameManager : MonoBehaviour
         }
     }
     /// <summary>
-    /// »ç¿îµå ½Ã½ºÅÛÀ» ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void InitializeSound()
     {
@@ -168,7 +168,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÀüÅõ¿ë »ç¿îµå ½Ã½ºÅÛÀ» ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void InitializeCombatSound()
     {
@@ -180,7 +180,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// CombatSceneÀÇ ÁÖ¿ä ÄÄÆ÷³ÍÆ®µéÀ» ¼³Á¤ÇÕ´Ï´Ù.
+    /// CombatSceneï¿½ï¿½ ï¿½Ö¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void SetCombatSceneReferences(PlayerStats stats, ShopController shop, CombatController combat, GameOverController gameOver,GameObject optionPanelRef)
     {
@@ -191,18 +191,18 @@ public class GameManager : MonoBehaviour
         combatController = combat;
         gameOverController = gameOver;
         optionPanel = optionPanelRef;
-        // ÇÃ·¹ÀÌ¾î Transform Ä³½Ì
+        // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Transform Ä³ï¿½ï¿½
         if (stats != null)
         {
             PlayerTransform = stats.transform;
 
-            // ¿ÀºêÁ§Æ® Ç®¿¡ ÇÃ·¹ÀÌ¾î ÂüÁ¶ ¼³Á¤
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç®ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (ObjectPool.Instance != null)
             {
                 ObjectPool.Instance.SetPlayerReference(PlayerTransform);
             }
 
-            // ÄÃ¸µ ¸Å´ÏÀú Ã£¾Æ¼­ ÇÃ·¹ÀÌ¾î ÂüÁ¶ ¼³Á¤
+            // ï¿½Ã¸ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ Ã£ï¿½Æ¼ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             EnemyCullingManager cullingManager = FindAnyObjectByType<EnemyCullingManager>();
             if (cullingManager != null)
             {
@@ -210,7 +210,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // ¹°¸® ÀÎº¥Åä¸® ¸Å´ÏÀú ÂüÁ¶ ¼³Á¤ (Ãß°¡)
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½Å´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ß°ï¿½)
         if (shop != null)
         {
             var inventoryController = shop.GetComponentInChildren<InventoryController>();
@@ -219,7 +219,7 @@ public class GameManager : MonoBehaviour
                 physicsInventoryManager = inventoryController.GetComponent<PhysicsInventoryManager>();
                 if (physicsInventoryManager == null)
                 {
-                    // PhysicsInventoryManager°¡ ¾øÀ¸¸é »ý¼º
+                    // PhysicsInventoryManagerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     physicsInventoryManager = inventoryController.gameObject.AddComponent<PhysicsInventoryManager>();
                     Debug.Log("PhysicsInventoryManager component added to InventoryController");
                 }
@@ -234,7 +234,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¾À ÀüÈ¯ ½Ã ÂüÁ¶¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void ClearSceneReferences()
     {
@@ -242,30 +242,30 @@ public class GameManager : MonoBehaviour
         shopController = null;
         combatController = null;
         gameOverController = null;
-        physicsInventoryManager = null; // ¹°¸® ÀÎº¥Åä¸® ¸Å´ÏÀú ÂüÁ¶ Á¦°Å
+        physicsInventoryManager = null; // ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½Å´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         isInitialized = false;
     }
 
     /// <summary>
-    /// °ÔÀÓÀ» ½ÃÀÛÇÏ°í ·Îµù È­¸éÀ¸·Î ÀüÈ¯ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Îµï¿½ È­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void StartGame()
     {
-        // ·Îµù ÁøÇà »óÅÂ ÃÊ±âÈ­
+        // ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         LoadingProgress = 0f;
         isLoadingCancelled = false;
 
-        // ¸Þ¸ð¸® ÃÖÀûÈ­ (¼±ÅÃÀû)
+        // ï¿½Þ¸ï¿½ ï¿½ï¿½ï¿½ï¿½È­ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
         if (aggressiveMemoryOptimization)
         {
             Resources.UnloadUnusedAssets();
             System.GC.Collect();
         }
 
-        // ·Îµù »óÅÂ·Î ÀüÈ¯
+        // ï¿½Îµï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½È¯
         SetGameState(GameState.Loading);
 
-        // ·Îµù ¾ÀÀ¸·Î ÀüÈ¯
+        // ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
         int loadingSceneIndex;
         if (gameScene.TryGetValue(GameState.Loading, out loadingSceneIndex))
         {
@@ -274,7 +274,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ·Îµù ÇÁ·Î¼¼½º¸¦ ½ÃÀÛÇÕ´Ï´Ù. ·Îµù ¾À¿¡¼­ È£ÃâµË´Ï´Ù.
+    /// ï¿½Îµï¿½ ï¿½ï¿½ï¿½Î¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½. ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½Ë´Ï´ï¿½.
     /// </summary>
     public void StartLoadingProcess()
     {
@@ -285,7 +285,7 @@ public class GameManager : MonoBehaviour
     {
         float startTime = Time.time;
 
-        // 1. ÃÊ±âÈ­ ÀÛ¾÷ ¼öÇà
+        // 1. ï¿½Ê±ï¿½È­ ï¿½Û¾ï¿½ ï¿½ï¿½ï¿½ï¿½
         yield return StartCoroutine(PerformInitializationSteps());
 
         if (isLoadingCancelled)
@@ -294,17 +294,17 @@ public class GameManager : MonoBehaviour
             yield break;
         }
 
-        // 2. ÀüÅõ ¾À ºñµ¿±â ·Îµå
+        // 2. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ñµ¿±ï¿½ ï¿½Îµï¿½
         int combatSceneIndex;
         if (!gameScene.TryGetValue(GameState.Playing, out combatSceneIndex))
         {
-            combatSceneIndex = 2; // ±âº»°ª
+            combatSceneIndex = 2; // ï¿½âº»ï¿½ï¿½
         }
 
         currentSceneLoadOperation = SceneManager.LoadSceneAsync(combatSceneIndex);
-        currentSceneLoadOperation.allowSceneActivation = false; // ·ÎµùÀÌ ¿Ï·áµÇ¾îµµ ¹Ù·Î È°¼ºÈ­ÇÏÁö ¾ÊÀ½
+        currentSceneLoadOperation.allowSceneActivation = false; // ï¿½Îµï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¾îµµ ï¿½Ù·ï¿½ È°ï¿½ï¿½È­ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-        // ¾À ·Îµù ÁøÇà·ü ¾÷µ¥ÀÌÆ® (90% -> 100%)
+        // ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (90% -> 100%)
         while (currentSceneLoadOperation.progress < 0.9f)
         {
             LoadingProgress = 0.9f + (currentSceneLoadOperation.progress / 10f);
@@ -317,24 +317,24 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 3. ÃÖ¼Ò ·Îµù ½Ã°£ º¸Àå
+        // 3. ï¿½Ö¼ï¿½ ï¿½Îµï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½
         float elapsedTime = Time.time - startTime;
         if (elapsedTime < minimumLoadingTime)
         {
             yield return new WaitForSeconds(minimumLoadingTime - elapsedTime);
         }
 
-        // 4. ·Îµù ¿Ï·á
+        // 4. ï¿½Îµï¿½ ï¿½Ï·ï¿½
         LoadingProgress = 1.0f;
 
-        // ·Îµù ¿Ï·á ÀÌº¥Æ® ¹ß»ý
+        // ï¿½Îµï¿½ ï¿½Ï·ï¿½ ï¿½Ìºï¿½Æ® ï¿½ß»ï¿½
         OnLoadingCompleted?.Invoke();
 
-        // 5. ¾À È°¼ºÈ­
+        // 5. ï¿½ï¿½ È°ï¿½ï¿½È­
         SetGameState(GameState.Playing);
         currentSceneLoadOperation.allowSceneActivation = true;
 
-        // 6. °ÔÀÓ ½ÃÀÛ À½¾Ç Àç»ý
+        // 6. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         var soundManager = SoundManager.Instance;
         if (soundManager != null && !soundManager.IsBGMPlaying("BGM_Battle"))
         {
@@ -345,17 +345,17 @@ public class GameManager : MonoBehaviour
 
 
     /// <summary>
-    /// ·ÎµùÀ» Ãë¼ÒÇÕ´Ï´Ù.
+    /// ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void CancelLoading()
     {
         isLoadingCancelled = true;
 
-        // ¾À ·Îµå ÀÛ¾÷ Ãë¼Ò (°¡´ÉÇÑ °æ¿ì)
+        // ï¿½ï¿½ ï¿½Îµï¿½ ï¿½Û¾ï¿½ ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)
         if (currentSceneLoadOperation != null && !currentSceneLoadOperation.isDone)
         {
-            // Unity´Â Á÷Á¢ÀûÀ¸·Î AsyncOperationÀ» Ãë¼ÒÇÒ ¹æ¹ýÀ» Á¦°øÇÏÁö ¾ÊÀ½
-            // ´ë½Å ¸ÞÀÎ ¸Þ´º·Î µ¹¾Æ°¥ ¶§ ¸Þ¸ð¸® Á¤¸®
+            // Unityï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ AsyncOperationï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ°ï¿½ ï¿½ï¿½ ï¿½Þ¸ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (aggressiveMemoryOptimization)
             {
                 Resources.UnloadUnusedAssets();
@@ -364,48 +364,48 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // ¸ðµç ÃÊ±âÈ­ ´Ü°è¸¦ ¼öÇàÇÏ´Â ÄÚ·çÆ¾
+    // ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½Ü°è¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ú·ï¿½Æ¾
     private IEnumerator PerformInitializationSteps()
     {
-        // 1. »ç¿îµå ½Ã½ºÅÛ ÃÊ±âÈ­ (0% -> 10%)
-        InitializeCombatSound(); // ÀüÅõ¿ë »ç¿îµå ÁØºñ
+        // 1. ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ (0% -> 10%)
+        InitializeCombatSound(); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Øºï¿½
         LoadingProgress = 0.1f;
         yield return InitializationDelay;
 
         if (isLoadingCancelled) yield break;
 
-        // 2. ¿ÀºêÁ§Æ® Ç® ÃÊ±âÈ­ (10% -> 25%)
+        // 2. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç® ï¿½Ê±ï¿½È­ (10% -> 25%)
         yield return InitializeObjectPools();
         LoadingProgress = 0.25f;
 
         if (isLoadingCancelled) yield break;
 
-        // 3. °ÔÀÓ ¸®¼Ò½º ·Îµå (25% -> 50%)
+        // 3. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ ï¿½Îµï¿½ (25% -> 50%)
         yield return PreloadGameResources();
         LoadingProgress = 0.5f;
 
         if (isLoadingCancelled) yield break;
 
-        // 4. ÀüÅõ ½Ã½ºÅÛ ÁØºñ (50% -> 65%)
+        // 4. ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Øºï¿½ (50% -> 65%)
         yield return PrepareCombatSystem();
         LoadingProgress = 0.65f;
 
         if (isLoadingCancelled) yield break;
 
-        // 5. ¹°¸® ÀÎº¥Åä¸® ½Ã½ºÅÛ ÃÊ±âÈ­ (65% -> 75%) - Ãß°¡µÊ
+        // 5. ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ (65% -> 75%) - ï¿½ß°ï¿½ï¿½ï¿½
         yield return InitializePhysicsInventorySystem();
         LoadingProgress = 0.75f;
 
         if (isLoadingCancelled) yield break;
 
-        // 6. ÃÖÁ¾ ÁØºñ (75% -> 90%)
+        // 6. ï¿½ï¿½ï¿½ï¿½ ï¿½Øºï¿½ (75% -> 90%)
         yield return FinalizeInitialization();
         LoadingProgress = 0.9f;
     }
 
     private IEnumerator InitializeObjectPools()
     {
-        // MapManager ÃÊ±âÈ­
+        // MapManager ï¿½Ê±ï¿½È­
         if (FindFirstObjectByType<MapManager>() == null)
         {
             GameObject mapManagerObj = new GameObject("MapManager");
@@ -413,7 +413,7 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(mapManagerObj);
         }
 
-        // ObjectPoolÀÌ ÀÌ¹Ì Á¸ÀçÇÏ´ÂÁö È®ÀÎ
+        // ObjectPoolï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         if (ObjectPool.Instance == null)
         {
             GameObject poolObject = new GameObject("ObjectPool");
@@ -421,17 +421,17 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(poolObject);
         }
 
-        // VFX Ç® ÃÊ±âÈ­
+        // VFX Ç® ï¿½Ê±ï¿½È­
         InitializeVFXPools();
         LoadingProgress = 0.15f;
         yield return ResourceLoadDelay;
 
-        // ¹«±â Ç® ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ï¿½ Ç® ï¿½Ê±ï¿½È­
         yield return InitializeWeaponPools();
     }
     private void InitializeVFXPools()
     {
-        // ±âº» VFX Ç® ÃÊ±âÈ­ (·Îµù ´Ü°è¿¡¼­ Áï½Ã ÇÊ¿äÇÑ VFX)
+        // ï¿½âº» VFX Ç® ï¿½Ê±ï¿½È­ (ï¿½Îµï¿½ ï¿½Ü°è¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ VFX)
         GameObject bulletDestroyVFX = Resources.Load<GameObject>("Prefabs/VFX/BulletDestroyVFX");
         if (bulletDestroyVFX != null)
         {
@@ -439,15 +439,15 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("VFX ÇÁ¸®ÆÕÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù: BulletDestroyVFX");
+            Debug.LogWarning("VFX ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½: BulletDestroyVFX");
         }
 
-        // ÇÊ¿äÇÑ °æ¿ì ¿©±â¿¡ ´õ ¸¹Àº ±âº» VFX¸¦ Ãß°¡ÇÒ ¼ö ÀÖ½À´Ï´Ù
+        // ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â¿¡ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½âº» VFXï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö½ï¿½ï¿½Ï´ï¿½
     }
 
     private IEnumerator InitializeWeaponPools()
     {
-        // ÁÖ¿ä ¹«±â Ç® ÃÊ±âÈ­
+        // ï¿½Ö¿ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç® ï¿½Ê±ï¿½È­
         string[] weaponTypes = { "Buster", "Machinegun", "BeamSaber", "Shotgun", "Cutter", "Sawblade", "Grinder", "ForceField" };
         float progressPerWeapon = 0.1f / weaponTypes.Length;
         float currentProgress = 0.15f;
@@ -468,7 +468,7 @@ public class GameManager : MonoBehaviour
                 Debug.LogWarning($"Weapon Prefab not found: {poolName}");
             }
 
-            // Grinder¿¡ ´ëÇÑ Æ¯¼ö Ã³¸® - Effect Ç®µµ »ý¼º
+            // Grinderï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ Ã³ï¿½ï¿½ - Effect Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (weaponType == "Grinder")
             {
                 string effectPoolName = "Grinder_Effect";
@@ -485,33 +485,33 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            // ÁøÇà·ü ¾÷µ¥ÀÌÆ®
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
             currentProgress += progressPerWeapon;
             LoadingProgress = currentProgress;
             yield return ResourceLoadDelay;
             if (isLoadingCancelled) yield break;
         }
 
-        // Wisp Åõ»çÃ¼ Ç® ÃÊ±âÈ­ (Àû Åõ»çÃ¼)
+        // Wisp ï¿½ï¿½ï¿½ï¿½Ã¼ Ç® ï¿½Ê±ï¿½È­ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼)
         GameObject wispProjectilePrefab = Resources.Load<GameObject>("Prefabs/Projectiles/Wisp_Projectile");
         if (wispProjectilePrefab != null)
         {
             int poolSize = GetOptimalPoolSize("Wisp_Projectile");
             ObjectPool.Instance.CreatePool("Wisp_Projectile", wispProjectilePrefab, poolSize);
-            Debug.Log("Wisp Åõ»çÃ¼ Ç® ÃÊ±âÈ­µÊ: " + poolSize + "°³ »ý¼º");
+            Debug.Log("Wisp ï¿½ï¿½ï¿½ï¿½Ã¼ Ç® ï¿½Ê±ï¿½È­ï¿½ï¿½: " + poolSize + "ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
         }
         else
         {
-            Debug.LogWarning("Wisp Åõ»çÃ¼ ÇÁ¸®ÆÕÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogWarning("Wisp ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
         }
     }
 
     private int GetOptimalPoolSize(string objectType)
     {
-        // ¿ÀºêÁ§Æ® Å¸ÀÔ¿¡ µû¶ó ÀûÀýÇÑ Ç® Å©±â ¹ÝÈ¯
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Å¸ï¿½Ô¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç® Å©ï¿½ï¿½ ï¿½ï¿½È¯
         switch (objectType)
         {
-            // ¹«±â Å¸ÀÔ
+            // ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½
             case "Machinegun": return 50;
             case "Shotgun": return 20;
             case "Buster": return 15;
@@ -519,18 +519,18 @@ public class GameManager : MonoBehaviour
             case "Sawblade": return 10;
             case "BeamSaber": return 12;
             case "Grinder": return 24;
-            case "Grinder_Effect": return 48; // Grinder ProjectileÀÇ 2¹è
+            case "Grinder_Effect": return 48; // Grinder Projectileï¿½ï¿½ 2ï¿½ï¿½
             case "ForceField": return 4;
 
-            // Àû Å¸ÀÔ
+            // ï¿½ï¿½ Å¸ï¿½ï¿½
             case "Walker": return 15;
             case "Hunter": return 15;
             case "Heavy": return 15;
 
-            //Àû Åõ»çÃ¼
+            //ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼
             case "Wisp_Projectile": return 30;
 
-            // ¾ÆÀÌÅÛ Å¸ÀÔ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½
             case "ExperienceSmall": return 30;
             case "ExperienceMedium": return 30;
             case "ExperienceLarge": return 30;
@@ -538,21 +538,21 @@ public class GameManager : MonoBehaviour
             case "Potion": return 10;
             case "Magnet": return 10;
 
-            // VFX Å¸ÀÔ
+            // VFX Å¸ï¿½ï¿½
             case "BulletDestroyVFX": return 30;
             case "DeathParticle": return 15 * 5;
 
-            // ¹°¸® ÀÎº¥Åä¸® ¾ÆÀÌÅÛ Å¸ÀÔ (Ãß°¡)
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ (ï¿½ß°ï¿½)
             case "PhysicsInventoryItem": return 20;
 
-            // ±âº»°ª
+            // ï¿½âº»ï¿½ï¿½
             default: return 15;
         }
     }
 
     private IEnumerator PreloadGameResources()
     {
-        // Àû ÇÁ¸®ÆÕ ·Îµå
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½
         string[] enemyTypes = { "Walker", "Hunter", "Heavy" };
         for (int i = 0; i < enemyTypes.Length; i++)
         {
@@ -573,7 +573,7 @@ public class GameManager : MonoBehaviour
 
         if (isLoadingCancelled) yield break;
 
-        // ¾ÆÀÌÅÛ ÇÁ¸®ÆÕ ·Îµå
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½
         string[] itemTypes = {
         "ExperienceSmall", "ExperienceMedium", "ExperienceLarge",
         "Coin", "Potion", "Magnet"
@@ -599,8 +599,8 @@ public class GameManager : MonoBehaviour
         GameObject deathParticlePrefab = Resources.Load<GameObject>("Prefabs/VFX/DeathParticle");
         if (deathParticlePrefab != null)
         {
-            // ÃÖ´ë µ¿½Ã ÀÌÆåÆ® * ÀÌÆåÆ® ´ç ÆÄÆ¼Å¬ ¼ö = ÃÑ ÆÄÆ¼Å¬ ¼ö
-            int poolSize = 5 * 5; // 5°³ µ¿½Ã ÀÌÆåÆ®, °¢ 5°³ ÆÄÆ¼Å¬
+            // ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® * ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½ = ï¿½ï¿½ ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½
+            int poolSize = 5 * 5; // 5ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®, ï¿½ï¿½ 5ï¿½ï¿½ ï¿½ï¿½Æ¼Å¬
             ObjectPool.Instance.CreatePool("DeathParticle", deathParticlePrefab, poolSize);
             Debug.Log("Death particle pool initialized");
         }
@@ -614,12 +614,12 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator PrepareCombatSystem()
     {
-        // SpawnSettings ·Îµå
+        // SpawnSettings ï¿½Îµï¿½
         var spawnSettings = Resources.Load<ScriptableObject>("Data/SpawnSettings");
         yield return ResourceLoadDelay;
         LoadingProgress = 0.55f;
 
-        // ¸Ê ¸Å´ÏÀú »ý¼º ¹× ¸Ê ·Îµå
+        // ï¿½ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Îµï¿½
         if (FindFirstObjectByType<MapManager>() == null)
         {
             GameObject mapManagerObj = new GameObject("MapManager");
@@ -627,11 +627,11 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(mapManagerObj);
         }
 
-        // ¸Ê ·Îµå
+        // ï¿½ï¿½ ï¿½Îµï¿½
         LoadingProgress = 0.6f;
         yield return ResourceLoadDelay;
 
-        // µ¥ÀÌÅÍº£ÀÌ½º ·Îµå
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Íºï¿½ï¿½Ì½ï¿½ ï¿½Îµï¿½
         var weaponDatabase = Resources.Load<ScriptableObject>("Data/WeaponDatabase");
         var enemySpawnDatabase = Resources.Load<ScriptableObject>("Data/EnemySpawnDatabase");
         yield return ResourceLoadDelay;
@@ -639,25 +639,25 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¹°¸® ±â¹Ý ÀÎº¥Åä¸® ½Ã½ºÅÛ ÃÊ±âÈ­
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
     /// </summary>
     private IEnumerator InitializePhysicsInventorySystem()
     {
         Debug.Log("Initializing Physics Inventory System...");
 
-        // 1. ¹°¸® ÀÎº¥Åä¸® °ü·Ã ¼³Á¤ ¸®¼Ò½º ·Îµå
+        // 1. ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ ï¿½Îµï¿½
         LoadingProgress = 0.68f;
         yield return ResourceLoadDelay;
 
-        // 2. ÇÊ¿äÇÑ ÇÁ¸®ÆÕ ·Îµå ¹× Ç® ÃÊ±âÈ­
+        // 2. ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ï¿½ Ç® ï¿½Ê±ï¿½È­
         GameObject weaponPrefab = Resources.Load<GameObject>("Prefabs/Weapons/Item");
         if (weaponPrefab != null)
         {
-            // ¹°¸® ¾ÆÀÌÅÛÀ» À§ÇÑ ¿ÀºêÁ§Æ® Ç® »ý¼º
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç® ï¿½ï¿½ï¿½ï¿½
             string poolTag = "PhysicsInventoryItem";
             if (ObjectPool.Instance != null && !ObjectPool.Instance.DoesPoolExist(poolTag))
             {
-                // Ç® ÃÊ±âÈ­ (ÃÊ±â Å©±â 20, ÇÊ¿ä½Ã È®Àå °¡´É)
+                // Ç® ï¿½Ê±ï¿½È­ (ï¿½Ê±ï¿½ Å©ï¿½ï¿½ 20, ï¿½Ê¿ï¿½ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
                 ObjectPool.Instance.CreatePool(poolTag, weaponPrefab, 20);
                 Debug.Log("Physics inventory item pool created with 20 items");
             }
@@ -671,14 +671,14 @@ public class GameManager : MonoBehaviour
         LoadingProgress = 0.71f;
         yield return ResourceLoadDelay;
 
-        // 3. PhysicsInventoryInitializer¸¦ ÅëÇÑ Ãß°¡ ÃÊ±âÈ­
+        // 3. PhysicsInventoryInitializerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½Ê±ï¿½È­
         PhysicsInventoryInitializer initializer = PhysicsInventoryInitializer.Instance;
         if (initializer != null)
         {
-            // ·Îµù È­¸é¿¡¼­ ¹°¸® ÀÎº¥Åä¸® ½Ã½ºÅÛ ¹Ì¸® ÃÊ±âÈ­
+            // ï¿½Îµï¿½ È­ï¿½é¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ ï¿½Ê±ï¿½È­
             yield return initializer.PreloadPhysicsAssets();
 
-            // Ç® ½Ã½ºÅÛÀ» ÅëÇÑ ÃÊ±âÈ­
+            // Ç® ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
             yield return PhysicsInventoryInitializer.InitializeInLoadingScreen();
         }
 
@@ -690,19 +690,19 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator FinalizeInitialization()
     {
-        // ¸Þ¸ð¸® ÃÖÀûÈ­
+        // ï¿½Þ¸ï¿½ ï¿½ï¿½ï¿½ï¿½È­
         if (aggressiveMemoryOptimization)
         {
             Resources.UnloadUnusedAssets();
             System.GC.Collect();
         }
 
-        // ÃÊ±âÈ­ ¿Ï·á ´ë±â
+        // ï¿½Ê±ï¿½È­ ï¿½Ï·ï¿½ ï¿½ï¿½ï¿½
         yield return InitializationDelay;
     }
 
     /// <summary>
-    /// °ÔÀÓÀÇ »óÅÂ¸¦ º¯°æÇÏ°í °ü·Ã ½Ã½ºÅÛÀ» ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void SetGameState(GameState newState)
     {
@@ -711,13 +711,13 @@ public class GameManager : MonoBehaviour
         GameState previousState = currentGameState;
         currentGameState = newState;
 
-        // »óÅÂ º¯°æ Àü¿¡ ÇÊ¿äÇÑ ÁØºñ ÀÛ¾÷
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½Øºï¿½ ï¿½Û¾ï¿½
         PrepareForStateTransition(previousState, newState);
 
-        // ÀÌº¥Æ® ¹ß»ý
+        // ï¿½Ìºï¿½Æ® ï¿½ß»ï¿½
         OnGameStateChanged?.Invoke(newState);
 
-        // »óÅÂ¿¡ µû¸¥ °ÔÀÓ ¼³Á¤ º¯°æ
+        // ï¿½ï¿½ï¿½Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         switch (newState)
         {
             case GameState.MainMenu:
@@ -726,36 +726,36 @@ public class GameManager : MonoBehaviour
                 Time.timeScale = 1f;
                 break;
             case GameState.Paused:
-            case GameState.GameOver:
                 Time.timeScale = 0f;
-                if (newState == GameState.GameOver)
-                {
-                    HandleGameOver();
-                }
+                break;
+            case GameState.GameOver:
+                // GameOver UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ timeScale ï¿½ï¿½ï¿½ï¿½
+                HandleGameOver();
+                Time.timeScale = 0f;
                 break;
         }
     }
 
     /// <summary>
-    /// »óÅÂ ÀüÈ¯ Àü ÇÊ¿äÇÑ ÁØºñ ÀÛ¾÷À» ¼öÇàÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½Øºï¿½ ï¿½Û¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void PrepareForStateTransition(GameState previousState, GameState newState)
     {
-        // ¿¹: ¸ÞÀÎ ¸Þ´º¿¡¼­ ·ÎµùÀ¸·Î ÀüÈ¯ ½Ã
+        // ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ ï¿½Þ´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½
         if (previousState == GameState.MainMenu && newState == GameState.Loading)
         {
-            // ¸Þ¸ð¸® Á¤¸® µîÀÇ ÀÛ¾÷ÀÌ ÇÊ¿äÇÑ °æ¿ì
+            // ï¿½Þ¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Û¾ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         }
     }
 
     /// <summary>
-    /// °ÔÀÓ ¿À¹ö »óÅÂ¿¡¼­ÀÇ Ã³¸®¸¦ ´ã´çÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¿ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void HandleGameOver()
     {
         SavePlayerProgress();
 
-        // °ÔÀÓ ¿À¹ö È¿°úÀ½ Àç»ý
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         SoundManager.Instance?.PlaySound("GameOver_sfx", 1f, false);
 
         if (gameOverController != null)
@@ -769,11 +769,11 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÁÖ¾îÁø ¿þÀÌºê ¹üÀ§ ³»¿¡ ÇöÀç ¿þÀÌºê°¡ Æ÷ÇÔµÇ¾î ÀÖ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+    /// ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºê°¡ ï¿½ï¿½ï¿½ÔµÇ¾ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
-    /// <param name="minWave">ÃÖ¼Ò ¿þÀÌºê ¹øÈ£ (Æ÷ÇÔ)</param>
-    /// <param name="maxWave">ÃÖ´ë ¿þÀÌºê ¹øÈ£ (Æ÷ÇÔ)</param>
-    /// <returns>Æ÷ÇÔµÇ¾î ÀÖÀ¸¸é true, ¾Æ´Ï¸é false</returns>
+    /// <param name="minWave">ï¿½Ö¼ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½È£ (ï¿½ï¿½ï¿½ï¿½)</param>
+    /// <param name="maxWave">ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½È£ (ï¿½ï¿½ï¿½ï¿½)</param>
+    /// <returns>ï¿½ï¿½ï¿½ÔµÇ¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ true, ï¿½Æ´Ï¸ï¿½ false</returns>
     public bool IsWaveInRange(int minWave, int maxWave)
     {
         return _currentWave >= minWave && _currentWave <= maxWave;
@@ -783,9 +783,9 @@ public class GameManager : MonoBehaviour
         _currentWave = 0;
     }
     /// <summary>
-    /// ¿þÀÌºê ¸Å´ÏÀú¿Í ¿¬°áÇÏ¿© ¿þÀÌºê Á¤º¸¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Å´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½Õ´Ï´ï¿½.
     /// </summary>
-    /// <param name="waveNumber">ÇöÀç ¿þÀÌºê ¹øÈ£</param>
+    /// <param name="waveNumber">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½È£</param>
     public void UpdateWaveInfo(int waveNumber)
     {
         _currentWave = waveNumber;
@@ -829,20 +829,20 @@ public class GameManager : MonoBehaviour
 
     private void OnApplicationPause(bool pauseStatus)
     {
-        // ¾ÛÀÌ ¹é±×¶ó¿îµå·Î °¥ ¶§ (pauseStatus == true)
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½×¶ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ (pauseStatus == true)
         if (pauseStatus && IsPlaying())
         {
-            // ÁøÇà »óÈ² ÀÚµ¿ ÀúÀå
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È² ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½
             SavePlayerProgress();
         }
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾îÀÇ ÁøÇà »óÈ²À» ÀúÀåÇÕ´Ï´Ù.
+    /// ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È²ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void SavePlayerProgress()
     {
-        // ÇöÀç´Â SoundManager°¡ ÀÚÃ¼ÀûÀ¸·Î º¼·ý ¼³Á¤À» ÀúÀå
-        // Ãß°¡ÀûÀÎ ÀúÀå ·ÎÁ÷ÀÌ ÇÊ¿äÇÏ¸é ¿©±â¿¡ ±¸Çö
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ SoundManagerï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        // ï¿½ß°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½â¿¡ ï¿½ï¿½ï¿½ï¿½
     }
 }

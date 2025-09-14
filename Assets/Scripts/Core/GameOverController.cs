@@ -4,7 +4,7 @@ using TMPro;
 using System.Collections;
 
 /// <summary>
-/// °ÔÀÓ ¿À¹ö UI¿Í °ü·Ã ±â´ÉÀ» °ü¸®ÇÏ´Â ÄÁÆ®·Ñ·¯
+/// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½Æ®ï¿½Ñ·ï¿½
 /// </summary>
 public class GameOverController : MonoBehaviour
 {
@@ -23,7 +23,7 @@ public class GameOverController : MonoBehaviour
     }  
     private void OnEnable()
     {
-        // ÄÄÆ÷³ÍÆ®°¡ È°¼ºÈ­µÉ ¶§¸¶´Ù ÀÌº¥Æ® µî·Ï ½Ãµµ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ ï¿½Ãµï¿½
         RegisterEvents();
     }
     private IEnumerator TryRegisterEventsNextFrame()
@@ -45,7 +45,7 @@ public class GameOverController : MonoBehaviour
         }
         else
         {
-            // PlayerStats°¡ ¾ø´Ù¸é ´ÙÀ½ ÇÁ·¹ÀÓ¿¡¼­ ´Ù½Ã ½Ãµµ
+            // PlayerStatsï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½Ãµï¿½
             StartCoroutine(TryRegisterEventsNextFrame());
         }
     }
@@ -56,26 +56,35 @@ public class GameOverController : MonoBehaviour
             gameOverPanel.SetActive(false);
         }
 
-        // ¹öÆ° ÀÌº¥Æ® ¼³Á¤
+        // ï¿½ï¿½Æ° ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         if (retryButton != null)
             retryButton.onClick.AddListener(OnRetryButtonClicked);
         if (quitButton != null)
             quitButton.onClick.AddListener(OnQuitButtonClicked);
     }
     /// <summary>
-    /// °ÔÀÓ ¿À¹ö ÆÐ³ÎÀ» Ç¥½ÃÇÏ°í °ü·Ã Á¤º¸¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ð³ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void ShowGameOverPanel()
     {
         if (gameOverPanel != null)
         {
-            // ½Ã°£°ú ¹«°üÇÏ°Ô µ¿ÀÛÇÏµµ·Ï ¼³Á¤
+            // timeScaleï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ UIï¿½ï¿½ È°ï¿½ï¿½È­
             gameOverPanel.SetActive(true);
+            
+            // Canvas Groupï¿½Ì³ï¿½ Animationï¿½ï¿½ ï¿½Ö´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½Çµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            var canvasGroup = gameOverPanel.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+            }
         }
     }
 
     /// <summary>
-    /// Retry ¹öÆ° Å¬¸¯ ½Ã °ÔÀÓÀ» Àç½ÃÀÛÇÕ´Ï´Ù.
+    /// Retry ï¿½ï¿½Æ° Å¬ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void OnRetryButtonClicked()
     {
@@ -84,15 +93,15 @@ public class GameOverController : MonoBehaviour
             soundManager.PlaySound("Button_sfx", 0f, false);
         }
 
-        // °ÔÀÓ »óÅÂ ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         GameManager.Instance.ClearSceneReferences();
 
-        // °ÔÀÓ Àç½ÃÀÛ
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
         GameManager.Instance.StartGame();
     }
 
     /// <summary>
-    /// Quit ¹öÆ° Å¬¸¯ ½Ã °ÔÀÓÀ» Á¾·áÇÕ´Ï´Ù.
+    /// Quit ï¿½ï¿½Æ° Å¬ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void OnQuitButtonClicked()
     {
@@ -101,7 +110,7 @@ public class GameOverController : MonoBehaviour
             soundManager.PlaySound("SFX_ButtonClick", 0f, false);
         }
 
-        // °ÔÀÓ Á¾·á
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -110,7 +119,7 @@ public class GameOverController : MonoBehaviour
     }
     private void OnDisable()
     {
-        // ÄÄÆ÷³ÍÆ®°¡ ºñÈ°¼ºÈ­µÉ ¶§ ÀÌº¥Æ® ÇØÁ¦
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         UnregisterEvents();
     }
     private void UnregisterEvents()
