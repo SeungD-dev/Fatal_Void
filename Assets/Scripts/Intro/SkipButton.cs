@@ -112,8 +112,12 @@ public class SkipButton : MonoBehaviour
 
     private void OnDestroy()
     {
-        touchActions.Touch.Press.started -= OnTouchStarted;
-        touchActions.Disable();
+        if (touchActions != null)
+        {
+            touchActions.Touch.Press.started -= OnTouchStarted;
+            touchActions.Disable();
+            touchActions.Dispose();
+        }
 
         if (skipButton != null)
         {

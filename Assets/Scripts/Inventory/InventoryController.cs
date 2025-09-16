@@ -1316,7 +1316,11 @@ public class InventoryController : MonoBehaviour
             mainInventoryGrid.OnItemRemoved -= OnItemRemovedFromGrid;
         }
 
-        touchActions?.Dispose();
+        if (touchActions != null)
+        {
+            touchActions.Touch.Disable();
+            touchActions.Dispose();
+        }
     }
     #endregion
 }

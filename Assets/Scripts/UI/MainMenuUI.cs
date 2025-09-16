@@ -14,8 +14,8 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private TextBlinkEffect touchToEngageText;
 
     [Header("Touch Detection")]
-    [SerializeField] private float touchDelay = 0.5f; // ÃÊ±â Áö¿¬ ½Ã°£
-    [SerializeField] private float touchCooldown = 0.5f; // ¿É¼Ç ÆÐ³Î ´ÝÀº ÈÄ Äð´Ù¿î ½Ã°£
+    [SerializeField] private float touchDelay = 0.5f; // ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
+    [SerializeField] private float touchCooldown = 0.5f; // ï¿½É¼ï¿½ ï¿½Ð³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ù¿ï¿½ ï¿½Ã°ï¿½
 
     private TouchActions touchActions;
     private bool canStartGame = false;
@@ -24,47 +24,47 @@ public class MainMenuUI : MonoBehaviour
 
     private void Awake()
     {
-        // Input Actions ÃÊ±âÈ­
+        // Input Actions ï¿½Ê±ï¿½È­
         touchActions = new TouchActions();
     }
 
     private void OnEnable()
     {
-        // Input Actions È°¼ºÈ­
+        // Input Actions È°ï¿½ï¿½È­
         touchActions.Enable();
 
-        // ÅÍÄ¡ ÀÌº¥Æ® µî·Ï
+        // ï¿½ï¿½Ä¡ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½
         touchActions.Touch.Press.started += OnTouchStarted;
     }
 
     private void OnDisable()
     {
-        // Input Actions ºñÈ°¼ºÈ­ ¹× ÀÌº¥Æ® ÇØÁ¦
+        // Input Actions ï¿½ï¿½È°ï¿½ï¿½È­ ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         touchActions.Touch.Press.started -= OnTouchStarted;
         touchActions.Disable();
     }
 
     private void Start()
     {
-        // GameManager¿¡ ¿É¼Ç ÆÐ³Î ÂüÁ¶ Àü´Þ
+        // GameManagerï¿½ï¿½ ï¿½É¼ï¿½ ï¿½Ð³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (GameManager.Instance != null && optionPanel != null)
         {
             GameManager.Instance.SetStartSceneReferences(optionPanel);
         }
 
-        // ¿É¼Ç ¹öÆ° ¸®½º³Ê µî·Ï
+        // ï¿½É¼ï¿½ ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         if (optionButton != null)
         {
             optionButton.onClick.AddListener(OnOptionButtonClick);
         }
 
-        // ¿É¼Ç ´Ý±â ¹öÆ° ¸®½º³Ê µî·Ï
+        // ï¿½É¼ï¿½ ï¿½Ý±ï¿½ ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         if (closeOptionButton != null)
         {
             closeOptionButton.onClick.AddListener(OnCloseOptionButtonClick);
         }
 
-        // ¾à°£ÀÇ Áö¿¬ ÈÄ ÅÍÄ¡ È°¼ºÈ­
+        // ï¿½à°£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ä¡ È°ï¿½ï¿½È­
         StartCoroutine(EnableTouchAfterDelay());
     }
 
@@ -87,32 +87,32 @@ public class MainMenuUI : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ToggleOptionPanel();
-            // ¿É¼Ç ÆÐ³Î ´ÝÀº ½Ã°£ ±â·Ï
+            // ï¿½É¼ï¿½ ï¿½Ð³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½
             lastOptionPanelCloseTime = Time.time;
         }
     }
 
     private void OnTouchStarted(InputAction.CallbackContext context)
     {
-        // 1. °ÔÀÓ ½ÃÀÛ °¡´ÉÇÑ »óÅÂÀÎÁö È®ÀÎ
+        // 1. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         if (!canStartGame || isTransitioning) return;
 
-        // 2. ¿É¼Ç ÆÐ³ÎÀÌ È°¼ºÈ­µÈ »óÅÂÀÎÁö È®ÀÎ
+        // 2. ï¿½É¼ï¿½ ï¿½Ð³ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         if (optionPanel != null && optionPanel.activeSelf) return;
 
-        // 3. ¿É¼Ç ÆÐ³Î ´ÝÀº Á÷ÈÄÀÎÁö È®ÀÎ (Äð´Ù¿î Àû¿ë)
+        // 3. ï¿½É¼ï¿½ ï¿½Ð³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ (ï¿½ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½)
         if (Time.time - lastOptionPanelCloseTime < touchCooldown) return;
 
-        // 4. UI ¿ä¼Ò À§¿¡¼­ ÅÍÄ¡ÇÑ °æ¿ìÀÎÁö È®ÀÎ
+        // 4. UI ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         if (IsPointerOverUI()) return;
 
-        // ¸ðµç Á¶°ÇÀ» Åë°úÇÏ¸é °ÔÀÓ ½ÃÀÛ
+        // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         OnScreenTouch();
     }
 
     private bool IsPointerOverUI()
     {
-        // ÅÍÄ¡/Å¬¸¯ À§Ä¡ °¡Á®¿À±â
+        // ï¿½ï¿½Ä¡/Å¬ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         Vector2 position;
         if (Touchscreen.current != null && Touchscreen.current.touches.Count > 0)
         {
@@ -124,10 +124,10 @@ public class MainMenuUI : MonoBehaviour
         }
         else
         {
-            return false; // ÀÔ·ÂÀÌ ¾øÀ¸¸é UI À§°¡ ¾Æ´Ô
+            return false; // ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ UI ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½
         }
 
-        // EventSystemÀ¸·Î ÇØ´ç À§Ä¡¿¡ UI ¿ä¼Ò°¡ ÀÖ´ÂÁö È®ÀÎ
+        // EventSystemï¿½ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ UI ï¿½ï¿½Ò°ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         PointerEventData eventData = new PointerEventData(EventSystem.current);
         eventData.position = position;
 
@@ -142,7 +142,7 @@ public class MainMenuUI : MonoBehaviour
         if (isTransitioning) return;
         isTransitioning = true;
 
-        // È¿°úÀ½ Àç»ý
+        // È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         if (SoundManager.Instance != null)
         {
             if (SoundManager.Instance.currentSoundBank == null)
@@ -153,22 +153,22 @@ public class MainMenuUI : MonoBehaviour
             SoundManager.Instance.PlaySound("Button_sfx", 1f, false);
         }
 
-        // ÅØ½ºÆ® ±ôºýÀÓ È¿°ú ÁßÁö
+        // ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (touchToEngageText != null)
         {
             touchToEngageText.StopBlink();
         }
 
-        // °ÔÀÓ ½ÃÀÛ ÀüÈ¯
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
         StartCoroutine(TransitionToGameStart());
     }
 
     private IEnumerator TransitionToGameStart()
     {
-        // ÂªÀº Áö¿¬ ½Ã°£
+        // Âªï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
         yield return new WaitForSeconds(0.3f);
 
-        // °ÔÀÓ ½ÃÀÛ
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (GameManager.Instance != null)
         {
             GameManager.Instance.StartGame();
@@ -177,14 +177,15 @@ public class MainMenuUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Input Actions Á¤¸®
+        // Input Actions ï¿½ï¿½ï¿½ï¿½
         if (touchActions != null)
         {
             touchActions.Touch.Press.started -= OnTouchStarted;
             touchActions.Disable();
+            touchActions.Dispose();
         }
 
-        // ÀÌº¥Æ® ¸®½º³Ê Á¤¸®
+        // ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (optionButton != null)
         {
             optionButton.onClick.RemoveListener(OnOptionButtonClick);

@@ -7,7 +7,7 @@ using System.Linq;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// ¹°¸® ±â¹Ý ¾ÆÀÌÅÛÀ» °ü¸®ÇÏ´Â ¸Å´ÏÀú Å¬·¡½º - ¿ÀºêÁ§Æ® Ç® È°¿ë ¹öÀü
+/// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç® È°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 public class PhysicsInventoryManager : MonoBehaviour
 {
@@ -34,7 +34,7 @@ public class PhysicsInventoryManager : MonoBehaviour
     [SerializeField] private bool useObjectPool = true;
     [SerializeField] private string poolTag = "PhysicsInventoryItem";
     [SerializeField] private int initialPoolSize = 20;
-    [SerializeField] private int ensurePoolSize = 10; // ÃÖ¼ÒÇÑ À¯ÁöÇÒ Ç® Å©±â
+    [SerializeField] private int ensurePoolSize = 10; // ï¿½Ö¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç® Å©ï¿½ï¿½
     #endregion
 
     #region Private Fields
@@ -49,7 +49,7 @@ public class PhysicsInventoryManager : MonoBehaviour
     private Coroutine holdCoroutine;
     private Camera mainCamera;
     private bool isInitialized = false;
-    private bool enableDebugLogs = true; // ¹èÆ÷ ½Ã false·Î ¼³Á¤ ±ÇÀå
+    private bool enableDebugLogs = true; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ falseï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     private int updateCounter = 0;
     private float lastPerformanceCheck = 0f;
     private bool hasPerformanceWarning = false;
@@ -104,7 +104,7 @@ public class PhysicsInventoryManager : MonoBehaviour
             GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
         }
 
-        // ÁøÇà ÁßÀÎ ÄÚ·çÆ¾ Á¤Áö
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
         if (holdCoroutine != null)
         {
             StopCoroutine(holdCoroutine);
@@ -150,23 +150,23 @@ public class PhysicsInventoryManager : MonoBehaviour
             return;
         }
 
-        // ¹°¸® ¾ÆÀÌÅÛ °³¼ö ±â¹Ý ¼º´É °ü¸®
-        if (Time.time - lastPerformanceCheck > 5f) // 5ÃÊ¸¶´Ù ¼º´É Ã¼Å©
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        if (Time.time - lastPerformanceCheck > 5f) // 5ï¿½Ê¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
         {
             lastPerformanceCheck = Time.time;
             MonitorPerformance();
         }
 
-        // ¹°¸® ¾ÆÀÌÅÛ Á¤»ó »óÅÂ È®ÀÎ (ÀÌ¹ÌÁö°¡ ´©¶ôµÈ °æ¿ì Ã¼Å©)
-        // ÀÌ °Ë»ç´Â ÇÁ·¹ÀÓ ºñ¿ëÀÌ ³ôÀ¸¹Ç·Î °£ÇæÀûÀ¸·Î¸¸ ½ÇÇà
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ (ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Ã¼Å©)
+        // ï¿½ï¿½ ï¿½Ë»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½
         updateCounter++;
-        if (updateCounter % 120 == 0) // ¾à 4ÃÊ¸¶´Ù ÇÑ ¹ø¾¿ (30fps ±âÁØ)
+        if (updateCounter % 120 == 0) // ï¿½ï¿½ 4ï¿½Ê¸ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (30fps ï¿½ï¿½ï¿½ï¿½)
         {
             EnsurePhysicsItemsVisible();
             updateCounter = 0;
         }
 
-        // ¼±ÅÃµÈ ¾ÆÀÌÅÛÀÌ ÀÖ°í µå·¡±× ÁßÀÌ¸é À§Ä¡ ¾÷µ¥ÀÌÆ®
+        // ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö°ï¿½ ï¿½å·¡ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         if (selectedPhysicsItem != null && isDragging)
         {
             Vector2 currentTouchPos = touchPosition.ReadValue<Vector2>();
@@ -192,20 +192,20 @@ public class PhysicsInventoryManager : MonoBehaviour
             }
         }
 
-        // ¼º´É ÃÖÀûÈ­: È°¼º ¹°¸® ¾ÆÀÌÅÛ ¾÷µ¥ÀÌÆ®
-        // ¹°¸® ¾ÆÀÌÅÛ °³¼ö°¡ ¸¹¾ÆÁö¸é °Ë»ç ºóµµ °¨¼Ò
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­: È°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         int checkInterval = DetermineUpdateInterval();
         if (Time.frameCount % checkInterval == 0)
         {
             UpdateActivePhysicsItems();
         }
 
-        // 60ÇÁ·¹ÀÓ¸¶´Ù (¾à 1ÃÊ¿¡ ÇÑ ¹ø) ¹Ù´Ú À§Ä¡ ¾÷µ¥ÀÌÆ®
+        // 60ï¿½ï¿½ï¿½ï¿½ï¿½Ó¸ï¿½ï¿½ï¿½ (ï¿½ï¿½ 1ï¿½Ê¿ï¿½ ï¿½ï¿½ ï¿½ï¿½) ï¿½Ù´ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         if (Time.frameCount % 60 == 0 && physicsItems.Count > 0)
         {
             CacheFloorPosition();
 
-            // Ä³½ÌµÈ °ª »ç¿ë
+            // Ä³ï¿½Ìµï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½
             foreach (var item in physicsItems)
             {
                 if (item != null)
@@ -216,14 +216,14 @@ public class PhysicsInventoryManager : MonoBehaviour
         }
     }
 
-    // ¹Ù´Ú À§Ä¡¸¦ Ä³½Ì (ÇÑ ¹ø¸¸ °è»êÇÏ°í ÀúÀå)
+    // ï¿½Ù´ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ Ä³ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½)
     private void CacheFloorPosition()
     {
         if (isFloorPositionCached && Time.frameCount - lastFloorUpdateFrame < 60) return;
 
         float buttonTopY = 0f;
 
-        // ¹Ì¸® Inspector¿¡¼­ ÇÒ´çµÈ ÂüÁ¶ »ç¿ë
+        // ï¿½Ì¸ï¿½ Inspectorï¿½ï¿½ï¿½ï¿½ ï¿½Ò´ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         if (shopButtonRect != null)
         {
             Vector3[] corners = new Vector3[4];
@@ -238,7 +238,7 @@ public class PhysicsInventoryManager : MonoBehaviour
             buttonTopY = Mathf.Max(buttonTopY, corners[1].y);
         }
 
-        // ÂüÁ¶°¡ ¾øÀ» °æ¿ì fallback ¹æ¹ýÀ¸·Î È­¸é ÇÏ´Ü 20% À§Ä¡ »ç¿ë
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ fallback ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ ï¿½Ï´ï¿½ 20% ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½
         if (buttonTopY <= 0f && parentCanvas != null)
         {
             RectTransform canvasRect = parentCanvas.GetComponent<RectTransform>();
@@ -257,7 +257,7 @@ public class PhysicsInventoryManager : MonoBehaviour
         isFloorPositionCached = true;
         lastFloorUpdateFrame = Time.frameCount;
 
-        // µð¹ö±× ·Î±× (°³¹ß Áß¿¡¸¸ »ç¿ë)
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ß¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)
         if (enableDebugLogs) Debug.Log($"Floor Y position cached: {cachedFloorY}");
     }
     private void MonitorPerformance()
@@ -269,16 +269,16 @@ public class PhysicsInventoryManager : MonoBehaviour
             Debug.Log($"Active physics items: {itemCount}");
         }
 
-        // ¾ÆÀÌÅÛ ¼ö°¡ ³Ê¹« ¸¹À¸¸é °æ°í ¹× ÃÖÀûÈ­ Á¶Ä¡
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½Ä¡
         if (itemCount > 30 && !hasPerformanceWarning)
         {
             Debug.LogWarning($"High number of physics items ({itemCount}) may impact performance");
             hasPerformanceWarning = true;
 
-            // ¿À·¡µÈ ¾ÆÀÌÅÛ ºÎÅÍ ÀÏºÎ Á¦°Å (¼±ÅÃÀû)
-            if (itemCount > 50) // ¾ÆÀÌÅÛÀÌ 50°³ ÀÌ»óÀÌ¸é °¡Àå ¿À·¡µÈ °ÍºÎÅÍ Á¦°Å
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ïºï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
+            if (itemCount > 50) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 50ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Íºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             {
-                int itemsToRemove = itemCount - 40; // 40°³±îÁö¸¸ À¯Áö
+                int itemsToRemove = itemCount - 40; // 40ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 RemoveOldestItems(itemsToRemove);
             }
         }
@@ -292,16 +292,16 @@ public class PhysicsInventoryManager : MonoBehaviour
     {
         int itemCount = physicsItems.Count;
 
-        if (itemCount < 10) return 10;      // 10°³ ¹Ì¸¸: ¸Å 10ÇÁ·¹ÀÓ¸¶´Ù
-        else if (itemCount < 20) return 20; // 10-20°³: ¸Å 20ÇÁ·¹ÀÓ¸¶´Ù
-        else if (itemCount < 30) return 30; // 20-30°³: ¸Å 30ÇÁ·¹ÀÓ¸¶´Ù
-        else return 60;                     // 30°³ ÀÌ»ó: ¸Å 60ÇÁ·¹ÀÓ¸¶´Ù
+        if (itemCount < 10) return 10;      // 10ï¿½ï¿½ ï¿½Ì¸ï¿½: ï¿½ï¿½ 10ï¿½ï¿½ï¿½ï¿½ï¿½Ó¸ï¿½ï¿½ï¿½
+        else if (itemCount < 20) return 20; // 10-20ï¿½ï¿½: ï¿½ï¿½ 20ï¿½ï¿½ï¿½ï¿½ï¿½Ó¸ï¿½ï¿½ï¿½
+        else if (itemCount < 30) return 30; // 20-30ï¿½ï¿½: ï¿½ï¿½ 30ï¿½ï¿½ï¿½ï¿½ï¿½Ó¸ï¿½ï¿½ï¿½
+        else return 60;                     // 30ï¿½ï¿½ ï¿½Ì»ï¿½: ï¿½ï¿½ 60ï¿½ï¿½ï¿½ï¿½ï¿½Ó¸ï¿½ï¿½ï¿½
     }
     private void RemoveOldestItems(int count)
     {
         if (physicsItems.Count <= count) return;
 
-        // È°¼ºÈ­ ½Ã°£ ±âÁØ Á¤·Ä
+        // È°ï¿½ï¿½È­ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         var sortedItems = physicsItems
             .Where(item => item != null && !item.IsProtected && !item.IsBeingDragged)
             .OrderBy(item => item.ActivationTime)
@@ -324,14 +324,14 @@ public class PhysicsInventoryManager : MonoBehaviour
         {
             if (item == null) continue;
 
-            // °ÔÀÓ ¿ÀºêÁ§Æ® È°¼ºÈ­ »óÅÂ È®ÀÎ
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
             if (!item.gameObject.activeSelf)
             {
                 item.gameObject.SetActive(true);
                 if (enableDebugLogs) Debug.Log($"Re-activated game object: {item.name}");
             }
 
-            // ÀÌ¹ÌÁö ÄÄÆ÷³ÍÆ®°¡ ºñÈ°¼ºÈ­µÈ °æ¿ì ´Ù½Ã È°¼ºÈ­
+            // ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ È°ï¿½ï¿½È­
             Image image = item.GetComponent<Image>();
             if (image != null && !image.enabled)
             {
@@ -339,7 +339,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                 if (enableDebugLogs) Debug.Log($"Restored visibility for physics item: {item.name}");
             }
 
-            // ºÒÅõ¸íµµ°¡ ³·Àº °æ¿ì º¹±¸
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (image != null && image.color.a < 0.5f)
             {
                 Color color = image.color;
@@ -348,7 +348,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                 if (enableDebugLogs) Debug.Log($"Restored opacity for physics item: {item.name}");
             }
 
-            // Canvas GroupÀÌ ºñÈ°¼ºÈ­µÈ °æ¿ì
+            // Canvas Groupï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½
             CanvasGroup group = item.GetComponent<CanvasGroup>();
             if (group != null && group.alpha < 0.5f)
             {
@@ -363,7 +363,7 @@ public class PhysicsInventoryManager : MonoBehaviour
 
         Debug.Log("Initializing canvas reference...");
 
-        // 1. Á÷Á¢ °èÃþ ±¸Á¶¸¦ ÅëÇØ Ã£±â
+        // 1. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
         Transform current = transform;
         while (current != null)
         {
@@ -377,14 +377,14 @@ public class PhysicsInventoryManager : MonoBehaviour
             current = current.parent;
         }
 
-        // 2. ¸í½ÃÀûÀÎ °æ·Î Å½»ö
+        // 2. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Å½ï¿½ï¿½
         if (parentCanvas == null)
         {
-            // CombatUI ÇÏÀ§ Äµ¹ö½º Ã£±â
+            // CombatUI ï¿½ï¿½ï¿½ï¿½ Äµï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
             GameObject combatUI = GameObject.Find("CombatUI");
             if (combatUI != null)
             {
-                // Canvas ÇÏÀ§ °´Ã¼ Ã£±â
+                // Canvas ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ Ã£ï¿½ï¿½
                 Transform canvasTransform = combatUI.transform.Find("Canvas");
                 if (canvasTransform != null)
                 {
@@ -396,7 +396,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                     }
                 }
 
-                // Á÷Á¢ ÄÄÆ÷³ÍÆ® ÂüÁ¶
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
                 if (parentCanvas == null)
                 {
                     Canvas canvas = combatUI.GetComponentInChildren<Canvas>();
@@ -409,13 +409,13 @@ public class PhysicsInventoryManager : MonoBehaviour
             }
         }
 
-        // 3. ¾À¿¡¼­ Á÷Á¢ Ã£±â
+        // 3. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
         if (parentCanvas == null)
         {
             Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
             if (canvases.Length > 0)
             {
-                // Ã¹ ¹øÂ°·Î ScreenSpaceOverlay ¸ðµåÀÎ Äµ¹ö½º Ã£±â
+                // Ã¹ ï¿½ï¿½Â°ï¿½ï¿½ ScreenSpaceOverlay ï¿½ï¿½ï¿½ï¿½ï¿½ Äµï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
                 foreach (var canvas in canvases)
                 {
                     if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
@@ -426,7 +426,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                     }
                 }
 
-                // ¸ø Ã£¾Ò´Ù¸é Ã¹ ¹øÂ° Äµ¹ö½º »ç¿ë
+                // ï¿½ï¿½ Ã£ï¿½Ò´Ù¸ï¿½ Ã¹ ï¿½ï¿½Â° Äµï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
                 if (parentCanvas == null && canvases.Length > 0)
                 {
                     parentCanvas = canvases[0];
@@ -435,7 +435,7 @@ public class PhysicsInventoryManager : MonoBehaviour
             }
         }
 
-        // Ã£Àº Äµ¹ö½º ¼³Á¤
+        // Ã£ï¿½ï¿½ Äµï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (parentCanvas != null)
         {
             canvasRectTransform = parentCanvas.GetComponent<RectTransform>();
@@ -450,10 +450,11 @@ public class PhysicsInventoryManager : MonoBehaviour
     {
         if (touchActions != null)
         {
+            touchActions.Disable();
             touchActions.Dispose();
         }
 
-        // Ç®¿¡ ¾ÆÀÌÅÛ ¹ÝÈ¯
+        // Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
         ReturnAllItemsToPool();
     }
     #endregion
@@ -461,10 +462,10 @@ public class PhysicsInventoryManager : MonoBehaviour
     #region Initialization
     private IEnumerator DelayedInitialization()
     {
-        // Ã¹ ÇÁ·¹ÀÓÀº °Ç³Ê¶Ù¾î ´Ù¸¥ ÃÊ±âÈ­°¡ ¿Ï·áµÇµµ·Ï ÇÔ
+        // Ã¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç³Ê¶Ù¾ï¿½ ï¿½Ù¸ï¿½ ï¿½Ê±ï¿½È­ï¿½ï¿½ ï¿½Ï·ï¿½Çµï¿½ï¿½ï¿½ ï¿½ï¿½
         yield return null;
 
-        // ¿ÀºêÁ§Æ® Ç® »ç¿ë½Ã ¹Ì¸® ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç® ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ ï¿½Ê±ï¿½È­
         if (useObjectPool && ObjectPool.Instance != null)
         {
             InitializePhysicsItemPool();
@@ -493,7 +494,7 @@ public class PhysicsInventoryManager : MonoBehaviour
 
         if (itemSpawnPoint == null)
         {
-            // InventoryController¿¡¼­ spawnPoint °¡Á®¿À±â
+            // InventoryControllerï¿½ï¿½ï¿½ï¿½ spawnPoint ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             var field = typeof(InventoryController).GetField("itemSpawnPoint",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (field != null)
@@ -516,7 +517,7 @@ public class PhysicsInventoryManager : MonoBehaviour
         }
         if (weaponPrefab == null && inventoryController != null)
         {
-            // InventoryControllerÀÇ weaponPrefab ÇÊµå °¡Á®¿À±â
+            // InventoryControllerï¿½ï¿½ weaponPrefab ï¿½Êµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             var field = typeof(InventoryController).GetField("weaponPrefab",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (field != null)
@@ -529,51 +530,51 @@ public class PhysicsInventoryManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¹°¸® ÀÎº¥Åä¸® ¾ÆÀÌÅÛÀ» À§ÇÑ ¿ÀºêÁ§Æ® Ç® ÃÊ±âÈ­
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç® ï¿½Ê±ï¿½È­
     /// </summary>
     private void InitializePhysicsItemPool()
     {
         Debug.Log("Initializing physics item pool...");
 
-        // Ç® ÅÂ±× Á¤ÀÇ - ¾ÀÀÇ ÅÂ±×¿Í ÀÏÄ¡ÇÏµµ·Ï ÇÔ
+        // Ç® ï¿½Â±ï¿½ ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½Â±×¿ï¿½ ï¿½ï¿½Ä¡ï¿½Ïµï¿½ï¿½ï¿½ ï¿½ï¿½
         string poolTag = "PhysicsInventoryItem";
 
-        // ¿ÀºêÁ§Æ® Ç® ÂüÁ¶ È®ÀÎ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç® ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         if (ObjectPool.Instance == null)
         {
             Debug.LogError("ObjectPool instance is missing! Cannot initialize physics item pool.");
             return;
         }
 
-        // 1. Ç®ÀÌ ÀÌ¹Ì Á¸ÀçÇÏ´ÂÁö È®ÀÎ
+        // 1. Ç®ï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         bool poolExists = ObjectPool.Instance.DoesPoolExist(poolTag);
         Debug.Log($"Pool '{poolTag}' exists: {poolExists}");
 
-        // 2. ¿þÆù ÇÁ¸®ÆÕ °Ë»ç
+        // 2. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½
         if (weaponPrefab == null)
         {
             Debug.LogError("Weapon prefab reference is missing! Cannot initialize physics item pool.");
             return;
         }
 
-        // 3. ÇÊ¿äÇÑ °æ¿ì PhysicsInventoryItem ÄÄÆ÷³ÍÆ®°¡ ÀÖ´ÂÁö È®ÀÎ
+        // 3. ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ PhysicsInventoryItem ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         PhysicsInventoryItem testComponent = weaponPrefab.GetComponent<PhysicsInventoryItem>();
         if (testComponent == null)
         {
             Debug.LogWarning("PhysicsInventoryItem component not found on weapon prefab. It will be added at runtime.");
         }
 
-        // 4. Ç® »ý¼º ¶Ç´Â È®Àå
+        // 4. Ç® ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ È®ï¿½ï¿½
         if (!poolExists)
         {
-            // »õ Ç® »ý¼º
+            // ï¿½ï¿½ Ç® ï¿½ï¿½ï¿½ï¿½
             int initialPoolSize = 20;
             ObjectPool.Instance.CreatePool(poolTag, weaponPrefab, initialPoolSize);
             Debug.Log($"Created new physics item pool with size {initialPoolSize}");
         }
         else
         {
-            // Ç® Å©±â È®ÀÎ ¹× ÇÊ¿ä½Ã È®Àå
+            // Ç® Å©ï¿½ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ È®ï¿½ï¿½
             int availableCount = ObjectPool.Instance.GetAvailableCount(poolTag);
             int ensurePoolSize = 10;
 
@@ -603,13 +604,13 @@ public class PhysicsInventoryManager : MonoBehaviour
 
     #region Item Creation
     /// <summary>
-    /// ¹°¸® ±â¹Ý ÀÎº¥Åä¸® ¾ÆÀÌÅÛ »ý¼º - ¿ÀºêÁ§Æ® Ç® È°¿ë
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç® È°ï¿½ï¿½
     /// </summary>
     public InventoryItem CreatePhysicsItem(WeaponData weaponData)
     {
         if (weaponData == null || weaponPrefab == null) return null;
 
-        // ·£´ýÇÑ ½ºÆù À§Ä¡ °è»ê
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½
         Vector3 spawnPosition = itemSpawnPoint.position;
         spawnPosition += new Vector3(
             Random.Range(-physicsRandomVariance, physicsRandomVariance),
@@ -619,22 +620,22 @@ public class PhysicsInventoryManager : MonoBehaviour
 
         GameObject itemObj;
 
-        // ¿ÀºêÁ§Æ® Ç®¿¡¼­ °¡Á®¿À±â
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (useObjectPool && ObjectPool.Instance != null && ObjectPool.Instance.DoesPoolExist(poolTag))
         {
-            // °¡¿ë ¿ÀºêÁ§Æ®°¡ ÃæºÐÇÑÁö È®ÀÎ
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
             int availableCount = ObjectPool.Instance.GetAvailableCount(poolTag);
             if (availableCount < 1)
             {
-                // Ç® È®Àå
+                // Ç® È®ï¿½ï¿½
                 ObjectPool.Instance.ExpandPool(poolTag, ensurePoolSize);
                 Debug.Log($"Physics item pool expanded by {ensurePoolSize} items");
             }
 
-            // Ç®¿¡¼­ ¿ÀºêÁ§Æ® °¡Á®¿À±â
+            // Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             itemObj = ObjectPool.Instance.SpawnFromPool(poolTag, spawnPosition, Quaternion.identity);
 
-            // Áß¿ä: Ç®¿¡¼­ °¡Á®¿Â ÈÄ Áï½Ã Äµ¹ö½ºÀÇ ÀÚ½ÄÀ¸·Î ¼³Á¤
+            // ï¿½ß¿ï¿½: Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (itemObj != null && parentCanvas != null)
             {
                 itemObj.transform.SetParent(parentCanvas.transform, false);
@@ -642,7 +643,7 @@ public class PhysicsInventoryManager : MonoBehaviour
         }
         else
         {
-            // ¿ÀºêÁ§Æ® Ç®À» »ç¿ëÇÏÁö ¾Ê°Å³ª »ç¿ëÇÒ ¼ö ¾ø´Â °æ¿ì Á÷Á¢ »ý¼º
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             itemObj = Instantiate(weaponPrefab, spawnPosition, Quaternion.identity, parentCanvas.transform);
         }
 
@@ -652,7 +653,7 @@ public class PhysicsInventoryManager : MonoBehaviour
             return null;
         }
 
-        // ÀÎº¥Åä¸® ¾ÆÀÌÅÛ ÄÄÆ÷³ÍÆ® °¡Á®¿À±â
+        // ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         InventoryItem inventoryItem = itemObj.GetComponent<InventoryItem>();
         if (inventoryItem == null)
         {
@@ -668,29 +669,29 @@ public class PhysicsInventoryManager : MonoBehaviour
             return null;
         }
 
-        // ¹«±â µ¥ÀÌÅÍ ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         inventoryItem.Initialize(weaponData);
-        inventoryItem.SetGridPosition(new Vector2Int(-1, -1)); // ±×¸®µå ¿ÜºÎ Ç¥½Ã
+        inventoryItem.SetGridPosition(new Vector2Int(-1, -1)); // ï¿½×¸ï¿½ï¿½ï¿½ ï¿½Üºï¿½ Ç¥ï¿½ï¿½
 
-        // ¹°¸® ÄÄÆ÷³ÍÆ® Ãß°¡ ¶Ç´Â °¡Á®¿À±â
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ß°ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         PhysicsInventoryItem physicsItem = itemObj.GetComponent<PhysicsInventoryItem>();
         if (physicsItem == null)
         {
             physicsItem = itemObj.AddComponent<PhysicsInventoryItem>();
         }
 
-        // À§Ä¡ ¼³Á¤ ¹× ¹°¸® È°¼ºÈ­
+        // ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­
         physicsItem.SetSpawnPosition(spawnPosition);
         physicsItem.ActivatePhysics();
 
-        // °ü¸® ¸ñ·Ï¿¡ Ãß°¡
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ï¿ï¿½ ï¿½ß°ï¿½
         physicsItems.Add(physicsItem);
 
         return inventoryItem;
     }
 
     /// <summary>
-    /// ÀÎº¥Åä¸® ±×¸®µå¿¡ ºó °ø°£ÀÌ ¾øÀ» ¶§ ¹°¸® ¾ÆÀÌÅÛÀ¸·Î »ý¼º
+    /// ï¿½Îºï¿½ï¿½ä¸® ï¿½×¸ï¿½ï¿½å¿¡ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void HandleFullInventory(WeaponData weaponData)
     {
@@ -702,7 +703,7 @@ public class PhysicsInventoryManager : MonoBehaviour
 
         CreatePhysicsItem(weaponData);
 
-        // È¿°úÀ½ Àç»ý (ÀÖ´Â °æ¿ì)
+        // È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ (ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½)
         if (SoundManager.Instance != null)
         {
             SoundManager.Instance.PlaySound("ItemDrop_sfx", 0.8f, false);
@@ -713,31 +714,31 @@ public class PhysicsInventoryManager : MonoBehaviour
     #region Touch Handling
     private void OnTouchStarted(InputAction.CallbackContext context)
     {
-        // ÅÍÄ¡ À§Ä¡ °¡Á®¿À±â
+        // ï¿½ï¿½Ä¡ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         Vector2 touchPos = touchPosition.ReadValue<Vector2>();
         touchStartPosition = touchPos;
 
         Debug.Log($"Touch started at {touchPos}");
 
-        // ±×¸®µå ³» ¾ÆÀÌÅÛ ¸ÕÀú Ã¼Å©
+        // ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
         Vector2Int gridPosition = mainGrid?.GetGridPosition(touchPos) ?? new Vector2Int(-1, -1);
         if (mainGrid != null && mainGrid.IsValidPosition(gridPosition))
         {
-            // ±×¸®µå ³» ¾ÆÀÌÅÛ ÅÍÄ¡ Ã³¸®´Â InventoryController°¡ ´ã´ç
+            // ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ Ã³ï¿½ï¿½ï¿½ï¿½ InventoryControllerï¿½ï¿½ ï¿½ï¿½ï¿½
             Debug.Log("Touch is inside grid area, skipping physics item check");
             return;
         }
 
-        // ¹°¸® ¾ÆÀÌÅÛ ÅÍÄ¡ Ã¼Å©
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ Ã¼Å©
         PhysicsInventoryItem touchedItem = GetPhysicsItemAtPosition(touchPos);
         if (touchedItem != null)
         {
             Debug.Log($"Found physics item to drag: {touchedItem.name}");
 
-            // ¹°¸® ¾ÆÀÌÅÛ ¼±ÅÃ
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             selectedPhysicsItem = touchedItem;
 
-            // ¹«±â Á¤º¸ UI ¾÷µ¥ÀÌÆ® 
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ UI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® 
             if (weaponInfoUI != null)
             {
                 WeaponData weaponData = touchedItem.GetWeaponData();
@@ -746,7 +747,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                     weaponInfoUI.UpdateWeaponInfo(weaponData);
                 }
             }
-            // È¦µå Ã¼Å© ½ÃÀÛ
+            // È¦ï¿½ï¿½ Ã¼Å© ï¿½ï¿½ï¿½ï¿½
             if (holdCoroutine != null)
             {
                 StopCoroutine(holdCoroutine);
@@ -781,7 +782,7 @@ public class PhysicsInventoryManager : MonoBehaviour
             Vector2 currentPos = touchPosition.ReadValue<Vector2>();
             float distance = Vector2.Distance(startPosition, currentPos);
 
-            // È¦µå ½Ã°£ÀÌ Áö³µ°Å³ª, ÀÏÁ¤ °Å¸® ÀÌ»ó ¿òÁ÷¿´À» °æ¿ì
+            // È¦ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Å³ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ ï¿½Ì»ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             if (elapsedTime >= threshold || distance > dragThreshold)
             {
                 Debug.Log($"Starting to drag: time={elapsedTime}, distance={distance}");
@@ -824,10 +825,10 @@ public class PhysicsInventoryManager : MonoBehaviour
             }
         }
 
-        // ¹°¸® ºñÈ°¼ºÈ­ÇÏ°í µå·¡±× ½ÃÀÛ
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­ï¿½Ï°ï¿½ ï¿½å·¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         item.StartDrag(position);
 
-        // È¿°úÀ½ Àç»ý (SoundManager°¡ ÀÖ´Â °æ¿ì)
+        // È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ (SoundManagerï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½)
         if (SoundManager.Instance != null)
         {
             SoundManager.Instance.PlaySound("ItemLift_sfx", 1f, false);
@@ -839,7 +840,7 @@ public class PhysicsInventoryManager : MonoBehaviour
         {
             Vector2 finalPosition = touchPosition.ReadValue<Vector2>();
 
-            // µå·¡±× Á¾·á Ã³¸®
+            // ï¿½å·¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
             selectedPhysicsItem.EndDrag(mainGrid, finalPosition);
 
             
@@ -848,11 +849,11 @@ public class PhysicsInventoryManager : MonoBehaviour
                 inventoryHighlight.Show(false);
             }
 
-            // »óÅÂ ÃÊ±âÈ­
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
             ResetDragState();
         }
 
-        // È¦µå ÄÚ·çÆ¾ ÁßÁö
+        // È¦ï¿½ï¿½ ï¿½Ú·ï¿½Æ¾ ï¿½ï¿½ï¿½ï¿½
         if (holdCoroutine != null)
         {
             StopCoroutine(holdCoroutine);
@@ -870,22 +871,22 @@ public class PhysicsInventoryManager : MonoBehaviour
 
     #region Helper Methods
     /// <summary>
-    /// Æ¯Á¤ À§Ä¡¿¡ ÀÖ´Â ¹°¸® ¾ÆÀÌÅÛ Ã£±â
+    /// Æ¯ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
     /// </summary>
     private PhysicsInventoryItem GetPhysicsItemAtPosition(Vector2 screenPosition)
     {
         try
         {
-            // ·¹ÀÌÄ³½ºÆ® ¼öÇà
+            // ï¿½ï¿½ï¿½ï¿½Ä³ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
             PointerEventData eventData = new PointerEventData(EventSystem.current);
             eventData.position = screenPosition;
             List<RaycastResult> results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(eventData, results);
 
-            // °á°ú Ã³¸® - ¹°¸® ¾ÆÀÌÅÛ Á÷Á¢ Ã£±â
+            // ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
             foreach (RaycastResult result in results)
             {
-                // ¾ÆÀÌÅÛ ÀÚÃ¼¿¡¼­ ÄÄÆ÷³ÍÆ® Ã£±â
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ã£ï¿½ï¿½
                 PhysicsInventoryItem physicsItem = result.gameObject.GetComponent<PhysicsInventoryItem>();
                 if (physicsItem != null)
                 {
@@ -893,7 +894,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                     return physicsItem;
                 }
 
-                // ºÎ¸ð °´Ã¼¿¡¼­µµ È®ÀÎ
+                // ï¿½Î¸ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
                 Transform parentTransform = result.gameObject.transform.parent;
                 if (parentTransform != null)
                 {
@@ -905,7 +906,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                     }
                 }
 
-                // InventoryItem Ã£±â (PhysicsInventoryItemÀÌ ºÎÂøµÇ¾î ÀÖÀ» ¼ö ÀÖÀ½)
+                // InventoryItem Ã£ï¿½ï¿½ (PhysicsInventoryItemï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
                 InventoryItem inventoryItem = result.gameObject.GetComponent<InventoryItem>();
                 if (inventoryItem != null)
                 {
@@ -918,7 +919,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                 }
             }
 
-            // ¾ÆÀÌÅÛÀ» Ã£Áö ¸øÇÔ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             return null;
         }
         catch (System.Exception e)
@@ -941,18 +942,18 @@ public class PhysicsInventoryManager : MonoBehaviour
 
         try
         {
-            // À§Ä¡ Ã¼Å© - ºñÁ¤»óÀûÀÎ °ª Ã¼Å© ¹× º¸Á¤
+            // ï¿½ï¿½Ä¡ Ã¼Å© - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Ã¼Å© ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (float.IsNaN(position.x) || float.IsNaN(position.y) ||
                 float.IsInfinity(position.x) || float.IsInfinity(position.y) ||
                 Mathf.Abs(position.x) > 10000f || Mathf.Abs(position.y) > 10000f)
             {
                 Debug.LogWarning($"Abnormal position detected: {position}. Using safe position instead.");
 
-                // ¾ÈÀüÇÑ À§Ä¡·Î ´ëÃ¼ (È­¸é Áß¾Ó)
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½Ã¼ (È­ï¿½ï¿½ ï¿½ß¾ï¿½)
                 position = new Vector2(Screen.width / 2, Screen.height / 2);
             }
 
-            // 1. ±×¸®µå¿¡¼­ ¾ÆÀÌÅÛ Á¦°Å (±âÁ¸ ÄÚµå)
+            // 1. ï¿½×¸ï¿½ï¿½å¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½)
             Vector2Int gridPos = item.GridPosition;
             if (mainGrid != null && item.OnGrid)
             {
@@ -960,18 +961,18 @@ public class PhysicsInventoryManager : MonoBehaviour
                 if (enableDebugLogs) Debug.Log($"Removed item from grid at position {gridPos}");
             }
 
-            // 2. Äµ¹ö½º ÂüÁ¶ È®ÀÎ
+            // 2. Äµï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
             if (parentCanvas == null)
             {
                 InitializeCanvasReference();
             }
 
-            // 3. ¾ÆÀÌÅÛÀ» Äµ¹ö½ºÀÇ ÀÚ½ÄÀ¸·Î ¼³Á¤
+            // 3. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (parentCanvas != null)
             {
                 item.transform.SetParent(parentCanvas.transform, false);
 
-                // ¹°¸® ¾ÆÀÌÅÛÀº GridÀÇ ÀÚ½ÄÀÌ ¾Æ´Ï¹Ç·Î ScaleÀ» ¸í½ÃÀûÀ¸·Î ¼³Á¤
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Gridï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½Æ´Ï¹Ç·ï¿½ Scaleï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 item.transform.localScale = new Vector3(6, 6, 1);
             }
             else
@@ -979,48 +980,48 @@ public class PhysicsInventoryManager : MonoBehaviour
                 Debug.LogWarning("No canvas found! Item may not display correctly.");
             }
 
-            // 4. ¾ÆÀÌÅÛ À§Ä¡ ¼³Á¤ - ¼Õ°¡¶ô À§Ä¡ »ç¿ë
+            // 4. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ - ï¿½Õ°ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½
             RectTransform rt = item.GetComponent<RectTransform>();
             if (rt != null)
             {
-                // Áß¿ä: ¿ùµå Æ÷Áö¼ÇÀÌ ¾Æ´Ñ UI À§Ä¡·Î ¼³Á¤
+                // ï¿½ß¿ï¿½: ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ UI ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 rt.position = new Vector3(position.x, position.y, rt.position.z);
                 if (enableDebugLogs) Debug.Log($"Set item position to {rt.position}");
             }
 
-            // 5. ±×¸®µå À§Ä¡ ÃÊ±âÈ­
+            // 5. ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½Ê±ï¿½È­
             item.SetGridPosition(new Vector2Int(-1, -1));
 
-            // 6. ¹°¸® ÄÄÆ÷³ÍÆ® Ãß°¡ ¶Ç´Â °¡Á®¿À±â
+            // 6. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ß°ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             PhysicsInventoryItem physicsItem = item.GetComponent<PhysicsInventoryItem>();
             if (physicsItem == null)
             {
                 physicsItem = item.gameObject.AddComponent<PhysicsInventoryItem>();
 
-                // Áß¿ä: ÇÊ¿äÇÑ °æ¿ì PhysicsInventoryItemÀÇ ÃÊ±âÈ­¸¦ °­Á¦ÇÕ´Ï´Ù
+                // ï¿½ß¿ï¿½: ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ PhysicsInventoryItemï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½
                 physicsItem.ForceInitialize();
                 if (enableDebugLogs) Debug.Log("Added new PhysicsInventoryItem component");
             }
-            // Ä³½ÌµÈ ¹Ù´Ú Á¤º¸ Àü´Þ
+            // Ä³ï¿½Ìµï¿½ ï¿½Ù´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (!isFloorPositionCached) CacheFloorPosition();
             physicsItem.FloorY = cachedFloorY;
 
-            // 7. ¾ÆÀÌÅÛ À§Ä¡ ¼³Á¤ ¹× ¹°¸® È°¼ºÈ­
+            // 7. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­
             Vector2 initialVelocity = Vector2.up * 100f + new Vector2(Random.Range(-50f, 50f), 0f);
             physicsItem.SetSpawnPosition(rt.position);
             physicsItem.ActivatePhysics(initialVelocity, position);
 
-            // 8. °ü¸® ¸ñ·Ï¿¡ Ãß°¡
+            // 8. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ï¿ï¿½ ï¿½ß°ï¿½
             if (!physicsItems.Contains(physicsItem))
             {
                 physicsItems.Add(physicsItem);
                 if (enableDebugLogs) Debug.Log($"Added physics item to managed list. Count: {physicsItems.Count}");
             }
 
-            // 9. ÀÏÁ¤ ½Ã°£ µ¿¾È ¾ÆÀÌÅÛ º¸È£
+            // 9. ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£
             StartCoroutine(ProtectPhysicsItem(physicsItem, 5f));
 
-            // 10. ÀÌ¹ÌÁö ÄÄÆ÷³ÍÆ®°¡ È°¼ºÈ­µÇ¾î ÀÖ´ÂÁö È®ÀÎ
+            // 10. ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ È°ï¿½ï¿½È­ï¿½Ç¾ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
             Image itemImage = item.GetComponent<Image>();
             if (itemImage != null && !itemImage.enabled)
             {
@@ -1028,7 +1029,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                 Debug.Log("Forced image component to be enabled");
             }
 
-            // 11. °ÔÀÓ ¿ÀºêÁ§Æ®°¡ È°¼ºÈ­µÇ¾î ÀÖ´ÂÁö È®ÀÎ
+            // 11. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ È°ï¿½ï¿½È­ï¿½Ç¾ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
             if (!item.gameObject.activeSelf)
             {
                 item.gameObject.SetActive(true);
@@ -1046,24 +1047,24 @@ public class PhysicsInventoryManager : MonoBehaviour
     {
         if (item == null) yield break;
 
-        // ½Ã°£ ±â¹Ý º¸È£ »ç¿ë
+        // ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½È£ ï¿½ï¿½ï¿½
         item.SetProtected(true, protectionDuration);
 
-        // º¸È£ ±â°£ µ¿¾È ÁÖ±âÀûÀ¸·Î È°¼º »óÅÂ È®ÀÎ
+        // ï¿½ï¿½È£ ï¿½â°£ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         float startTime = Time.unscaledTime;
         while (Time.unscaledTime - startTime < protectionDuration && item != null)
         {
-            // ºñÈ°¼ºÈ­µÆ´Ù¸é °­Á¦·Î È°¼ºÈ­
+            // ï¿½ï¿½È°ï¿½ï¿½È­ï¿½Æ´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­
             if (item != null && !item.gameObject.activeSelf)
             {
                 item.gameObject.SetActive(true);
                 if (enableDebugLogs) Debug.Log("Forced protected item to stay active");
             }
 
-            yield return new WaitForSeconds(0.5f); // 0.5ÃÊ¸¶´Ù Ã¼Å©
+            yield return new WaitForSeconds(0.5f); // 0.5ï¿½Ê¸ï¿½ï¿½ï¿½ Ã¼Å©
         }
 
-        // º¸È£ ±â°£ÀÌ ³¡³­ ÈÄ¿¡µµ ÇÑ ¹ø ´õ È®ÀÎ
+        // ï¿½ï¿½È£ ï¿½â°£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¿ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ È®ï¿½ï¿½
         if (item != null && !item.gameObject.activeSelf)
         {
             item.gameObject.SetActive(true);
@@ -1104,7 +1105,7 @@ public class PhysicsInventoryManager : MonoBehaviour
     {
         Debug.Log("===== Canvas Hierarchy =====");
 
-        // CombatUI Ã£±â
+        // CombatUI Ã£ï¿½ï¿½
         GameObject combatUI = GameObject.Find("CombatUI");
         if (combatUI != null)
         {
@@ -1116,7 +1117,7 @@ public class PhysicsInventoryManager : MonoBehaviour
             Debug.Log("CombatUI not found");
         }
 
-        // ¸ðµç Äµ¹ö½º Ãâ·Â
+        // ï¿½ï¿½ï¿½ Äµï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
         Debug.Log($"Total canvases in scene: {canvases.Length}");
         for (int i = 0; i < canvases.Length; i++)
@@ -1129,7 +1130,7 @@ public class PhysicsInventoryManager : MonoBehaviour
 
     private void LogChildHierarchy(Transform parent, int depth)
     {
-        if (depth > 5) return; // ³Ê¹« ±íÀÌ µé¾î°¡Áö ¾Êµµ·Ï
+        if (depth > 5) return; // ï¿½Ê¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½î°¡ï¿½ï¿½ ï¿½Êµï¿½ï¿½ï¿½
 
         string indent = new string(' ', depth * 2);
 
@@ -1148,7 +1149,7 @@ public class PhysicsInventoryManager : MonoBehaviour
 
             Debug.Log($"{indent}- {child.name} {typeInfo}");
 
-            // Àç±ÍÀûÀ¸·Î ÀÚ½Äµé Ãâ·Â
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú½Äµï¿½ ï¿½ï¿½ï¿½
             LogChildHierarchy(child, depth + 1);
         }
     }
@@ -1174,7 +1175,7 @@ public class PhysicsInventoryManager : MonoBehaviour
         }
     }
     /// <summary>
-    /// ¸ðµç µå¶øµÈ ¾ÆÀÌÅÛ ¼öÁý (ÀÚ¼® È¿°ú µî¿¡ »ç¿ë)
+    /// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½Ú¼ï¿½ È¿ï¿½ï¿½ ï¿½î¿¡ ï¿½ï¿½ï¿½)
     /// </summary>
     public void CollectAllItems(Transform target)
     {
@@ -1182,7 +1183,7 @@ public class PhysicsInventoryManager : MonoBehaviour
         {
             if (item != null && !item.IsBeingDragged)
             {
-                // ´ë»ó ¹æÇâÀ¸·Î ÀÌµ¿ÇÏ´Â ¹°¸® È¿°ú
+                // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½
                 Vector2 direction = (target.position - item.transform.position).normalized;
                 item.ActivatePhysics(direction * 500f);
             }
@@ -1190,7 +1191,7 @@ public class PhysicsInventoryManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÀÎº¥Åä¸® ±×¸®µå¿¡ Æ¯Á¤ ¾ÆÀÌÅÛÀ» À§ÇÑ °ø°£ÀÌ ÀÖ´ÂÁö È®ÀÎ
+    /// ï¿½Îºï¿½ï¿½ä¸® ï¿½×¸ï¿½ï¿½å¿¡ Æ¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
     /// </summary>
     public bool HasSpaceForItem(WeaponData weaponData)
     {
@@ -1199,20 +1200,20 @@ public class PhysicsInventoryManager : MonoBehaviour
             return false;
         }
 
-        // Ç®¿¡¼­ ¾ÆÀÌÅÛ ÀÓ½Ã ´ë¿© ¶Ç´Â ÀÓ½Ã »ý¼º
+        // Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ó½ï¿½ ï¿½ë¿© ï¿½Ç´ï¿½ ï¿½Ó½ï¿½ ï¿½ï¿½ï¿½ï¿½
         GameObject tempObj;
         bool fromPool = false;
 
         if (useObjectPool && ObjectPool.Instance != null && ObjectPool.Instance.DoesPoolExist(poolTag) &&
             ObjectPool.Instance.GetAvailableCount(poolTag) > 0)
         {
-            // Ç®¿¡¼­ ¾ÆÀÌÅÛ °¡Á®¿À±â (È­¸é ¹Û À§Ä¡)
+            // Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (È­ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ä¡)
             tempObj = ObjectPool.Instance.SpawnFromPool(poolTag, new Vector3(-10000, -10000, 0), Quaternion.identity);
             fromPool = true;
         }
         else
         {
-            // ÀÓ½Ã ¾ÆÀÌÅÛ »ý¼º
+            // ï¿½Ó½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             tempObj = Instantiate(weaponPrefab);
         }
 
@@ -1224,7 +1225,7 @@ public class PhysicsInventoryManager : MonoBehaviour
         InventoryItem tempItem = tempObj.GetComponent<InventoryItem>();
         if (tempItem == null)
         {
-            // »ç¿ë ÈÄ Ã³¸®
+            // ï¿½ï¿½ï¿½ ï¿½ï¿½ Ã³ï¿½ï¿½
             if (fromPool)
             {
                 ObjectPool.Instance.ReturnToPool(poolTag, tempObj);
@@ -1236,13 +1237,13 @@ public class PhysicsInventoryManager : MonoBehaviour
             return false;
         }
 
-        // ÀÓ½Ã·Î ¹«±â µ¥ÀÌÅÍ ÃÊ±âÈ­
+        // ï¿½Ó½Ã·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         tempItem.Initialize(weaponData);
 
-        // ±×¸®µå¿¡¼­ °ø°£ Ã£±â
+        // ï¿½×¸ï¿½ï¿½å¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
         Vector2Int? freePosition = mainGrid.FindSpaceForObject(tempItem);
 
-        // »ç¿ë ÈÄ ¾ÆÀÌÅÛ Ã³¸®
+        // ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
         if (fromPool)
         {
             ObjectPool.Instance.ReturnToPool(poolTag, tempObj);
@@ -1262,8 +1263,8 @@ public class PhysicsInventoryManager : MonoBehaviour
     {
         if (physicsItems.Count == 0) return;
 
-        // µð¹ö±ë ·Î±×´Â ¼±ÅÃÀûÀ¸·Î È°¼ºÈ­
-        if (enableDebugLogs && Time.frameCount % 300 == 0) // 10ÃÊ¿¡ ÇÑ ¹ø¾¿¸¸ ·Î±× Ãâ·Â (30fps ±âÁØ)
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î±×´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­
+        if (enableDebugLogs && Time.frameCount % 300 == 0) // 10ï¿½Ê¿ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ (30fps ï¿½ï¿½ï¿½ï¿½)
         {
             Debug.Log($"Active physics items: {physicsItems.Count}, Screen: ({Screen.width}, {Screen.height})");
         }
@@ -1278,28 +1279,28 @@ public class PhysicsInventoryManager : MonoBehaviour
                 continue;
             }
 
-            // º¸È£ »óÅÂÀÌ°Å³ª µå·¡±× ÁßÀÎ ¾ÆÀÌÅÛÀº ¹«½Ã
+            // ï¿½ï¿½È£ ï¿½ï¿½ï¿½ï¿½ï¿½Ì°Å³ï¿½ ï¿½å·¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (item.IsProtected || item.IsBeingDragged)
             {
                 continue;
             }
 
-            // ¾ÆÀÌÅÛÀÌ ÃÖ±Ù¿¡ È°¼ºÈ­µÇ¾úÀ¸¸é Á¦°ÅÇÏÁö ¾ÊÀ½
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±Ù¿ï¿½ È°ï¿½ï¿½È­ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             float activationAge = Time.time - item.ActivationTime;
-            if (activationAge < 10f) // È°¼ºÈ­ ÈÄ 10ÃÊ µ¿¾ÈÀº º¸È£
+            if (activationAge < 10f) // È°ï¿½ï¿½È­ ï¿½ï¿½ 10ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£
             {
                 continue;
             }
 
-            // À§Ä¡ È®ÀÎ
+            // ï¿½ï¿½Ä¡ È®ï¿½ï¿½
             Vector3 itemPosition = item.transform.position;
 
-            // ±Ø´ÜÀûÀ¸·Î Å« À§Ä¡°ª¸¸ Ã¼Å©
+            // ï¿½Ø´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å« ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
             bool isExtremePosition = Mathf.Abs(itemPosition.x) > 50000f ||
                                     Mathf.Abs(itemPosition.y) > 50000f ||
                                     Mathf.Abs(itemPosition.z) > 50000f;
 
-            // NaNÀÌ³ª Infinity Ã¼Å©
+            // NaNï¿½Ì³ï¿½ Infinity Ã¼Å©
             bool hasInvalidValues = float.IsNaN(itemPosition.x) || float.IsInfinity(itemPosition.x) ||
                                    float.IsNaN(itemPosition.y) || float.IsInfinity(itemPosition.y) ||
                                    float.IsNaN(itemPosition.z) || float.IsInfinity(itemPosition.z);
@@ -1314,7 +1315,7 @@ public class PhysicsInventoryManager : MonoBehaviour
             }
         }
 
-        // Á¦°Å ´ë»ó Ã³¸®
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
         foreach (var item in itemsToRemove)
         {
             if (item != null)
@@ -1323,10 +1324,10 @@ public class PhysicsInventoryManager : MonoBehaviour
             }
         }
 
-        // ¸ñ·Ï¿¡¼­ null ÂüÁ¶ Á¦°Å
+        // ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ null ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         physicsItems.RemoveAll(item => item == null);
     }
-    /// ¾ÆÀÌÅÛÀ» Ç®·Î ¹ÝÈ¯
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç®ï¿½ï¿½ ï¿½ï¿½È¯
     /// </summary>
     private void ReturnItemToPool(PhysicsInventoryItem item)
     {
@@ -1334,10 +1335,10 @@ public class PhysicsInventoryManager : MonoBehaviour
 
         physicsItems.Remove(item);
 
-        // ¹°¸® ºñÈ°¼ºÈ­
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­
         item.DeactivatePhysics();
 
-        // Ç®·Î ¹ÝÈ¯
+        // Ç®ï¿½ï¿½ ï¿½ï¿½È¯
         if (useObjectPool && ObjectPool.Instance != null)
         {
             ObjectPool.Instance.ReturnToPool(poolTag, item.gameObject);
@@ -1349,7 +1350,7 @@ public class PhysicsInventoryManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸ðµç ¾ÆÀÌÅÛÀ» Ç®·Î ¹ÝÈ¯
+    /// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç®ï¿½ï¿½ ï¿½ï¿½È¯
     /// </summary>
     private void ReturnAllItemsToPool()
     {
@@ -1372,33 +1373,33 @@ public class PhysicsInventoryManager : MonoBehaviour
 
         try
         {
-            // ¹°¸® È°¼ºÈ­ »óÅÂ ÇØÁ¦
+            // ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             physicsItem.DeactivatePhysics();
 
-            // InventoryItem ÄÄÆ÷³ÍÆ® °¡Á®¿À±â
+            // InventoryItem ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             InventoryItem inventoryItem = physicsItem.GetComponent<InventoryItem>();
             if (inventoryItem != null)
             {
-                // ±×¸®µå¿¡ ºó °ø°£ Ã£±â
+                // ï¿½×¸ï¿½ï¿½å¿¡ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
                 Vector2Int? freePosition = mainGrid.FindSpaceForObject(inventoryItem);
 
                 if (freePosition.HasValue)
                 {
-                    // ±×¸®µå¿¡ µé¾î°¥ ¶§ ScaleÀ» 1,1,1·Î º¯°æ
+                    // ï¿½×¸ï¿½ï¿½å¿¡ ï¿½ï¿½î°¥ ï¿½ï¿½ Scaleï¿½ï¿½ 1,1,1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     RectTransform rt = inventoryItem.GetComponent<RectTransform>();
                     if (rt != null)
                     {
                         rt.localScale = Vector3.one;
                     }
 
-                    // ±×¸®µå ºÎ¸ð·Î ¼³Á¤
+                    // ï¿½×¸ï¿½ï¿½ï¿½ ï¿½Î¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     inventoryItem.transform.SetParent(mainGrid.transform, false);
 
-                    // ±×¸®µå¿¡ ¹èÄ¡
+                    // ï¿½×¸ï¿½ï¿½å¿¡ ï¿½ï¿½Ä¡
                     InventoryItem overlapItem = null;
                     mainGrid.PlaceItem(inventoryItem, freePosition.Value, ref overlapItem);
 
-                    // ¹°¸® ¾ÆÀÌÅÛ ¸ñ·Ï¿¡¼­ Á¦°Å
+                    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     physicsItems.Remove(physicsItem);
 
                     Debug.Log($"Successfully placed physics item {inventoryItem.name} in grid at {freePosition.Value}");
@@ -1406,14 +1407,14 @@ public class PhysicsInventoryManager : MonoBehaviour
                 }
             }
 
-            // ±×¸®µå¿¡ °ø°£ÀÌ ¾ø°Å³ª ½ÇÆÐÇÑ °æ¿ì, ¹°¸® È¿°ú ´Ù½Ã È°¼ºÈ­
+            // ï¿½×¸ï¿½ï¿½å¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½Ù½ï¿½ È°ï¿½ï¿½È­
             physicsItem.ActivatePhysics();
             Debug.Log("No space in grid, reactivating physics");
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Error in ReturnPhysicsItemToGrid: {e.Message}");
-            // ½ÇÆÐ ½Ã ¹°¸® È¿°ú ´Ù½Ã È°¼ºÈ­
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½Ù½ï¿½ È°ï¿½ï¿½È­
             physicsItem.ActivatePhysics();
         }
     }
@@ -1424,13 +1425,13 @@ public class PhysicsInventoryManager : MonoBehaviour
 
         try
         {
-            // ¸ñ·Ï¿¡¼­ Á¦°Å
+            // ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             physicsItems.Remove(item);
 
-            // ¹°¸® ºñÈ°¼ºÈ­
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­
             item.DeactivatePhysics();
           
-            // Àåºñ È¿°ú Á¦°Å (ÇÊ¿äÇÑ °æ¿ì)
+            // ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)
             InventoryItem inventoryItem = item.GetComponent<InventoryItem>();
             if (inventoryItem != null && inventoryItem.GetWeaponData() != null)
             {
@@ -1442,7 +1443,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                 }
             }
 
-            // ¿ÀºêÁ§Æ® Ç®·Î ¹ÝÈ¯ ¶Ç´Â ÆÄ±«
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç®ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½Ç´ï¿½ ï¿½Ä±ï¿½
             if (useObjectPool && ObjectPool.Instance != null)
             {
                 string poolTag = "PhysicsInventoryItem";
@@ -1459,7 +1460,7 @@ public class PhysicsInventoryManager : MonoBehaviour
         {
             Debug.LogError($"Error removing physics item: {e.Message}");
         }
-        // WeaponInfoUI ¾÷µ¥ÀÌÆ® (¼±ÅÃµÈ ¾ÆÀÌÅÛÀÌ Á¦°ÅµÈ °æ¿ì)
+        // WeaponInfoUI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Åµï¿½ ï¿½ï¿½ï¿½)
         if (weaponInfoUI != null && selectedPhysicsItem == item)
         {
             selectedPhysicsItem = null;
