@@ -488,7 +488,7 @@ public class InventoryController : MonoBehaviour
     #region Touch Input Handling
     private void OnTouchStarted(InputAction.CallbackContext context)
     {
-        if (!inventoryUI.activeSelf) return;
+        if (inventoryUI == null || !inventoryUI.activeSelf) return;
 
         Vector2 touchPos = touchPosition.ReadValue<Vector2>();
         Vector2Int gridPosition = mainInventoryGrid.GetGridPosition(touchPos);
@@ -557,7 +557,7 @@ public class InventoryController : MonoBehaviour
 
     private void OnTouchEnded(InputAction.CallbackContext context)
     {
-        if (!inventoryUI.activeSelf) return;
+        if (inventoryUI == null || !inventoryUI.activeSelf) return;
 
         // 이벤트 발생 시 로그 추가 (디버깅용)
         Debug.Log("Touch ended. Checking for physics interactions...");

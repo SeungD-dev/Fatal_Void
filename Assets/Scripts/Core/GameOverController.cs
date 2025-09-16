@@ -93,10 +93,28 @@ public class GameOverController : MonoBehaviour
             soundManager.PlaySound("Button_sfx", 0f, false);
         }
 
-        // ���� ���� �ʱ�ȭ
+        // 게임오버 패널 즉시 비활성화
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(false);
+        }
+
+        // Time.timeScale 정상화 (혹시 멈춰있었다면)
+        Time.timeScale = 1f;
+
+        // 게임 상태 초기화
         GameManager.Instance.ClearSceneReferences();
 
-        // ���� �����
+        // 약간의 지연 후 게임 재시작 (정리 작업 완료를 기다림)
+        StartCoroutine(RestartGameAfterDelay());
+    }
+
+    private System.Collections.IEnumerator RestartGameAfterDelay()
+    {
+        // 1프레임 대기하여 정리 작업이 완료되도록 함
+        yield return null;
+
+        // 게임 재시작
         GameManager.Instance.StartGame();
     }
 

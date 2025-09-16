@@ -158,9 +158,9 @@ public class PlayerStats : MonoBehaviour
         coinCount = initialCoinCount;
         pickupRange = basePickupRange;
 
+        // 첫 초기화에서만 체력을 최대체력으로 설정
         UpdateStats();
-        LevelUp();  // ù ���������� ���� ����
-
+        LevelUp();  // 첫 초기화에서 레벨 설정
         isInitialized = true;
     }
 
@@ -218,7 +218,16 @@ public class PlayerStats : MonoBehaviour
             lastStatUpdateTime = Time.time;
         }
 
-        currentHealth = maxHealth;
+        // Initialize health only during first initialization
+        if (!isInitialized)
+        {
+            currentHealth = maxHealth;
+        }
+        else
+        {
+            // During level up, maintain current health ratio or cap at new max
+            currentHealth = Mathf.Min(currentHealth, maxHealth);
+        }
     }
 
     #region Resource Management

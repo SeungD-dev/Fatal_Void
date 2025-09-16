@@ -238,12 +238,90 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ClearSceneReferences()
     {
+        Debug.Log("Starting scene cleanup...");
+
+        // 모든 코루틴 정지
+        StopAllCoroutines();
+
+        // WaveManager 정지
+        var waveManager = FindObjectOfType<WaveManager>();
+        if (waveManager != null)
+        {
+            Debug.Log("Stopping WaveManager...");
+            waveManager.StopAllCoroutines();
+        }
+
+        // DOTween 정리 (ObjectPool 정리 전에 먼저 실행)
+        DOTween.KillAll();
+
+        // 모든 활성화된 적들을 풀로 반환하거나 파괴
+        var enemies = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        Debug.Log($"Found {enemies.Length} enemies to cleanup");
+        foreach (var enemy in enemies)
+        {
+            if (enemy != null && enemy.gameObject != null)
+            {
+                // 풀 오브젝트인지 확인하고 적절히 처리
+                if (enemy.gameObject.activeInHierarchy)
+                {
+                    enemy.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        // 모든 활성화된 수집 아이템들 정리
+        var collectibles = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None);
+        Debug.Log($"Found {collectibles.Length} collectibles to cleanup");
+        foreach (var collectible in collectibles)
+        {
+            if (collectible != null && collectible.gameObject != null)
+            {
+                if (collectible.gameObject.activeInHierarchy)
+                {
+                    collectible.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        // 모든 활성화된 발사체들 정리
+        var projectiles = FindObjectsByType<BaseProjectile>(FindObjectsSortMode.None);
+        Debug.Log($"Found {projectiles.Length} projectiles to cleanup");
+        foreach (var projectile in projectiles)
+        {
+            if (projectile != null && projectile.gameObject != null)
+            {
+                if (projectile.gameObject.activeInHierarchy)
+                {
+                    projectile.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        // ObjectPool 정리 (모든 오브젝트를 비활성화한 후)
+        if (ObjectPool.Instance != null)
+        {
+            Debug.Log("Clearing ObjectPool...");
+            ObjectPool.Instance.ClearAllPools();
+        }
+
+        // 참조 정리
         playerStats = null;
         shopController = null;
         combatController = null;
         gameOverController = null;
-        physicsInventoryManager = null; // ���� �κ��丮 �Ŵ��� ���� ����
+        physicsInventoryManager = null; // 물리 인벤토리 매니저 참조 초기화
+        PlayerTransform = null;
+
+        // 웨이브 리셋
+        _currentWave = 0;
+
         isInitialized = false;
+
+        // 강제 가비지 컬렉션
+        Resources.UnloadUnusedAssets();
+        System.GC.Collect();
+
+        Debug.Log("Scene cleanup completed!");
     }
 
     /// <summary>

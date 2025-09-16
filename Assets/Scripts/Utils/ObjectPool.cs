@@ -9,26 +9,26 @@ public class ObjectPool : MonoBehaviour
         public string tag;
         public GameObject prefab;
         public int initialSize;
-        [Tooltip("Ç®ÀÇ ÃÖ´ë Å©±â (0 = ¹«Á¦ÇÑ)")]
+        [Tooltip("Ç®ï¿½ï¿½ ï¿½Ö´ï¿½ Å©ï¿½ï¿½ (0 = ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)")]
         public int maxSize;
-        [Tooltip("Ç®ÀÌ ºñ¾úÀ» ¶§ ÇÑ ¹ø¿¡ »ı¼ºÇÒ ¿ÀºêÁ§Æ® ¼ö")]
+        [Tooltip("Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½")]
         public int growSize = 5;
     }
 
     [SerializeField] private List<Pool> pools;
     private Dictionary<string, Queue<GameObject>> poolDictionary;
     private Dictionary<string, Pool> poolConfigs;
-    private Dictionary<GameObject, string> objectToTagMap; // ¿ÀºêÁ§Æ®¸¦ ÅÂ±×¿¡ ¸ÅÇÎÇÏ´Â µñ¼Å³Ê¸®
+    private Dictionary<GameObject, string> objectToTagMap; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Â±×¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½Å³Ê¸ï¿½
 
-    // Scene °èÃş±¸Á¶¸¦ ÃÖÀûÈ­ÇÏ±â À§ÇÑ ¿É¼Ç
-    [Tooltip("true: Ç® ¿ÀºêÁ§Æ®¸¦ °èÃş ±¸Á¶¿¡¼­ ºĞ¸®, false: ±âÁ¸ ¹æ½Ä´ë·Î °èÃş ±¸Á¶ À¯Áö")]
+    // Scene ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½
+    [Tooltip("true: Ç® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ğ¸ï¿½, false: ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä´ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private bool useOptimizedHierarchy = true;
-    [Tooltip("false·Î ¼³Á¤½Ã ¿ÀºêÁ§Æ® Ç®¸µ µğ¹ö±ëÀÌ ¾î·Á¿ï ¼ö ÀÖÁö¸¸ ¼º´ÉÀº Çâ»óµË´Ï´Ù")]
+    [Tooltip("falseï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ë´Ï´ï¿½")]
 
-    // Ç® ÄÁÅ×ÀÌ³Ê Ä³½Ì (±âÁ¸ ¹æ½Ä¿¡¼­¸¸ »ç¿ë)
+    // Ç® ï¿½ï¿½ï¿½ï¿½ï¿½Ì³ï¿½ Ä³ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)
     private Dictionary<string, Transform> poolContainers;
 
-    // ºñÈ°¼ºÈ­µÈ ¿ÀºêÁ§Æ®ÀÇ ºÎ¸ğ Transform (ÃÖÀûÈ­ ¸ğµå¿¡¼­´Â »ç¿ëÇÏÁö ¾ÊÀ½)
+    // ï¿½ï¿½È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Î¸ï¿½ Transform (ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½å¿¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     private Transform inactiveObjectsParent;
     private Transform playerTransform;
     private static ObjectPool instance;
@@ -39,12 +39,12 @@ public class ObjectPool : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject); // DontDestroyOnLoad Ãß°¡
+            DontDestroyOnLoad(gameObject); // DontDestroyOnLoad ï¿½ß°ï¿½
             InitializePools();
         }
-        else if (instance != this) // ÀÌ Ã¼Å© Ãß°¡
+        else if (instance != this) // ï¿½ï¿½ Ã¼Å© ï¿½ß°ï¿½
         {
-            // ±âÁ¸¿¡ ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÏ¸é ÇöÀç ¿ÀºêÁ§Æ® Á¦°Å
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
             Debug.LogWarning("Multiple ObjectPool instances detected. Destroying duplicate.");
             Destroy(gameObject);
         }
@@ -57,7 +57,7 @@ public class ObjectPool : MonoBehaviour
         objectToTagMap = new Dictionary<GameObject, string>();
         poolContainers = new Dictionary<string, Transform>();
 
-        // ±âÁ¸ ¹æ½Ä¿¡¼­´Â ÀÚ±â ÀÚ½ÅÀ» ºÎ¸ğ·Î ¼³Á¤
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú±ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½Î¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         inactiveObjectsParent = transform;
 
         foreach (Pool pool in pools)
@@ -74,7 +74,7 @@ public class ObjectPool : MonoBehaviour
     {
         Queue<GameObject> objectPool = new Queue<GameObject>();
 
-        // ÃÖÀûÈ­ ¸ğµå¿¡¼­´Â º°µµ ÄÁÅ×ÀÌ³Ê¸¦ »ı¼ºÇÏÁö ¾ÊÀ½
+        // ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½å¿¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì³Ê¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (!useOptimizedHierarchy)
         {
             GameObject poolContainer = new GameObject($"Pool-{poolConfig.tag}");
@@ -96,19 +96,19 @@ public class ObjectPool : MonoBehaviour
     {
         GameObject obj = Instantiate(prefab);
 
-        // ÃÖÀûÈ­ ¸ğµå¿¡¼­´Â °èÃş ±¸Á¶¿¡¼­ ¿ÏÀüÈ÷ ºĞ¸®
+        // ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½å¿¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ğ¸ï¿½
         if (useOptimizedHierarchy)
         {
-            // Scene¿¡¼­ ·çÆ® ·¹º§·Î ¼³Á¤ÇÏ¿© Transform ¿¬»ê ÃÖ¼ÒÈ­
+            // Sceneï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ Transform ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½È­
             obj.transform.SetParent(null);
         }
         else
         {
-            // ±âÁ¸ ¹æ½Ä´ë·Î Ç® ÄÁÅ×ÀÌ³ÊÀÇ ÀÚ½ÄÀ¸·Î ¼³Á¤
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä´ï¿½ï¿½ Ç® ï¿½ï¿½ï¿½ï¿½ï¿½Ì³ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             obj.transform.SetParent(poolContainers[tag]);
         }
 
-        objectToTagMap[obj] = tag; // ¿ÀºêÁ§Æ®¿Í ÅÂ±× ¸ÅÇÎ ÀúÀå
+        objectToTagMap[obj] = tag; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Â±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         obj.SetActive(false);
         return obj;
     }
@@ -126,26 +126,26 @@ public class ObjectPool : MonoBehaviour
 
         GameObject objectToSpawn;
 
-        // Ç®ÀÌ ºñ¾úÀ» ¶§ Ã³¸®
+        // Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Ã³ï¿½ï¿½
         if (pool.Count == 0)
         {
-            // ±âÁ¸ ÄÚµå...
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½...
             objectToSpawn = CreateNewPoolObject(config.prefab, tag);
         }
         else
         {
             objectToSpawn = pool.Dequeue();
-            if (objectToSpawn == null) // Ç®¿¡ ÀÖ´Â ¿ÀºêÁ§Æ®°¡ ÆÄ±«µÈ °æ¿ì
+            if (objectToSpawn == null) // Ç®ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ä±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             {
                 objectToSpawn = CreateNewPoolObject(config.prefab, tag);
             }
         }
 
-        // ¿ÀºêÁ§Æ® À§Ä¡ ¹× È¸Àü ¼³Á¤ (SetActive Àü¿¡ ¼öÇàÇÏ¿© ºÒÇÊ¿äÇÑ ÀÌº¥Æ® È£Ãâ ¹æÁö)
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½Ä¡ ï¿½ï¿½ È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (SetActive ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
 
-        // Enemy ÄÄÆ÷³ÍÆ®°¡ ÀÖ°í ÇÃ·¹ÀÌ¾î ÂüÁ¶°¡ ÀÖÀ¸¸é ÃÊ±âÈ­
+        // Enemy ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ö°ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         Enemy enemy = objectToSpawn.GetComponent<Enemy>();
         if (enemy != null && playerTransform != null)
         {
@@ -165,7 +165,7 @@ public class ObjectPool : MonoBehaviour
 
     public void ReturnToPool(GameObject objectToReturn)
     {
-        // ÅÂ±× ¸ÅÇÎÀ» ÅëÇØ ¿ÀºêÁ§Æ®°¡ ¼ÓÇÑ Ç® Ã£±â
+        // ï¿½Â±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç® Ã£ï¿½ï¿½
         if (!objectToTagMap.TryGetValue(objectToReturn, out string tag))
         {
             Debug.LogWarning($"Object not managed by pool: {objectToReturn.name}");
@@ -185,10 +185,10 @@ public class ObjectPool : MonoBehaviour
 
         objectToReturn.SetActive(false);
 
-        // ÃÖÀûÈ­ ¸ğµå: °èÃş ±¸Á¶¿¡¼­ ¿ÏÀüÈ÷ ºĞ¸®
+        // ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ğ¸ï¿½
         if (!useOptimizedHierarchy)
         {
-            // ±âÁ¸ ¹æ½Ä¿¡¼­¸¸ Ç® ÄÁÅ×ÀÌ³ÊÀÇ ÀÚ½ÄÀ¸·Î ¼³Á¤
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ Ç® ï¿½ï¿½ï¿½ï¿½ï¿½Ì³ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             objectToReturn.transform.SetParent(poolContainers[tag]);
         }
 
@@ -208,7 +208,7 @@ public class ObjectPool : MonoBehaviour
             tag = tag,
             prefab = prefab,
             initialSize = size,
-            maxSize = 0, // ¹«Á¦ÇÑ
+            maxSize = 0, // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             growSize = 5
         };
 
@@ -219,10 +219,10 @@ public class ObjectPool : MonoBehaviour
     {
         if (!poolDictionary.ContainsKey(tag)) return 0;
 
-        // ºñÈ°¼ºÈ­µÈ ¿ÀºêÁ§Æ® ¼ö(Å¥¿¡ ÀÖ´Â ¿ÀºêÁ§Æ®)
+        // ï¿½ï¿½È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½(Å¥ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®)
         int inactiveCount = poolDictionary[tag].Count;
 
-        // È°¼ºÈ­µÈ ¿ÀºêÁ§Æ® ¼ö °è»ê
+        // È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½ï¿½
         int activeCount = 0;
         foreach (var pair in objectToTagMap)
         {
@@ -239,10 +239,10 @@ public class ObjectPool : MonoBehaviour
     {
         if (!poolDictionary.ContainsKey(tag)) return;
 
-        // Á¤Àû ¸®½ºÆ® Àç»ç¿ë (GC Alloc ¹æÁö)
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ (GC Alloc ï¿½ï¿½ï¿½ï¿½)
         List<GameObject> objectsToReturn = new List<GameObject>();
 
-        // È°¼ºÈ­µÈ ¿ÀºêÁ§Æ® Ã£±â
+        // È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ã£ï¿½ï¿½
         foreach (var pair in objectToTagMap)
         {
             if (pair.Value == tag && pair.Key != null && pair.Key.activeInHierarchy)
@@ -251,7 +251,7 @@ public class ObjectPool : MonoBehaviour
             }
         }
 
-        // ¸ğµç ¿ÀºêÁ§Æ® ¹İÈ¯
+        // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½È¯
         foreach (var obj in objectsToReturn)
         {
             if (obj != null && obj.activeInHierarchy)
@@ -262,7 +262,7 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    // ±âÁ¸ API¿ÍÀÇ È£È¯¼ºÀ» À§ÇÑ ¸Ş¼­µå
+    // ï¿½ï¿½ï¿½ï¿½ APIï¿½ï¿½ï¿½ï¿½ È£È¯ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ş¼ï¿½ï¿½ï¿½
     public void ReturnToPool(string tag, GameObject objectToReturn, bool forceParenting = false)
     {
         if (!poolDictionary.ContainsKey(tag))
@@ -273,10 +273,10 @@ public class ObjectPool : MonoBehaviour
 
         objectToReturn.SetActive(false);
 
-        // forceParentingÀÌ trueÀÌ¸é Ç×»ó Ç® ÄÁÅ×ÀÌ³ÊÀÇ ÀÚ½ÄÀ¸·Î ¼³Á¤ (±âÁ¸ ¹æ½Ä°ú È£È¯¼º À¯Áö)
+        // forceParentingï¿½ï¿½ trueï¿½Ì¸ï¿½ ï¿½×»ï¿½ Ç® ï¿½ï¿½ï¿½ï¿½ï¿½Ì³ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä°ï¿½ È£È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         if (forceParenting || !useOptimizedHierarchy)
         {
-            // ±âÁ¸ Ç® ÄÁÅ×ÀÌ³Ê°¡ ÀÖ´Â °æ¿ì¿¡¸¸ ºÎ¸ğ·Î ¼³Á¤
+            // ï¿½ï¿½ï¿½ï¿½ Ç® ï¿½ï¿½ï¿½ï¿½ï¿½Ì³Ê°ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½Î¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (poolContainers.TryGetValue(tag, out Transform container))
             {
                 objectToReturn.transform.SetParent(container);
@@ -324,18 +324,63 @@ public class ObjectPool : MonoBehaviour
         Queue<GameObject> pool = poolDictionary[tag];
         Pool config = poolConfigs[tag];
 
-        // ÇöÀç °¡¿ë ¿ÀºêÁ§Æ®°¡ ÃæºĞÇÏ¸é ¾Æ¹«°Íµµ ÇÏÁö ¾ÊÀ½
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½Æ¹ï¿½ï¿½Íµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (pool.Count >= requiredCount)
         {
             return;
         }
 
-        // ÇÊ¿äÇÑ ¸¸Å­¸¸ Ãß°¡ (Á¤È®È÷)
+        // ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½Å­ï¿½ï¿½ ï¿½ß°ï¿½ (ï¿½ï¿½È®ï¿½ï¿½)
         int toAdd = requiredCount - pool.Count;
         for (int i = 0; i < toAdd; i++)
         {
             GameObject obj = CreateNewPoolObject(config.prefab, tag);
             pool.Enqueue(obj);
         }
+    }
+
+    /// <summary>
+    /// ëª¨ë“  í’€ì„ ì •ë¦¬í•˜ê³  ì˜¤ë¸Œì íŠ¸ë“¤ì„ íŒŒê´´í•©ë‹ˆë‹¤.
+    /// </summary>
+    public void ClearAllPools()
+    {
+        if (poolDictionary == null) return;
+
+        foreach (var pair in poolDictionary)
+        {
+            string tag = pair.Key;
+            Queue<GameObject> pool = pair.Value;
+
+            // í’€ ì•ˆì˜ ëª¨ë“  ì˜¤ë¸Œì íŠ¸ íŒŒê´´
+            while (pool.Count > 0)
+            {
+                GameObject obj = pool.Dequeue();
+                if (obj != null)
+                {
+                    Destroy(obj);
+                }
+            }
+        }
+
+        // í™œì„±í™”ëœ ì˜¤ë¸Œì íŠ¸ë“¤ë„ ì •ë¦¬ (objectToTagMap ì‚¬ìš©)
+        if (objectToTagMap != null)
+        {
+            var activeObjects = new List<GameObject>(objectToTagMap.Keys);
+            foreach (var obj in activeObjects)
+            {
+                if (obj != null)
+                {
+                    Destroy(obj);
+                }
+            }
+            objectToTagMap.Clear();
+        }
+
+        // ë”•ì…”ë„ˆë¦¬ë“¤ ì´ˆê¸°í™”
+        poolDictionary.Clear();
+        poolConfigs?.Clear();
+        poolContainers?.Clear();
+
+        Debug.Log("All object pools have been cleared.");
     }
 }

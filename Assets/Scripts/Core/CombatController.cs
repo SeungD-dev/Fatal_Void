@@ -503,9 +503,25 @@ public class CombatController : MonoBehaviour
         if (magnetEffectCoroutine != null)
         {
             StopCoroutine(magnetEffectCoroutine);
+            magnetEffectCoroutine = null;
         }
 
-        // Clear collectibles
-        activeCollectibles.Clear();
+        // 모든 활성화된 수집 아이템들을 즉시 정리
+        if (activeCollectibles != null)
+        {
+            var collectibleList = new List<CollectibleItem>(activeCollectibles);
+            foreach (var collectible in collectibleList)
+            {
+                if (collectible != null && collectible.gameObject != null)
+                {
+                    collectible.gameObject.SetActive(false);
+                }
+            }
+            activeCollectibles.Clear();
+        }
+
+        // 초기화 상태 리셋
+        isInitialized = false;
+        activeDeathEffectsCount = 0;
     }
 }
