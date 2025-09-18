@@ -2701,7 +2701,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthPotionAmount: 20
   magnetForce: 20
-  magnetEffectDuration: 5
   deathEffectPoolTag: DeathParticle
   particlesPerEffect: 5
   explosionRadius: 0.3

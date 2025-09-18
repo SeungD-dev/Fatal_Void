@@ -54,7 +54,7 @@ public class WaveManager : MonoBehaviour
 
     // ���ڿ� ĳ��
     private readonly System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder(32);
-    private const string WAVE_TIME_FORMAT = "Wave: {0:00}";
+    private const string WAVE_TIME_FORMAT = "TIME: {0:00}";
     private const string SURVIVAL_TIME_FORMAT = "Survive: {0:00}";
 
     private void Awake()
