@@ -9,19 +9,19 @@ public class ChasingState : IState
     private readonly Enemy enemyStats;
     private readonly SpriteRenderer spriteRenderer;
 
-    // Àç»ç¿ë °¡´ÉÇÑ º¤ÅÍ º¯¼öµé
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private Vector2 directionVector = Vector2.zero;
     private Vector2 targetPosition;
     private Vector2 currentPosition;
 
-    // ¼º´É ÃÖÀûÈ­¸¦ À§ÇÑ º¯¼öµé
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private float moveSpeed;
     private float lastDirectionX;
     private const float DIRECTION_CHANGE_THRESHOLD = 0.05f;
 
-    // Å¸ÀÌ¸Ó °ü·Ã º¯¼ö
+    // Å¸ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     private float nextSpriteFlipTime;
-    private float spriteFlipInterval = 0.1f;  // ½ºÇÁ¶óÀÌÆ® ÇÃ¸³ ¾÷µ¥ÀÌÆ® ÁÖ±â
+    private float spriteFlipInterval = 0.1f;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ö±ï¿½
 
     public ChasingState(EnemyAI enemyAI)
     {
@@ -31,34 +31,45 @@ public class ChasingState : IState
         rb = enemyAI.GetComponent<Rigidbody2D>();
         spriteRenderer = enemyAI.spriteRenderer;
 
-        // ÇÃ·¹ÀÌ¾î Ã£±â
+        // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Ã£ï¿½ï¿½
         playerTransform = enemyAI.PlayerTransform;
 
-        // ÇÃ·¹ÀÌ¾î ÂüÁ¶°¡ ¾ø´Â °æ¿ì¿¡¸¸ GameManager¿¡¼­ °¡Á®¿À±â
+        // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ GameManagerï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (playerTransform == null && GameManager.Instance != null)
         {
             playerTransform = GameManager.Instance.PlayerTransform;
         }
 
-        // À§ÀÇ ¹æ¹ýÀ¸·Îµµ ÇÃ·¹ÀÌ¾î¸¦ Ã£Áö ¸øÇÑ °æ¿ì¿¡¸¸ ¸¶Áö¸· ¼ö´ÜÀ¸·Î Find »ç¿ë
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îµï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Find ï¿½ï¿½ï¿½
         if (playerTransform == null)
         {
-            playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
+            Debug.LogWarning("Player transform still null after GameManager check in ChasingState");
         }
     }
 
     public void OnEnter()
     {
+        // OnEnterì—ì„œ ë‹¤ì‹œ í•œë²ˆ í”Œë ˆì´ì–´ ì°¸ì¡° í™•ì¸
         if (playerTransform == null)
         {
-            playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
+            playerTransform = enemyAI.PlayerTransform;
         }
 
-        // ÃÊ±âÈ­
+        if (playerTransform == null && GameManager.Instance != null)
+        {
+            playerTransform = GameManager.Instance.PlayerTransform;
+        }
+
+        if (playerTransform == null)
+        {
+            Debug.LogWarning("Player transform still null in ChasingState OnEnter");
+        }
+
+        // ï¿½Ê±ï¿½È­
         moveSpeed = enemyStats.MoveSpeed;
         nextSpriteFlipTime = Time.time;
 
-        // ¹æÇâ ÃÊ±â °è»ê
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½
         if (playerTransform != null)
         {
             CalculateDirection();
@@ -69,24 +80,24 @@ public class ChasingState : IState
     {
         enemyStats.ResetBounceEffect();
 
-        // ÀÌµ¿ Á¤Áö
+        // ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
         }
     }
 
-    // °¡º­¿î ·ÎÁ÷°ú ½Ã°¢Àû ¾÷µ¥ÀÌÆ®¸¸ Update¿¡¼­ Ã³¸®
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ Updateï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
     public void Update()
     {
-        // »óÅÂ À¯È¿¼º °Ë»ç
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¿ï¿½ï¿½ ï¿½Ë»ï¿½
         if (enemyStats.IsKnockBack || playerTransform == null ||
             !IsGamePlaying()) return;
 
-        // ¹æÇâ °è»ê (¸Å ÇÁ·¹ÀÓ)
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
         CalculateDirection();
 
-        // ½ºÇÁ¶óÀÌÆ® ÇÃ¸³Àº °£°ÝÀ» µÎ°í ¾÷µ¥ÀÌÆ®
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ã¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         if (Time.time >= nextSpriteFlipTime)
         {
             UpdateSpriteDirection();
@@ -94,31 +105,31 @@ public class ChasingState : IState
         }
     }
 
-    // ¹°¸® ±â¹Ý ÀÌµ¿Àº FixedUpdate¿¡¼­ Ã³¸®
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ FixedUpdateï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
     public void FixedUpdate()
     {
-        // »óÅÂ À¯È¿¼º °Ë»ç
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¿ï¿½ï¿½ ï¿½Ë»ï¿½
         if (enemyStats.IsKnockBack || playerTransform == null ||
             !IsGamePlaying()) return;
 
-        // FixedUpdate¿¡¼­´Â ÀÌ¹Ì °è»êµÈ ¹æÇâÀ¸·Î¸¸ ÀÌµ¿ ¼öÇà
+        // FixedUpdateï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¸ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
         ApplyMovement();
     }
 
-    // ÇÃ·¹ÀÌ¾î ¹æÇâÀ¸·ÎÀÇ º¤ÅÍ °è»ê
+    // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
     private void CalculateDirection()
     {
-        // ÇöÀç À§Ä¡¿Í ´ë»ó À§Ä¡
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
         currentPosition = enemyTransform.position;
         targetPosition = playerTransform.position;
 
-        // ¹æÇâ °è»ê (º¤ÅÍ Àç»ç¿ë)
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         directionVector.x = targetPosition.x - currentPosition.x;
         directionVector.y = targetPosition.y - currentPosition.y;
 
-        // Á¤±ÔÈ­ (º¤ÅÍ ¿¬»ê ÃÖÀûÈ­)
+        // ï¿½ï¿½ï¿½ï¿½È­ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­)
         float sqrMagnitude = directionVector.x * directionVector.x + directionVector.y * directionVector.y;
-        if (sqrMagnitude > 0.0001f) // 0À¸·Î ³ª´©±â ¹æÁö + ÃÖ¼Ò ÀÌµ¿ ÀÓ°è°ª
+        if (sqrMagnitude > 0.0001f) // 0ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ + ï¿½Ö¼ï¿½ ï¿½Ìµï¿½ ï¿½Ó°è°ª
         {
             float inverseMagnitude = 1.0f / Mathf.Sqrt(sqrMagnitude);
             directionVector.x *= inverseMagnitude;
@@ -126,10 +137,10 @@ public class ChasingState : IState
         }
     }
 
-    // ½ºÇÁ¶óÀÌÆ® ¹æÇâ ¾÷µ¥ÀÌÆ® (ÁÂ¿ì ÇÃ¸³)
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (ï¿½Â¿ï¿½ ï¿½Ã¸ï¿½)
     private void UpdateSpriteDirection()
     {
-        // ¹æÇâÀÌ ÃæºÐÈ÷ º¯°æµÇ¾úÀ» ¶§¸¸ ½ºÇÁ¶óÀÌÆ® ÇÃ¸³ ¾÷µ¥ÀÌÆ®
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
         if (Mathf.Abs(directionVector.x - lastDirectionX) > DIRECTION_CHANGE_THRESHOLD)
         {
             lastDirectionX = directionVector.x;
@@ -140,16 +151,16 @@ public class ChasingState : IState
         }
     }
 
-    // ¹°¸® ÀÌµ¿ Àû¿ë
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
     private void ApplyMovement()
     {
-        // Ä¿½ºÅÒ ÀÌµ¿ ¼Óµµ °è»ê (ÇÊ¿ä½Ã °Å¸®¿¡ µû¸¥ ¼Óµµ Á¶Àý °¡´É)
+        // Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ (ï¿½Ê¿ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         float appliedSpeed = moveSpeed;
 
-        // ¹°¸® ±â¹Ý ÀÌµ¿ ¼öÇà
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
         if (rb != null)
         {
-            // ¸®Áöµå¹Ùµð ÀÌµ¿ (Vector2 Àç»ç¿ëÀ¸·Î °¡ºñÁö »ý¼º ÃÖ¼ÒÈ­)
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ùµï¿½ ï¿½Ìµï¿½ (Vector2 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½È­)
             rb.linearVelocity = new Vector2(
                 directionVector.x * appliedSpeed,
                 directionVector.y * appliedSpeed
@@ -157,7 +168,7 @@ public class ChasingState : IState
         }
         else
         {
-            // Transform ±â¹Ý ÀÌµ¿Àº FixedDeltaTime »ç¿ë
+            // Transform ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ FixedDeltaTime ï¿½ï¿½ï¿½
             enemyTransform.position = new Vector3(
                 enemyTransform.position.x + directionVector.x * appliedSpeed * Time.fixedDeltaTime,
                 enemyTransform.position.y + directionVector.y * appliedSpeed * Time.fixedDeltaTime,
@@ -166,7 +177,7 @@ public class ChasingState : IState
         }
     }
 
-    // °ÔÀÓ »óÅÂ Ã¼Å©
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
     private bool IsGamePlaying()
     {
         return GameManager.Instance != null &&

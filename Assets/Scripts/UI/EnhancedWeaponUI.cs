@@ -133,8 +133,31 @@ public class EnhancedWeaponUI : MonoBehaviour
     {
         if (weaponData == null || enhancedWeaponManager == null) return;
 
+        // ��� ���� �ɼ� ��Ȱ��ȭ
+        DisableAllWeaponOptions();
+
         // ������ ���⸦ X-Ƽ��� ���׷��̵�
         enhancedWeaponManager.UpgradeToXTier(weaponData);
+    }
+
+    /// <summary>
+    /// ��� ���� �ɼ� ��Ȱ��ȭ
+    /// </summary>
+    private void DisableAllWeaponOptions()
+    {
+        if (weaponOptions == null) return;
+
+        foreach (var option in weaponOptions)
+        {
+            if (option != null && option.gameObject.activeInHierarchy)
+            {
+                Button optionButton = option.GetComponentInChildren<Button>();
+                if (optionButton != null)
+                {
+                    optionButton.interactable = false;
+                }
+            }
+        }
     }
   
     private void OnDestroy()

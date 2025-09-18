@@ -10,7 +10,6 @@ public class CombatController : MonoBehaviour
 
     [Header("Magnet Effect Setting")]
     [SerializeField] private float magnetForce = 20f;
-    [SerializeField] private float magnetEffectDuration = 5f;  // Duration of magnet power-up
 
     [Header("Death Effect Settings")]
     [SerializeField] private string deathEffectPoolTag = "DeathParticle";
@@ -33,13 +32,11 @@ public class CombatController : MonoBehaviour
 
     // Cached WaitForSeconds objects
     private static readonly WaitForSeconds particleDelay = new WaitForSeconds(0.02f);
-    private static readonly WaitForSeconds magnetDuration = new WaitForSeconds(5f);
 
     // Using HashSet for faster lookup operations
     private HashSet<CollectibleItem> activeCollectibles;
     private PlayerStats playerStats;
     private bool isInitialized = false;
-    private Coroutine magnetEffectCoroutine;
 
     private void Awake()
     {
@@ -322,7 +319,7 @@ public class CombatController : MonoBehaviour
                 playerStats.Heal(healthPotionAmount);
                 break;
             case ItemType.Magnet:
-                StartMagnetEffect();
+                ApplyInstantMagnetEffect();
                 break;
             default:
                 Debug.LogWarning($"Unknown item type: {itemType}");
@@ -330,41 +327,7 @@ public class CombatController : MonoBehaviour
         }
     }
 
-    private void StartMagnetEffect()
-    {
-        // Apply immediate effect
-        ApplyMagnetEffect();
-
-        // Activate magnet effect on player
-        if (playerStats != null)
-        {
-            playerStats.SetMagnetEffect(true);
-        }
-
-        // Stop any existing coroutine
-        if (magnetEffectCoroutine != null)
-        {
-            StopCoroutine(magnetEffectCoroutine);
-        }
-
-        // Start new coroutine for timed effect
-        magnetEffectCoroutine = StartCoroutine(MagnetEffectRoutine());
-    }
-
-    private IEnumerator MagnetEffectRoutine()
-    {
-        yield return new WaitForSeconds(magnetEffectDuration);
-
-        // Turn off magnet effect when duration expires
-        if (playerStats != null)
-        {
-            playerStats.SetMagnetEffect(false);
-        }
-
-        magnetEffectCoroutine = null;
-    }
-
-    private void ApplyMagnetEffect()
+    private void ApplyInstantMagnetEffect()
     {
         // Use a temporary list to prevent errors if collection changes during iteration
         if (activeCollectibles.Count > 0)
@@ -398,11 +361,6 @@ public class CombatController : MonoBehaviour
         {
             activeCollectibles.Add(item);
 
-            // If magnet effect is active, immediately apply to newly registered items
-            if (playerStats != null && playerStats.IsMagnetActive)
-            {
-                item.PullToPlayer(magnetForce);
-            }
         }
     }
 
@@ -416,11 +374,6 @@ public class CombatController : MonoBehaviour
 
     private void HandlePlayerDeath()
     {
-        if (magnetEffectCoroutine != null)
-        {
-            StopCoroutine(magnetEffectCoroutine);
-            magnetEffectCoroutine = null;
-        }
 
         isInitialized = false;
         GameManager.Instance.SetGameState(GameState.GameOver);
@@ -500,11 +453,6 @@ public class CombatController : MonoBehaviour
         // Clean up all active tweens
         DOTween.Kill(transform);
 
-        if (magnetEffectCoroutine != null)
-        {
-            StopCoroutine(magnetEffectCoroutine);
-            magnetEffectCoroutine = null;
-        }
 
         // 모든 활성화된 수집 아이템들을 즉시 정리
         if (activeCollectibles != null)

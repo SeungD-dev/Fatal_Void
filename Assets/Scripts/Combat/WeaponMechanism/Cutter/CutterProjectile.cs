@@ -30,11 +30,11 @@ public class CutterProjectile : BaseProjectile
 
     protected override void Update()
     {
-        // È¸Àü ÃÖÀûÈ­
+        // È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­
         angleZ = (angleZ + rotationSpeed * Time.deltaTime) % 360f;
         transform.rotation = Quaternion.Euler(0f, 0f, angleZ);
 
-        // ÇöÀç À§Ä¡ °è»ê
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½
         currentPosition.x = transform.position.x;
         currentPosition.y = transform.position.y;
 
@@ -42,7 +42,7 @@ public class CutterProjectile : BaseProjectile
         float dy = currentPosition.y - startPosition.y;
         float sqrDistance = dx * dx + dy * dy;
 
-        // ÁøÇà ¹æÇâ¿¡ µû¸¥ ¼Óµµ °è»ê
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½
         if (!isReturning)
         {
             if (sqrDistance >= sqrMaxTravelDistance)
@@ -51,7 +51,7 @@ public class CutterProjectile : BaseProjectile
             }
             else
             {
-                float speedMultiplier = 1f - (sqrDistance / sqrMaxTravelDistance) * 0.8f; // 0.2f±îÁö °¨¼Ò
+                float speedMultiplier = 1f - (sqrDistance / sqrMaxTravelDistance) * 0.8f; // 0.2fï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 transform.Translate(direction * speed * speedMultiplier * Time.deltaTime, Space.World);
             }
         }
@@ -64,10 +64,25 @@ public class CutterProjectile : BaseProjectile
             else
             {
                 float returnRatio = sqrDistance / sqrMaxTravelDistance;
-                float speedMultiplier = 0.5f + (1f - returnRatio) * 1.5f; // 0.5f¿¡¼­ 2f·Î Áõ°¡
+                float speedMultiplier = 0.5f + (1f - returnRatio) * 1.5f; // 0.5fï¿½ï¿½ï¿½ï¿½ 2fï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 transform.Translate(-direction * speed * speedMultiplier * Time.deltaTime, Space.World);
             }
         }
+    }
+
+    protected override void ApplyDamageAndEffects(Enemy enemy)
+    {
+        enemy.TakeDamage(damage);
+
+        if (knockbackPower > 0)
+        {
+            Vector2 knockbackForce = direction * knockbackPower;
+            enemy.ApplyKnockback(knockbackForce);
+        }
+
+        // CutterëŠ” ë¶€ë©”ë‘ ë¬´ê¸°ì´ë¯€ë¡œ ì ê³¼ ì¶©ëŒí•´ë„ ì‚¬ë¼ì§€ì§€ ì•ŠìŒ
+        // HandlePenetration() í˜¸ì¶œí•˜ì§€ ì•Šì•„ì„œ ReturnToPool()ì´ í˜¸ì¶œë˜ì§€ ì•ŠìŒ
+        // ì˜¤ì§ ê±°ë¦¬ ê¸°ë°˜ ë¡œì§(Update)ì—ì„œë§Œ returnToPool ë¨
     }
 
     protected override void OnDisable()

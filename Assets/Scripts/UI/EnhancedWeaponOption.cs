@@ -93,6 +93,12 @@ public class EnhancedWeaponOption : MonoBehaviour
             // ���� ȿ�� ���
             SoundManager.Instance?.PlaySound("Button_sfx", 1f, false);
 
+            // ��ư ��Ȱ��ȭ
+            if (selectButton != null)
+            {
+                selectButton.interactable = false;
+            }
+
             // �θ� UI�� ���� �˸�
             parentUI.OnWeaponSelected(weaponData);
         }

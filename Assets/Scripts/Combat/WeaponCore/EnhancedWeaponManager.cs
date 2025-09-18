@@ -10,8 +10,8 @@ using System.Collections;
 public class EnhancedWeaponManager : MonoBehaviour
 {
     [Header("Requirements")]
-    [SerializeField] private int requiredPlayerLevel = 10;
-    [SerializeField] private int levelCost = 10;
+    [SerializeField] private int requiredPlayerLevel = 20;
+    [SerializeField] private int levelCost = 20;
 
     [Header("References")]
     [SerializeField] private EnhancedWeaponUI enhancedWeaponUI;
@@ -29,6 +29,7 @@ public class EnhancedWeaponManager : MonoBehaviour
     private WeaponManager weaponManager;
     private InventoryController inventoryController;
     private WaveManager waveManager;
+    private PhysicsInventoryManager physicsInventoryManager;
 
     // ���׷��̵� ������ ���� ���
     private readonly List<WeaponData> upgradableWeapons = new List<WeaponData>();
@@ -104,6 +105,9 @@ public class EnhancedWeaponManager : MonoBehaviour
 
         // ���̺� �Ŵ��� ã��
         waveManager = FindFirstObjectByType<WaveManager>();
+
+        // ���� �κ��丮 �Ŵ��� ã��
+        physicsInventoryManager = FindFirstObjectByType<PhysicsInventoryManager>();
     }
 
     /// <summary>
@@ -156,41 +160,88 @@ public class EnhancedWeaponManager : MonoBehaviour
     }
 
     /// <summary>
-    /// �κ��丮���� 4Ƽ�� ���⸦ ã�� ���׷��̵� ������ ���� ��� ����
+    /// �κ��丮 �׸����� ���� �κ��丮���� 4Ƽ�� ���⸦ ã�� ���׷��̵� ������ ���� ��� ����
     /// </summary>
     private void CheckForUpgradableWeapons()
     {
         upgradableWeapons.Clear();
+        List<WeaponData> allTier4Weapons = new List<WeaponData>();
 
-        if (inventoryGrid == null || !inventoryGrid.IsInitialized)
+        // 1. �κ��丮 �׸��忡�� 4Ƽ�� ���� ã��
+        if (inventoryGrid != null && inventoryGrid.IsInitialized)
         {
-            Debug.LogWarning("�κ��丮 �׸��带 ã�� �� ���ų� �ʱ�ȭ���� �ʾҽ��ϴ�.");
-            return;
-        }
-
-        // �׸��� ���� ��� ������ Ȯ��
-        for (int x = 0; x < inventoryGrid.Width; x++)
-        {
-            for (int y = 0; y < inventoryGrid.Height; y++)
+            for (int x = 0; x < inventoryGrid.Width; x++)
             {
-                InventoryItem item = inventoryGrid.GetItem(x, y);
-                if (item != null)
+                for (int y = 0; y < inventoryGrid.Height; y++)
                 {
-                    WeaponData weaponData = item.GetWeaponData();
-                    if (weaponData != null && weaponData.currentTier == 4 && !weaponData.weaponType.Equals(WeaponType.Equipment))
+                    InventoryItem item = inventoryGrid.GetItem(x, y);
+                    if (item != null)
                     {
-                        // X-Ƽ�� ���� �ʿ� �ִ� ���� Ÿ�Ը� �߰�
-                        if (xTierWeaponNames.ContainsKey(weaponData.weaponType))
+                        WeaponData weaponData = item.GetWeaponData();
+                        if (IsUpgradableWeapon(weaponData))
                         {
-                            upgradableWeapons.Add(weaponData);
+                            allTier4Weapons.Add(weaponData);
                         }
                     }
                 }
             }
         }
 
+        // 2. ���� �κ��丮�� 4Ƽ�� ���� ã��
+        if (physicsInventoryManager != null)
+        {
+            var physicsItems = physicsInventoryManager.GetAllPhysicsItems();
+            foreach (var physicsItem in physicsItems)
+            {
+                if (physicsItem != null)
+                {
+                    InventoryItem inventoryItem = physicsItem.GetComponent<InventoryItem>();
+                    if (inventoryItem != null)
+                    {
+                        WeaponData weaponData = inventoryItem.GetWeaponData();
+                        if (IsUpgradableWeapon(weaponData))
+                        {
+                            allTier4Weapons.Add(weaponData);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. �ִ� 3���� ����, ���� ���� ���ۻ���
+        if (allTier4Weapons.Count > 3)
+        {
+            // ���� ����
+            for (int i = 0; i < allTier4Weapons.Count; i++)
+            {
+                int randomIndex = Random.Range(i, allTier4Weapons.Count);
+                WeaponData temp = allTier4Weapons[i];
+                allTier4Weapons[i] = allTier4Weapons[randomIndex];
+                allTier4Weapons[randomIndex] = temp;
+            }
+
+            // óǪ 3�� ���� ����
+            upgradableWeapons.AddRange(allTier4Weapons.Take(3));
+        }
+        else
+        {
+            upgradableWeapons.AddRange(allTier4Weapons);
+        }
+
         // ����� �α�
-        Debug.Log($"���׷��̵� ������ ���� {upgradableWeapons.Count}�� ã��");
+        Debug.Log($"���׷��̵� ������ ���� {upgradableWeapons.Count}�� ã�� (��ü {allTier4Weapons.Count}�� ��)");
+    }
+
+    /// <summary>
+    /// ���⸦ ���׷��̵� ������ ���߾����� Ȯ��
+    /// </summary>
+    private bool IsUpgradableWeapon(WeaponData weaponData)
+    {
+        return weaponData != null &&
+               weaponData.currentTier == 4 &&
+               weaponData.weaponType != WeaponType.Equipment &&
+               weaponData.supportsXTier &&
+               xTierWeaponNames.ContainsKey(weaponData.weaponType);
     }
 
     /// <summary>
@@ -258,52 +309,85 @@ public class EnhancedWeaponManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ���� ���� ����
+    /// ���� ���� ���� (�κ��丮 �׸��� + ���� �κ��丮)
     /// </summary>
     private void RemoveOriginalWeapon(WeaponData weaponData)
     {
-        if (inventoryGrid == null || weaponData == null) return;
+        if (weaponData == null) return;
 
-        for (int x = 0; x < inventoryGrid.Width; x++)
+        // WeaponManager���� ���� ���� ����
+        if (weaponManager != null)
         {
-            for (int y = 0; y < inventoryGrid.Height; y++)
-            {
-                InventoryItem item = inventoryGrid.GetItem(x, y);
-                if (item != null && item.GetWeaponData() == weaponData)
-                {
-                    // ���� WeaponManager���� ���� ����
-                    if (weaponManager != null)
-                    {
-                        weaponManager.UnequipWeapon(weaponData);
-                    }
+            weaponManager.UnequipWeapon(weaponData);
+        }
 
-                    // �׸��忡�� ������ ����
-                    inventoryGrid.RemoveItem(new Vector2Int(x, y));
-                    Destroy(item.gameObject);
-                    return;
+        // 1. �κ��丮 �׸��忡�� ã��
+        if (inventoryGrid != null && inventoryGrid.IsInitialized)
+        {
+            for (int x = 0; x < inventoryGrid.Width; x++)
+            {
+                for (int y = 0; y < inventoryGrid.Height; y++)
+                {
+                    InventoryItem item = inventoryGrid.GetItem(x, y);
+                    if (item != null && item.GetWeaponData() == weaponData)
+                    {
+                        inventoryGrid.RemoveItem(new Vector2Int(x, y));
+                        Destroy(item.gameObject);
+                        return;
+                    }
                 }
             }
         }
+
+        // 2. ���� �κ��丮���� ã��
+        if (physicsInventoryManager != null)
+        {
+            var physicsItems = physicsInventoryManager.GetAllPhysicsItems();
+            foreach (var physicsItem in physicsItems)
+            {
+                if (physicsItem != null)
+                {
+                    InventoryItem inventoryItem = physicsItem.GetComponent<InventoryItem>();
+                    if (inventoryItem != null && inventoryItem.GetWeaponData() == weaponData)
+                    {
+                        physicsInventoryManager.RemovePhysicsItem(physicsItem);
+                        return;
+                    }
+                }
+            }
+        }
+
+        Debug.LogWarning($"���׷��̵� ���� ���⸦ ã�� �� �����ϴ�: {weaponData.weaponName}");
     }
 
     /// <summary>
-    /// X-Ƽ�� ���� ���� �� �κ��丮�� ��ġ
+    /// X-Ƽ�� ���� ���� �� �κ��丮 �Ǵ� ���� ��ġ�� ��ġ
     /// </summary>
     private void CreateXTierWeapon(WeaponData originalWeapon)
     {
-        if (inventoryController == null || originalWeapon == null) return;
-
-        // ���� ������ ��ġ ã��
-        Vector2Int? originalPosition = FindWeaponPosition(originalWeapon);
-        Vector2Int position = originalPosition ?? new Vector2Int(0, 0); // �⺻ ��ġ
+        if (originalWeapon == null) return;
 
         // X-Ƽ�� ���� ������ ����
         WeaponData xTierWeapon = CreateXTierWeaponData(originalWeapon);
+        if (xTierWeapon == null) return;
 
-        if (xTierWeapon != null)
+        // ���� ������ ��ġ ã�� (�׸��� ���� ���)
+        Vector2Int? originalPosition = FindWeaponPosition(originalWeapon);
+
+        // �κ��丮�� ���� ��ġ �õ�
+        if (inventoryController != null && originalPosition.HasValue)
         {
-            // �κ��丮 ��Ʈ�ѷ��� ���� ���׷��̵�� ������ ����
-            inventoryController.CreateUpgradedItem(xTierWeapon, position);
+            // �׸��忡 ���� ��ġ�� �õ�
+            inventoryController.CreateUpgradedItem(xTierWeapon, originalPosition.Value);
+        }
+        else if (physicsInventoryManager != null)
+        {
+            // �κ��丮�� ���� ���� ���� �κ��丮�� ����
+            physicsInventoryManager.HandleFullInventory(xTierWeapon);
+        }
+        else
+        {
+            Debug.LogError("X-Tier ���⸦ ��ġ�� �� �����ϴ�. InventoryController �Ǵ� PhysicsInventoryManager�� �����ϴ�.");
         }
     }
 

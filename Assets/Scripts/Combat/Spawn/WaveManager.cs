@@ -44,10 +44,13 @@ public class WaveManager : MonoBehaviour
     private List<Enemy> spawnedEnemies = new List<Enemy>();
     private Camera mainCamera;
     private GameMap gameMap;
-    
+
     // 보스 웨이브 관련
     private CalamityBoss currentBoss;
     private bool isBossWave = false;
+
+    // 캐시된 컴포넌트 참조들
+    private EnemyCullingManager cachedCullingManager;
 
     // ���ڿ� ĳ��
     private readonly System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder(32);
@@ -230,6 +233,9 @@ public class WaveManager : MonoBehaviour
         }
 
         // ���� �ε�� �Ŀ� ����Ǿ�� �ϴ� �ʱ�ȭ ����
+        // CullingManager 캐시
+        cachedCullingManager = FindAnyObjectByType<EnemyCullingManager>();
+
         InitializeEnemyPools();
         SetupFirstWave();
 
@@ -313,16 +319,13 @@ public class WaveManager : MonoBehaviour
                 // �̹� Ǯ�� �ִ��� Ȯ��
                 if (!ObjectPool.Instance.DoesPoolExist(enemyData.enemyName))
                 {
-                    // �ø� �Ŵ��� ���� ���
-                    EnemyCullingManager cullingManager = FindAnyObjectByType<EnemyCullingManager>();
-
                     // Enemy ������Ʈ �ʱ�ȭ
-                    if (cullingManager != null)
+                    if (cachedCullingManager != null)
                     {
                         Enemy enemyComponent = prefabToUse.GetComponent<Enemy>();
                         if (enemyComponent != null)
                         {
-                            enemyComponent.SetCullingManager(cullingManager);
+                            enemyComponent.SetCullingManager(cachedCullingManager);
                         }
                     }
 
@@ -490,13 +493,16 @@ public class WaveManager : MonoBehaviour
         // UI ������Ʈ
         UpdateWaveUI();
 
+        // 게임 상태를 먼저 Playing으로 설정 (적 스폰 전에)
+        GameManager.Instance.SetGameState(GameState.Playing);
+
         // 웨이브 시작 이벤트 발생
         OnWaveStarted?.Invoke();
 
         // 보스 웨이브인지 체크
         isBossWave = currentWave.isBossWave;
-        
-        
+
+
         if (isBossWave)
         {
             // 보스 경고 시퀀스 시작
@@ -511,9 +517,6 @@ public class WaveManager : MonoBehaviour
             }
             spawnCoroutine = StartCoroutine(SpawnEnemiesCoroutine());
         }
-
-        // ���� ���� �÷��̷� ����
-        GameManager.Instance.SetGameState(GameState.Playing);
     }
     
     private void StartBossWarningSequence()
@@ -772,10 +775,9 @@ public class WaveManager : MonoBehaviour
                 enemyAI.Initialize(GameManager.Instance.PlayerTransform);
 
                 // �ø� �Ŵ��� ���� ����
-                EnemyCullingManager cullingManager = FindAnyObjectByType<EnemyCullingManager>();
-                if (cullingManager != null)
+                if (cachedCullingManager != null)
                 {
-                    enemy.SetCullingManager(cullingManager);
+                    enemy.SetCullingManager(cachedCullingManager);
                 }
 
                 // Ȱ��ȭ�� �� ��Ͽ� �߰� (Enemy ������Ʈ ���� ����)

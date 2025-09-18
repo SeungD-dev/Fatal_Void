@@ -130,7 +130,6 @@ public class Enemy : MonoBehaviour, IPooledObject
         if (target == null) return;
 
         targetTransform = target;
-        var enemyAI = GetComponent<EnemyAI>();
         if (enemyAI != null)
         {
             enemyAI.Initialize(target);

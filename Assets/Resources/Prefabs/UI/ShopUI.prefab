@@ -56,8 +56,8 @@ MonoBehaviour:
   weaponImage: {fileID: 3661244083872865613}
   weaponLevelText: {fileID: 3779918500166518923}
   myPurchaseButton: {fileID: 4619312336424249212}
-  priceText: {fileID: 0}
-  weaponTierText: {fileID: 0}
+  priceText: {fileID: 8417076041636693784}
+  weaponTierText: {fileID: 3779918500166518923}
 --- !u!1 &892588217947023131
 GameObject:
   m_ObjectHideFlags: 0
@@ -1916,8 +1916,8 @@ MonoBehaviour:
   weaponImage: {fileID: 8800929013580355237}
   weaponLevelText: {fileID: 1591409310364908679}
   myPurchaseButton: {fileID: 5538393929239707027}
-  priceText: {fileID: 0}
-  weaponTierText: {fileID: 0}
+  priceText: {fileID: 2326757115844291880}
+  weaponTierText: {fileID: 1591409310364908679}
 --- !u!1 &5514231193578121844
 GameObject:
   m_ObjectHideFlags: 0
@@ -4291,5 +4291,5 @@ MonoBehaviour:
   weaponImage: {fileID: 806076930278613581}
   weaponLevelText: {fileID: 4924910172161314979}
   myPurchaseButton: {fileID: 3023498870769049191}
-  priceText: {fileID: 0}
-  weaponTierText: {fileID: 0}
+  priceText: {fileID: 7388399235450809095}
+  weaponTierText: {fileID: 4924910172161314979}

@@ -38,6 +38,7 @@ public class ShopController : MonoBehaviour
     private PlayerStats playerStats;
     private HashSet<WeaponData> purchasedWeapons = new HashSet<WeaponData>();
     private Coroutine currentNoticeCoroutine;
+    private int lastWaveNumber = 0;
     private void Start()
     {
         // �������� ��ư �̺�Ʈ ����
@@ -71,9 +72,40 @@ public class ShopController : MonoBehaviour
             else
             {
                 Debug.Log("WaveManager reference established in ShopController");
+                // WaveManager를 찾은 후 이벤트 구독
+                SubscribeToWaveEvents();
             }
         }
     }
+
+    private void SubscribeToWaveEvents()
+    {
+        if (waveManager != null)
+        {
+            waveManager.OnWaveCompleted += OnWaveCompleted;
+        }
+    }
+
+    private void UnsubscribeFromWaveEvents()
+    {
+        if (waveManager != null)
+        {
+            waveManager.OnWaveCompleted -= OnWaveCompleted;
+        }
+    }
+
+    private void OnWaveCompleted()
+    {
+        // 웨이브 완료 시 리롤 비용 초기화
+        ResetRefreshCost();
+    }
+
+    private void ResetRefreshCost()
+    {
+        currentRefreshCost = initialRefreshCost;
+        UpdateRefreshCostText();
+    }
+
     private void OnDisable()
     {
         // ������Ʈ�� ��Ȱ��ȭ�� �� ���� ���� �ڷ�ƾ ����
@@ -88,6 +120,9 @@ public class ShopController : MonoBehaviour
         {
             noticeUI.SetActive(false);
         }
+
+        // 웨이브 이벤트 구독 해제
+        UnsubscribeFromWaveEvents();
     }
     private void OnDestroy()
     {
@@ -100,6 +135,9 @@ public class ShopController : MonoBehaviour
         {
             playerStats.OnCoinChanged -= UpdatePlayerCoinsText;
         }
+
+        // 웨이브 이벤트 구독 해제
+        UnsubscribeFromWaveEvents();
         StopAllCoroutines();
     }
 

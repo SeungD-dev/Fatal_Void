@@ -86,7 +86,7 @@ public abstract class EnemyAI : MonoBehaviour
 
     public virtual void Initialize(Transform target)
     {
-        if (target == null) 
+        if (target == null)
         {
             Debug.LogWarning($"EnemyAI.Initialize called with null target on {gameObject.name}");
             return;
@@ -95,20 +95,20 @@ public abstract class EnemyAI : MonoBehaviour
         playerTransform = target;
         lastKnownPlayerPosition = playerTransform.position;
 
+        Debug.Log($"EnemyAI.Initialize: playerTransform set to {playerTransform.name} on {gameObject.name}");
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
         }
 
-        // 활성 상태로 설정
-        isActive = IsGamePlaying();
+        // 게임 상태와 관계없이 항상 활성 상태로 설정
+        isActive = true;
         isCulled = false;
 
-        // 바로 추적 상태로 전환
+        // 바로 추적 상태로 전환 (playerTransform 설정 후)
         var chasingState = new ChasingState(this);
         stateMachine.SetState(chasingState);
-
-        Debug.Log($"EnemyAI initialized successfully for {gameObject.name} - isActive: {isActive}");
     }
 
     // ������ ������ �ð��� ȿ���� Update���� ó��

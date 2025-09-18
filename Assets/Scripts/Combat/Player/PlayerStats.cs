@@ -10,7 +10,6 @@ public class PlayerStats : MonoBehaviour
     public delegate void LevelChangeHandler(int value);
     public delegate void VoidHandler();
     public delegate void StatChangeDelegate();
-    public delegate void MagnetEffectHandler(bool isActive);
 
     // Events
     public StatChangeHandler OnHealthChanged;
@@ -19,7 +18,6 @@ public class PlayerStats : MonoBehaviour
     public IntChangeHandler OnKillCountChanged;
     public IntChangeHandler OnCoinChanged;
     public VoidHandler OnPlayerDeath;
-    public event MagnetEffectHandler OnMagnetEffectChanged;
     public event StatChangeDelegate OnPowerChanged;
     public event StatChangeDelegate OnCooldownReduceChanged;
     public event StatChangeDelegate OnKnockbackChanged;
@@ -43,14 +41,14 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private float baseKnockback = 1f;
     [SerializeField] private float baseAreaOfEffect = 1f;
 
-    [Header("Stats Per Level")]
-    [SerializeField] private float healthPerLevel = 10f;
-    [SerializeField] private float healthRegenPerLevel = 0.2f;
-    [SerializeField] private float powerPerLevel = 2f;
-    [SerializeField] private float movementSpeedPerLevel = 0.2f;
-    [SerializeField] private float cooldownReducePerLevel = 0.05f;
-    [SerializeField] private float knockbackIncreasePerLevel = 0.1f;
-    [SerializeField] private float aoeIncreasePerLevel = 0.2f;
+    [Header("Stats Per Level - DISABLED")]
+    [SerializeField] private float healthPerLevel = 0f; // 비활성화: 레벨업 시 체력 증가 없음
+    [SerializeField] private float healthRegenPerLevel = 0f; // 비활성화: 레벨업 시 체력재생 증가 없음
+    [SerializeField] private float powerPerLevel = 0f; // 비활성화: 레벨업 시 공격력 증가 없음
+    [SerializeField] private float movementSpeedPerLevel = 0f; // 비활성화: 레벨업 시 이속 증가 없음
+    [SerializeField] private float cooldownReducePerLevel = 0f; // 비활성화: 레벨업 시 쿨감 증가 없음
+    [SerializeField] private float knockbackIncreasePerLevel = 0f; // 비활성화: 레벨업 시 넉백 증가 없음
+    [SerializeField] private float aoeIncreasePerLevel = 0f; // 비활성화: 레벨업 시 범위 증가 없음
 
     [Header("Item Pickup")]
     [SerializeField] private float basePickupRange = 5f;
@@ -93,15 +91,11 @@ public class PlayerStats : MonoBehaviour
     private bool isModifyingStats;
     private bool isLevelingUp;
     private bool isFlashing;
-    private bool hasMagnetEffect;
 
     // Optimization
     private static readonly WaitForSeconds HitFlashWait;
-    private static readonly WaitForSeconds MagnetEffectDuration = new WaitForSeconds(3f);
-    private static readonly WaitForSeconds MagnetEffectCooldown = new WaitForSeconds(27f);
     private const float StatUpdateThreshold = 0.1f;
     private float lastStatUpdateTime;
-    public bool IsMagnetActive { get; private set; }
     #endregion
 
     #region Properties
@@ -120,7 +114,6 @@ public class PlayerStats : MonoBehaviour
     public float Knockback => knockback;
     public float AreaOfEffect => aoe;
     public float PickupRange => pickupRange;
-    public bool HasMagnetEffect => hasMagnetEffect;
     
     // Total stats including temporary buffs
     public float TotalPower => power + temporaryPower;
@@ -174,17 +167,17 @@ public class PlayerStats : MonoBehaviour
         float previousKnockback = knockback;
         float previousAoe = aoe;
 
-        int levelMinus1 = level - 1;
-        maxHealth = baseHealth + (healthPerLevel * levelMinus1);
-        healthRegen = baseHealthRegen + (healthRegenPerLevel * levelMinus1);
-        
-        // 임시 버프를 고려하여 스탯 계산
-        power = basePower + (powerPerLevel * levelMinus1) + temporaryPower;
-        movementSpeed = baseMovementSpeed + (movementSpeedPerLevel * levelMinus1) + temporaryMovementSpeed;
-        cooldownReduce = baseCooldownReduce + (cooldownReducePerLevel * levelMinus1) + temporaryHaste;
-        
-        knockback = baseKnockback + (knockbackIncreasePerLevel * levelMinus1);
-        aoe = baseAreaOfEffect + (aoeIncreasePerLevel * levelMinus1);
+        // 레벨 기반 스탯 증가 제거 - 이제 기본 스탯 + 아이템 효과만 적용
+        maxHealth = baseHealth;
+        healthRegen = baseHealthRegen;
+
+        // 임시 버프를 고려하여 스탯 계산 (레벨 보너스 제거)
+        power = basePower + temporaryPower;
+        movementSpeed = baseMovementSpeed + temporaryMovementSpeed;
+        cooldownReduce = baseCooldownReduce + temporaryHaste;
+
+        knockback = baseKnockback;
+        aoe = baseAreaOfEffect;
 
         bool statsChanged = false;
         if (previousMovementSpeed != movementSpeed)
@@ -326,11 +319,8 @@ public class PlayerStats : MonoBehaviour
             currentExp = overflow;
         }
 
-        if (Time.time - lastStatUpdateTime >= StatUpdateThreshold)
-        {
-            OnExpChanged?.Invoke(currentExp);
-            lastStatUpdateTime = Time.time;
-        }
+        // ExpBar 실시간 업데이트를 위해 임계값 무시하고 즉시 이벤트 발생
+        OnExpChanged?.Invoke(currentExp);
     }
 
     public void LevelUp()
@@ -342,14 +332,18 @@ public class PlayerStats : MonoBehaviour
         level++;
         requiredExp = Mathf.RoundToInt(requiredExp * 1.2f);
 
-        UpdateStats();
+        // 레벨업 시 스탯 증가 없음 - 레벨은 X-Tier 업그레이드 재화로만 사용
+        // UpdateStats(); // 비활성화: 레벨업 시 스탯 변경 안함
 
         OnLevelUp?.Invoke(level);
 
+        // 레벨업 시 ExpBar 즉시 업데이트 (현재 경험치로 리셋)
+        OnExpChanged?.Invoke(currentExp);
+
+        // 체력은 기존 임계값 조건 유지
         if (Time.time - lastStatUpdateTime >= StatUpdateThreshold)
         {
             OnHealthChanged?.Invoke(currentHealth);
-            OnExpChanged?.Invoke(currentExp);
             lastStatUpdateTime = Time.time;
         }
 
@@ -539,7 +533,8 @@ public class PlayerStats : MonoBehaviour
 
     public void ResetMovementSpeed()
     {
-        float newSpeed = baseMovementSpeed + (movementSpeedPerLevel * (level - 1));
+        // 레벨 기반 이동속도 증가 제거 - 기본 속도 + 임시 버프만 적용
+        float newSpeed = baseMovementSpeed + temporaryMovementSpeed;
         if (movementSpeed != newSpeed)
         {
             movementSpeed = newSpeed;
@@ -548,16 +543,24 @@ public class PlayerStats : MonoBehaviour
     }
     #endregion
 
+    private Coroutine periodicMagnetCoroutine;
+
     public void EnablePeriodicMagnetEffect(bool enable)
     {
-        if (enable && !hasMagnetEffect)
+        if (enable)
         {
-            StartCoroutine(PeriodicMagnetEffectCoroutine());
+            if (periodicMagnetCoroutine == null)
+            {
+                periodicMagnetCoroutine = StartCoroutine(PeriodicMagnetEffectCoroutine());
+            }
         }
-        else if (!enable)
+        else
         {
-            hasMagnetEffect = false;
-            OnMagnetEffectChanged?.Invoke(false);
+            if (periodicMagnetCoroutine != null)
+            {
+                StopCoroutine(periodicMagnetCoroutine);
+                periodicMagnetCoroutine = null;
+            }
         }
     }
 
@@ -565,23 +568,13 @@ public class PlayerStats : MonoBehaviour
     {
         while (true)
         {
-            hasMagnetEffect = true;
-            OnMagnetEffectChanged?.Invoke(true);
+            yield return new WaitForSeconds(30f);  // 30초 주기
 
-            yield return MagnetEffectDuration;  // ĳ�õ� WaitForSeconds ���
-
-            hasMagnetEffect = false;
-            OnMagnetEffectChanged?.Invoke(false);
-
-            yield return MagnetEffectCooldown;  // ĳ�õ� WaitForSeconds ���
-        }
-    }
-    public void SetMagnetEffect(bool isActive)
-    {
-        if (IsMagnetActive != isActive)
-        {
-            IsMagnetActive = isActive;
-            OnMagnetEffectChanged?.Invoke(isActive);
+            // 30초마다 즉시 자석 효과 발생
+            if (GameManager.Instance?.CombatController != null)
+            {
+                GameManager.Instance.CombatController.ApplyItemEffect(ItemType.Magnet);
+            }
         }
     }
 
@@ -686,14 +679,11 @@ public class PlayerStats : MonoBehaviour
             return false;
         }
 
-        // �� ���� ��� (�ּ� 1 ����)
+        // 레벨 차감 (최소 1 유지)
         int newLevel = Mathf.Max(1, level - levels);
         level = newLevel;
 
-        // ���� ������Ʈ
-        UpdateStats();
-
-        // ���� ���� �̺�Ʈ �߻�
+        // 레벨 변경 이벤트 발생 (스탯은 변경하지 않음)
         OnLevelUp?.Invoke(newLevel);
 
         Debug.Log($"�÷��̾� ������ {levels}��ŭ �����߽��ϴ�. �� ����: {newLevel}");
@@ -703,6 +693,13 @@ public class PlayerStats : MonoBehaviour
     private void OnDestroy()
     {
         // �̺�Ʈ �ڵ鷯 ����
+        // 주기적 자석 효과 코루틴 정리
+        if (periodicMagnetCoroutine != null)
+        {
+            StopCoroutine(periodicMagnetCoroutine);
+            periodicMagnetCoroutine = null;
+        }
+
         OnHealthChanged = null;
         OnExpChanged = null;
         OnLevelUp = null;
@@ -714,7 +711,6 @@ public class PlayerStats : MonoBehaviour
         OnCooldownReduceChanged = null;
         OnKnockbackChanged = null;
         OnAreaOfEffectChanged = null;
-        OnMagnetEffectChanged = null;
 
         if (GameManager.Instance != null)
         {

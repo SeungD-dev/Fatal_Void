@@ -148,7 +148,6 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
     {
         if (playerStats != null)
         {
-            playerStats.OnMagnetEffectChanged += HandleMagnetEffectChanged;
         }
     }
 
@@ -342,25 +341,6 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         combatController.ApplyItemEffect(itemTypeToApply, goldAmountToApply);
     }
 
-    private void HandleMagnetEffectChanged(bool isActive)
-    {
-        if (isCollected) return;
-
-        isAutoMagneted = isActive;
-
-        if (isActive)
-        {
-            PullToPlayer(magnetSpeed * 2f);
-        }
-        else
-        {
-            isPulledByMagnet = false;
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-        }
-    }
 
     private void OnDisable()
     {
@@ -383,7 +363,6 @@ public class CollectibleItem : MonoBehaviour, IPooledObject
         
         if (playerStats != null)
         {
-            playerStats.OnMagnetEffectChanged -= HandleMagnetEffectChanged;
         }
 
         

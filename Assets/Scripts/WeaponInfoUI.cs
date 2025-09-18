@@ -310,11 +310,14 @@ public class WeaponInfoUI : MonoBehaviour
     #region Private Methods - UI Updates
     private void UpdateBasicInfo(WeaponData weaponData)
     {
+        // 티어 색상 가져오기
+        Color tierColor = weaponData.GetTierColor();
+
         // Tier 5 (X-Tier) 특별 처리
         if (weaponData.currentTier == 5)
         {
             weaponLevelText.text = "Tier X";
-            
+
             // X-Tier 전용 이름이 설정되어 있으면 사용, 없으면 기본 이름 정리
             if (!string.IsNullOrEmpty(weaponData.xTierWeaponName))
             {
@@ -324,7 +327,7 @@ public class WeaponInfoUI : MonoBehaviour
             {
                 weaponNameText.text = GetCleanWeaponName(weaponData.weaponName);
             }
-            
+
             // X-Tier 전용 설명이 설정되어 있으면 사용, 없으면 기본 설명 사용
             if (!string.IsNullOrEmpty(weaponData.xTierWeaponDescription))
             {
@@ -341,6 +344,12 @@ public class WeaponInfoUI : MonoBehaviour
             weaponLevelText.text = $"Tier {weaponData.currentTier}";
             weaponNameText.text = GetCleanWeaponName(weaponData.weaponName);
             weaponDescriptionText.text = weaponData.weaponDescription;
+        }
+
+        // 티어별 색상 적용
+        if (weaponLevelText != null)
+        {
+            weaponLevelText.color = tierColor;
         }
     }
 
