@@ -70,15 +70,15 @@ public class EnhancedWeaponManager : MonoBehaviour
     /// </summary>
     private void InitializeReferences()
     {
-        // ������ ã��
+        // ������ ã�� (비활성화된 오브젝트 포함)
         if (enhancedWeaponUI == null)
-            enhancedWeaponUI = FindFirstObjectByType<EnhancedWeaponUI>();
+            enhancedWeaponUI = FindFirstObjectByType<EnhancedWeaponUI>(FindObjectsInactive.Include);
 
         if (transitionEffect == null)
-            transitionEffect = FindFirstObjectByType<ScreenTransitionEffect>();
+            transitionEffect = FindFirstObjectByType<ScreenTransitionEffect>(FindObjectsInactive.Include);
 
         if (shopController == null)
-            shopController = FindFirstObjectByType<ShopController>();
+            shopController = FindFirstObjectByType<ShopController>(FindObjectsInactive.Include);
 
         if (weaponDatabase == null)
             weaponDatabase = Resources.Load<WeaponDatabase>("Data/WeaponDatabase");
@@ -94,20 +94,26 @@ public class EnhancedWeaponManager : MonoBehaviour
         if (player != null)
         {
             weaponManager = player.GetComponent<WeaponManager>();
+
+            // PlayerStats가 없다면 플레이어에서 직접 찾기
+            if (playerStats == null)
+            {
+                playerStats = player.GetComponent<PlayerStats>();
+            }
         }
 
-        // �κ��丮 ��Ʈ�ѷ� ã��
-        inventoryController = FindFirstObjectByType<InventoryController>();
+        // �κ��丮 ��Ʈ�ѷ� ã�� (비활성화된 오브젝트 포함)
+        inventoryController = FindFirstObjectByType<InventoryController>(FindObjectsInactive.Include);
         if (inventoryController != null)
         {
-            inventoryGrid = inventoryController.GetComponentInChildren<ItemGrid>();
+            inventoryGrid = inventoryController.GetComponentInChildren<ItemGrid>(true); // 비활성화된 자식도 포함
         }
 
         // ���̺� �Ŵ��� ã��
         waveManager = FindFirstObjectByType<WaveManager>();
 
-        // ���� �κ��丮 �Ŵ��� ã��
-        physicsInventoryManager = FindFirstObjectByType<PhysicsInventoryManager>();
+        // ���� �κ��丮 �Ŵ��� ã�� (비활성화된 오브젝트 포함)
+        physicsInventoryManager = FindFirstObjectByType<PhysicsInventoryManager>(FindObjectsInactive.Include);
     }
 
     /// <summary>
@@ -191,17 +197,20 @@ public class EnhancedWeaponManager : MonoBehaviour
         if (physicsInventoryManager != null)
         {
             var physicsItems = physicsInventoryManager.GetAllPhysicsItems();
-            foreach (var physicsItem in physicsItems)
+            if (physicsItems != null)
             {
-                if (physicsItem != null)
+                foreach (var physicsItem in physicsItems)
                 {
-                    InventoryItem inventoryItem = physicsItem.GetComponent<InventoryItem>();
-                    if (inventoryItem != null)
+                    if (physicsItem != null)
                     {
-                        WeaponData weaponData = inventoryItem.GetWeaponData();
-                        if (IsUpgradableWeapon(weaponData))
+                        InventoryItem inventoryItem = physicsItem.GetComponent<InventoryItem>();
+                        if (inventoryItem != null)
                         {
-                            allTier4Weapons.Add(weaponData);
+                            WeaponData weaponData = inventoryItem.GetWeaponData();
+                            if (IsUpgradableWeapon(weaponData))
+                            {
+                                allTier4Weapons.Add(weaponData);
+                            }
                         }
                     }
                 }
@@ -438,6 +447,18 @@ public class EnhancedWeaponManager : MonoBehaviour
 
         // Ƽ�� 5�� ���� (X-Ƽ��)
         xTierWeapon.currentTier = 5;
+
+        // X-Tier 크기 정보 적용 (중요!)
+        if (originalWeapon.xTierWidth > 0 && originalWeapon.xTierHeight > 0)
+        {
+            xTierWeapon.width = originalWeapon.xTierWidth;
+            xTierWeapon.height = originalWeapon.xTierHeight;
+            Debug.Log($"[EnhancedWeaponManager] X-Tier 크기 적용: {xTierWeapon.weaponName} - {xTierWeapon.width}x{xTierWeapon.height}");
+        }
+        else
+        {
+            Debug.LogWarning($"[EnhancedWeaponManager] X-Tier 크기 정보가 없어 기본 크기 유지: {xTierWeapon.weaponName} - {xTierWeapon.width}x{xTierWeapon.height}");
+        }
 
         return xTierWeapon;
     }

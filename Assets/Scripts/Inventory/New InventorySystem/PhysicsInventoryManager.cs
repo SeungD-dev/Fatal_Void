@@ -718,8 +718,6 @@ public class PhysicsInventoryManager : MonoBehaviour
         Vector2 touchPos = touchPosition.ReadValue<Vector2>();
         touchStartPosition = touchPos;
 
-        Debug.Log($"Touch started at {touchPos}");
-
         // �׸��� �� ������ ���� üũ
         Vector2Int gridPosition = mainGrid?.GetGridPosition(touchPos) ?? new Vector2Int(-1, -1);
         if (mainGrid != null && mainGrid.IsValidPosition(gridPosition))
@@ -753,10 +751,6 @@ public class PhysicsInventoryManager : MonoBehaviour
                 StopCoroutine(holdCoroutine);
             }
             holdCoroutine = StartCoroutine(CheckForHold(touchedItem, touchPos));
-        }
-        else
-        {
-            Debug.Log("No physics item found at touch position");
         }
     }
 

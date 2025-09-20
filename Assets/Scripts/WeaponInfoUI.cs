@@ -318,15 +318,9 @@ public class WeaponInfoUI : MonoBehaviour
         {
             weaponLevelText.text = "Tier X";
 
-            // X-Tier 전용 이름이 설정되어 있으면 사용, 없으면 기본 이름 정리
-            if (!string.IsNullOrEmpty(weaponData.xTierWeaponName))
-            {
-                weaponNameText.text = weaponData.xTierWeaponName;
-            }
-            else
-            {
-                weaponNameText.text = GetCleanWeaponName(weaponData.weaponName);
-            }
+            // X-Tier 무기 이름 결정 (우선순위: weaponName -> xTierWeaponName -> 기본 패턴)
+            string xTierDisplayName = GetXTierDisplayName(weaponData);
+            weaponNameText.text = xTierDisplayName;
 
             // X-Tier 전용 설명이 설정되어 있으면 사용, 없으면 기본 설명 사용
             if (!string.IsNullOrEmpty(weaponData.xTierWeaponDescription))
@@ -353,16 +347,59 @@ public class WeaponInfoUI : MonoBehaviour
         }
     }
 
+    private string GetXTierDisplayName(WeaponData weaponData)
+    {
+        // 1. 현재 weaponName이 이미 X-Tier 이름으로 설정되어 있는지 확인
+        if (!string.IsNullOrEmpty(weaponData.weaponName) && !weaponData.weaponName.Contains("Tier"))
+        {
+            // weaponName이 X-Tier 이름 (예: "Exterminator", "Ultrain")인 경우
+            return weaponData.weaponName;
+        }
+
+        // 2. xTierWeaponName 필드 사용
+        if (!string.IsNullOrEmpty(weaponData.xTierWeaponName))
+        {
+            return weaponData.xTierWeaponName;
+        }
+
+        // 3. 무기 타입에 따른 기본 X-Tier 이름 매핑
+        string xTierName = GetDefaultXTierName(weaponData.weaponType);
+        if (!string.IsNullOrEmpty(xTierName))
+        {
+            return xTierName;
+        }
+
+        // 4. 마지막 폴백: 기본 이름 정리
+        return GetCleanWeaponName(weaponData.weaponName);
+    }
+
+    private string GetDefaultXTierName(WeaponType weaponType)
+    {
+        return weaponType switch
+        {
+            WeaponType.Buster => "Exterminator",
+            WeaponType.Machinegun => "Ultrain",
+            WeaponType.Blade => "Plasma Sword",
+            WeaponType.Cutter => "Cyclone Edge",
+            WeaponType.Sawblade => "Infinity Disc",
+            WeaponType.BeamSaber => "Phantom Saber",
+            WeaponType.Shotgun => "HellFire",
+            WeaponType.Grinder => "Black Hole",
+            WeaponType.ForceFieldGenerator => "Time Turner",
+            _ => ""
+        };
+    }
+
     private string GetCleanWeaponName(string weaponName)
     {
         // "Tier X" 패턴을 제거하여 깔끔한 무기 이름만 반환
         if (string.IsNullOrEmpty(weaponName))
             return weaponName;
-            
+
         // "Tier X" 또는 " Tier X" 패턴을 찾아서 제거
         System.Text.RegularExpressions.Regex tierPattern = new System.Text.RegularExpressions.Regex(@"\s*Tier\s*\d+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         string cleanName = tierPattern.Replace(weaponName, "").Trim();
-        
+
         // 결과가 비어있지 않다면 반환, 비어있다면 원본 반환
         return string.IsNullOrEmpty(cleanName) ? weaponName : cleanName;
     }

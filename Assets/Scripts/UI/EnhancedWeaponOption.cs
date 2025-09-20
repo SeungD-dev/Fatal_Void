@@ -61,11 +61,14 @@ public class EnhancedWeaponOption : MonoBehaviour
     {
         if (weaponData == null) return;
 
-        // ���� ������ ����
+        // X-Tier ���� ������ ����
         if (weaponIcon != null)
         {
-            weaponIcon.sprite = weaponData.weaponIcon;
-            weaponIcon.color = Color.red; // X-Ƽ�� ���� (������)
+            // X-Tier 전용 아이콘 사용 (없으면 기본 아이콘 사용)
+            Sprite xTierIcon = weaponData.xTierWeaponIcon != null ? weaponData.xTierWeaponIcon : weaponData.weaponIcon;
+            weaponIcon.sprite = xTierIcon;
+            weaponIcon.color = weaponData.GetTierColor(); // X-Tier 색상 적용
+            weaponIcon.preserveAspect = true; // 이미지 비율 유지 (WeaponOptionUI와 동일)
         }
 
         // X-Ƽ�� ���� �̸�

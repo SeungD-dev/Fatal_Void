@@ -3854,8 +3854,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 620b0bd82fbbfb740adac00ea8a9bf4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  requiredPlayerLevel: 10
-  levelCost: 10
+  requiredPlayerLevel: 20
+  levelCost: 20
   enhancedWeaponUI: {fileID: 542141744}
   transitionEffect: {fileID: 911411397}
   shopController: {fileID: 3302047816804777912}
