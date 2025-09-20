@@ -7,8 +7,8 @@ using UnityEngine;
 public class ShopController : MonoBehaviour
 {
     [Header("Refresh Settings")]
-    [SerializeField] private int initialRefreshCost = 5;
-    [SerializeField] private int refreshCostIncrease = 1;
+    [SerializeField] private int initialRefreshCost;
+    [SerializeField] private int refreshCostIncrease;
     [SerializeField] private Button refreshButton;
     private int currentRefreshCost;
 
@@ -41,15 +41,10 @@ public class ShopController : MonoBehaviour
     private int lastWaveNumber = 0;
     private void Start()
     {
-        // �������� ��ư �̺�Ʈ ����
-        if (refreshButton != null)
-        {
-            refreshButton.onClick.AddListener(RefreshShop);
-        }
-        else
-        {
-            Debug.LogError("Refresh button reference is missing!");
-        }
+        // 리롤 비용 초기화 (웨이브 변경 확인)
+        CheckAndResetRefreshCost();
+
+        // 리롤 버튼은 프리팹에서 이미 연결되어 있음
         if (noticeUI != null)
         {
             noticeUI.SetActive(false);
@@ -72,37 +67,23 @@ public class ShopController : MonoBehaviour
             else
             {
                 Debug.Log("WaveManager reference established in ShopController");
-                // WaveManager를 찾은 후 이벤트 구독
-                SubscribeToWaveEvents();
             }
         }
     }
 
-    private void SubscribeToWaveEvents()
+
+    private void CheckAndResetRefreshCost()
     {
-        if (waveManager != null)
+        int currentWave = GetCurrentWave();
+
+        // 새로운 웨이브인 경우에만 리롤 비용 초기화
+        if (currentWave != lastWaveNumber)
         {
-            waveManager.OnWaveCompleted += OnWaveCompleted;
+            currentRefreshCost = initialRefreshCost;
+            lastWaveNumber = currentWave;
         }
-    }
 
-    private void UnsubscribeFromWaveEvents()
-    {
-        if (waveManager != null)
-        {
-            waveManager.OnWaveCompleted -= OnWaveCompleted;
-        }
-    }
-
-    private void OnWaveCompleted()
-    {
-        // 웨이브 완료 시 리롤 비용 초기화
-        ResetRefreshCost();
-    }
-
-    private void ResetRefreshCost()
-    {
-        currentRefreshCost = initialRefreshCost;
+        // 항상 텍스트 업데이트 (동기화 보장)
         UpdateRefreshCostText();
     }
 
@@ -121,23 +102,14 @@ public class ShopController : MonoBehaviour
             noticeUI.SetActive(false);
         }
 
-        // 웨이브 이벤트 구독 해제
-        UnsubscribeFromWaveEvents();
     }
     private void OnDestroy()
     {
-        if (refreshButton != null)
-        {
-            refreshButton.onClick.RemoveListener(RefreshShop);
-        }
-
         if (playerStats != null)
         {
             playerStats.OnCoinChanged -= UpdatePlayerCoinsText;
         }
 
-        // 웨이브 이벤트 구독 해제
-        UnsubscribeFromWaveEvents();
         StopAllCoroutines();
     }
 
@@ -232,7 +204,7 @@ public class ShopController : MonoBehaviour
             }
         }
 
-        UpdateRefreshCostText();
+        CheckAndResetRefreshCost();
     }
     private void ShowShopUI()
     {
@@ -431,9 +403,8 @@ public class ShopController : MonoBehaviour
             GameManager.Instance.SetGameState(GameState.Paused);
         }
 
-        // ������ ���� ���� ������ �������� ��� �ʱ�ȭ
-        currentRefreshCost = initialRefreshCost;
-        UpdateRefreshCostText();
+        // 웨이브 변경 확인 후 리롤 비용 초기화
+        CheckAndResetRefreshCost();
 
         // PlayerStats ���� ����
         if (playerStats == null)
