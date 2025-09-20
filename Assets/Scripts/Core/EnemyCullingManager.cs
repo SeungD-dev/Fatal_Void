@@ -223,11 +223,7 @@ public class EnemyCullingManager : MonoBehaviour
             // �ø� �Ŵ��� ���� ����
             enemy.SetCullingManager(this);
 
-            // �÷��̾� ���� ����
-            if (playerTransform != null)
-            {
-                enemy.Initialize(playerTransform);
-            }
+            // �÷��̾� ������ WaveManager���� �̹� ����
 
             // �Ÿ� ��� �з�
             if (useDistanceBasedInterval && playerTransform != null)
@@ -341,14 +337,7 @@ public class EnemyCullingManager : MonoBehaviour
         {
             playerTransform = player;
 
-            // �̹� ��ϵ� ��� ������ �÷��̾� ���� ����
-            foreach (var enemy in activeEnemies)
-            {
-                if (enemy != null)
-                {
-                    enemy.Initialize(playerTransform);
-                }
-            }
+            // �̹� ��ϵ� ������ WaveManager���� �ʱ�ȭ��
         }
     }
 

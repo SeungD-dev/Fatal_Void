@@ -91,8 +91,7 @@ public class ChasingState : IState
     public void Update()
     {
         // ���� ��ȿ�� �˻�
-        if (enemyStats.IsKnockBack || playerTransform == null ||
-            !IsGamePlaying()) return;
+        if (enemyStats.IsKnockBack || playerTransform == null) return;
 
         // ���� ��� (�� ������)
         CalculateDirection();
@@ -109,8 +108,7 @@ public class ChasingState : IState
     public void FixedUpdate()
     {
         // ���� ��ȿ�� �˻�
-        if (enemyStats.IsKnockBack || playerTransform == null ||
-            !IsGamePlaying()) return;
+        if (enemyStats.IsKnockBack || playerTransform == null) return;
 
         // FixedUpdate������ �̹� ���� �������θ� �̵� ����
         ApplyMovement();
@@ -177,10 +175,4 @@ public class ChasingState : IState
         }
     }
 
-    // ���� ���� üũ
-    private bool IsGamePlaying()
-    {
-        return GameManager.Instance != null &&
-               GameManager.Instance.currentGameState == GameState.Playing;
-    }
 }

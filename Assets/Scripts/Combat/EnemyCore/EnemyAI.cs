@@ -41,12 +41,8 @@ public abstract class EnemyAI : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
-        }
-        isActive = GameManager.Instance != null &&
-                  GameManager.Instance.currentGameState == GameState.Playing;
+        // 게임 상태에 관계없이 기본 상태로 설정
+        isActive = true;
         isCulled = false;
 
         // ���� �ʱ�ȭ
@@ -55,23 +51,17 @@ public abstract class EnemyAI : MonoBehaviour
 
     protected virtual void OnDisable()
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
-        }
+        // 상태 완전 리셋
+        isActive = false;
+        isCulled = true;
+        playerTransform = null;
+
+        // 이벤트 해제 (이미 등록되지 않으므로 제거)
     }
 
     protected virtual void OnDestroy()
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
-        }
-    }
-
-    private void HandleGameStateChanged(GameState newState)
-    {
-        isActive = (newState == GameState.Playing);
+        // 게임 상태 이벤트 의존성 제거됨
     }
 
     protected virtual void InitializeStates()
@@ -81,7 +71,7 @@ public abstract class EnemyAI : MonoBehaviour
 
         stateMachine.SetState(idleState);
         stateMachine.AddTransition(idleState, chasingState,
-            new FuncPredicate(() => playerTransform != null && IsPlayerAlive() && isActive));
+            new FuncPredicate(() => playerTransform != null && IsPlayerAlive()));
     }
 
     public virtual void Initialize(Transform target)
@@ -95,27 +85,23 @@ public abstract class EnemyAI : MonoBehaviour
         playerTransform = target;
         lastKnownPlayerPosition = playerTransform.position;
 
-        Debug.Log($"EnemyAI.Initialize: playerTransform set to {playerTransform.name} on {gameObject.name}");
-
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
-        }
-
         // 게임 상태와 관계없이 항상 활성 상태로 설정
         isActive = true;
         isCulled = false;
 
-        // 바로 추적 상태로 전환 (playerTransform 설정 후)
-        var chasingState = new ChasingState(this);
-        stateMachine.SetState(chasingState);
+        // 상태 머신이 올바르게 초기화되었는지 확인 후 추적 상태로 전환
+        if (stateMachine != null)
+        {
+            var chasingState = new ChasingState(this);
+            stateMachine.SetState(chasingState);
+        }
     }
 
     // ������ ������ �ð��� ȿ���� Update���� ó��
     protected virtual void Update()
     {
-        // �ø��Ǿ��ų� ������ �Ͻ������Ǿ����� ó������ ����
-        if (isCulled || !isActive || playerTransform == null) return;
+        // �ø��Ǿ��ų� �÷��̾� ������ ���� ���� ó������ ����
+        if (isCulled || playerTransform == null) return;
 
         // ���� �ӽ� ������Ʈ (�̵� ���� ���� ����)
         stateMachine.Update();
@@ -131,8 +117,8 @@ public abstract class EnemyAI : MonoBehaviour
     // ���� �� �̵� ������ FixedUpdate���� ó��
     protected virtual void FixedUpdate()
     {
-        // �ø��Ǿ��ų� ������ �Ͻ������Ǿ����� ó������ ����
-        if (isCulled || !isActive || playerTransform == null) return;
+        // �ø��Ǿ��ų� �÷��̾� ������ ���� ���� ó������ ����
+        if (isCulled || playerTransform == null) return;
 
         // ���� �ӽ� FixedUpdate ȣ��� �̵� ���� ����
         stateMachine.FixedUpdate();

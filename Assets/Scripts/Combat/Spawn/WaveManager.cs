@@ -769,10 +769,9 @@ public class WaveManager : MonoBehaviour
 
             if (enemy != null && enemyAI != null)
             {
-                // �� �ʱ�ȭ
+                // �� �ʱ�ȭ (Enemy.Initialize가 EnemyAI도 자동으로 초기화)
                 enemy.SetEnemyData(enemyData);
                 enemy.Initialize(GameManager.Instance.PlayerTransform);
-                enemyAI.Initialize(GameManager.Instance.PlayerTransform);
 
                 // �ø� �Ŵ��� ���� ����
                 if (cachedCullingManager != null)

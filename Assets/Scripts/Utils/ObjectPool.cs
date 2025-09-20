@@ -145,12 +145,7 @@ public class ObjectPool : MonoBehaviour
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
 
-        // Enemy ������Ʈ�� �ְ� �÷��̾� ������ ������ �ʱ�ȭ
-        Enemy enemy = objectToSpawn.GetComponent<Enemy>();
-        if (enemy != null && playerTransform != null)
-        {
-            enemy.Initialize(playerTransform);
-        }
+        // Enemy �ʱ�ȭ�� WaveManager���� ó��
 
         objectToSpawn.SetActive(true);
 
