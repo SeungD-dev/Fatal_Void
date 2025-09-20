@@ -17,9 +17,35 @@ MonoBehaviour:
   enemySprite: {fileID: 6305624645585283877, guid: 3148dd3f427d9c340a4f797e7a97c232, type: 3}
   enemyType: 4
   baseHealth: 100
-  maxPossibleHealth: 3000
+  maxPossibleHealth: 1000
   baseDamage: 15
   moveSpeed: 1
+  bossPrefab: {fileID: 0}
+  bossHealth: 0
+  bossDamage: 0
+  bulletPatternType: 0
+  blastSettings:
+    shotNum: 5
+    volly: 1
+    spread: 45
+    shotTime: 0.1
+    bulletSpeed: 8
+    bulletLifetime: 10
+  spiralSettings:
+    spiralTime: 3
+    directions: 8
+    rotationSpeed: 45
+    waitTime: 0.05
+    bulletSpeed: 6
+    bulletLifetime: 12
+  flowerSettings:
+    flowerTime: 10
+    directions: 6
+    phaseTime: 1
+    rotationAngle: 30
+    waitTime: 0.1
+    bulletSpeed: 5
+    bulletLifetime: 15
   initialPoolSize: 10
   dropTable: {fileID: 11400000, guid: cf0e961c75dce2d4b85d9dc10b1625ed, type: 2}
   additionalDropRate: 5

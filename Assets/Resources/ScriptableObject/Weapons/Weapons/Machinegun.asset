@@ -121,7 +121,7 @@ MonoBehaviour:
   tier4Price: 200
   sellPriceRatio: 0.5
   tierStats:
-  - damage: 3
+  - damage: 5
     attackDelay: 0.2
     projectileSpeed: 4.5
     knockback: 1
@@ -155,7 +155,7 @@ MonoBehaviour:
     hellFireThirdShotCount: 3
     hellFireFirstInterval: 0.2
     hellFireSecondInterval: 0.2
-  - damage: 4
+  - damage: 9
     attackDelay: 0.18
     projectileSpeed: 4.5
     knockback: 1
@@ -189,7 +189,7 @@ MonoBehaviour:
     hellFireThirdShotCount: 3
     hellFireFirstInterval: 0.2
     hellFireSecondInterval: 0.2
-  - damage: 5
+  - damage: 12
     attackDelay: 0.16
     projectileSpeed: 4.5
     knockback: 1.2
@@ -223,7 +223,7 @@ MonoBehaviour:
     hellFireThirdShotCount: 3
     hellFireFirstInterval: 0.2
     hellFireSecondInterval: 0.2
-  - damage: 7
+  - damage: 15
     attackDelay: 0.14
     projectileSpeed: 4.5
     knockback: 1.5

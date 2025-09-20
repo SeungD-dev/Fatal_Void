@@ -155,7 +155,7 @@ MonoBehaviour:
     hellFireThirdShotCount: 3
     hellFireFirstInterval: 0.2
     hellFireSecondInterval: 0.2
-  - damage: 18
+  - damage: 20
     attackDelay: 1
     projectileSpeed: 3
     knockback: 4
@@ -189,7 +189,7 @@ MonoBehaviour:
     hellFireThirdShotCount: 3
     hellFireFirstInterval: 0.2
     hellFireSecondInterval: 0.2
-  - damage: 24
+  - damage: 30
     attackDelay: 0.8
     projectileSpeed: 3
     knockback: 4
@@ -223,7 +223,7 @@ MonoBehaviour:
     hellFireThirdShotCount: 3
     hellFireFirstInterval: 0.2
     hellFireSecondInterval: 0.2
-  - damage: 36
+  - damage: 45
     attackDelay: 0.6
     projectileSpeed: 3
     knockback: 4

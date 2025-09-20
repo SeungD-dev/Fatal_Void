@@ -16,10 +16,36 @@ MonoBehaviour:
   enemyName: Walker
   enemySprite: {fileID: -9121992031680746414, guid: da86c4efbc48b2b42a9e77e0e1b0093c, type: 3}
   enemyType: 1
-  baseHealth: 20
-  maxPossibleHealth: 500
+  baseHealth: 10
+  maxPossibleHealth: 100
   baseDamage: 5
   moveSpeed: 0.75
+  bossPrefab: {fileID: 0}
+  bossHealth: 0
+  bossDamage: 0
+  bulletPatternType: 0
+  blastSettings:
+    shotNum: 5
+    volly: 1
+    spread: 45
+    shotTime: 0.1
+    bulletSpeed: 8
+    bulletLifetime: 10
+  spiralSettings:
+    spiralTime: 3
+    directions: 8
+    rotationSpeed: 45
+    waitTime: 0.05
+    bulletSpeed: 6
+    bulletLifetime: 12
+  flowerSettings:
+    flowerTime: 10
+    directions: 6
+    phaseTime: 1
+    rotationAngle: 30
+    waitTime: 0.1
+    bulletSpeed: 5
+    bulletLifetime: 15
   initialPoolSize: 10
   dropTable: {fileID: 11400000, guid: cf0e961c75dce2d4b85d9dc10b1625ed, type: 2}
   additionalDropRate: 0.5
