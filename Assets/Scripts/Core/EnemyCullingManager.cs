@@ -343,36 +343,36 @@ public class EnemyCullingManager : MonoBehaviour
 
 
 #if UNITY_EDITOR
-private void OnDrawGizmos()
-{
-    if (!Application.isPlaying || playerTransform == null) return;
-
-    // �ø� ���� �ð�ȭ
-    Gizmos.color = Color.red;
-    Gizmos.DrawWireSphere(playerTransform.position, cullingDistance);
-
-    // ȭ�� ���� �ð�ȭ
-    Gizmos.color = Color.yellow;
-    Vector3 center = playerTransform.position;
-    Vector3 size = new Vector3(screenBounds.x * 2, screenBounds.y * 2, 0);
-    Gizmos.DrawWireCube(center, size);
-
-    // ���� ���� �ð�ȭ
-    Gizmos.color = Color.green;
-    float bufferSize = screenBuffer * 2;
-    Vector3 bufferSizeVec = new Vector3(
-        size.x * (1 + bufferSize),
-        size.y * (1 + bufferSize),
-        0
-    );
-    Gizmos.DrawWireCube(center, bufferSizeVec);
-
-    // �Ÿ� ��� ������Ʈ �Ӱ谪 �ð�ȭ
-    if (useDistanceBasedInterval)
+    private void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(playerTransform.position, distanceThreshold);
+        if (!Application.isPlaying || playerTransform == null) return;
+
+        // �ø� ���� �ð�ȭ
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(playerTransform.position, cullingDistance);
+
+        // ȭ�� ���� �ð�ȭ
+        Gizmos.color = Color.yellow;
+        Vector3 center = playerTransform.position;
+        Vector3 size = new Vector3(screenBounds.x * 2, screenBounds.y * 2, 0);
+        Gizmos.DrawWireCube(center, size);
+
+        // ���� ���� �ð�ȭ
+        Gizmos.color = Color.green;
+        float bufferSize = screenBuffer * 2;
+        Vector3 bufferSizeVec = new Vector3(
+            size.x * (1 + bufferSize),
+            size.y * (1 + bufferSize),
+            0
+        );
+        Gizmos.DrawWireCube(center, bufferSizeVec);
+
+        // �Ÿ� ��� ������Ʈ �Ӱ谪 �ð�ȭ
+        if (useDistanceBasedInterval)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(playerTransform.position, distanceThreshold);
+        }
     }
-}
-}
 #endif
+}
