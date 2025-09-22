@@ -1057,8 +1057,8 @@ public class WaveManager : MonoBehaviour
         // ���� ���� üũ
         if (AreAllWavesCompleted())
         {
-            Debug.Log("Game Clear");
-            //GameManager.Instance.HandleGameVictory();
+            Debug.Log("Game Clear - All waves completed!");
+            GameManager.Instance.SetGameState(GameState.GameClear);
         }
         else
         {

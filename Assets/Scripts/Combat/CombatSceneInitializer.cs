@@ -8,18 +8,19 @@ public class CombatSceneInitializer : MonoBehaviour
     [SerializeField] private ShopController shopController;
     [SerializeField] private CombatController combatController;
     [SerializeField] private GameOverController gameOverController;
+    [SerializeField] private GameClearController gameClearController;
     [SerializeField] private OptionController optionController;
     [SerializeField] private WaveManager waveManager;
     [SerializeField] private PlayerUIController playerUIController;
     private void Start()
     {
-        // ¸Ê ·Îµå ¹× ÇÃ·¹ÀÌ¾î À§Ä¡ ¼³Á¤
+        // ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
         if (MapManager.Instance != null)
         {
             GameMap map = MapManager.Instance.LoadMap();
             if (map != null && playerStats != null)
             {
-                // ÇÃ·¹ÀÌ¾î¸¦ ¿øÁ¡¿¡ ¹èÄ¡
+                // ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
                 Vector2 startPosition = MapManager.Instance.GetPlayerStartPosition();
                 playerStats.transform.position = startPosition;            
             }
@@ -31,7 +32,7 @@ public class CombatSceneInitializer : MonoBehaviour
             optionPanel = playerUIController.GetOptionPanel();
         }
 
-        // °ÔÀÓ ¸Å´ÏÀú ÂüÁ¶ ¼³Á¤
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (GameManager.Instance != null)
         {
             GameManager.Instance.SetCombatSceneReferences(
@@ -39,19 +40,20 @@ public class CombatSceneInitializer : MonoBehaviour
                 shopController,
                 combatController,
                 gameOverController,
+                gameClearController,
                 optionPanel
             );
 
-            // WaveManager ÃÊ±âÈ­
+            // WaveManager ï¿½Ê±ï¿½È­
             if (waveManager != null)
             {
                 waveManager.EnsureInitialized(MapManager.Instance.CurrentMap);
             }
 
-            // ÃÊ±â ÀÏ½ÃÁ¤Áö »óÅÂ ¼³Á¤
+            // ï¿½Ê±ï¿½ ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             GameManager.Instance.SetGameState(GameState.Paused);
 
-            // Ã¹ »óÁ¡ ¿­±â
+            // Ã¹ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             OpenInitialShopPhase();
         }
     }
@@ -60,7 +62,7 @@ public class CombatSceneInitializer : MonoBehaviour
     {
         if (shopController != null)
         {
-            // Ã¹ »óÁ¡ Ç¥½Ã
+            // Ã¹ ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½
             shopController.isFirstShop = true;
             shopController.InitializeShop();
         }

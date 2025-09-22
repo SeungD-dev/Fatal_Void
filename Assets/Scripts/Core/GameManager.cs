@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     private ShopController shopController;
     private CombatController combatController;
     private GameOverController gameOverController;
+    private GameClearController gameClearController;
     private PhysicsInventoryManager physicsInventoryManager; // �߰�: ���� �κ��丮 �ý��� ����
     [SerializeField] private int _currentWave = 0;
     public int CurrentWave
@@ -57,6 +58,7 @@ public class GameManager : MonoBehaviour
     public ShopController ShopController => shopController;
     public CombatController CombatController => combatController;
     public GameOverController GameOverController => gameOverController;
+    public GameClearController GameClearController => gameClearController;
     public PhysicsInventoryManager PhysicsInventoryManager => physicsInventoryManager; // �߰�: ���� �κ��丮 �Ŵ��� ������Ƽ
 
     public event System.Action<GameState> OnGameStateChanged;
@@ -115,7 +117,8 @@ public class GameManager : MonoBehaviour
             { GameState.Loading, 2 },     // LoadingScene
             { GameState.Playing, 3 },     // CombatScene
             { GameState.Paused, 3 },      // ���� CombatScene���� Pause
-            { GameState.GameOver, 3 }     // ���� CombatScene���� GameOver
+            { GameState.GameOver, 3 },    // ���� CombatScene���� GameOver
+            { GameState.GameClear, 3 }    // ���� CombatScene���� GameClear
         };
     }
     public void StartApplication()
@@ -182,7 +185,7 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// CombatScene�� �ֿ� ������Ʈ���� �����մϴ�.
     /// </summary>
-    public void SetCombatSceneReferences(PlayerStats stats, ShopController shop, CombatController combat, GameOverController gameOver,GameObject optionPanelRef)
+    public void SetCombatSceneReferences(PlayerStats stats, ShopController shop, CombatController combat, GameOverController gameOver, GameClearController gameClear, GameObject optionPanelRef)
     {
         bool shouldInitialize = !isInitialized && stats != null;
 
@@ -190,6 +193,7 @@ public class GameManager : MonoBehaviour
         shopController = shop;
         combatController = combat;
         gameOverController = gameOver;
+        gameClearController = gameClear;
         optionPanel = optionPanelRef;
         // �÷��̾� Transform ĳ��
         if (stats != null)
@@ -309,6 +313,7 @@ public class GameManager : MonoBehaviour
         shopController = null;
         combatController = null;
         gameOverController = null;
+        gameClearController = null;
         physicsInventoryManager = null; // 물리 인벤토리 매니저 참조 초기화
         PlayerTransform = null;
 
@@ -811,6 +816,11 @@ public class GameManager : MonoBehaviour
                 HandleGameOver();
                 Time.timeScale = 0f;
                 break;
+            case GameState.GameClear:
+                // GameClear UI�� ���� ǥ���� �� timeScale ����
+                HandleGameClear();
+                Time.timeScale = 0f;
+                break;
         }
     }
 
@@ -843,6 +853,26 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogError("GameOverController reference is missing!");
+        }
+    }
+
+    /// <summary>
+    /// 게임 클리어 상태에서의 처리를 담당합니다.
+    /// </summary>
+    private void HandleGameClear()
+    {
+        SavePlayerProgress();
+
+        // 게임 클리어 효과음 재생
+        SoundManager.Instance?.PlaySound("GameClear_sfx", 1f, false);
+
+        if (gameClearController != null)
+        {
+            gameClearController.ShowGameClearPanel();
+        }
+        else
+        {
+            Debug.LogError("GameClearController reference is missing!");
         }
     }
 
