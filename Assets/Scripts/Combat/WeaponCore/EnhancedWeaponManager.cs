@@ -295,11 +295,32 @@ public class EnhancedWeaponManager : MonoBehaviour
     /// </summary>
     public void UpgradeToXTier(WeaponData weaponData)
     {
-        if (weaponData == null || !CanPlayerUpgrade())
+        if (weaponData == null)
         {
-            Debug.LogWarning("���׷��̵� ������ �������� �ʾҽ��ϴ�.");
+            Debug.LogWarning("무기 데이터가 null입니다.");
+            CloseEnhancedWeaponUI();
+            StartCoroutine(DelayedContinueToShop());
             return;
         }
+
+        if (!CanPlayerUpgrade())
+        {
+            Debug.LogWarning($"업그레이드 조건을 만족하지 않습니다. 현재 레벨: {playerStats?.Level}, 필요 레벨: {requiredPlayerLevel}");
+            CloseEnhancedWeaponUI();
+            StartCoroutine(DelayedContinueToShop());
+            return;
+        }
+
+        // 업그레이드 가능한 무기인지 재확인 (추가 안전장치)
+        if (!IsUpgradableWeapon(weaponData))
+        {
+            Debug.LogWarning($"업그레이드 불가능한 무기입니다: {weaponData.weaponName}, Tier: {weaponData.currentTier}");
+            CloseEnhancedWeaponUI();
+            StartCoroutine(DelayedContinueToShop());
+            return;
+        }
+
+        Debug.Log($"X-Tier 업그레이드 시작: {weaponData.weaponName} (Tier {weaponData.currentTier})");
 
         // ���� ����
         playerStats.SubtractLevels(levelCost);
@@ -309,6 +330,8 @@ public class EnhancedWeaponManager : MonoBehaviour
 
         // X-Ƽ�� ���� ����
         CreateXTierWeapon(weaponData);
+
+        Debug.Log($"X-Tier 업그레이드 완료: {weaponData.weaponName}");
 
         // ���׷��̵� UI �ݱ�
         CloseEnhancedWeaponUI();
@@ -518,5 +541,72 @@ public class EnhancedWeaponManager : MonoBehaviour
     public void ResetWaveState()
     {
         hasShownEnhancedUIThisWave = false;
+    }
+
+    /// <summary>
+    /// 실시간으로 인벤토리에서 일치하는 무기 데이터 찾기 (참조 불일치 문제 해결)
+    /// </summary>
+    public WeaponData FindMatchingWeaponInInventory(WeaponData targetWeapon)
+    {
+        if (targetWeapon == null) return null;
+
+        // 1. 인벤토리 그리드에서 검색
+        if (inventoryGrid != null && inventoryGrid.IsInitialized)
+        {
+            for (int x = 0; x < inventoryGrid.Width; x++)
+            {
+                for (int y = 0; y < inventoryGrid.Height; y++)
+                {
+                    InventoryItem item = inventoryGrid.GetItem(x, y);
+                    if (item != null)
+                    {
+                        WeaponData weaponData = item.GetWeaponData();
+                        if (IsMatchingWeapon(weaponData, targetWeapon))
+                        {
+                            return weaponData;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. 물리 인벤토리에서 검색
+        if (physicsInventoryManager != null)
+        {
+            var physicsItems = physicsInventoryManager.GetAllPhysicsItems();
+            if (physicsItems != null)
+            {
+                foreach (var physicsItem in physicsItems)
+                {
+                    if (physicsItem != null)
+                    {
+                        InventoryItem inventoryItem = physicsItem.GetComponent<InventoryItem>();
+                        if (inventoryItem != null)
+                        {
+                            WeaponData weaponData = inventoryItem.GetWeaponData();
+                            if (IsMatchingWeapon(weaponData, targetWeapon))
+                            {
+                                return weaponData;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// 두 무기 데이터가 동일한 무기인지 확인 (참조가 달라도 내용이 같으면 동일한 무기로 판단)
+    /// </summary>
+    private bool IsMatchingWeapon(WeaponData weapon1, WeaponData weapon2)
+    {
+        if (weapon1 == null || weapon2 == null) return false;
+
+        return weapon1.weaponType == weapon2.weaponType &&
+               weapon1.currentTier == weapon2.currentTier &&
+               weapon1.weaponName == weapon2.weaponName &&
+               IsUpgradableWeapon(weapon1); // 업그레이드 가능한 무기인지도 확인
     }
 }

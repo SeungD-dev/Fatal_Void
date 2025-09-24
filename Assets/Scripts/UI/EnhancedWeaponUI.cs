@@ -133,11 +133,22 @@ public class EnhancedWeaponUI : MonoBehaviour
     {
         if (weaponData == null || enhancedWeaponManager == null) return;
 
+        // 실시간으로 인벤토리에서 최신 무기 데이터 참조 찾기 (참조 불일치 문제 해결)
+        WeaponData currentWeaponData = enhancedWeaponManager.FindMatchingWeaponInInventory(weaponData);
+
+        if (currentWeaponData == null)
+        {
+            Debug.LogWarning($"선택한 무기를 인벤토리에서 찾을 수 없습니다: {weaponData.weaponName}");
+            // UI를 닫고 상점으로 이동
+            CloseUIAndContinueToShop();
+            return;
+        }
+
         // ��� ���� �ɼ� ��Ȱ��ȭ
         DisableAllWeaponOptions();
 
-        // ������ ���⸦ X-Ƽ��� ���׷��̵�
-        enhancedWeaponManager.UpgradeToXTier(weaponData);
+        // 최신 참조로 업그레이드 진행
+        enhancedWeaponManager.UpgradeToXTier(currentWeaponData);
     }
 
     /// <summary>
@@ -160,6 +171,19 @@ public class EnhancedWeaponUI : MonoBehaviour
         }
     }
   
+    /// <summary>
+    /// UI를 닫고 상점으로 이동 (무기를 찾을 수 없는 경우)
+    /// </summary>
+    private void CloseUIAndContinueToShop()
+    {
+        if (enhancedWeaponManager != null)
+        {
+            enhancedWeaponManager.CloseEnhancedWeaponUI();
+            // 직접 상점으로 이동하는 대신 EnhancedWeaponManager를 통해 처리
+            enhancedWeaponManager.SendMessage("ContinueToShop", SendMessageOptions.DontRequireReceiver);
+        }
+    }
+
     private void OnDestroy()
     {
         HideAllWeaponOptions();
