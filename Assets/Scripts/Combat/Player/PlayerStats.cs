@@ -96,6 +96,10 @@ public class PlayerStats : MonoBehaviour
     private static readonly WaitForSeconds HitFlashWait;
     private const float StatUpdateThreshold = 0.1f;
     private float lastStatUpdateTime;
+
+    // Health Regeneration
+    private Coroutine healthRegenCoroutine;
+    private float lastHealthRegenTime;
     #endregion
 
     #region Properties
@@ -154,6 +158,13 @@ public class PlayerStats : MonoBehaviour
         // 첫 초기화에서만 체력을 최대체력으로 설정
         UpdateStats();
         LevelUp();  // 첫 초기화에서 레벨 설정
+
+        // 기본 체력 재생 코루틴 시작
+        if (healthRegen > 0 && healthRegenCoroutine == null)
+        {
+            healthRegenCoroutine = StartCoroutine(HealthRegenCoroutine());
+        }
+
         isInitialized = true;
     }
 
@@ -507,14 +518,21 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    public void ModifyHealthRegen(float modifier)
+    public void ModifyHealthRegen(float amount)
     {
         if (isModifyingStats) return;
 
         isModifyingStats = true;
         try
         {
-            healthRegen *= (1f + modifier);
+            healthRegen += amount;
+            healthRegen = Mathf.Max(baseHealthRegen, healthRegen);
+
+            // 체력 재생이 0보다 크면 재생 코루틴 시작
+            if (healthRegen > 0 && healthRegenCoroutine == null)
+            {
+                healthRegenCoroutine = StartCoroutine(HealthRegenCoroutine());
+            }
         }
         finally
         {
@@ -712,9 +730,33 @@ public class PlayerStats : MonoBehaviour
         OnKnockbackChanged = null;
         OnAreaOfEffectChanged = null;
 
+        // 체력 재생 코루틴 정리
+        if (healthRegenCoroutine != null)
+        {
+            StopCoroutine(healthRegenCoroutine);
+            healthRegenCoroutine = null;
+        }
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ClearSceneReferences();
+        }
+    }
+
+    /// <summary>
+    /// 체력 자동 재생 코루틴
+    /// </summary>
+    private IEnumerator HealthRegenCoroutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1f); // 1초마다 체력 재생
+
+            if (currentHealth < maxHealth && healthRegen > 0)
+            {
+                float regenAmount = healthRegen;
+                Heal(regenAmount);
+            }
         }
     }
 }

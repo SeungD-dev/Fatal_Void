@@ -217,28 +217,37 @@ public class EnhancedWeaponManager : MonoBehaviour
             }
         }
 
-        // 3. �ִ� 3���� ����, ���� ���� ���ۻ���
-        if (allTier4Weapons.Count > 3)
+        // 3. 중복 무기 제거 (같은 무기 인스턴스가 여러 번 추가되는 것 방지)
+        List<WeaponData> uniqueWeapons = new List<WeaponData>();
+        foreach (WeaponData weapon in allTier4Weapons)
         {
-            // ���� ����
-            for (int i = 0; i < allTier4Weapons.Count; i++)
+            if (!uniqueWeapons.Contains(weapon))
             {
-                int randomIndex = Random.Range(i, allTier4Weapons.Count);
-                WeaponData temp = allTier4Weapons[i];
-                allTier4Weapons[i] = allTier4Weapons[randomIndex];
-                allTier4Weapons[randomIndex] = temp;
+                uniqueWeapons.Add(weapon);
             }
+        }
 
-            // óǪ 3�� ���� ����
-            upgradableWeapons.AddRange(allTier4Weapons.Take(3));
+        // 4. ���� ���ڿ� ���� ó��
+        if (uniqueWeapons.Count > 3)
+        {
+            // 4�� �̻��� ���� ���� �����Ͽ� 3���� ����
+            for (int i = 0; i < uniqueWeapons.Count; i++)
+            {
+                int randomIndex = Random.Range(i, uniqueWeapons.Count);
+                WeaponData temp = uniqueWeapons[i];
+                uniqueWeapons[i] = uniqueWeapons[randomIndex];
+                uniqueWeapons[randomIndex] = temp;
+            }
+            upgradableWeapons.AddRange(uniqueWeapons.Take(3));
         }
         else
         {
-            upgradableWeapons.AddRange(allTier4Weapons);
+            // 1-3���� ���� �״�� ��� ���� ǥ��
+            upgradableWeapons.AddRange(uniqueWeapons);
         }
 
         // ����� �α�
-        Debug.Log($"���׷��̵� ������ ���� {upgradableWeapons.Count}�� ã�� (��ü {allTier4Weapons.Count}�� ��)");
+        Debug.Log($"���׷��̵� ������ ���� {upgradableWeapons.Count}�� ã�� (��ü {allTier4Weapons.Count}��, 중복제거 후 {uniqueWeapons.Count}��)");
     }
 
     /// <summary>
