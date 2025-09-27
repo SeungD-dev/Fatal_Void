@@ -4748,7 +4748,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9450005411114373, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
       propertyPath: initialCoinCount
-      value: 20
+      value: 999
       objectReference: {fileID: 0}
     - target: {fileID: 9450005411114373, guid: fe1a0aabeae6d544399d30469c5f62da, type: 3}
       propertyPath: baseMovementSpeed

@@ -418,13 +418,13 @@ public class EnhancedWeaponManager : MonoBehaviour
         // �κ��丮�� ���� ��ġ �õ�
         if (inventoryController != null && originalPosition.HasValue)
         {
-            // �׸��忡 ���� ��ġ�� �õ�
-            inventoryController.CreateUpgradedItem(xTierWeapon, originalPosition.Value);
+            // �׸��忡 ���� ��ġ�� �õ� (인벤토리 UI 활성화하지 않음)
+            inventoryController.CreateUpgradedItem(xTierWeapon, originalPosition.Value, false);
         }
         else if (physicsInventoryManager != null)
         {
-            // �κ��丮�� ���� ���� ���� �κ��丮�� ����
-            physicsInventoryManager.HandleFullInventory(xTierWeapon);
+            // �κ��丮�� ���� ���� ���� �κ��丮�� ���� (인벤토리 UI 활성화하지 않음)
+            physicsInventoryManager.HandleFullInventory(xTierWeapon, false);
         }
         else
         {
@@ -515,6 +515,12 @@ public class EnhancedWeaponManager : MonoBehaviour
         }
 
         isEnhancedWeaponUIActive = false;
+
+        // 게임 상태를 Playing으로 복구
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetGameState(GameState.Playing);
+        }
     }
 
     /// <summary>

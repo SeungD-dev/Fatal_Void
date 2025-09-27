@@ -73,8 +73,8 @@ MonoBehaviour:
   supportsXTier: 1
   xTierWeaponIcon: {fileID: -1983434036056564680, guid: d883b5a94c0148548bb3c3b73d35e052, type: 3}
   xTierInventoryWeaponIcon: {fileID: -1983434036056564680, guid: d883b5a94c0148548bb3c3b73d35e052, type: 3}
-  xTierWidth: 1
-  xTierHeight: 3
+  xTierWidth: 3
+  xTierHeight: 1
   xTierWeaponName: Hellfire
   xTierWeaponDescription: Unleashes a wave of pure incineration, leaving only ash
     in its wake

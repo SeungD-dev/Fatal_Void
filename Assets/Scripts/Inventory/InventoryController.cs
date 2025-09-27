@@ -45,6 +45,8 @@ public class InventoryController : MonoBehaviour
     private TouchActions touchActions;
     private InputAction touchPosition;
     private InputAction touchPress;
+    private InputActionAsset inputActionAsset;
+    private InputAction rightClickAction;
     private PlayerStats playerStats;
 
     private static readonly Vector2 ITEM_LIFT_OFFSET_VECTOR = Vector2.up * ITEM_LIFT_OFFSET;
@@ -171,7 +173,9 @@ public class InventoryController : MonoBehaviour
         }
 
         // 필요한 초기화 수행
-        InitializeInventory();
+        InitializeInputSystem();
+        InitializeComponents();
+        InitializeGrid();
     }
 
     private void Update()
@@ -194,8 +198,11 @@ public class InventoryController : MonoBehaviour
             Vector2Int gridPosition = GetTileGridPosition(currentPos);
             ProcessGridPosition(gridPosition);
 
-            // 회전 처리
+            // 회전 처리 (터치)
             HandleItemRotation();
+
+            // 우클릭 회전 처리
+            HandleRightClickRotation();
         }
     }
     private void ProcessGridPosition(Vector2Int gridPosition)
@@ -220,7 +227,15 @@ public class InventoryController : MonoBehaviour
     {
         if (!isDragging || !isHolding || selectedItem == null) return;
 
-        // 활성화된 터치들 필터링
+        // 마우스가 연결되어 있으면 터치 회전 비활성화 (우클릭 회전 사용)
+        if (Mouse.current != null)
+        {
+            return;
+        }
+
+        // 활성화된 터치들 필터링 (터치 디바이스에서만)
+        if (Touchscreen.current == null) return;
+
         var activeTouches = Touchscreen.current.touches.Where(t =>
             t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began ||
             t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved ||
@@ -264,6 +279,41 @@ public class InventoryController : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// 마우스 우클릭으로 아이템 회전 처리 (좌클릭 홀드 중에만 작동)
+    /// </summary>
+    private void HandleRightClickRotation()
+    {
+        // 조건 체크
+        if (rightClickAction == null)
+        {
+            Debug.LogWarning("rightClickAction is null!");
+            return;
+        }
+
+        if (selectedItem == null)
+        {
+            return; // 선택된 아이템이 없으면 조용히 리턴
+        }
+
+        if (!isDragging || !isHolding)
+        {
+            return; // 드래그 중이 아니거나 홀드 중이 아니면 조용히 리턴
+        }
+
+        // 우클릭이 눌렸을 때 회전
+        if (rightClickAction.WasPressedThisFrame())
+        {
+            Debug.Log($"Right click detected! isDragging: {isDragging}, isHolding: {isHolding}, selectedItem: {selectedItem.name}");
+            selectedItem.Rotate();
+
+            // 회전 후 그리드 포지션 업데이트 (터치와 동일한 방식)
+            Vector2 currentPos = touchPosition.ReadValue<Vector2>();
+            Vector2Int gridPosition = GetTileGridPosition(currentPos);
+            UpdateHighlightAfterRotation(gridPosition);
+        }
+    }
+
     private void UpdateHighlightAfterRotation(Vector2Int gridPosition)
     {
         if (IsPositionWithinGrid(gridPosition))
@@ -289,6 +339,7 @@ public class InventoryController : MonoBehaviour
     private void OnEnable()
     {
         touchActions?.Enable();
+        rightClickAction?.Enable();
 
         // PlayerStats 참조가 없는 경우 다시 가져오기 시도
         if (playerStats == null && GameManager.Instance != null)
@@ -311,6 +362,7 @@ public class InventoryController : MonoBehaviour
             noticeUI.SetActive(false);
         }
         touchActions?.Touch.Disable();
+        rightClickAction?.Disable();
         SaveGridState();
     }
 
@@ -323,6 +375,10 @@ public class InventoryController : MonoBehaviour
 
             touchActions.Touch.Disable();
             touchActions?.Dispose();
+
+            rightClickAction?.Disable();
+            rightClickAction?.Dispose();
+
             isInputSystemInitialized = false;
         }
         activeItems.Clear();
@@ -365,10 +421,14 @@ public class InventoryController : MonoBehaviour
             touchPosition = touchActions.Touch.Position;
             touchPress = touchActions.Touch.Press;
 
+            // 마우스 우클릭 액션 초기화
+            rightClickAction = new InputAction("RightClick", InputActionType.Button, "<Mouse>/rightButton");
+
             touchPress.started += OnTouchStarted;
             touchPress.canceled += OnTouchEnded;
 
             touchActions.Enable();
+            rightClickAction.Enable();
             isInputSystemInitialized = true;
         }
         catch (System.Exception e)
@@ -467,6 +527,17 @@ public class InventoryController : MonoBehaviour
         touchActions = new TouchActions();
         touchPosition = touchActions.Touch.Position;
         touchPress = touchActions.Touch.Press;
+
+        // InputActionAsset로부터 RightClick 액션 가져오기
+        inputActionAsset = Resources.Load<InputActionAsset>("InputSystem_Actions");
+        if (inputActionAsset != null)
+        {
+            var uiActionMap = inputActionAsset.FindActionMap("UI");
+            if (uiActionMap != null)
+            {
+                rightClickAction = uiActionMap.FindAction("RightClick");
+            }
+        }
 
         touchPress.started += OnTouchStarted;
         touchPress.canceled += OnTouchEnded;
@@ -1163,6 +1234,14 @@ public class InventoryController : MonoBehaviour
 
     public void CreateUpgradedItem(WeaponData weaponData, Vector2Int position)
     {
+        CreateUpgradedItem(weaponData, position, true);
+    }
+
+    /// <summary>
+    /// 업그레이드된 아이템 생성 (UI 활성화 옵션 포함)
+    /// </summary>
+    public void CreateUpgradedItem(WeaponData weaponData, Vector2Int position, bool activateInventoryUI)
+    {
         if (selectedItemGrid == null)
         {
             Debug.LogError("No ItemGrid selected!");
@@ -1181,6 +1260,16 @@ public class InventoryController : MonoBehaviour
 
         // 지정된 위치에 배치 시도
         TryPlaceUpgradedItem(inventoryItem, position);
+
+        // XTier 업그레이드의 경우 인벤토리 UI를 활성화하지 않음
+        if (activateInventoryUI)
+        {
+            // 인벤토리 UI만 활성화하고 OnPurchaseItem은 호출하지 않음 (중복 업그레이드 방지)
+            if (!inventoryUI.activeSelf)
+            {
+                ToggleInventoryUI(true);
+            }
+        }
     }
 
     /// <summary>

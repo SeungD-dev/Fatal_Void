@@ -106,6 +106,13 @@ public class EnhancedWeaponUI : MonoBehaviour
             {
                 weaponOptions[i].gameObject.SetActive(true);
                 weaponOptions[i].Initialize(availableWeapons[i], this);
+
+                // 버튼 상태 복구 (이전에 비활성화된 버튼들을 다시 활성화)
+                Button optionButton = weaponOptions[i].GetComponentInChildren<Button>();
+                if (optionButton != null)
+                {
+                    optionButton.interactable = true;
+                }
             }
         }
     }

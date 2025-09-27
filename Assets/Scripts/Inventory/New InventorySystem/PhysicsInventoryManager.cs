@@ -695,7 +695,15 @@ public class PhysicsInventoryManager : MonoBehaviour
     /// </summary>
     public void HandleFullInventory(WeaponData weaponData)
     {
-        if(inventoryController != null)
+        HandleFullInventory(weaponData, true);
+    }
+
+    /// <summary>
+    /// �κ��丮 �׸��忡 �� ������ ���� �� ���� ���������� ���� (UI 활성화 옵션 포함)
+    /// </summary>
+    public void HandleFullInventory(WeaponData weaponData, bool activateInventoryUI)
+    {
+        if(inventoryController != null && activateInventoryUI)
         {
             inventoryController.ToggleShopUI(false);
             inventoryController.ToggleInventoryUI(true);
