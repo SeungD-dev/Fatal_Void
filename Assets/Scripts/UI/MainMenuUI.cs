@@ -18,6 +18,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private float touchCooldown = 0.5f; // �ɼ� �г� ���� �� ��ٿ� �ð�
 
     private TouchActions touchActions;
+    private InputAction mousePress;
     private bool canStartGame = false;
     private bool isTransitioning = false;
     private float lastOptionPanelCloseTime = 0f;
@@ -26,6 +27,9 @@ public class MainMenuUI : MonoBehaviour
     {
         // Input Actions �ʱ�ȭ
         touchActions = new TouchActions();
+
+        // 마우스 입력 액션 초기화
+        mousePress = new InputAction("MousePress", InputActionType.Button, "<Mouse>/leftButton");
     }
 
     private void OnEnable()
@@ -34,14 +38,22 @@ public class MainMenuUI : MonoBehaviour
         touchActions.Enable();
 
         // ��ġ �̺�Ʈ ���
-        touchActions.Touch.Press.started += OnTouchStarted;
+        touchActions.Touch.Press.started += OnInputStarted;
+
+        // 마우스 입력 활성화
+        mousePress.Enable();
+        mousePress.started += OnInputStarted;
     }
 
     private void OnDisable()
     {
         // Input Actions ��Ȱ��ȭ �� �̺�Ʈ ����
-        touchActions.Touch.Press.started -= OnTouchStarted;
+        touchActions.Touch.Press.started -= OnInputStarted;
         touchActions.Disable();
+
+        // 마우스 입력 비활성화
+        mousePress.started -= OnInputStarted;
+        mousePress.Disable();
     }
 
     private void Start()
@@ -92,7 +104,7 @@ public class MainMenuUI : MonoBehaviour
         }
     }
 
-    private void OnTouchStarted(InputAction.CallbackContext context)
+    private void OnInputStarted(InputAction.CallbackContext context)
     {
         // 1. ���� ���� ������ �������� Ȯ��
         if (!canStartGame || isTransitioning) return;
@@ -180,9 +192,16 @@ public class MainMenuUI : MonoBehaviour
         // Input Actions ����
         if (touchActions != null)
         {
-            touchActions.Touch.Press.started -= OnTouchStarted;
+            touchActions.Touch.Press.started -= OnInputStarted;
             touchActions.Disable();
             touchActions.Dispose();
+        }
+
+        if (mousePress != null)
+        {
+            mousePress.started -= OnInputStarted;
+            mousePress.Disable();
+            mousePress.Dispose();
         }
 
         // �̺�Ʈ ������ ����

@@ -43,6 +43,9 @@ public class PhysicsInventoryManager : MonoBehaviour
     private TouchActions touchActions;
     private InputAction touchPosition;
     private InputAction touchPress;
+    private InputAction mousePosition;
+    private InputAction mousePress;
+    private InputAction rightClickAction;
     private bool isHolding = false;
     private bool isDragging = false;
     private Vector2 touchStartPosition;
@@ -85,8 +88,18 @@ public class PhysicsInventoryManager : MonoBehaviour
         if (touchActions != null)
         {
             touchActions.Enable();
-
         }
+
+        if (mousePress != null)
+        {
+            mousePress.Enable();
+        }
+
+        if (rightClickAction != null)
+        {
+            rightClickAction.Enable();
+        }
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
@@ -99,6 +112,17 @@ public class PhysicsInventoryManager : MonoBehaviour
         {
             touchActions.Disable();
         }
+
+        if (mousePress != null)
+        {
+            mousePress.Disable();
+        }
+
+        if (rightClickAction != null)
+        {
+            rightClickAction.Disable();
+        }
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
@@ -169,8 +193,8 @@ public class PhysicsInventoryManager : MonoBehaviour
         // ���õ� �������� �ְ� �巡�� ���̸� ��ġ ������Ʈ
         if (selectedPhysicsItem != null && isDragging)
         {
-            Vector2 currentTouchPos = touchPosition.ReadValue<Vector2>();
-            selectedPhysicsItem.UpdateDragPosition(currentTouchPos);
+            Vector2 currentInputPos = GetCurrentInputPosition();
+            selectedPhysicsItem.UpdateDragPosition(currentInputPos);
 
             // Update highlighter position
             if (inventoryHighlight != null && mainGrid != null)
@@ -178,7 +202,7 @@ public class PhysicsInventoryManager : MonoBehaviour
                 InventoryItem inventoryItem = selectedPhysicsItem.GetComponent<InventoryItem>();
                 if (inventoryItem != null)
                 {
-                    Vector2Int gridPosition = mainGrid.GetGridPosition(currentTouchPos);
+                    Vector2Int gridPosition = mainGrid.GetGridPosition(currentInputPos);
                     bool canPlace = mainGrid.IsValidPosition(gridPosition) &&
                                    mainGrid.CanPlaceItem(inventoryItem, gridPosition);
 
@@ -190,6 +214,9 @@ public class PhysicsInventoryManager : MonoBehaviour
                     }
                 }
             }
+
+            // 회전 처리
+            HandlePhysicsItemRotation();
         }
 
         // ���� ����ȭ: Ȱ�� ���� ������ ������Ʈ
@@ -454,7 +481,25 @@ public class PhysicsInventoryManager : MonoBehaviour
             touchActions.Dispose();
         }
 
-        // Ǯ�� ������ ��ȯ
+        if (mousePress != null)
+        {
+            mousePress.Disable();
+            mousePress.Dispose();
+        }
+
+        if (mousePosition != null)
+        {
+            mousePosition.Disable();
+            mousePosition.Dispose();
+        }
+
+        if (rightClickAction != null)
+        {
+            rightClickAction.Disable();
+            rightClickAction.Dispose();
+        }
+
+        // 풀에 아이템 반환
         ReturnAllItemsToPool();
     }
     #endregion
@@ -595,10 +640,21 @@ public class PhysicsInventoryManager : MonoBehaviour
         touchPosition = touchActions.Touch.Position;
         touchPress = touchActions.Touch.Press;
 
-        touchPress.started += OnTouchStarted;
-        touchPress.canceled += OnTouchEnded;
+        // 마우스 입력 액션 초기화
+        mousePosition = new InputAction("MousePosition", InputActionType.Value, "<Mouse>/position");
+        mousePress = new InputAction("MousePress", InputActionType.Button, "<Mouse>/leftButton");
+        rightClickAction = new InputAction("RightClick", InputActionType.Button, "<Mouse>/rightButton");
+
+        touchPress.started += OnInputStarted;
+        touchPress.canceled += OnInputEnded;
+
+        mousePress.started += OnInputStarted;
+        mousePress.canceled += OnInputEnded;
 
         touchActions.Enable();
+        mousePosition.Enable();
+        mousePress.Enable();
+        rightClickAction.Enable();
     }
     #endregion
 
@@ -719,24 +775,160 @@ public class PhysicsInventoryManager : MonoBehaviour
     }
     #endregion
 
-    #region Touch Handling
-    private void OnTouchStarted(InputAction.CallbackContext context)
+    #region Input Handling
+    /// <summary>
+    /// 터치와 마우스 입력을 통합하여 현재 입력 위치를 반환
+    /// </summary>
+    private Vector2 GetCurrentInputPosition()
     {
-        // ��ġ ��ġ ��������
-        Vector2 touchPos = touchPosition.ReadValue<Vector2>();
-        touchStartPosition = touchPos;
+        // 터치 입력이 활성화되어 있으면 터치 위치 반환
+        if (Touchscreen.current != null && Touchscreen.current.touches.Count > 0)
+        {
+            return touchPosition.ReadValue<Vector2>();
+        }
 
-        // �׸��� �� ������ ���� üũ
-        Vector2Int gridPosition = mainGrid?.GetGridPosition(touchPos) ?? new Vector2Int(-1, -1);
+        // 마우스 입력 반환
+        if (mousePosition != null)
+        {
+            return mousePosition.ReadValue<Vector2>();
+        }
+
+        // 기본값으로 터치 위치 반환
+        return touchPosition.ReadValue<Vector2>();
+    }
+
+    /// <summary>
+    /// 현재 입력이 눌려있는지 확인
+    /// </summary>
+    private bool IsInputPressed()
+    {
+        bool touchPressed = touchPress.IsPressed();
+        bool mousePressed = mousePress != null && mousePress.IsPressed();
+
+        return touchPressed || mousePressed;
+    }
+
+    /// <summary>
+    /// 물리 아이템 회전 처리 (우클릭 및 멀티터치)
+    /// </summary>
+    private void HandlePhysicsItemRotation()
+    {
+        if (!isDragging || selectedPhysicsItem == null) return;
+
+        // PC 환경에서 우클릭 회전 처리
+        HandleRightClickRotation();
+
+        // 모바일 환경에서 멀티터치 회전 처리 (필요시)
+        HandleMultiTouchRotation();
+    }
+
+    /// <summary>
+    /// 우클릭 회전 처리
+    /// </summary>
+    private void HandleRightClickRotation()
+    {
+        if (rightClickAction == null || selectedPhysicsItem == null) return;
+
+        // 좌클릭이 눌려있고, 우클릭이 눌렸을 때 회전
+        if (IsInputPressed() && rightClickAction.WasPressedThisFrame())
+        {
+            Debug.Log("Right click rotation triggered for physics item");
+            selectedPhysicsItem.Rotate();
+
+            // 회전 후 하이라이트 크기 업데이트
+            UpdateHighlightAfterRotation();
+
+            // 회전 효과음 재생
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySound("ItemRotate_sfx", 0.8f, false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 멀티터치 회전 처리 (모바일용)
+    /// </summary>
+    private void HandleMultiTouchRotation()
+    {
+        // PC 환경에서는 멀티터치 회전 비활성화
+#if UNITY_STANDALONE || UNITY_EDITOR
+        return;
+#endif
+
+        if (Touchscreen.current == null) return;
+
+        var activeTouches = Touchscreen.current.touches.Where(t =>
+            t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began ||
+            t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved ||
+            t.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Stationary
+        ).ToList();
+
+        // 두 개 이상의 터치가 있을 때 회전 처리
+        if (activeTouches.Count >= 2)
+        {
+            Debug.Log("Multi-touch rotation triggered for physics item");
+            selectedPhysicsItem.Rotate();
+
+            // 회전 후 하이라이트 크기 업데이트
+            UpdateHighlightAfterRotation();
+
+            // 회전 효과음 재생
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySound("ItemRotate_sfx", 0.8f, false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 회전 후 하이라이트 크기 및 위치 업데이트
+    /// </summary>
+    private void UpdateHighlightAfterRotation()
+    {
+        if (selectedPhysicsItem == null || inventoryHighlight == null || mainGrid == null) return;
+
+        InventoryItem inventoryItem = selectedPhysicsItem.GetComponent<InventoryItem>();
+        if (inventoryItem == null) return;
+
+        // 하이라이트 크기 업데이트 (회전된 크기 반영)
+        inventoryHighlight.SetSize(inventoryItem);
+
+        // 현재 마우스/터치 위치에서 그리드 위치 계산
+        Vector2 currentInputPos = GetCurrentInputPosition();
+        Vector2Int gridPosition = mainGrid.GetGridPosition(currentInputPos);
+
+        // 회전된 크기로 배치 가능한지 확인
+        bool canPlace = mainGrid.IsValidPosition(gridPosition) &&
+                       mainGrid.CanPlaceItem(inventoryItem, gridPosition);
+
+        inventoryHighlight.Show(canPlace);
+
+        if (canPlace)
+        {
+            inventoryHighlight.SetPosition(mainGrid, inventoryItem, gridPosition.x, gridPosition.y);
+        }
+
+        Debug.Log($"Updated highlight after rotation: Width={inventoryItem.Width}, Height={inventoryItem.Height}, CanPlace={canPlace}");
+    }
+
+    private void OnInputStarted(InputAction.CallbackContext context)
+    {
+        // 입력 위치 가져오기
+        Vector2 inputPos = GetCurrentInputPosition();
+        touchStartPosition = inputPos;
+
+        // 그리드 내 영역인지 확인
+        Vector2Int gridPosition = mainGrid?.GetGridPosition(inputPos) ?? new Vector2Int(-1, -1);
         if (mainGrid != null && mainGrid.IsValidPosition(gridPosition))
         {
-            // �׸��� �� ������ ��ġ ó���� InventoryController�� ���
-            Debug.Log("Touch is inside grid area, skipping physics item check");
+            // 그리드 내 영역인 경우 처리는 InventoryController에 맡김
+            Debug.Log("Input is inside grid area, skipping physics item check");
             return;
         }
 
-        // ���� ������ ��ġ üũ
-        PhysicsInventoryItem touchedItem = GetPhysicsItemAtPosition(touchPos);
+        // 물리 아이템 위치 확인
+        PhysicsInventoryItem touchedItem = GetPhysicsItemAtPosition(inputPos);
         if (touchedItem != null)
         {
             Debug.Log($"Found physics item to drag: {touchedItem.name}");
@@ -758,7 +950,7 @@ public class PhysicsInventoryManager : MonoBehaviour
             {
                 StopCoroutine(holdCoroutine);
             }
-            holdCoroutine = StartCoroutine(CheckForHold(touchedItem, touchPos));
+            holdCoroutine = StartCoroutine(CheckForHold(touchedItem, inputPos));
         }
     }
 
@@ -778,10 +970,10 @@ public class PhysicsInventoryManager : MonoBehaviour
         float elapsedTime = 0f;
         float threshold = holdDelay;
 
-        while (touchPress.IsPressed())
+        while (IsInputPressed())
         {
             elapsedTime += Time.deltaTime;
-            Vector2 currentPos = touchPosition.ReadValue<Vector2>();
+            Vector2 currentPos = GetCurrentInputPosition();
             float distance = Vector2.Distance(startPosition, currentPos);
 
             // Ȧ�� �ð��� �����ų�, ���� �Ÿ� �̻� �������� ���
@@ -836,13 +1028,13 @@ public class PhysicsInventoryManager : MonoBehaviour
             SoundManager.Instance.PlaySound("ItemLift_sfx", 1f, false);
         }
     }
-    private void OnTouchEnded(InputAction.CallbackContext context)
+    private void OnInputEnded(InputAction.CallbackContext context)
     {
         if (selectedPhysicsItem != null && isDragging)
         {
-            Vector2 finalPosition = touchPosition.ReadValue<Vector2>();
+            Vector2 finalPosition = GetCurrentInputPosition();
 
-            // �巡�� ���� ó��
+            // 드래그 종료 처리
             selectedPhysicsItem.EndDrag(mainGrid, finalPosition);
 
             

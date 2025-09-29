@@ -47,6 +47,9 @@ public class InventoryController : MonoBehaviour
     private InputAction touchPress;
     private InputActionAsset inputActionAsset;
     private InputAction rightClickAction;
+    // 마우스 입력 지원 용
+    private InputAction mousePosition;
+    private InputAction mousePress;
     private PlayerStats playerStats;
 
     private static readonly Vector2 ITEM_LIFT_OFFSET_VECTOR = Vector2.up * ITEM_LIFT_OFFSET;
@@ -185,7 +188,7 @@ public class InventoryController : MonoBehaviour
         // 드래그 중인 아이템 처리
         if (isDragging && selectedItem != null && isHolding)  // 원래의 상태 체크 사용
         {
-            Vector2 currentPos = touchPosition.ReadValue<Vector2>();
+            Vector2 currentPos = GetCurrentInputPosition();
 
             // 아이템 위치 업데이트
             if (selectedItemRectTransform != null)
@@ -227,11 +230,11 @@ public class InventoryController : MonoBehaviour
     {
         if (!isDragging || !isHolding || selectedItem == null) return;
 
-        // 마우스가 연결되어 있으면 터치 회전 비활성화 (우클릭 회전 사용)
-        if (Mouse.current != null)
-        {
-            return;
-        }
+        // PC 환경에서는 터치 회전 비활성화 (우클릭 회전 사용)
+        // 모바일 플랫폼이거나 터치스크린이 있는 경우에만 터치 회전 사용
+#if UNITY_STANDALONE || UNITY_EDITOR
+        return; // PC에서는 우클릭 회전만 사용
+#endif
 
         // 활성화된 터치들 필터링 (터치 디바이스에서만)
         if (Touchscreen.current == null) return;
@@ -308,10 +311,31 @@ public class InventoryController : MonoBehaviour
             selectedItem.Rotate();
 
             // 회전 후 그리드 포지션 업데이트 (터치와 동일한 방식)
-            Vector2 currentPos = touchPosition.ReadValue<Vector2>();
+            Vector2 currentPos = GetCurrentInputPosition();
             Vector2Int gridPosition = GetTileGridPosition(currentPos);
             UpdateHighlightAfterRotation(gridPosition);
         }
+    }
+
+    /// <summary>
+    /// 현재 입력 위치 반환 (터치 또는 마우스)
+    /// </summary>
+    private Vector2 GetCurrentInputPosition()
+    {
+        // 터치가 활성화되어 있으면 터치 위치 사용
+        if (Touchscreen.current != null && Touchscreen.current.touches.Count > 0)
+        {
+            return touchPosition.ReadValue<Vector2>();
+        }
+
+        // 그렇지 않으면 마우스 위치 사용
+        if (mousePosition != null)
+        {
+            return mousePosition.ReadValue<Vector2>();
+        }
+
+        // 둘 다 없으면 터치 위치 기본값 사용
+        return touchPosition.ReadValue<Vector2>();
     }
 
     private void UpdateHighlightAfterRotation(Vector2Int gridPosition)
@@ -339,6 +363,8 @@ public class InventoryController : MonoBehaviour
     private void OnEnable()
     {
         touchActions?.Enable();
+        mousePosition?.Enable();
+        mousePress?.Enable();
         rightClickAction?.Enable();
 
         // PlayerStats 참조가 없는 경우 다시 가져오기 시도
@@ -362,6 +388,8 @@ public class InventoryController : MonoBehaviour
             noticeUI.SetActive(false);
         }
         touchActions?.Touch.Disable();
+        mousePosition?.Disable();
+        mousePress?.Disable();
         rightClickAction?.Disable();
         SaveGridState();
     }
@@ -372,10 +400,16 @@ public class InventoryController : MonoBehaviour
         {
             touchPress.started -= OnTouchStarted;
             touchPress.canceled -= OnTouchEnded;
+            mousePress.started -= OnTouchStarted;
+            mousePress.canceled -= OnTouchEnded;
 
             touchActions.Touch.Disable();
             touchActions?.Dispose();
 
+            mousePosition?.Disable();
+            mousePosition?.Dispose();
+            mousePress?.Disable();
+            mousePress?.Dispose();
             rightClickAction?.Disable();
             rightClickAction?.Dispose();
 
@@ -417,18 +451,30 @@ public class InventoryController : MonoBehaviour
 
         try
         {
+            Debug.Log("Initializing input system...");
+
             touchActions = new TouchActions();
             touchPosition = touchActions.Touch.Position;
             touchPress = touchActions.Touch.Press;
 
-            // 마우스 우클릭 액션 초기화
+            // 마우스 입력 액션 초기화
+            mousePosition = new InputAction("MousePosition", InputActionType.Value, "<Mouse>/position");
+            mousePress = new InputAction("MousePress", InputActionType.Button, "<Mouse>/leftButton");
             rightClickAction = new InputAction("RightClick", InputActionType.Button, "<Mouse>/rightButton");
 
+            Debug.Log("Subscribing to input events...");
             touchPress.started += OnTouchStarted;
             touchPress.canceled += OnTouchEnded;
+            mousePress.started += OnTouchStarted; // 마우스 클릭도 터치와 동일하게 처리
+            mousePress.canceled += OnTouchEnded;
 
+            Debug.Log("Enabling input actions...");
             touchActions.Enable();
+            mousePosition.Enable();
+            mousePress.Enable();
             rightClickAction.Enable();
+
+            Debug.Log("Input system initialized successfully!");
             isInputSystemInitialized = true;
         }
         catch (System.Exception e)
@@ -561,8 +607,9 @@ public class InventoryController : MonoBehaviour
     {
         if (inventoryUI == null || !inventoryUI.activeSelf) return;
 
-        Vector2 touchPos = touchPosition.ReadValue<Vector2>();
-        Vector2Int gridPosition = mainInventoryGrid.GetGridPosition(touchPos);
+        Debug.Log("OnTouchStarted called!");
+        Vector2 inputPos = GetCurrentInputPosition();
+        Vector2Int gridPosition = mainInventoryGrid.GetGridPosition(inputPos);
 
         if (!mainInventoryGrid.IsValidPosition(gridPosition)) return;
 
@@ -586,7 +633,7 @@ public class InventoryController : MonoBehaviour
             }
 
             // 기존 홀드 체크 시작
-            StartHoldCheck(touchedItem, touchPos);
+            StartHoldCheck(touchedItem, inputPos);
         }
     }
 
@@ -601,10 +648,11 @@ public class InventoryController : MonoBehaviour
         Vector2 currentPos;
         float moveDistance;
 
-        while (touchPress.IsPressed())
+        // 마우스나 터치가 눌려있는 동안 루프
+        while (IsInputPressed())
         {
             holdTime += Time.deltaTime;
-            currentPos = touchPosition.ReadValue<Vector2>();
+            currentPos = GetCurrentInputPosition();
             moveDistance = Vector2.Distance(position, currentPos);
 
             if (moveDistance > HOLD_MOVE_THRESHOLD || holdTime >= HOLD_THRESHOLD)
@@ -615,6 +663,27 @@ public class InventoryController : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    /// <summary>
+    /// 현재 입력(터치 또는 마우스)이 눌려있는지 확인
+    /// </summary>
+    private bool IsInputPressed()
+    {
+        // 터치가 활성화되어 있으면 터치 상태 확인
+        if (Touchscreen.current != null && Touchscreen.current.touches.Count > 0)
+        {
+            return touchPress.IsPressed();
+        }
+
+        // 그렇지 않으면 마우스 상태 확인
+        if (mousePress != null)
+        {
+            return mousePress.IsPressed();
+        }
+
+        // 기본값으로 터치 상태 반환
+        return touchPress.IsPressed();
     }
     private void StartDragging(InventoryItem item, Vector2 position)
     {
@@ -633,7 +702,7 @@ public class InventoryController : MonoBehaviour
         // 이벤트 발생 시 로그 추가 (디버깅용)
         Debug.Log("Touch ended. Checking for physics interactions...");
 
-        Vector2 finalPosition = touchPosition.ReadValue<Vector2>();
+        Vector2 finalPosition = GetCurrentInputPosition();
 
         // 선택된 아이템이 있는지 확인
         if (selectedItem != null)

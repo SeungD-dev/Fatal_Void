@@ -479,6 +479,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2313195016606717580, guid: adf4da913bedacd479f139e955fe598d, type: 3}
+      propertyPath: m_text
+      value: 'CLICK
+
+        TO SKIP'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2313195016606717580, guid: adf4da913bedacd479f139e955fe598d, type: 3}
       propertyPath: m_fontAsset
       value: 
       objectReference: {fileID: 11400000, guid: b98b2bc3a5c750748a5f7cd2c5325a44, type: 2}

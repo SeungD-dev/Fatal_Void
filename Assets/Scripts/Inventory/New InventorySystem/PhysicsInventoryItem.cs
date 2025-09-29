@@ -4,9 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// ÀÎº¥Åä¸® ¾ÆÀÌÅÛ¿¡ ¹°¸®Àû Æ¯¼ºÀ» Ãß°¡ÇÏ´Â ÄÄÆ÷³ÍÆ®
-/// ±×¸®µå¿Í ¹°¸®Àû È¯°æ »çÀÌÀÇ ÀüÈ¯À» °ü¸®ÇÕ´Ï´Ù.
-/// ¿ÀºêÁ§Æ® Ç®¸µÀ» Áö¿øÇÕ´Ï´Ù.
+/// ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+/// ï¿½×¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 /// </summary>
 public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
 {
@@ -37,7 +37,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     private bool isBeingDragged = false;
     private Vector2 screenBounds;
     private Vector2 lastTouchPosition;
-    private float itemLiftOffset = 350f; // InventoryController¿Í µ¿ÀÏÇÑ °ª
+    private float itemLiftOffset = 350f; // InventoryControllerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
     private Vector2Int originalGridPosition;
     private bool isInitialized = false;
     private Vector3 originalScale;
@@ -65,7 +65,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
 
         if (duration > 0f)
         {
-            // ½Ã°£ ±â¹İ º¸È£ ¼³Á¤
+            // ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½È£ ï¿½ï¿½ï¿½ï¿½
             protectionEndTime = Time.time + duration;
             Debug.Log($"Item {gameObject.name} protected for {duration} seconds (until {protectionEndTime})");
         }
@@ -107,14 +107,14 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
 
     private void OnDisable()
     {
-        // Ç®·Î ¹İÈ¯µÉ ¶§ ¼³Á¤ ÃÊ±âÈ­
+        // Ç®ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         isPhysicsActive = false;
         isBeingDragged = false;
         velocity = Vector2.zero;
     }
 
     /// <summary>
-    /// ÄÄÆ÷³ÍÆ® °­Á¦ ÃÊ±âÈ­
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
     /// </summary>
     public void ForceInitialize()
     {
@@ -123,7 +123,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
         if (itemImage == null) itemImage = GetComponent<Image>();
         inventoryItem = GetComponent<InventoryItem>();
 
-        // »ö»ó ÀúÀå
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (itemImage != null)
         {
             originalColor = itemImage.color;
@@ -176,36 +176,36 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     }
 
     /// <summary>
-    /// IPooledObject ÀÎÅÍÆäÀÌ½ºÀÇ OnObjectSpawn ±¸Çö
-    /// ¿ÀºêÁ§Æ® Ç®¿¡¼­ °¡Á®¿Ã ¶§ È£ÃâµÊ
+    /// IPooledObject ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ï¿½ï¿½ OnObjectSpawn ï¿½ï¿½ï¿½ï¿½
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ È£ï¿½ï¿½ï¿½
     /// </summary>
     public void OnObjectSpawn()
     {
-        // »óÅÂ ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         isPhysicsActive = false;
         isBeingDragged = false;
         velocity = Vector2.zero;
 
-        // ÃÊ±âÈ­ È®ÀÎ
+        // ï¿½Ê±ï¿½È­ È®ï¿½ï¿½
         if (!isInitialized)
         {
             Initialize();
         }
 
-        // ¿øº» »óÅÂ ÀúÀå
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (rectTransform != null)
         {
             originalScale = rectTransform.localScale;
             originalRotation = rectTransform.localRotation;
         }
 
-        // ÄÃ·¯ º¹¿ø
+        // ï¿½Ã·ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (itemImage != null)
         {
             itemImage.color = originalColor;
         }
 
-        // ÀÎº¥Åä¸® ¾ÆÀÌÅÛ ÄÄÆ÷³ÍÆ® °¡Á®¿À±â
+        // ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (inventoryItem != null)
         {
             originalGridPosition = inventoryItem.GridPosition;
@@ -223,7 +223,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             if (itemImage == null) itemImage = GetComponent<Image>();
             if (inventoryItem == null) inventoryItem = GetComponent<InventoryItem>();
             if (inventoryItem == null) inventoryItem = GetComponent<InventoryItem>();
-            // »ö»ó ÀúÀå
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (itemImage != null)
             {
                 originalColor = itemImage.color;
@@ -233,7 +233,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             if (parentCanvas == null)
             {
                 parentCanvas = GetComponentInParent<Canvas>();
-                // ... ±âÁ¸ ÄÚµå ...
+                // ... ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ ...
             }
 
             if (parentCanvas != null)
@@ -246,30 +246,30 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                 Debug.LogWarning("No canvas found for physics item!");
             }
 
-            // GridÀÇ Scale È®ÀÎ ¹× ÀúÀå
+            // Gridï¿½ï¿½ Scale È®ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             ItemGrid grid = FindAnyObjectByType<ItemGrid>();
             if (grid != null)
             {
                 RectTransform gridRectTransform = grid.GetComponent<RectTransform>();
                 if (gridRectTransform != null)
                 {
-                    // GridÀÇ Scale °ªÀ» ÀúÀå
+                    // Gridï¿½ï¿½ Scale ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     originalScale = gridRectTransform.localScale;
                     Debug.Log($"Saved grid scale: {originalScale}");
                 }
             }
             else if (rectTransform != null && rectTransform.localScale != Vector3.zero)
             {
-                // Grid¸¦ Ã£Áö ¸øÇß´Ù¸é ÇöÀç ½ºÄÉÀÏ ÀúÀå
+                // Gridï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ß´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 originalScale = rectTransform.localScale;
             }
             else
             {
-                // ±âº»°ªÀ¸·Î ¼³Á¤
-                originalScale = new Vector3(6, 6, 1); // GridÀÇ ScaleÀÌ 6ÀÎ °æ¿ì
+                // ï¿½âº»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                originalScale = new Vector3(6, 6, 1); // Gridï¿½ï¿½ Scaleï¿½ï¿½ 6ï¿½ï¿½ ï¿½ï¿½ï¿½
             }
 
-            // ¿ø·¡ È¸Àü°ª ÀúÀå
+            // ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             originalRotation = rectTransform.localRotation;
 
             if (inventoryItem != null)
@@ -288,7 +288,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
 
     #region Physics Methods
     /// <summary>
-    /// ¹°¸® ½Ã½ºÅÛ È°¼ºÈ­ ¹× ÃÊ±â ¼Óµµ ¼³Á¤
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­ ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void ActivatePhysics(Vector2? initialVelocity = null, Vector2? position = null)
     {
@@ -296,37 +296,43 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
 
         try
         {
-            // ¿ÀºêÁ§Æ® È°¼ºÈ­ »óÅÂ º¸Àå
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             gameObject.SetActive(true);
 
-            // Äµ¹ö½º ÂüÁ¶ È®ÀÎ ¹× ÃÊ±âÈ­
+            // Äµï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ ï¿½Ê±ï¿½È­
             EnsureCanvasReference();
 
-            // ÃÊ±â »óÅÂ ¼³Á¤
+            // ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             isPhysicsActive = true;
             velocity = initialVelocity ?? initialImpulse;
             isSleeping = false;
             lastMoveTime = Time.time;
             UpdateScreenBounds();
 
-            // À§Ä¡°¡ ÁöÁ¤µÈ °æ¿ì ¸í½ÃÀûÀ¸·Î ¼³Á¤
+            // ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (position.HasValue && rectTransform != null)
             {
                 Vector2 safePosisiton = EnsurePositionWithinScreen(position.Value);
                 rectTransform.position = new Vector3(safePosisiton.x, safePosisiton.y, rectTransform.position.z);
             }
 
-            // Grid ¹Û¿¡ ÀÖÀ» ¶§´Â ScaleÀ» 6,6,1·Î ¼³Á¤
+            // Grid ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Scaleï¿½ï¿½ 6,6,1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             rectTransform.localScale = new Vector3(6, 6, 1);
 
-            // ¾ÆÀÌÅÛ ÀÌ¹ÌÁö ÄÄÆ÷³ÍÆ® »óÅÂ È®ÀÎ
+            // InventoryItemì˜ í˜„ì¬ íšŒì „ ìƒíƒœ ìœ ì§€
+            if (inventoryItem != null)
+            {
+                rectTransform.localRotation = Quaternion.Euler(0, 0, inventoryItem.IsRotated ? 90f : 0f);
+            }
+
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
             EnsureItemVisibility();
 
-            // È°¼ºÈ­ ½Ã°£ ±â·Ï
+            // È°ï¿½ï¿½È­ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½
             ActivationFrame = Time.frameCount;
             ActivationTime = Time.time;
 
-            // ÀÚµ¿ º¸È£ ¼³Á¤ - 10ÃÊ µ¿¾È º¸È£
+            // ï¿½Úµï¿½ ï¿½ï¿½È£ ï¿½ï¿½ï¿½ï¿½ - 10ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£
             SetProtected(false, 10f);
 
             Debug.Log($"Physics activated on {gameObject.name}, frame: {ActivationFrame}, position: {rectTransform.position}, scale: {rectTransform.localScale}");
@@ -336,36 +342,36 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             Debug.LogError($"Error in ActivatePhysics: {e.Message}");
         }
     }
-    // À§Ä¡°¡ È­¸é ¾È¿¡ ÀÖ´ÂÁö È®ÀÎÇÏ°í ÇÊ¿ä½Ã Á¶Á¤ÇÏ´Â ¸Ş¼­µå
+    // ï¿½ï¿½Ä¡ï¿½ï¿½ È­ï¿½ï¿½ ï¿½È¿ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Ê¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ş¼ï¿½ï¿½ï¿½
     private Vector2 EnsurePositionWithinScreen(Vector2 position)
     {
         if (canvasRectTransform == null)
         {
-            // Äµ¹ö½º ÂüÁ¶°¡ ¾øÀ¸¸é ¸ÕÀú ÃÊ±âÈ­ ½Ãµµ
+            // Äµï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½Ãµï¿½
             EnsureCanvasReference();
 
-            // ¿©ÀüÈ÷ ¾øÀ¸¸é ¿ø·¡ À§Ä¡ ¹İÈ¯
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½È¯
             if (canvasRectTransform == null) return position;
         }
 
-        // Äµ¹ö½º ÁÂÇ¥°è¿¡¼­ È­¸é °æ°è °è»ê
+        // Äµï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½è¿¡ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         Vector3[] corners = new Vector3[4];
         canvasRectTransform.GetWorldCorners(corners);
 
-        // ¿ŞÂÊ ¾Æ·¡(0)¿Í ¿À¸¥ÂÊ À§(2) ÄÚ³Ê »ç¿ë
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½(0)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½(2) ï¿½Ú³ï¿½ ï¿½ï¿½ï¿½
         float minX = corners[0].x + rectTransform.sizeDelta.x * 0.5f;
         float maxX = corners[2].x - rectTransform.sizeDelta.x * 0.5f;
         float minY = corners[0].y + rectTransform.sizeDelta.y * 0.5f;
         float maxY = corners[2].y - rectTransform.sizeDelta.y * 0.5f;
 
-        // ¾ÈÀü ¸¶Áø Ãß°¡
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
         float safeMargin = 10f;
         minX += safeMargin;
         maxX -= safeMargin;
         minY += safeMargin;
         maxY -= safeMargin;
 
-        // À§Ä¡ Á¶Á¤
+        // ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
         float safeX = Mathf.Clamp(position.x, minX, maxX);
         float safeY = Mathf.Clamp(position.y, minY, maxY);
 
@@ -375,7 +381,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     {
         if (parentCanvas != null) return;
 
-        // Äµ¹ö½º °Ë»ö ·ÎÁ÷
+        // Äµï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½ ï¿½ï¿½ï¿½ï¿½
         Transform current = transform;
         while (current != null)
         {
@@ -389,16 +395,16 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             current = current.parent;
         }
 
-        // °èÃş¿¡¼­ Ã£Áö ¸øÇß´Ù¸é ¾À¿¡¼­ °Ë»ö
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ß´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½
         if (parentCanvas == null)
         {
-            // ¸ÕÀú UI °èÃş ±¸Á¶¿¡¼­ Ã£±â ½Ãµµ
+            // ï¿½ï¿½ï¿½ï¿½ UI ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½Ãµï¿½
             GameObject combatUI = GameObject.Find("CombatUI");
             Transform canvasTransform = null;
 
             if (combatUI != null)
             {
-                // CombatUI/Canvas °æ·Î Ã£±â
+                // CombatUI/Canvas ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
                 canvasTransform = combatUI.transform.Find("Canvas");
                 if (canvasTransform != null)
                 {
@@ -411,12 +417,12 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                 }
             }
 
-            // ¸ø Ã£¾ÒÀ¸¸é ¸ğµç Äµ¹ö½º °Ë»ö
+            // ï¿½ï¿½ Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Äµï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½
             if (parentCanvas == null)
             {
                 Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
 
-                // ¿À¹ö·¹ÀÌ ¸ğµåÀÎ Äµ¹ö½º ¿ì¼± Ã£±â
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Äµï¿½ï¿½ï¿½ï¿½ ï¿½ì¼± Ã£ï¿½ï¿½
                 foreach (var canvas in canvases)
                 {
                     if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
@@ -427,7 +433,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                     }
                 }
 
-                // ¸ø Ã£¾ÒÀ¸¸é Ã¹ ¹øÂ° Äµ¹ö½º »ç¿ë
+                // ï¿½ï¿½ Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¹ ï¿½ï¿½Â° Äµï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
                 if (parentCanvas == null && canvases.Length > 0)
                 {
                     parentCanvas = canvases[0];
@@ -436,7 +442,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             }
         }
 
-        // Äµ¹ö½º Ã£¾ÒÀ¸¸é rectTransform ¼³Á¤
+        // Äµï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ rectTransform ï¿½ï¿½ï¿½ï¿½
         if (parentCanvas != null)
         {
             canvasRectTransform = parentCanvas.GetComponent<RectTransform>();
@@ -445,17 +451,17 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     }
     private void EnsureItemVisibility()
     {
-        // ÀÌ¹ÌÁö ÄÄÆ÷³ÍÆ® È®ÀÎ
+        // ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® È®ï¿½ï¿½
         if (itemImage != null)
         {
-            // ºñÈ°¼ºÈ­µÈ °æ¿ì È°¼ºÈ­
+            // ï¿½ï¿½È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­
             if (!itemImage.enabled)
             {
                 itemImage.enabled = true;
                 Debug.Log("Enabled item image component");
             }
 
-            // Åõ¸íµµ È®ÀÎ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
             if (itemImage.color.a < 0.5f)
             {
                 Color color = itemImage.color;
@@ -465,7 +471,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             }
         }
 
-        // Äµ¹ö½º ±×·ìµµ È®ÀÎ
+        // Äµï¿½ï¿½ï¿½ï¿½ ï¿½×·ìµµ È®ï¿½ï¿½
         CanvasGroup group = GetComponent<CanvasGroup>();
         if (group != null && group.alpha < 0.5f)
         {
@@ -475,7 +481,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     }
 
     /// <summary>
-    /// ¹°¸® ½Ã¹Ä·¹ÀÌ¼ÇÀ» ºñÈ°¼ºÈ­ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¹Ä·ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void DeactivatePhysics()
     {
@@ -484,22 +490,22 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     }
 
     /// <summary>
-    /// ¹°¸® »óÅÂ¸¦ ¸Å ÇÁ·¹ÀÓ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void UpdatePhysics(float deltaTime)
     {
         try
         {
-            // ±Ø´ÜÀûÀÎ À§Ä¡ °Ë»ç ¹× º¸Á¤
+            // ï¿½Ø´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½Ë»ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             ResetPositionIfExtreme();
 
-            // ÀÌ¹ÌÁö Ç¥½Ã »óÅÂ °£ÇæÀû Ã¼Å© (¸ğµç ÇÁ·¹ÀÓ¸¶´Ù ÇÒ ÇÊ¿ä ¾øÀ½)
+            // ï¿½Ì¹ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å© (ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ó¸ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ê¿ï¿½ ï¿½ï¿½ï¿½ï¿½)
             if (Time.frameCount % 120 == 0)
             {
                 EnsureItemVisibility();
             }
 
-            // 'Sleep' »óÅÂ Ã¼Å© - ¼Óµµ°¡ ¸Å¿ì ³·°í ÀÏÁ¤ ½Ã°£ µ¿¾È Å« º¯È­°¡ ¾øÀ¸¸é
+            // 'Sleep' ï¿½ï¿½ï¿½ï¿½ Ã¼Å© - ï¿½Óµï¿½ï¿½ï¿½ ï¿½Å¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ Å« ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             if (!isSleeping && velocity.sqrMagnitude < minimumVelocity * 0.5f)
             {
                 if (Time.time - lastMoveTime > 1.0f)
@@ -509,10 +515,10 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                 }
             }
 
-            // 'Sleep' »óÅÂ¸é ¹°¸® °è»ê ÃÖ¼ÒÈ­
+            // 'Sleep' ï¿½ï¿½ï¿½Â¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½È­
             if (isSleeping)
             {
-                // Sleep »óÅÂ¿¡¼­´Â Ãæµ¹ °Ë»ç¸¸ °¡²û ¼öÇà
+                // Sleep ï¿½ï¿½ï¿½Â¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ ï¿½Ë»ç¸¸ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 if (Time.frameCount % 30 == 0)
                 {
                     CheckBoundaryCollisions();
@@ -523,7 +529,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             // Apply gravity
             velocity += Vector2.down * gravityScale * deltaTime;
 
-            // ¼Óµµ ÇÑ°è ¼³Á¤ (³Ê¹« ºü¸£Áö ¾Êµµ·Ï)
+            // ï¿½Óµï¿½ ï¿½Ñ°ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½Ê¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Êµï¿½ï¿½ï¿½)
             float maxSpeed = 2000f;
             float currentSpeed = velocity.magnitude;
             if (currentSpeed > maxSpeed)
@@ -531,13 +537,13 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                 velocity = velocity.normalized * maxSpeed;
             }
 
-            // ÀÌÀü À§Ä¡ ÀúÀå (¿òÁ÷ÀÓ °¨Áö¿ë)
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
             Vector3 oldPosition = rectTransform.position;
 
             // Update position
             rectTransform.position += (Vector3)velocity * deltaTime;
 
-            // ¿òÁ÷ÀÓ °¨Áö
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             float movement = Vector3.Distance(oldPosition, rectTransform.position);
             if (movement > 0.5f)
             {
@@ -552,10 +558,10 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             // Check boundary collisions
             CheckBoundaryCollisions();
 
-            // ±Ø´ÜÀûÀÎ À§Ä¡ ´Ù½Ã °Ë»ç (Ãæµ¹ Ã³¸® ÈÄ)
+            // ï¿½Ø´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½Ù½ï¿½ ï¿½Ë»ï¿½ (ï¿½æµ¹ Ã³ï¿½ï¿½ ï¿½ï¿½)
             ResetPositionIfExtreme();
 
-            // °ø±â ÀúÇ× Àû¿ë (°¨¼Ó)
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½)
             velocity *= dragDamping;
 
             // Stop if velocity is too low
@@ -574,10 +580,10 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     {
         if (rectTransform == null || !isPhysicsActive) return;
 
-        // ÇöÀç À§Ä¡ °¡Á®¿À±â
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         Vector3 currentPos = rectTransform.position;
 
-        // ±Ø´ÜÀûÀÎ °ª Ã¼Å© (¡¾100,000 ÀÌ»ó)
+        // ï¿½Ø´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Ã¼Å© (ï¿½ï¿½100,000 ï¿½Ì»ï¿½)
         bool isExtremePosition = Mathf.Abs(currentPos.x) > 100000f ||
                                  Mathf.Abs(currentPos.y) > 100000f ||
                                  Mathf.Abs(currentPos.z) > 100000f;
@@ -591,13 +597,13 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
         {
             Debug.LogWarning($"Extreme position detected: {currentPos}. Resetting position.");
 
-            // Äµ¹ö½º°¡ ÀÖÀ¸¸é Áß¾ÓÀ¸·Î ¸®¼Â, ¾øÀ¸¸é ¿øÁ¡À¸·Î
+            // Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             if (canvasRectTransform != null)
             {
                 Vector3[] corners = new Vector3[4];
                 canvasRectTransform.GetWorldCorners(corners);
 
-                // Äµ¹ö½º Áß¾Ó °è»ê
+                // Äµï¿½ï¿½ï¿½ï¿½ ï¿½ß¾ï¿½ ï¿½ï¿½ï¿½
                 Vector3 center = new Vector3(
                     (corners[0].x + corners[2].x) * 0.5f,
                     (corners[0].y + corners[2].y) * 0.5f,
@@ -611,56 +617,56 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                 rectTransform.position = new Vector3(Screen.width / 2, Screen.height / 2, currentPos.z);
             }
 
-            // ¼Óµµ ÃÊ±âÈ­
+            // ï¿½Óµï¿½ ï¿½Ê±ï¿½È­
             velocity = Vector2.zero;
 
-            // Sleep »óÅÂ ÇØÁ¦
+            // Sleep ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             isSleeping = false;
             lastMoveTime = Time.time;
         }
     }
 
     /// <summary>
-    /// È­¸é °æ°è¿ÍÀÇ Ãæµ¹À» Ã¼Å©ÇÏ°í ¹İÀÀÇÕ´Ï´Ù.
+    /// È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½ Ã¼Å©ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void CheckBoundaryCollisions()
     {
-        // Äµ¹ö½º°¡ ¾ø°Å³ª RectTransformÀÌ ¾øÀ¸¸é Ãæµ¹ Ã³¸® ºÒ°¡
+        // Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Å³ï¿½ RectTransformï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ Ã³ï¿½ï¿½ ï¿½Ò°ï¿½
         if (canvasRectTransform == null || rectTransform == null) return;
 
         try
         {
-            // Äµ¹ö½º ÁÂÇ¥°è¿¡¼­ È­¸é °æ°è °è»ê
+            // Äµï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½è¿¡ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             Vector3[] corners = new Vector3[4];
             canvasRectTransform.GetWorldCorners(corners);
 
-            // °æ°è °ª
+            // ï¿½ï¿½ï¿½ ï¿½ï¿½
             float minX = corners[0].x;
             float maxX = corners[2].x;
             float minY = corners[0].y;
             float maxY = corners[2].y;
             
-            // ¼³Á¤µÈ ¹Ù´Ú À§Ä¡ »ç¿ë (Manager¿¡¼­ Àü´Ş¹ŞÀº °ª)
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù´ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ (Managerï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ş¹ï¿½ï¿½ï¿½ ï¿½ï¿½)
             if (FloorY > 0)
             {
-                minY = FloorY; // ¹öÆ° À§·Î ¹Ù´Ú ¼³Á¤
+                minY = FloorY; // ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½ ï¿½Ù´ï¿½ ï¿½ï¿½ï¿½ï¿½
             }
 
-            // RectTransformÀÇ Å©±â Àı¹İ (Ãæµ¹ °¨Áö¿ë)
+            // RectTransformï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
             Vector2 halfSize = rectTransform.sizeDelta * rectTransform.localScale / 2f;
             Vector3 pos = rectTransform.position;
 
-            // °æ°è Ãæµ¹ ¹× ¹Ù¿î½º ·ÎÁ÷
+            // ï¿½ï¿½ï¿½ ï¿½æµ¹ ï¿½ï¿½ ï¿½Ù¿î½º ï¿½ï¿½ï¿½ï¿½
             bool collided = false;
 
-            // XÃà Ãæµ¹ Ã³¸®
+            // Xï¿½ï¿½ ï¿½æµ¹ Ã³ï¿½ï¿½
             if (pos.x + halfSize.x > maxX)
             {
                 pos.x = maxX - halfSize.x;
                 velocity.x = -velocity.x * bounceMultiplier;
                 collided = true;
 
-                // ¼Óµµ°¡ ¸Å¿ì ³·À¸¸é ºÎµå·´°Ô ¸ØÃã
+                // ï¿½Óµï¿½ï¿½ï¿½ ï¿½Å¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµå·´ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 if (Mathf.Abs(velocity.x) < 50f)
                 {
                     velocity.x *= 0.5f;
@@ -678,7 +684,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                 }
             }
 
-            // YÃà Ãæµ¹ Ã³¸®
+            // Yï¿½ï¿½ ï¿½æµ¹ Ã³ï¿½ï¿½
             if (pos.y + halfSize.y > maxY)
             {
                 pos.y = maxY - halfSize.y;
@@ -694,16 +700,16 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             {
                 pos.y = minY + halfSize.y;
                 velocity.y = -velocity.y * bounceMultiplier;
-                velocity.x *= groundFriction; // ¹Ù´Ú¿¡ ´ê¾ÒÀ» ¶§ XÃà ¸¶Âû Àû¿ë
+                velocity.x *= groundFriction; // ï¿½Ù´Ú¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Xï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 collided = true;
 
-                // ¹Ù´Ú¿¡ ´êÀ¸¸é XÃà ¼Óµµ¸¦ ´õ ¸¹ÀÌ °¨¼Ò½ÃÅ´ (»¡¸® Á¤ÁöÇÏµµ·Ï)
+                // ï¿½Ù´Ú¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Xï¿½ï¿½ ï¿½Óµï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½Å´ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½)
                 if (Mathf.Abs(velocity.y) < 50f)
                 {
                     velocity.y *= 0.3f;
                 }
 
-                // ¹Ù´Ú¿¡ ´êÀ» ¶§ ÀÏÁ¤ È®·ü·Î È¿°úÀ½ Àç»ı
+                // ï¿½Ù´Ú¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
                 if (velocity.magnitude > 300f)
                 {
                     float volume = Mathf.Clamp01(velocity.magnitude / 1000f) * 0.3f;
@@ -711,12 +717,12 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                 }
             }
 
-            // Ãæµ¹ÀÌ ÀÖ¾ú´Ù¸é À§Ä¡ ¾÷µ¥ÀÌÆ®
+            // ï¿½æµ¹ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
             if (collided)
             {
                 rectTransform.position = pos;
-                lastMoveTime = Time.time; // Ãæµ¹Àº '¿òÁ÷ÀÓ'À¸·Î °£ÁÖ
-                isSleeping = false; // Ãæµ¹ÀÌ ÀÖÀ¸¸é Sleep »óÅÂ ÇØÁ¦
+                lastMoveTime = Time.time; // ï¿½æµ¹ï¿½ï¿½ 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                isSleeping = false; // ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Sleep ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             }
         }
         catch (System.Exception e)
@@ -725,21 +731,21 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
         }
     }
     /// <summary>
-    /// È­¸é °æ°è Á¤º¸¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+    /// È­ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½Õ´Ï´ï¿½.
     /// </summary>
     private void UpdateScreenBounds()
     {
         if (canvasRectTransform != null)
         {
-            // Äµ¹ö½ºÀÇ °æ°è °è»ê
+            // Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             Vector3[] corners = new Vector3[4];
             canvasRectTransform.GetWorldCorners(corners);
 
-            // ÁÂÇÏ´Ü°ú ¿ì»ó´Ü ÄÚ³Ê ±âÁØÀ¸·Î °æ°è °è»ê
+            // ï¿½ï¿½ï¿½Ï´Ü°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             Vector3 bottomLeft = corners[0];
             Vector3 topRight = corners[2];
 
-            // Áß¾Ó ±âÁØ È­¸é Å©±âÀÇ Àı¹İ °ª
+            // ï¿½ß¾ï¿½ ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ Å©ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
             screenBounds = new Vector2(
                 (topRight.x - bottomLeft.x) * 0.5f,
                 (topRight.y - bottomLeft.y) * 0.5f
@@ -750,7 +756,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
 
     #region Interaction Methods
     /// <summary>
-    /// ¾ÆÀÌÅÛ µå·¡±× ½ÃÀÛ
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½å·¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void StartDrag(Vector2 touchPosition)
     {
@@ -761,14 +767,23 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
             isBeingDragged = true;
             lastTouchPosition = touchPosition;
 
-            // ¹°¸® ¾ÆÀÌÅÛÀ» µå·¡±×ÇÒ ¶§´Â ScaleÀ» 6,6,1·Î À¯Áö
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½å·¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Scaleï¿½ï¿½ 6,6,1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             rectTransform.localScale = new Vector3(6, 6, 1);
-            rectTransform.rotation = originalRotation;
 
-            // ¹°¸® È¿°ú ºñÈ°¼ºÈ­
+            // InventoryItemì˜ í˜„ì¬ íšŒì „ ìƒíƒœ ìœ ì§€
+            if (inventoryItem != null)
+            {
+                rectTransform.localRotation = Quaternion.Euler(0, 0, inventoryItem.IsRotated ? 90f : 0f);
+            }
+            else
+            {
+                rectTransform.rotation = originalRotation;
+            }
+
+            // ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­
             DeactivatePhysics();
 
-            // ÅÍÄ¡ À§Ä¡ + ¿ÀÇÁ¼ÂÀ¸·Î ÀÌµ¿ (À§·Î »ìÂ¦ ¶ç¿ò)
+            // ï¿½ï¿½Ä¡ ï¿½ï¿½Ä¡ + ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Â¦ ï¿½ï¿½ï¿½)
             Vector2 liftedPosition = touchPosition + Vector2.up * itemLiftOffset;
             rectTransform.position = liftedPosition;
             Debug.Log($"Started dragging physics item: {gameObject.name}, scale: {rectTransform.localScale}");
@@ -779,7 +794,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
         }
     }
     /// <summary>
-    /// ¾ÆÀÌÅÛ µå·¡±× Áß À§Ä¡ ¾÷µ¥ÀÌÆ®
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½å·¡ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     /// </summary>
     public void UpdateDragPosition(Vector2 touchPosition)
     {
@@ -798,7 +813,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ µå·¡±× Á¾·á
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½å·¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void EndDrag(ItemGrid targetGrid, Vector2 finalPosition)
     {
@@ -808,21 +823,21 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
         {
             isBeingDragged = false;
 
-            // ±×¸®µå ¹èÄ¡ ½Ãµµ
+            // ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½Ãµï¿½
             if (targetGrid != null)
             {
-                // ±×¸®µå À§Ä¡ È®ÀÎ
+                // ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ È®ï¿½ï¿½
                 Vector2Int gridPosition = targetGrid.GetGridPosition(finalPosition);
                 Debug.Log($"Grid position: {gridPosition}, can place: {targetGrid.IsValidPosition(gridPosition) && targetGrid.CanPlaceItem(inventoryItem, gridPosition)}");
 
-                // À¯È¿ÇÑ ±×¸®µå À§Ä¡ÀÌ°í ¹èÄ¡ °¡´ÉÇÏ¸é ±×¸®µå¿¡ ¹èÄ¡
+                // ï¿½ï¿½È¿ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½Ì°ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½×¸ï¿½ï¿½å¿¡ ï¿½ï¿½Ä¡
                 if (targetGrid.IsValidPosition(gridPosition) &&
                     targetGrid.CanPlaceItem(inventoryItem, gridPosition))
                 {
-                    // ±×¸®µå¿¡ ¹èÄ¡ÇÏ±â Àü¿¡ ScaleÀ» 1,1,1·Î º¯°æ
+                    // ï¿½×¸ï¿½ï¿½å¿¡ ï¿½ï¿½Ä¡ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ Scaleï¿½ï¿½ 1,1,1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     rectTransform.localScale = Vector3.one;
 
-                    // ±×¸®µå¿¡ ¹èÄ¡
+                    // ï¿½×¸ï¿½ï¿½å¿¡ ï¿½ï¿½Ä¡
                     rectTransform.SetParent(targetGrid.transform, false);
                     targetGrid.PlaceItem(inventoryItem, gridPosition);
                     DeactivatePhysics();
@@ -830,19 +845,19 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
                 }
             }
 
-            // À¯È¿ÇÏÁö ¾ÊÀº À§Ä¡¸é ¹°¸® È°¼ºÈ­ (ScaleÀº ActivatePhysics¿¡¼­ Ã³¸®)
+            // ï¿½ï¿½È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­ (Scaleï¿½ï¿½ ActivatePhysicsï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½)
             Vector2 dragVelocity = (finalPosition - lastTouchPosition) * 5f;
             ActivatePhysics(dragVelocity);
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Error in EndDrag: {e.Message}");
-            // ¿À·ù ¹ß»ı ½Ã ¹°¸® È¿°ú È°¼ºÈ­
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ È°ï¿½ï¿½È­
             ActivatePhysics();
         }
     }
     /// <summary>
-    /// ¾ÆÀÌÅÛ È¸Àü
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½
     /// </summary>
     public void Rotate()
     {
@@ -853,7 +868,7 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
     }
 
     /// <summary>
-    /// ÃâÇö À§Ä¡ ¼³Á¤
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void SetSpawnPosition(Vector3 position)
     {
@@ -865,16 +880,16 @@ public class PhysicsInventoryItem : MonoBehaviour, IPooledObject
         return inventoryItem?.GetWeaponData();
     }
     /// <summary>
-    /// ¿ÀºêÁ§Æ® Ç®·Î ¾ÆÀÌÅÛ ¹İÈ¯
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
     /// </summary>
     public void ReturnToPool()
     {
         if (!useObjectPool || ObjectPool.Instance == null) return;
 
-        // ¹°¸® ºñÈ°¼ºÈ­
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­
         DeactivatePhysics();
 
-        // Ç®·Î ¹İÈ¯
+        // Ç®ï¿½ï¿½ ï¿½ï¿½È¯
         ObjectPool.Instance.ReturnToPool(poolTag, gameObject);
     }
 }

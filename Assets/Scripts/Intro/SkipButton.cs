@@ -10,12 +10,17 @@ public class SkipButton : MonoBehaviour
 
     private Coroutine hideButtonCoroutine;
     private TouchActions touchActions;
-    private bool skipProcessed = false;  // �ߺ� ȣ�� ������ �÷���
+    // 마우스 입력 지원용
+    private InputAction mousePress;
+    private bool skipProcessed = false;  // 중복 호출 방지를 위한 플래그
 
     private void Awake()
     {
-        // TouchActions �ʱ�ȭ
+        // TouchActions 초기화
         touchActions = new TouchActions();
+
+        // 마우스 입력 액션 초기화
+        mousePress = new InputAction("MousePress", InputActionType.Button, "<Mouse>/leftButton");
 
         // ��ư ����
         if (skipButton == null)
@@ -32,17 +37,26 @@ public class SkipButton : MonoBehaviour
 
     private void OnEnable()
     {
-        // Input Actions Ȱ��ȭ
+        // Input Actions 활성화
         touchActions.Enable();
-        touchActions.Touch.Press.started += OnTouchStarted;
-        skipProcessed = false;  // �ʱ�ȭ
+        touchActions.Touch.Press.started += OnInputStarted;
+
+        // 마우스 입력 활성화
+        mousePress.Enable();
+        mousePress.started += OnInputStarted;
+
+        skipProcessed = false;  // 초기화
     }
 
     private void OnDisable()
     {
-        // Input Actions ��Ȱ��ȭ
-        touchActions.Touch.Press.started -= OnTouchStarted;
+        // Input Actions 비활성화
+        touchActions.Touch.Press.started -= OnInputStarted;
         touchActions.Disable();
+
+        // 마우스 입력 비활성화
+        mousePress.started -= OnInputStarted;
+        mousePress.Disable();
 
         // �ڷ�ƾ ����
         if (hideButtonCoroutine != null)
@@ -52,8 +66,9 @@ public class SkipButton : MonoBehaviour
         }
     }
 
-    private void OnTouchStarted(InputAction.CallbackContext context)
+    private void OnInputStarted(InputAction.CallbackContext context)
     {
+        Debug.Log("Input detected - activating skip button");
         ActivateSkipButton();
     }
 
@@ -114,9 +129,16 @@ public class SkipButton : MonoBehaviour
     {
         if (touchActions != null)
         {
-            touchActions.Touch.Press.started -= OnTouchStarted;
+            touchActions.Touch.Press.started -= OnInputStarted;
             touchActions.Disable();
             touchActions.Dispose();
+        }
+
+        if (mousePress != null)
+        {
+            mousePress.started -= OnInputStarted;
+            mousePress.Disable();
+            mousePress.Dispose();
         }
 
         if (skipButton != null)
